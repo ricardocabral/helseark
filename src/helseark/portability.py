@@ -559,8 +559,9 @@ def _retained_person_metadata(vault, person):
     retained = []
     for path in sorted(_receipt_paths(vault)):
         data = _read(vault.root, path)
-        if person.encode() in data:
-            value = _json(vault.root, path)
+        value = _json(vault.root, path, data=data)
+        # JSON escapes can spell the same UUID without its literal byte string.
+        if person.encode() in encode_json(value):
             retained.append({'path':path, 'sha256':hash_bytes(data), 'size':len(data),
                              'personId':person, 'sourceHead':value['plan']['sourceHeads'].get(person)})
     return tuple(retained)

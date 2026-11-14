@@ -66,7 +66,8 @@ def test_resealed_impossible_receipts_are_rejected(tmp_path, wrapper):
     assert path.read_bytes() == original and not doctor(vault).issues
 
 
-def test_migrated_removal_discloses_approved_local_residue_and_restores(tmp_path):
+@pytest.mark.parametrize('escaped_uuid', [False, True], ids=['literal', 'escaped'])
+def test_migrated_removal_discloses_approved_local_residue_and_restores(tmp_path, escaped_uuid):
     from helseark.portability import (plan_person_erasure, apply_person_erasure,
                                      restore_person_erasure, read_erasure_plan)
     from helseark.serialization import hash_bytes
@@ -77,6 +78,12 @@ def test_migrated_removal_discloses_approved_local_residue_and_restores(tmp_path
     vault = open_vault(receipt.destination)
     person, other = sorted(p.name for p in (vault.root/'people').iterdir())
     original = receipt.mappingInventoryPath.read_bytes()
+    if escaped_uuid:
+        escaped = person.replace('-', '\\u002d', 1).encode()
+        original = original.replace(person.encode(), escaped)
+        assert person.encode() not in original
+        receipt.mappingInventoryPath.write_bytes(original)
+        assert not doctor(vault).issues
     selected, other_before = inventory(vault.root/'people'/person), inventory(vault.root/'people'/other)
     removal = plan_person_erasure(vault, person, tmp_path/'quarantine')
     expected = ({'path': 'migrations/'+receipt.mappingInventoryPath.name,
