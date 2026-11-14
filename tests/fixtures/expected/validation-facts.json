@@ -1,0 +1,18 @@
+{
+  "license": "CC0-1.0",
+  "source": "../synthetic/validation/source.json",
+  "facts": {
+    "person": "Synthetic Person A",
+    "label": "Synthetic CRP",
+    "status": "final",
+    "numericValue": "0.050",
+    "comparator": "<",
+    "unit": "mg/L",
+    "datePrecision": "month",
+    "effectiveDateTime": "2026-11",
+    "rangeText": "less than 5 mg/L",
+    "timezone": "unknown",
+    "contradictorySourceValues": ["2.0", "3.0"],
+    "reconciliation": "unresolved"
+  }
+}

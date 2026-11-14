@@ -185,7 +185,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
         _write(stage / "vault.json", encode_json(asdict(config)))
         _write(stage / "README.md", b"Helseark archive format 1. Accepted JSON is authoritative.\n"
                b"Do not edit accepted history. Staging is unpublished and ignored.\n"
-               b"Task 1 supports init/person add only; no clinical import or full FHIR validation.\n"
+               b"Offline baseline validation and schema export are available; imports still require a reviewed publication workflow.\n"
                b"Copy this whole folder while no writer is active to retain definitions and history.\n")
         open_vault(stage)
         _sync_tree(stage)
@@ -202,7 +202,11 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
             shutil.rmtree(stage)
 
 
-def open_vault(root: Path) -> Vault:
+def open_definitions(root: Path) -> Vault:
+    """Open verified vault config/definitions without reading any patient state.
+
+    Intended for schema discovery only. Clinical operations use open_vault.
+    """
     root = Path(root).absolute()
     if root.is_symlink():
         raise ArchiveError("UNSAFE_PATH", "Vault root cannot be a symlink.")
@@ -228,6 +232,13 @@ def open_vault(root: Path) -> Vault:
             if hash_bytes(data) != entry["sha256"] or len(data) != entry["size"]:
                 raise ArchiveError("DEFINITION_MISMATCH", "Definition inventory checksum mismatch.", {"path": "definitions/" + entry["path"]})
     _schema(vault, "vault", value)
+    return vault
+
+
+def open_vault(root: Path) -> Vault:
+    """Open definitions and verify every person's full accepted history."""
+    vault = open_definitions(root)
+    root = vault.root
     for relative in ("people",):
         if not _safe(root, relative).is_dir():
             raise ArchiveError("INTEGRITY", "Missing vault directory.", {"path": relative})
@@ -510,7 +521,7 @@ def add_person(vault: Vault, details: PersonDraft, *, clock=None, uuid_factory=N
             digest = hash_bytes(encode_json(proposal))
             validation = {"checkedProposalSha256": digest, "coverage": [
                 {"family": "narrow-patient-constructor", "result": "passed", "reason": None},
-                {"family": "full-fhir-and-terminology", "result": "not-checked", "reason": "Task 2 definitions not installed."}], "issues": []}
+                {"family": "full-fhir-and-terminology", "result": "not-checked", "reason": "No full FHIR validator or terminology engine executed."}], "issues": []}
             _write(temporary / "validation.json", encode_json(validation))
             review = {"contractVersion": "0.1.0", "decision": "accept", "personId": person,
                       "proposalSha256": digest, "validationSha256": hash_bytes(encode_json(validation)),

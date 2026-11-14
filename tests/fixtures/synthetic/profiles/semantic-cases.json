@@ -1,0 +1,1197 @@
+[
+  {
+    "id": "unknown-no-value",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "unknown",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "Do not invent a value or absence explanation; evidence and review still required."
+  },
+  {
+    "id": "text-only-absence",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "dataAbsentReason": {
+        "text": "Source says result unavailable"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "obs-6, source evidence and human review.",
+    "syntheticSourceText": "Result unavailable"
+  },
+  {
+    "id": "source-assertion-narrative",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueString": "Source reports scant synthetic growth; identification unresolved."
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "Retain source attribution; no inferred organism, diagnosis or code.",
+    "syntheticSourceText": "Scant synthetic growth; identification unresolved."
+  },
+  {
+    "id": "valueBoolean",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueBoolean": false
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "One value choice only; preserve false/zero/precision without inventing a timezone."
+  },
+  {
+    "id": "valueInteger",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueInteger": 0
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "One value choice only; preserve false/zero/precision without inventing a timezone."
+  },
+  {
+    "id": "valueTime",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueTime": "09:15:00"
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "One value choice only; preserve false/zero/precision without inventing a timezone."
+  },
+  {
+    "id": "valueDateTime",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueDateTime": "2026-11"
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "One value choice only; preserve false/zero/precision without inventing a timezone."
+  },
+  {
+    "id": "valuePeriod",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valuePeriod": {
+        "start": "2026-11-01",
+        "end": "2026-11-02"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "One value choice only; preserve false/zero/precision without inventing a timezone."
+  },
+  {
+    "id": "narrative-only-report",
+    "resource": {
+      "resourceType": "DiagnosticReport",
+      "id": "00000002-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000002-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-diagnostic-report|0.1.0"
+        ]
+      },
+      "status": "amended",
+      "code": {
+        "text": "Synthetic laboratory report"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "effectiveDateTime": "2026-11-12",
+      "performer": [
+        {
+          "identifier": {
+            "system": "https://example.invalid/synthetic-issuers",
+            "value": "LAB-1"
+          },
+          "display": "Synthetic lab issuer"
+        }
+      ],
+      "conclusion": "Synthetic source report contains narrative only; no discrete results supplied."
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "No invented discrete results; verify source issuer/conclusion evidence."
+  },
+  {
+    "id": "derived-from-observation",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueString": "Derived synthetic narrative",
+      "derivedFrom": [
+        {
+          "reference": "Observation/00000023-1111-4111-8111-111111111111/_history/00000023-9999-4999-8999-999999999999"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "Resolve exact revision, target profile and same-person ownership offline."
+  },
+  {
+    "id": "derived-from-documentreference",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueString": "Derived synthetic narrative",
+      "derivedFrom": [
+        {
+          "reference": "DocumentReference/00000004-1111-4111-8111-111111111111/_history/00000004-9999-4999-8999-999999999999"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "supported-shape",
+    "unexecutedObligation": "Resolve exact revision, target profile and same-person ownership offline."
+  },
+  {
+    "id": "correction-revision",
+    "resource": {
+      "resourceType": "Provenance",
+      "id": "00000005-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000005-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+        ]
+      },
+      "target": [
+        {
+          "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000002-9999-4999-8999-999999999999"
+        }
+      ],
+      "recorded": "2026-11-14T15:00:00Z",
+      "agent": [
+        {
+          "who": {
+            "identifier": {
+              "system": "https://example.invalid/synthetic-local-actors",
+              "value": "local-reviewer"
+            },
+            "display": "Synthetic local actor; no clinician attestation"
+          }
+        }
+      ],
+      "entity": [
+        {
+          "role": "source",
+          "what": {
+            "reference": "DocumentReference/00000004-1111-4111-8111-111111111111/_history/00000004-9999-4999-8999-999999999999"
+          }
+        },
+        {
+          "role": "revision",
+          "what": {
+            "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000090-9999-4999-8999-999999999999"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "requires-context",
+    "unexecutedObligation": "Supply prior immutable report revision in selected-person inventory; verify supersedes relation, source entity and exact produced target revision. Prior revision deliberately absent here."
+  },
+  {
+    "id": "revision-is-not-source",
+    "resource": {
+      "resourceType": "Provenance",
+      "id": "00000005-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000005-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+        ]
+      },
+      "target": [
+        {
+          "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000002-9999-4999-8999-999999999999"
+        }
+      ],
+      "recorded": "2026-11-14T15:00:00Z",
+      "agent": [
+        {
+          "who": {
+            "identifier": {
+              "system": "https://example.invalid/synthetic-local-actors",
+              "value": "local-reviewer"
+            },
+            "display": "Synthetic local actor; no clinician attestation"
+          }
+        }
+      ],
+      "entity": [
+        {
+          "role": "revision",
+          "what": {
+            "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000090-9999-4999-8999-999999999999"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Revision entity cannot satisfy mandatory source DocumentReference entity."
+  },
+  {
+    "id": "component-value-and-absence",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "Synthetic component"
+          },
+          "valueString": "present",
+          "dataAbsentReason": {
+            "text": "absent"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Execute helseark-component-absence."
+  },
+  {
+    "id": "component-two-values",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "Synthetic component"
+          },
+          "valueInteger": 1,
+          "valueString": "one"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Enforce component value choice exclusivity."
+  },
+  {
+    "id": "same-code-value-and-component",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueString": "present",
+      "component": [
+        {
+          "code": {
+            "text": "Trace analyte"
+          },
+          "valueString": "present"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Execute inherited obs-7."
+  },
+  {
+    "id": "quantity-code-without-system",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueQuantity": {
+        "value": 1,
+        "code": "synthetic"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Execute inherited qty-3."
+  },
+  {
+    "id": "inverted-range",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueRange": {
+        "low": {
+          "value": 5
+        },
+        "high": {
+          "value": 2
+        }
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Execute inherited Range ordering rule with applicable comparability checks."
+  },
+  {
+    "id": "sampled-data",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueSampledData": {
+        "origin": {
+          "value": 0
+        },
+        "period": 1,
+        "dimensions": 1,
+        "data": "1 2"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Reject unsupported SampledData choice."
+  },
+  {
+    "id": "unsupported-derived-from",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "derivedFrom": [
+        {
+          "reference": "MolecularSequence/00000091-1111-4111-8111-111111111111"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Reject unsupported target and require revision closure."
+  },
+  {
+    "id": "inherited-focus",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "focus": [
+        {
+          "reference": "Patient/00000092-1111-4111-8111-111111111111"
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Apply supported-field/reference policy and patient isolation to inherited fields."
+  },
+  {
+    "id": "inherited-device",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "device": {
+        "reference": "Device/00000093-1111-4111-8111-111111111111"
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Reject unsupported structured device reference; retain source bytes with issue."
+  },
+  {
+    "id": "simple-quantity-referenceRange-low",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "referenceRange": [
+        {
+          "low": {
+            "value": 1,
+            "comparator": "<"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-referenceRange-high",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "referenceRange": [
+        {
+          "high": {
+            "value": 5,
+            "comparator": "<"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-valueRange-low",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueRange": {
+        "low": {
+          "value": 1,
+          "comparator": "<"
+        }
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-valueRange-high",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "valueRange": {
+        "high": {
+          "value": 5,
+          "comparator": "<"
+        }
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-component-referenceRange-low",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "A"
+          },
+          "referenceRange": [
+            {
+              "low": {
+                "value": 1,
+                "comparator": "<"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-component-referenceRange-high",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "A"
+          },
+          "referenceRange": [
+            {
+              "high": {
+                "value": 5,
+                "comparator": "<"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-component-valueRange-low",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "A"
+          },
+          "valueRange": {
+            "low": {
+              "value": 1,
+              "comparator": "<"
+            }
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "simple-quantity-component-valueRange-high",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "component": [
+        {
+          "code": {
+            "text": "A"
+          },
+          "valueRange": {
+            "high": {
+              "value": 5,
+              "comparator": "<"
+            }
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Resolve pinned SimpleQuantity locally and reject comparator; schema alone accepts it."
+  },
+  {
+    "id": "extension-only-subject-reference",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "_reference": {
+          "extension": [
+            {
+              "url": "https://example.invalid/unknown",
+              "valueString": "unknown"
+            }
+          ]
+        }
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require literal subject.reference and direct person match; min=1 is insufficient."
+  },
+  {
+    "id": "extension-only-status",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "_status": {
+        "extension": [
+          {
+            "url": "https://example.invalid/unknown",
+            "valueString": "unknown"
+          }
+        ]
+      }
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require literal clinical status; do not substitute archive acceptance."
+  },
+  {
+    "id": "extension-only-actor-identifier",
+    "resource": {
+      "resourceType": "Provenance",
+      "id": "00000005-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000005-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+        ]
+      },
+      "target": [
+        {
+          "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000002-9999-4999-8999-999999999999"
+        }
+      ],
+      "recorded": "2026-11-14T15:00:00Z",
+      "agent": [
+        {
+          "who": {
+            "identifier": {
+              "system": "https://example.invalid/synthetic-local-actors",
+              "_value": {
+                "extension": [
+                  {
+                    "url": "https://example.invalid/unknown",
+                    "valueString": "unknown"
+                  }
+                ]
+              }
+            },
+            "display": "Synthetic local actor; no clinician attestation"
+          }
+        }
+      ],
+      "entity": [
+        {
+          "role": "source",
+          "what": {
+            "reference": "DocumentReference/00000004-1111-4111-8111-111111111111/_history/00000004-9999-4999-8999-999999999999"
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require explicit literal actor identity, not a display label or extension-only identifier."
+  },
+  {
+    "id": "extension-only-attachment-title",
+    "resource": {
+      "resourceType": "DocumentReference",
+      "id": "00000004-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000004-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0"
+        ]
+      },
+      "status": "current",
+      "docStatus": "amended",
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "content": [
+        {
+          "attachment": {
+            "contentType": "text/plain",
+            "url": "assets/sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/blob",
+            "_title": {
+              "extension": [
+                {
+                  "url": "https://example.invalid/unknown",
+                  "valueString": "unknown"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require literal attachment metadata and confined retained-asset URL; cardinality alone is insufficient."
+  },
+  {
+    "id": "extension-only-attachment-contentType",
+    "resource": {
+      "resourceType": "DocumentReference",
+      "id": "00000004-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000004-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0"
+        ]
+      },
+      "status": "current",
+      "docStatus": "amended",
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "content": [
+        {
+          "attachment": {
+            "url": "assets/sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/blob",
+            "title": "SYNTHETIC example report (asset placeholder)",
+            "_contentType": {
+              "extension": [
+                {
+                  "url": "https://example.invalid/unknown",
+                  "valueString": "unknown"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require literal attachment metadata and confined retained-asset URL; cardinality alone is insufficient."
+  },
+  {
+    "id": "extension-only-attachment-url",
+    "resource": {
+      "resourceType": "DocumentReference",
+      "id": "00000004-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000004-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0"
+        ]
+      },
+      "status": "current",
+      "docStatus": "amended",
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "content": [
+        {
+          "attachment": {
+            "contentType": "text/plain",
+            "title": "SYNTHETIC example report (asset placeholder)",
+            "_url": {
+              "extension": [
+                {
+                  "url": "https://example.invalid/unknown",
+                  "valueString": "unknown"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "schemaValid": true,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Require literal attachment metadata and confined retained-asset URL; cardinality alone is insufficient."
+  },
+  {
+    "id": "offsetless-datetime",
+    "resource": {
+      "resourceType": "Observation",
+      "id": "00000010-1111-4111-8111-111111111111",
+      "meta": {
+        "versionId": "00000010-9999-4999-8999-999999999999",
+        "lastUpdated": "2026-11-14T15:00:00Z",
+        "profile": [
+          "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+        ]
+      },
+      "status": "final",
+      "code": {
+        "text": "Trace analyte"
+      },
+      "subject": {
+        "reference": "Patient/00000001-1111-4111-8111-111111111111"
+      },
+      "effectiveDateTime": "2026-11-12T09:15:00"
+    },
+    "schemaValid": false,
+    "expectedBaseline": "reject",
+    "unexecutedObligation": "Retain raw clock text and issue; never invent an offset."
+  }
+]
