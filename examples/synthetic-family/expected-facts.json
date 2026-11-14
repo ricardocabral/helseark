@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "license": "CC0-1.0",
+  "oracle": "independent expected behavior; no model evaluation",
+  "cases": [
+    {"id":"transcription", "clinicalStatus":"final", "valueLexeme":"0.050", "history":"retained", "coverage":["native-revision-provenance","explicit-human-review","decimal-scale"]},
+    {"id":"laboratory-amendment", "clinicalStatus":"amended", "newSourceRequired":true, "coverage":["source-hash","explicit-correspondence","native-revision-provenance"]},
+    {"id":"entered-in-error", "defaultTrendContainsTarget":false, "history":"retained", "coverage":["status-filter","immutable-history"]},
+    {"id":"cancelled-report", "cascadeChildren":false, "coverage":["explicit-disposition-review","stale-parent-warning"]},
+    {"id":"person-removal", "otherPersonByteChanges":0, "recoverable":true, "secureDeletion":false, "coverage":["plan-digest","all-heads","writer-lock","resume","restore"]}
+  ],
+  "notChecked":["medical-correctness","model-extraction-accuracy","secure-deletion","network-filesystem-power-loss"]
+}

@@ -905,6 +905,84 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-source-disclosure.schema",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/migrate-archive.md",
+          "sha256": "ebfc9c928b43b52452be347e14ed2fa65469ec897a3271bd04c1acffbf858ff0",
+          "size": 4324
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-migrate-archive",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/compatibility.md",
+          "sha256": "a78461a832e71f5c8401dacdf2b414f4691d04e2cd4bbe5453359fccdb258313",
+          "size": 6685
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-compatibility",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/evolution.md",
+          "sha256": "3374bb3389b1432bea326336fb8c1fbae980116f04848fb1ab299fc96d84b34a",
+          "size": 2002
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-evolution",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/correct-record.md",
+          "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
+          "size": 2198
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-correct-record",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/manage-family.md",
+          "sha256": "8733b7f675a9b95f40723bcc0af71e06fc0f99f1662f336bc80c410019aa6d19",
+          "size": 5196
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-manage-family",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/migration.schema.json",
+          "sha256": "fb97ad8e200c87256c8bba08ad610733563df6c7b82c085101cec81ad174771f",
+          "size": 5683
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-migration.schema",
+      "version": "0.1.0"
     }
   ],
   "contractVersion": "0.1.0",

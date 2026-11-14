@@ -1,3 +1,10 @@
+include LICENSE NOTICE SECURITY.md CONTRIBUTING.md AGENTS.md CLAUDE.md
+include tests/fixture-manifest.json tests/family_oracle.py
+recursive-include tests/fixtures *.json *.md *.txt *.pdf *.csv *.py
+recursive-include examples/synthetic-family *.md *.json *.py
+prune docs/internal
+prune .worktrees
+recursive-include scripts *.py
 # Retain the corrected installed oracle and its focused regressions in the sdist.
 include tests/qualify_source_disclosure_installed.py
 include tests/test_source_disclosure.py

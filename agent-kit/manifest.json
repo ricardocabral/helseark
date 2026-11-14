@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "b42503f9724ea50dc56cf5ece1902374a56f76b005d2acc49b5d6e7d2507edc7",
+    "definitionLockSha256": "38bcc79ee0e261c4a95130a0732f868800a35eaeaaae4be72ad6ef2afb887af7",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,8 +14,8 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "68ffb55d6ef0976bd72182c90dc8cd3cb62fb4cd10975f4ac120addb8f90b71b",
-      "size": 10083
+      "sha256": "67377b1912b716223eff39e6282d5dfb275c24a4876137376470f958c0fa470f",
+      "size": 10529
     },
     {
       "path": "START-HERE.md",
@@ -24,13 +24,23 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "b42503f9724ea50dc56cf5ece1902374a56f76b005d2acc49b5d6e7d2507edc7",
-      "size": 34697
+      "sha256": "38bcc79ee0e261c4a95130a0732f868800a35eaeaaae4be72ad6ef2afb887af7",
+      "size": 36891
+    },
+    {
+      "path": "docs/explanation/evolution.md",
+      "sha256": "3374bb3389b1432bea326336fb8c1fbae980116f04848fb1ab299fc96d84b34a",
+      "size": 2002
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
       "sha256": "2af90956a9983bbe5dfe115d342e81e721bca7f19220213135a58812785f6af6",
       "size": 5581
+    },
+    {
+      "path": "docs/how-to/correct-record.md",
+      "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
+      "size": 2198
     },
     {
       "path": "docs/how-to/export-records.md",
@@ -41,6 +51,16 @@
       "path": "docs/how-to/import-report.md",
       "sha256": "8f787a12394a12701e10955a077beb457bbea919850dfb018d9aaaeb305b5cc5",
       "size": 7284
+    },
+    {
+      "path": "docs/how-to/manage-family.md",
+      "sha256": "8733b7f675a9b95f40723bcc0af71e06fc0f99f1662f336bc80c410019aa6d19",
+      "size": 5196
+    },
+    {
+      "path": "docs/how-to/migrate-archive.md",
+      "sha256": "ebfc9c928b43b52452be347e14ed2fa65469ec897a3271bd04c1acffbf858ff0",
+      "size": 4324
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -61,6 +81,11 @@
       "path": "docs/reference/clinical-model.md",
       "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
       "size": 20363
+    },
+    {
+      "path": "docs/reference/compatibility.md",
+      "sha256": "a78461a832e71f5c8401dacdf2b414f4691d04e2cd4bbe5453359fccdb258313",
+      "size": 6685
     },
     {
       "path": "docs/reference/intake.md",
@@ -169,8 +194,8 @@
     },
     {
       "path": "prompts/plan-migration.md",
-      "sha256": "744f5f9a0ac46716d4cacb5fd5a485aa58ebd91f5fe7b1d75503140ca688ba29",
-      "size": 2203
+      "sha256": "f985ecfd662473bb12263c4ad40d67c32c7249bdf97630e47cb1c35179b15360",
+      "size": 2343
     },
     {
       "path": "prompts/prepare-export.md",
@@ -179,8 +204,8 @@
     },
     {
       "path": "prompts/propose-correction.md",
-      "sha256": "59ed1c23098267b5a623e133ed56ec57e05629f781feedb25783ed3865f1aa13",
-      "size": 3790
+      "sha256": "9f7a7058dd9d1c097fdf4f2bc2235e07b95b1a2b16e1b63d3d42a57b4e661923",
+      "size": 4504
     },
     {
       "path": "prompts/query-with-evidence.md",
@@ -233,6 +258,11 @@
       "size": 4012
     },
     {
+      "path": "schemas/0.1.0/migration.schema.json",
+      "sha256": "fb97ad8e200c87256c8bba08ad610733563df6c7b82c085101cec81ad174771f",
+      "size": 5683
+    },
+    {
       "path": "schemas/0.1.0/proposal.schema.json",
       "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
       "size": 7165
@@ -264,8 +294,8 @@
     },
     {
       "path": "skills/correct-records/SKILL.md",
-      "sha256": "63a87e978f867ff5d2674182b61a90237380da2de259bef982515995c048157a",
-      "size": 1804
+      "sha256": "902add95b57afdb4b8a29fbc9382e74c53af0969a722dd2ab824fe05390ee221",
+      "size": 2171
     },
     {
       "path": "skills/export-records/SKILL.md",
@@ -284,8 +314,8 @@
     },
     {
       "path": "skills/migrate-archive/SKILL.md",
-      "sha256": "0415e7b893b13cf26bf6733fc0a36138da863d856f57408d95afdac2306807f0",
-      "size": 1548
+      "sha256": "778df9791cf5a455c4b02b7541c6f3decdeba2d119b415b84b139ba5bf9107cb",
+      "size": 1897
     },
     {
       "path": "skills/query-history/SKILL.md",
@@ -562,10 +592,10 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/propose-correction.md",
-      "sha256": "59ed1c23098267b5a623e133ed56ec57e05629f781feedb25783ed3865f1aa13",
+      "sha256": "9f7a7058dd9d1c097fdf4f2bc2235e07b95b1a2b16e1b63d3d42a57b4e661923",
       "skillId": "correct-records",
-      "skillSha256": "63a87e978f867ff5d2674182b61a90237380da2de259bef982515995c048157a",
-      "skillVersion": "0.1.0",
+      "skillSha256": "902add95b57afdb4b8a29fbc9382e74c53af0969a722dd2ab824fe05390ee221",
+      "skillVersion": "0.1.1",
       "taskIds": [
         "correct"
       ],
@@ -633,7 +663,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "id": "prepare-export",
@@ -776,10 +806,10 @@
       ],
       "outputContractIds": [],
       "path": "prompts/plan-migration.md",
-      "sha256": "744f5f9a0ac46716d4cacb5fd5a485aa58ebd91f5fe7b1d75503140ca688ba29",
+      "sha256": "f985ecfd662473bb12263c4ad40d67c32c7249bdf97630e47cb1c35179b15360",
       "skillId": "migrate-archive",
-      "skillSha256": "0415e7b893b13cf26bf6733fc0a36138da863d856f57408d95afdac2306807f0",
-      "skillVersion": "0.1.0",
+      "skillSha256": "778df9791cf5a455c4b02b7541c6f3decdeba2d119b415b84b139ba5bf9107cb",
+      "skillVersion": "0.1.1",
       "taskIds": [
         "migrate"
       ],
@@ -824,7 +854,7 @@
           "type": "object"
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.1"
     }
   ],
   "protocolVersion": 1,
@@ -1006,10 +1036,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "correction"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -1040,7 +1068,9 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/correct-record.md",
+        "docs/how-to/manage-family.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -1198,10 +1228,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "migration"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -1229,7 +1257,9 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/migrate-archive.md",
+        "docs/reference/compatibility.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -1252,7 +1282,8 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
-        "schemas/0.1.0/agent-evidence-selection.schema.json"
+        "schemas/0.1.0/agent-evidence-selection.schema.json",
+        "schemas/0.1.0/migration.schema.json"
       ],
       "skillPath": "skills/migrate-archive/SKILL.md"
     }

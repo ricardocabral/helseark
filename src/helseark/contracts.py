@@ -431,3 +431,71 @@ class ExportReceipt:
     resourceCount: int
     assetCount: int
     omissions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ErasurePlan:
+    digest: Sha256
+    personId: PersonId
+    baseHeads: dict[str, Head | None]
+    canonicalPaths: tuple[str, ...]
+    workPaths: tuple[str, ...]
+    derivedPaths: tuple[str, ...]
+    quarantineDestination: Path
+    knownExternalCopies: tuple[str, ...]
+    limitations: tuple[str, ...]
+    vaultId: str
+    inventory: dict[str, Sha256]
+    retainedLocalMetadata: tuple[dict[str, JsonValue], ...] = ()
+
+
+@dataclass(frozen=True)
+class ErasureReceipt:
+    quarantinePath: Path
+    removedActivePaths: tuple[str, ...]
+    remainingKnownCopies: tuple[str, ...]
+    retainedLocalMetadata: tuple[dict[str, JsonValue], ...] = ()
+
+
+@dataclass(frozen=True)
+class VersionSet:
+    archiveFormatVersion: int
+    contractVersion: str
+    profileVersion: str
+    fhirVersion: str
+    serializationVersion: str
+
+
+@dataclass(frozen=True)
+class MigrationPlan:
+    planSha256: Sha256
+    sourceHeads: dict
+    sourceVersionSet: VersionSet
+    targetVersionSet: VersionSet
+    transformations: tuple[str, ...]
+    expectedCounts: dict
+    semanticLosses: tuple[dict, ...]
+    blockedRecords: tuple[dict, ...]
+    requiredDefinitions: tuple[dict, ...]
+    sourceInventory: tuple[dict, ...]
+    byteMappings: tuple[dict, ...]
+    planClass: Literal['archive-contract'] = 'archive-contract'
+
+
+@dataclass(frozen=True)
+class FHIRMigrationPlan:
+    planSha256: Sha256
+    sourceVersionSet: VersionSet
+    targetFhirVersion: str
+    semanticLosses: tuple[dict, ...]
+    blockedRecords: tuple[dict, ...]
+    planClass: Literal['fhir-release'] = 'fhir-release'
+
+
+@dataclass(frozen=True)
+class MigrationReceipt:
+    destination: Path
+    mappingInventoryPath: Path
+    validatedCounts: dict
+    validationCoverage: tuple[CheckCoverage, ...]
+    originalUnchanged: bool

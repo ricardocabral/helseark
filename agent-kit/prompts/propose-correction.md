@@ -1,7 +1,7 @@
-# propose-correction — prompt 0.1.0
+# propose-correction — prompt 0.1.1
 
 Fixed task ID: `correct`. Apply [common archive instructions](../AGENTS.md).
-This is renderer input content, not an executable template or supported entry point.
+Render through `agent render`; clinical acceptance remains human controlled.
 Common slots and serialization rules are defined there.
 Host-authorized fresh output directory: {{output_directory}}. This is separate from the read-only context packet; it grants no OS sandbox enforcement. Additional typed slots:
 correspondence_confirmed: boolean; required, trusted human-confirmed source-fact identity; false means report only.
@@ -40,6 +40,16 @@ according to the current clinical model. No archive versionId/lastUpdated in
 candidate meta. Record exact source quotes/locators; generated evidence cannot
 stand in for clinical evidence. The report itemizes all unsupported/omitted
 content and actual validation coverage. Existing `validate candidate` checks
-untrusted bytes only; unavailable preparation/review/publication remain gates.
+untrusted bytes only; prepare/review/commit require explicit host control and exact human decisions.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
+
+Use `correct --person ... --resource ... --reason 'transcription: ...'` to allocate
+an editable local draft. Keep its candidate ID and host-controlled mapping; do not
+invent acceptance authority. Error-entry and cancellation require their explicit
+reason prefixes and status changes. Lab-issued amendments require new source
+intake and explicit `candidate prepare --source ... --amendment-target ...
+--amendment-reason ...`; no automatic correspondence or child cascade. Consult the
+[correction guide](../docs/how-to/correct-record.md). Never invoke erasure as a
+correction. Recoverable removal requires a separately inspected plan and exact
+user-approved digest; no purge or secure-deletion claim.
