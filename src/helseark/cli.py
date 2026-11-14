@@ -6,12 +6,16 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-from .archive import init_vault, open_vault, add_person, head, _read
-from .contracts import ArchiveError, PersonDraft, Candidate, Issue, uuid_string
+from .archive import init_vault, open_vault, add_person, head, _read, _open_vault_metadata, _bundled_root
+from .contracts import ArchiveError, PersonDraft, Candidate, Issue, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .serialization import encode_json, decode_json
+from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
+    "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
+    "PERSON_NOT_FOUND": 2, "RESOURCE_NOT_FOUND": 2, "SOURCE_MISSING": 2,
     "ARCHIVE_BUSY": 4, "STALE_BASE": 4,
     "UNSUPPORTED_VERSION": 6, "DEFINITION_MISMATCH": 5,
     "INVALID_JSON": 2, "INVALID_INPUT": 2, "INVALID_PERSON": 2,
@@ -54,10 +58,55 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
+    agent = commands.add_parser("agent", help="Discover tasks and prepare bounded local context; no model execution.")
+    agents = agent.add_subparsers(dest="agent_command", required=True)
+    tasks = agents.add_parser("tasks", help="List kit routes without clinical reads.")
+    tasks.add_argument("--json", action="store_true")
+    context = agents.add_parser("context", help="Build an explicit-person bounded packet.")
+    context.add_argument("--task", required=True)
+    context.add_argument("--person", required=True)
+    context.add_argument("--out", type=Path, required=True)
+    context.add_argument("--source", action="append", default=[])
+    context.add_argument("--resource", action="append", default=[])
+    context.add_argument("--from-date")
+    context.add_argument("--to-date")
+    context.add_argument("--max-records", type=int, default=100)
+    context.add_argument("--max-data-bytes", type=int, default=262144)
+    context.add_argument("--continuation", type=Path, help="Prior context.json; repeats the same selection at its bound head.")
+    context.add_argument("--json", action="store_true")
     try:
         args = parser.parse_args(argv)
         exit_code = 0
-        if args.command == "init":
+        if args.command == "agent":
+            path = args.vault or os.environ.get("HELSEARK_VAULT")
+            if args.agent_command == "tasks":
+                kit_path = _vault_kit(_open_vault_metadata(Path(path)))[0] if path else _bundled_root() / 'agent-kit'
+                output = [document(t) for t in list_agent_tasks(kit_path)]
+            else:
+                if not path:
+                    raise ArchiveError('INVALID_INPUT', 'Provide --vault PATH or HELSEARK_VAULT.')
+                vault = _open_vault_metadata(Path(path))
+                refs = []
+                for value in args.resource:
+                    parts = value.split('/')
+                    if len(parts) == 2:
+                        refs.append(ResourceRef(*parts))
+                    elif len(parts) == 4 and parts[2] == '_history':
+                        refs.append(ResourceRef(parts[0], parts[1], parts[3]))
+                    else:
+                        raise ArchiveError('INVALID_REFERENCE', 'Use Type/UUID or Type/UUID/_history/UUID.')
+                token = None
+                if args.continuation:
+                    prior = decode_json(args.continuation.read_bytes())
+                    try:
+                        raw = prior['continuation']
+                        token = ContextContinuation(raw['personId'], raw['taskId'], Head(**raw['base']), raw['requestSha256'], raw['offset'])
+                    except (KeyError, TypeError):
+                        raise ArchiveError('INVALID_CONTINUATION', 'Prior context must contain a continuation.') from None
+                output = document(build_agent_context(vault, args.person, args.task,
+                    ContextRequest(tuple(args.source), tuple(refs), args.from_date, args.to_date,
+                        args.max_records, args.max_data_bytes, token), args.out))
+        elif args.command == "init":
             vault = init_vault(args.path)
             output = {"vaultId": vault.config.vaultId, "path": str(vault.root)}
         elif args.command == "schema" and not args.vault and not os.environ.get("HELSEARK_VAULT"):
@@ -115,6 +164,9 @@ def main(argv=None):
                 print("Baseline archive checks blocked." if exit_code in {2, 4, 5, 6} else
                       "Baseline archive checks completed; review required; terminology not checked." if exit_code == 3 else
                       "Baseline archive checks passed; terminology not checked. Human review remains mandatory.")
+            elif args.command == 'agent' and args.agent_command == 'tasks':
+                for task in output:
+                    print(task['id'] + ': ' + task['availability']['status'])
             else:
                 print(output.get("personId", output.get("path")))
         return exit_code

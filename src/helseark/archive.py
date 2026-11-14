@@ -163,7 +163,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
     lock_bytes = _read(bundle, "definitions/lock.json")
     if config is None:
         config = VaultConfig(1, "0.1.0", "0.1.0", "4.0.1", "helseark-json-1",
-                             hash_bytes(lock_bytes), None, None, str(uuid4()))
+                             hash_bytes(lock_bytes), "0.1.0", hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
     if config.definitionLockSha256 != hash_bytes(lock_bytes):
         raise ArchiveError("DEFINITION_MISMATCH", "Requested definitions are not bundled.")
     stage = root.parent / f".helseark-init-{uuid4()}"
@@ -187,6 +187,9 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
                b"Do not edit accepted history. Staging is unpublished and ignored.\n"
                b"Offline baseline validation and schema export are available; imports still require a reviewed publication workflow.\n"
                b"Copy this whole folder while no writer is active to retain definitions and history.\n")
+        if config.agentKitVersion is not None:
+            from .agent_context import install_kit
+            install_kit(bundle, Vault(stage, config))
         open_vault(stage)
         _sync_tree(stage)
         # Rename of a nonempty destination fails; never replace a vault.
@@ -202,7 +205,8 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
             shutil.rmtree(stage)
 
 
-def open_vault(root: Path) -> Vault:
+def _open_vault_metadata(root: Path) -> Vault:
+    """Verify nonclinical pins for scoped consumers; they must verify selected history."""
     root = Path(root).absolute()
     if root.is_symlink():
         raise ArchiveError("UNSAFE_PATH", "Vault root cannot be a symlink.")
@@ -210,8 +214,7 @@ def open_vault(root: Path) -> Vault:
     # Check supported pins before reporting a generic envelope error.
     expected = {"archiveFormatVersion": 1, "contractVersion": "0.1.0",
                 "profileVersion": "0.1.0", "fhirVersion": "4.0.1",
-                "serializationVersion": "helseark-json-1",
-                "agentKitVersion": None, "agentKitLockSha256": None}
+                "serializationVersion": "helseark-json-1"}
     if not isinstance(value, dict) or any(value.get(k) != v for k, v in expected.items()):
         raise ArchiveError("UNSUPPORTED_VERSION", "Vault version pins are unsupported.")
     try:
@@ -228,9 +231,20 @@ def open_vault(root: Path) -> Vault:
             if hash_bytes(data) != entry["sha256"] or len(data) != entry["size"]:
                 raise ArchiveError("DEFINITION_MISMATCH", "Definition inventory checksum mismatch.", {"path": "definitions/" + entry["path"]})
     _schema(vault, "vault", value)
+    if (vault.config.agentKitVersion is None) != (vault.config.agentKitLockSha256 is None):
+        raise ArchiveError("UNSUPPORTED_VERSION", "Kit version and digest must be pinned together.")
+    if vault.config.agentKitVersion is not None:
+        from .agent_context import _vault_kit
+        _vault_kit(vault)
     for relative in ("people",):
         if not _safe(root, relative).is_dir():
             raise ArchiveError("INTEGRITY", "Missing vault directory.", {"path": relative})
+    return vault
+
+
+def open_vault(root: Path) -> Vault:
+    vault = _open_vault_metadata(root)
+    root = vault.root
     # Fail closed on corrupt accepted state, including people the caller did not select.
     for path in (root / "people").iterdir():
         try:

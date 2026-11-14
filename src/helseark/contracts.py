@@ -166,3 +166,98 @@ class CommitResult:
     disposition: Literal["committed", "already-accepted"]
     head: Head
     logicalResources: tuple[ResourceRef, ...]
+
+
+AgentTask: TypeAlias = Literal['inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate']
+
+
+@dataclass(frozen=True)
+class ContextContinuation:
+    personId: PersonId
+    taskId: AgentTask
+    base: Head
+    requestSha256: Sha256
+    offset: int
+
+
+@dataclass(frozen=True)
+class ContextRequest:
+    sourceHashes: tuple[Sha256, ...] = ()
+    resourceRefs: tuple[ResourceRef, ...] = ()
+    fromDate: str | None = None
+    toDate: str | None = None
+    maxRecords: int = 100
+    maxDataBytes: int = 262144
+    continuation: ContextContinuation | None = None
+
+    def __post_init__(self):
+        object.__setattr__(self, 'sourceHashes', tuple(self.sourceHashes))
+        object.__setattr__(self, 'resourceRefs', tuple(self.resourceRefs))
+        for digest in self.sourceHashes:
+            sha256_string(digest)
+        if (type(self.maxRecords) is not int or self.maxRecords < 1 or
+                type(self.maxDataBytes) is not int or self.maxDataBytes < 1 or
+                any(not isinstance(ref, ResourceRef) for ref in self.resourceRefs)):
+            raise ArchiveError('INVALID_INPUT', 'Context limits must be positive integers and references typed.')
+
+
+@dataclass(frozen=True)
+class CapabilityAvailability:
+    status: Literal['available', 'unavailable']
+    missingCapabilities: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class AgentTaskDescriptor:
+    id: AgentTask
+    intent: str
+    skillPath: str | None
+    promptIds: tuple[str, ...]
+    requiredInputs: tuple[str, ...]
+    optionalInputs: tuple[str, ...]
+    outputs: tuple[str, ...]
+    permittedOperations: tuple[str, ...]
+    requiredCapabilities: tuple[str, ...]
+    availability: CapabilityAvailability
+    referencePaths: tuple[str, ...]
+    schemaPaths: tuple[str, ...]
+    expectedChecks: tuple[str, ...]
+    scenarioId: str
+
+
+@dataclass(frozen=True)
+class ContextFile:
+    # Instructions/records are packet-relative; contracts/sources are absolute
+    # references into the retained vault. sourcePath always identifies exact bytes.
+    path: str
+    sha256: Sha256
+    size: int
+    sourcePath: str
+
+
+@dataclass(frozen=True)
+class AgentContext:
+    path: Path
+    manifestSha256: Sha256
+    personId: PersonId
+    base: Head
+    taskId: AgentTask
+    kitVersion: str
+    protocolVersion: int
+    instructionPaths: tuple[ContextFile, ...]
+    contractPaths: tuple[ContextFile, ...]
+    selectedSources: tuple[ContextFile, ...]
+    selectedRecords: tuple[ContextFile, ...]
+    returnedCount: int
+    continuation: ContextContinuation | None
+    issues: tuple[Issue, ...]
+    totalCount: int
+    dataBytes: int
+    instructionBytes: int
+    identity: ContextFile
+    availability: CapabilityAvailability
+    permittedOperations: tuple[str, ...]
+    kitManifest: ContextFile
+    evidencePaths: tuple[ContextFile, ...]
+    expectedChecks: tuple[str, ...]
+    outputPaths: tuple[str, ...]
