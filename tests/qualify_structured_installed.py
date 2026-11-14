@@ -49,6 +49,9 @@ assert not events.exists()
 def publish(family,source,mapping):
     cfg=work/(family+'-mapping.json');cfg.write_bytes(encode_json(mapping))
     candidate=run('--vault',vault,'intake',family,source,'--person',person,'--mapping',cfg)
+    # Unchanged copied output keeps exactly the original source-bound issuance.
+    copied=work/(family+'-unchanged-copy');shutil.copytree(candidate['path'],copied)
+    candidate['path']=str(copied)
     proposal=run('--vault',vault,'candidate','prepare',candidate['path'],'--person',person)
     view=run('--vault',vault,'candidate','review',proposal['path'],'--person',person)
     acks={(i['code'],i['resourceRef']):{'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Explicit pre-authored synthetic fixture decision, not clinical approval.'} for i in view['issues'] if i['severity'] in ('review','warning')}
@@ -85,15 +88,49 @@ for family in ('fhir-r4','metrics-csv'):
         bad.write_text('date;value;unit;code;unmapped\n01/02/2026;1,200;mg/L;Q;retained\n')
     untrusted=run('--vault',vault,'intake',family,bad,'--person',person,'--mapping',work/(family+'-mapping.json'))
     assert any(i['severity']=='error' for i in untrusted['unresolved'])
-    metadata=Path(untrusted['path'])/'candidate.json'
-    raw=decode_json(metadata.read_bytes());raw['unresolved']=[]
-    for change_id in (False,True):
-        if change_id:
+    original=Path(untrusted['path'])
+    original_files={p.name:p.read_bytes() for p in original.iterdir()}
+    source_meta=decode_json((original/'candidate.json').read_bytes())
+    source_hash=source_meta['sourceSha256'][0]
+    before={str(p.relative_to(vault/'people'/person/'accepted')):hash_bytes(p.read_bytes()) for p in (vault/'people'/person/'accepted').rglob('*') if p.is_file()}
+    for location in ('same','renamed','external'):
+        for disguise in ('same-id','new-id','legacy-provenance','deleted-coverage'):
             from uuid import uuid4
-            raw['candidateId']=str(uuid4())
-        metadata.write_bytes(encode_json(raw))
-        rejected=subprocess.run([*sandbox,str(console),'--vault',str(vault),'candidate','prepare',untrusted['path'],'--person',person,'--source',raw['sourceSha256'][0],'--json'],cwd=work,env=env,capture_output=True)
-        assert rejected.returncode==5 and decode_json(rejected.stderr)['code']=='CANDIDATE_MISMATCH', (rejected.returncode,rejected.stderr)
+            target=work/(family+'-'+location+'-'+disguise)
+            shutil.copytree(original,target)
+            if location=='same':
+                shutil.rmtree(target);target=original
+            elif location=='renamed':
+                moved=original.parent/str(uuid4());shutil.move(target,moved);target=moved
+            raw=decode_json((target/'candidate.json').read_bytes());raw['unresolved']=[]
+            if disguise!='same-id':raw['candidateId']=str(uuid4())
+            if disguise=='legacy-provenance':
+                raw['producer']={'kind':'local-user','name':'legacy'}
+                raw['producerProvenance']={'provenanceVersion':1,'status':'external-unknown','reason':'Synthetic legacy downgrade'}
+                ev=decode_json((target/'evidence.json').read_bytes());ev['producerProvenance']=raw['producerProvenance']
+                (target/'evidence.json').write_bytes(encode_json(ev))
+            (target/'candidate.json').write_bytes(encode_json(raw))
+            if disguise=='deleted-coverage':(target/'coverage.json').unlink()
+            else:(target/'coverage.json').write_bytes(encode_json({'items':[]}))
+            for explicit in (False,True):
+                flags=['--source',source_hash] if explicit else []
+                rejected=subprocess.run([*sandbox,str(console),'--vault',str(vault),'candidate','prepare',str(target),'--person',person,*flags,'--json'],cwd=work,env=env,capture_output=True)
+                assert rejected.returncode==5 and decode_json(rejected.stderr)['code']=='CANDIDATE_MISMATCH', (rejected.returncode,rejected.stderr)
+            if location=='same':
+                for name,data in original_files.items():(original/name).write_bytes(data)
+    assert before=={str(p.relative_to(vault/'people'/person/'accepted')):hash_bytes(p.read_bytes()) for p in (vault/'people'/person/'accepted').rglob('*') if p.is_file()}
+    assert hash_bytes((vault/'people'/person/'assets/sha256'/source_hash/'blob').read_bytes())==hash_bytes(bad.read_bytes())
+# Schema-valid unsupported extensions in every envelope family block production.
+for location in ('meta','link','search'):
+    raw=decode_json((fixtures/'r4.json').read_bytes())
+    ext=[{'url':'https://example.test/unsupported','valueString':'Synthetic unmapped context'}]
+    if location=='meta':raw['meta']={'extension':ext};pointer='/meta/extension'
+    elif location=='link':raw['link']=[{'relation':'self','url':'https://example.test/export','extension':ext}];pointer='/link/0/extension'
+    else:raw['entry'][1]['search']={'mode':'match','extension':ext};pointer='/entry/1/search/extension'
+    source=work/('envelope-'+location+'.json');source.write_bytes(encode_json(raw))
+    c=run('--vault',vault,'intake','fhir-r4',source,'--person',person,'--mapping',work/'fhir-r4-mapping.json')
+    assert any(i['code']=='FHIR_UNHANDLED' and i['pointer']==pointer and i['severity']=='error' for i in c['unresolved'])
+    run('--vault',vault,'candidate','prepare',c['path'],'--person',person,expected=2)
 assert len(run('--vault',vault,'observations','--person',person))==4
 # Query is still authoritative after all drafts and runtime host controls are removed.
 for path in (vault/'work',vault/'.runtime',vault/'people'/person/'work'):
@@ -120,7 +157,7 @@ for name in ('skills/import-records/SKILL.md','prompts/map-structured-export.md'
         target=link.split('#',1)[0]
         if target and '://' not in target:assert (path.parent/target).resolve().is_file(),(path,target)
 manifest=decode_json((kit/'manifest.json').read_bytes())
-assert manifest['kitVersion']=='0.1.4'
+assert manifest['kitVersion']=='0.1.5'
 for item in manifest['files']:
     data=(kit/item['path']).read_bytes();assert hash_bytes(data)==item['sha256'] and len(data)==item['size']
 # Check every lock asset and installed runtime module against release bytes.
@@ -146,4 +183,4 @@ if len(sys.argv)>4:
     assert before=={str(p.relative_to(old_vault)):hash_bytes(p.read_bytes()) for p in old_vault.rglob('*') if p.is_file()}
     historical={'kitVersion':prior_config['agentKitVersion'],'rows':len(prior_rows),'unchangedFiles':len(before),'autoRepinned':False}
 assert not events.exists()
-print(encode_json({'fhirRows':1,'csvRows':3,'acceptedRows':4,'historicalHeadRows':1,'denialWitnesses':5,'networkAttempts':0,'checkoutReads':0,'otherPersonReads':0,'kernelSandbox':True,'errorWaiverAttemptsBlocked':4,'modelRuns':0,'kitVersion':manifest['kitVersion'],'definitionLockSha256':hash_bytes((root/'definitions/lock.json').read_bytes()),'kitSha256':hash_bytes((kit/'manifest.json').read_bytes()),'modules':modules,'assetClosure':True,'historicalPins':historical}).decode())
+print(encode_json({'fhirRows':1,'csvRows':3,'acceptedRows':4,'historicalHeadRows':1,'denialWitnesses':5,'networkAttempts':0,'checkoutReads':0,'otherPersonReads':0,'kernelSandbox':True,'errorWaiverAttemptsBlocked':48,'nestedEnvelopeAttemptsBlocked':3,'unchangedCopiedJourneys':2,'modelRuns':0,'kitVersion':manifest['kitVersion'],'definitionLockSha256':hash_bytes((root/'definitions/lock.json').read_bytes()),'kitSha256':hash_bytes((kit/'manifest.json').read_bytes()),'modules':modules,'assetClosure':True,'historicalPins':historical}).decode())

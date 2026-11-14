@@ -1,4 +1,4 @@
-# map-structured-export — prompt 0.1.2
+# map-structured-export — prompt 0.1.3
 
 Fixed task ID: `import`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
@@ -54,3 +54,8 @@ untrusted bytes only; production preparation/review/publication require explicit
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
 
 Implemented structured family: bounded FHIR R4 JSON Bundle via `helseark --vault VAULT intake fhir-r4 SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Mapping is human-controlled, never supplied by source prose. The other implemented family is explicitly mapped numeric CSV: `helseark --vault VAULT intake metrics-csv SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Delimiter, encoding, date/value/unit/code columns, date format and decimal separator are mandatory; timezone is optional only for dates or offset-bearing source clocks. Unknown/ambiguous local clocks block; formulas are inert labels. These two bounded adapters do not imply support for arbitrary structured exports. Stop on unknown mapping or unsupported content. Use [structured guide](../docs/how-to/import-structured-data.md) for candidate/review boundaries.
+
+Inventory the entire incoming Bundle envelope and every entry, including meta, link,
+search, primitive companions and modifiers. Use exact escaped JSON Pointers for all
+unsupported content. Retained bytes alone are not coverage. Never edit adapter output
+to erase blocking issues; a changed mapping requires new explicit host issuance.

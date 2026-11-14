@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "94f4dbc37c3c50c3e97db6c9ec32f67469e7750b729433febdc07b31960c5077",
+    "definitionLockSha256": "ce4c6e730a0abce4556c867afc5de6bb8082ba4f0ba2ceac0bb07f7e9316a962",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "94f4dbc37c3c50c3e97db6c9ec32f67469e7750b729433febdc07b31960c5077",
-      "size": 32607
+      "sha256": "ce4c6e730a0abce4556c867afc5de6bb8082ba4f0ba2ceac0bb07f7e9316a962",
+      "size": 32608
     },
     {
       "path": "docs/how-to/import-report.md",
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/how-to/import-structured-data.md",
-      "sha256": "59a2c8dd70352c2d4f16d8a9ff41d640c807aa3d32094231b09695c83c8b10a0",
-      "size": 7104
+      "sha256": "f2545becb68aacf295897d89f3ffcc610f762cb978615382f3fbf8b242f8b643",
+      "size": 8476
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -54,13 +54,13 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "9c2bc2a6808b92b621d34f8fe9a5f40ec351a5b755d6bd7867bc0bdb8816c2ce",
-      "size": 21062
+      "sha256": "74556e5208ab1b57e09635daa6b2fb4434f08d614fe10276568c558489ebfaad",
+      "size": 21485
     },
     {
       "path": "docs/reference/intake.md",
-      "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a",
-      "size": 9254
+      "sha256": "650df39a78f79e3d947eafd8f40228f5b6fe2f61505cd3733130b83f310a8616",
+      "size": 10129
     },
     {
       "path": "docs/reference/pdf-extraction.md",
@@ -159,8 +159,8 @@
     },
     {
       "path": "prompts/map-structured-export.md",
-      "sha256": "d6ae35fa2d9399823b4a540805d457e6d9137728101bee316196e385cbfbad4b",
-      "size": 4812
+      "sha256": "60c202ddec848b9657e6b8dce704342628da6e44711a2078aa4b6a6e77c4006c",
+      "size": 5149
     },
     {
       "path": "prompts/plan-migration.md",
@@ -283,7 +283,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.4",
+  "kitVersion": "0.1.5",
   "prompts": [
     {
       "id": "extract-report",
@@ -389,7 +389,7 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/map-structured-export.md",
-      "sha256": "d6ae35fa2d9399823b4a540805d457e6d9137728101bee316196e385cbfbad4b",
+      "sha256": "60c202ddec848b9657e6b8dce704342628da6e44711a2078aa4b6a6e77c4006c",
       "skillId": "import-records",
       "skillSha256": "c300c3bdc54c6a7365f45320464f27373aee963a2007ce0fc1b54d452afa39fa",
       "skillVersion": "0.1.4",
@@ -455,7 +455,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.2"
+      "version": "0.1.3"
     },
     {
       "id": "query-with-evidence",

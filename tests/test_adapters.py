@@ -10,6 +10,8 @@ from helseark.review import render_review, record_review
 from helseark.query import observations
 from helseark.serialization import decode_json, encode_json
 
+from test_validation import good
+
 FIXTURES = Path(__file__).parent/'fixtures/synthetic/structured'
 
 
@@ -312,3 +314,155 @@ def test_csv_host_mapping_remains_in_accepted_evidence_after_cleanup(tmp_path):
     assert descriptions and all('Trusted local mapping JSON: ' in text for text in descriptions)
     for text in descriptions:
         assert decode_json(text.split('Trusted local mapping JSON: ',1)[1].encode())==document(mapping)
+
+
+@pytest.mark.parametrize('family', ['fhir', 'csv'])
+@pytest.mark.parametrize('location', ['same', 'renamed', 'external'])
+def test_structured_source_authority_survives_candidate_disguise(tmp_path, family, location):
+    """Source/hash flags authorize disclosure, never a replacement mapping."""
+    import shutil
+    from uuid import uuid4
+    v,p,_=setup(tmp_path)
+    if family=='fhir':
+        from helseark.adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+        raw=decode_json((FIXTURES/'r4.json').read_bytes())
+        raw['entry'].append({'resource':{'resourceType':'Medication','id':'hidden','status':'active'}})
+        source=tmp_path/'bad.json';source.write_bytes(encode_json(raw))
+        s=add_source(v,p,source)
+        c=import_fhir_r4(s,p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://example.test/fhir'))
+    else:
+        from helseark.adapters.csv_metrics import import_metrics_csv
+        source=tmp_path/'bad.csv';source.write_bytes(b'date;value;unit;code;hidden\n01/02/2026;1,200;mg/L;Q;retained\n')
+        s=add_source(v,p,source);c=import_metrics_csv(s,p,csv_mapping(p))
+    assert any(i.severity=='error' for i in c.unresolved)
+    with pytest.raises(ArchiveError,match='VALIDATION_BLOCKED'):prepare_candidate(v,c)
+    original={f.name:f.read_bytes() for f in c.path.iterdir()}
+    target=c.path if location=='same' else c.path.parent/str(uuid4()) if location=='renamed' else tmp_path/'disguised'
+    if target!=c.path:shutil.copytree(c.path,target)
+    before=head(v,p)
+    for variant in ('cleared','coverage-deleted','provenance','format','metadata-deleted','renamed-artifacts'):
+        for f in target.iterdir():f.unlink()
+        for name,data in original.items():(target/name).write_bytes(data)
+        meta=decode_json(original['candidate.json']);meta['unresolved']=[]
+        if variant!='cleared':meta['candidateId']=str(uuid4())
+        if variant=='coverage-deleted':(target/'coverage.json').unlink()
+        else:(target/'coverage.json').write_bytes(encode_json({'items':[]}))
+        if variant=='provenance':
+            meta['producer']={'kind':'local-user','name':'legacy'}
+            meta['producerProvenance']={'provenanceVersion':1,'status':'external-unknown','reason':'legacy manual preparation'}
+            ev=decode_json(original['evidence.json']);ev['producerProvenance']=meta['producerProvenance']
+            (target/'evidence.json').write_bytes(encode_json(ev))
+        if variant=='format':
+            mapped=decode_json(original['bundle.json'])
+            doc=next(e['resource'] for e in mapped['entry'] if e['resource']['resourceType']=='DocumentReference')
+            doc['content'][0]['attachment']['contentType']='text/plain'
+            (target/'bundle.json').write_bytes(encode_json(mapped))
+        if variant=='renamed-artifacts':
+            for key in ('bundlePath','evidencePath'):
+                old=meta[key];meta[key]='renamed-'+old;(target/old).rename(target/meta[key])
+        (target/'candidate.json').write_bytes(encode_json(meta))
+        if variant=='metadata-deleted':(target/'candidate.json').unlink()
+        for explicit in (False,True):
+            with pytest.raises(ArchiveError):
+                edited=read_candidate(v,target,person=p)
+                prepare_candidate(v,edited,authorized_sources=(s.sourceSha256,) if explicit else None)
+            assert head(v,p)==before and s.assetPath.read_bytes()==source.read_bytes()
+
+
+@pytest.mark.parametrize('family',['fhir','csv'])
+def test_structured_missing_host_authority_fails_closed(tmp_path,family):
+    import shutil
+    v,p,_=setup(tmp_path)
+    if family=='fhir':s,c=fhir(v,p)
+    else:
+        from helseark.adapters.csv_metrics import import_metrics_csv
+        s=add_source(v,p,FIXTURES/'metrics.csv');c=import_metrics_csv(s,p,csv_mapping(p))
+    # Neither the legacy flag nor truthful editable provenance replaces lost host state.
+    shutil.rmtree(v.root/'.runtime')
+    # A protected source-local receipt may survive runtime cleanup. Remove that
+    # authority too, simulating an unavailable restore, without editing source bytes.
+    receipt=s.assetPath.parent/'structured'
+    if receipt.exists():shutil.rmtree(receipt)
+    before=head(v,p)
+    with pytest.raises(ArchiveError):
+        prepare_candidate(v,read_candidate(v,c.path,person=p),authorized_sources=(s.sourceSha256,))
+    assert head(v,p)==before
+
+
+@pytest.mark.parametrize('location', ['meta','link','search','identifier','primitive','modifier','escaped'])
+def test_fhir_entire_envelope_inventory(tmp_path,location):
+    from helseark.adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+    from helseark.validation import load_definition_registry, _pointer
+    v,p,_=setup(tmp_path);raw=decode_json((FIXTURES/'r4.json').read_bytes())
+    ext=[{'url':'https://example.test/unsupported','valueString':'Synthetic unmapped context'}]
+    if location=='meta':raw['meta']={'extension':ext};expected='/meta/extension'
+    if location=='link':raw['link']=[{'relation':'self','url':'https://example.test/export','extension':ext}];expected='/link/0/extension'
+    if location=='search':raw['entry'][1]['search']={'mode':'match','extension':ext};expected='/entry/1/search/extension'
+    if location=='identifier':raw['identifier']={'system':'https://example.test','value':'x','type':{'extension':ext}};expected='/identifier/type/extension'
+    if location=='primitive':raw['link']=[{'relation':'self','url':'https://example.test/export','_relation':{'extension':ext}}];expected='/link/0/_relation'
+    if location=='modifier':raw['entry'][1]['modifierExtension']=ext;expected='/entry/1/modifierExtension'
+    if location=='escaped':raw['meta']={'unknown/~field':{'extension':ext}};expected='/meta/unknown~1~0field'
+    # Independent upstream validation proves the nested valid cases are not
+    # accidentally blocked by malformed fixture shape. Escaped unknown is invalid.
+    valid=load_definition_registry(v).validate('definitions/fhir-r4-json-schema/fhir.schema.json',raw)
+    assert valid == (location!='escaped')
+    source=tmp_path/'envelope.json';source.write_bytes(encode_json(raw));s=add_source(v,p,source);before=head(v,p)
+    c=import_fhir_r4(s,p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://example.test/fhir'))
+    errors={i.pointer for i in c.unresolved if i.severity=='error' and i.code=='FHIR_UNHANDLED'}
+    assert expected in errors
+    nested=expected+'/extension' if location=='primitive' else expected+'/0/extension' if location=='escaped' else None
+    if nested and location=='primitive':assert nested in errors
+    coverage=decode_json((c.path/'coverage.json').read_bytes())['items']
+    assert any(i['pointer']==expected and i['disposition']=='unsupported-content' for i in coverage)
+    assert _pointer(raw,expected) is not None
+    with pytest.raises(ArchiveError,match='VALIDATION_BLOCKED'):prepare_candidate(v,c)
+    assert head(v,p)==before and s.assetPath.read_bytes()==source.read_bytes()
+
+
+@pytest.mark.parametrize('family',['fhir','csv'])
+def test_unchanged_structured_copy_retains_issuance_after_runtime_cleanup(tmp_path,family):
+    import shutil
+    v,p,_=setup(tmp_path)
+    if family=='fhir':s,c=fhir(v,p)
+    else:
+        from helseark.adapters.csv_metrics import import_metrics_csv
+        s=add_source(v,p,FIXTURES/'metrics.csv');c=import_metrics_csv(s,p,csv_mapping(p))
+    copied=tmp_path/'unchanged';shutil.copytree(c.path,copied)
+    shutil.rmtree(v.root/'.runtime')
+    proposal=prepare_candidate(v,read_candidate(v,copied,person=p),authorized_sources=(s.sourceSha256,))
+    commit_candidate(v,proposal,decision(v,proposal))
+    assert len(list(observations(v,p,ObservationFilter())))==(1 if family=='fhir' else 3)
+
+
+def test_genuine_legacy_source_keeps_explicit_preparation(good):
+    v,c=good
+    meta=decode_json((c.path/'candidate.json').read_bytes())
+    assert not any((v.root/'people'/c.personId/'assets/sha256'/h/'source.json').exists() for h in meta['sourceSha256'])
+    proposal=prepare_candidate(v,read_candidate(v,c.path,person=c.personId),authorized_sources=tuple(meta['sourceSha256']))
+    commit_candidate(v,proposal,decision(v,proposal))
+    assert len(list(observations(v,c.personId,ObservationFilter())))==1
+
+
+def test_fhir_invalid_resource_union_tag_blocks_without_traceback(tmp_path):
+    from helseark.adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+    v,p,_=setup(tmp_path);raw=decode_json((FIXTURES/'r4.json').read_bytes())
+    raw['entry'].append({'resource':{'resourceType':{'invalid':'tag'}}})
+    source=tmp_path/'invalid-tag.json';source.write_bytes(encode_json(raw))
+    c=import_fhir_r4(add_source(v,p,source),p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://example.test/fhir'))
+    assert any(i.severity=='error' and i.pointer=='/entry/3' for i in c.unresolved)
+    with pytest.raises(ArchiveError,match='VALIDATION_BLOCKED'):prepare_candidate(v,c)
+
+
+def test_fhir_unsupported_inventory_pointers_escape_all_keys(tmp_path):
+    from helseark.adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+    from helseark.validation import _pointer
+    v,p,_=setup(tmp_path);raw=decode_json((FIXTURES/'r4.json').read_bytes())
+    raw['unknown/~']='Synthetic unsupported root'
+    raw['entry'][1]['resource']['meta']['unknown/~']='Synthetic unsupported metadata'
+    source=tmp_path/'escaped-fields.json';source.write_bytes(encode_json(raw))
+    c=import_fhir_r4(add_source(v,p,source),p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://example.test/fhir'))
+    pointers={i.pointer for i in c.unresolved if i.code=='FHIR_UNHANDLED'}
+    assert {'/unknown~1~0','/entry/1/resource/meta/unknown~1~0'}<=pointers
+    for pointer in pointers:_pointer(raw,pointer)
+    for item in decode_json((c.path/'coverage.json').read_bytes())['items']:_pointer(raw,item['pointer'])
+    with pytest.raises(ArchiveError,match='VALIDATION_BLOCKED'):prepare_candidate(v,c)

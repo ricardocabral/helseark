@@ -26,12 +26,31 @@ provider mapping requires the human host to use `candidate prepare --reextract
 when these are new assertions. Without that explicit decision, preparation blocks;
 no automatic clinical deduplication occurs. See the review contract for reconciliation.
 Coverage and mapping are in `coverage.json`; its SHA-256 is bound to candidate metadata.
-The trusted host receipt binds candidate and coverage bytes to the explicit mapping.
-Editing issues, bundle, evidence or coverage blocks preparation; rebuild the adapter
-with a revised human-controlled mapping. The original toolkit-owned candidate path
-selects this receipt, so changing candidate IDs or supplying source flags cannot
-erase its blocking errors. Source/agent text cannot waive errors. The full mapping
-is retained in accepted source transformation evidence after drafts are removed.
+The host also issues an immutable receipt under the retained source's
+`structured/<candidate-input-digest>.json`. It binds the person, source hash,
+family, original local mapping, candidate bytes and coverage digest. This protected
+source-side authority is outside the editable candidate and survives runtime cleanup.
+Copies and renamed candidates must match that original issuance exactly, including
+metadata, evidence, artifact paths and coverage. `--source` authorizes source scope;
+it cannot replace a structured mapping or erase its errors. Missing issuance fails
+closed. Rebuild an unaccepted old draft with explicit local configuration if its
+source-side authority is unavailable; do not reconstruct authority by hashing edited
+work files. Accepted history and its old pins remain readable without rebuilding.
+
+Toolkit-retained non-PDF inputs (`source.json`) require this structured issuance.
+Genuine legacy non-intake assets without source receipts keep the explicitly
+authorized legacy preparation route; PDF inputs keep their verified extraction
+and human source-assignment route. Editable producer/provenance or format labels
+never select these exceptions. Protect source receipts and issuance directories
+through the same external host boundary as original assets; these are consistency
+receipts, not signatures against an operator who can rewrite the entire vault.
+
+FHIR unsupported inventory traverses the complete Bundle and every entry, including
+nested envelope metadata, links, search metadata, primitive companions and modifiers.
+Each unhandled field/extension has an escaped JSON Pointer and a blocking issue.
+Retaining the original bytes does not discharge this inventory requirement.
+The full mapping remains in accepted source transformation evidence after drafts
+are removed. Keep source-side issuance with unaccepted drafts when restoring them.
 
 Next run `helseark --vault VAULT candidate prepare CANDIDATE --person PERSON --json`.
 Inspect with `candidate review PROPOSAL --person PERSON --json`. Read the originals,
@@ -90,7 +109,7 @@ that dependency. Errors and identity failures cannot be acknowledged away.
 
 Follow the same explicit prepare/review/commit commands above. Inspect the mapping,
 coverage, transformed date/status fields and exact source cells before any real decision.
-Kit 0.1.4 advertises only bounded FHIR R4 and numeric metric CSV import capabilities.
+Kit 0.1.5 advertises only bounded FHIR R4 and numeric metric CSV import capabilities.
 The optional CSV locator `encoding` field extends the existing evidence contract;
 old evidence without it still means UTF-8. Older pinned vault schemas remain unchanged:
 new encoded-CSV locators require the current definitions and are not auto-migrated.

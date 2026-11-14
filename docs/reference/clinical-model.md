@@ -308,3 +308,10 @@ Mapped numeric CSV rows use the same FHIR Observation profile and review boundar
 Every row stays distinct, status is explicitly unknown, coding is source text or a
 locally declared source namespace, and evidence links to the exact original CSV cell.
 Unknown or ambiguous time/identity/mapping never authorizes acceptance.
+
+
+Structured R4 import inventories unsupported content throughout the export envelope
+and all entries, including nested meta/link/search extensions, primitive companions,
+modifiers and escaped unknown fields. Each has a blocking source pointer; original
+byte retention alone is not a supported disposition. Exact source-local host issuance
+binds mapped candidates and coverage independently of their editable IDs or paths.

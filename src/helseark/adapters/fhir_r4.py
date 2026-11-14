@@ -70,7 +70,12 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
     definitions=schema['definitions']
     def unknown_fields(value, definition, pointer):
         if '$ref' in definition:
-            definition=definitions.get(definition['$ref'].rsplit('/',1)[-1],{})
+            name=definition['$ref'].rsplit('/',1)[-1]
+            # ResourceList is a union; select the actual native schema before
+            # descending through entry.resource (including unsupported types).
+            if name=='ResourceList' and isinstance(value,dict) and isinstance(value.get('resourceType'),str):
+                name=value.get('resourceType')
+            definition=definitions.get(name,{})
         if isinstance(value,dict) and 'properties' in definition:
             for k,v in value.items():
                 child=pointer+'/'+k.replace('~','~0').replace('/','~1')
@@ -78,26 +83,35 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
                 else:unknown_fields(v,definition['properties'][k],child)
         elif isinstance(value,list) and 'items' in definition:
             for n,v in enumerate(value):unknown_fields(v,definition['items'],pointer+'/'+str(n))
-    issues=[]; coverage=[]; aliases={}; items=[]; selected=[]
+    issues=[]; coverage=[]; aliases={}; items=[]; selected=[]; unhandled=set()
     if not registry.validate('definitions/fhir-r4-json-schema/fhir.schema.json',incoming):
         issues.append(Issue('FHIR_SOURCE_SCHEMA_INVALID','error','',None,'Incoming export violates pinned R4 schema before local remapping; original bytes retained.'))
         coverage.append({'pointer':'','disposition':'invalid-native-r4'})
     def unsupported(pointer, disposition='unsupported-content'):
+        if pointer in unhandled:return
+        unhandled.add(pointer)
         coverage.append({'pointer':pointer,'disposition':disposition})
         issues.append(Issue('FHIR_UNHANDLED','error',pointer,None,'Unhandled source content retained; resolve mapping/support before preparation.'))
+    # Inventory the complete native tree, even subtrees of unsupported resources
+    # or envelope fields. Schema validity does not establish supported semantics.
+    unknown_fields(incoming,definitions['Bundle'],'')
+    for pointer,node in _walk(incoming):
+        if isinstance(node,dict):
+            for key in node:
+                if key in {'extension','modifierExtension','contained','implicitRules'} or key.startswith('_'):
+                    unsupported(pointer+'/'+key.replace('~','~0').replace('/','~1'))
     # Export metadata is retained as source-native evidence, not a second graph.
     for k in incoming:
-        coverage.append({'pointer':'/'+k,'disposition':'retained-export-envelope'})
-        if k not in {'resourceType','type','entry','id','meta','identifier','timestamp','total','link'}:unsupported('/'+k)
+        coverage.append({'pointer':'/'+k.replace('~','~0').replace('/','~1'),'disposition':'retained-export-envelope'})
+        if k not in {'resourceType','type','entry','id','meta','identifier','timestamp','total','link'}:unsupported('/'+k.replace('~','~0').replace('/','~1'))
     if not isinstance(incoming.get('type'),str) or incoming.get('type') not in {'collection','document','searchset','history'}:unsupported('/type')
     for n,entry in enumerate(incoming['entry']):
         ptr=f'/entry/{n}'; r=entry.get('resource') if isinstance(entry,dict) else None
         if not isinstance(r,dict) or not isinstance(r.get('resourceType'),str) or r.get('resourceType') not in _SLUGS:
             unsupported(ptr,'unsupported-resource');continue
         for k in entry:
-            if k not in {'fullUrl','resource','search'}:unsupported(ptr+'/'+k)
+            if k not in {'fullUrl','resource','search'}:unsupported(ptr+'/'+k.replace('~','~0').replace('/','~1'))
         kind=r['resourceType'];rid=r.get('id')
-        unknown_fields(r,definitions[kind],ptr+'/resource')
         if not isinstance(r.get('meta',{}),dict):
             raise ArchiveError('INVALID_INPUT','Expected native resource metadata object.')
         if not isinstance(rid,str) or not rid:
@@ -144,15 +158,10 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
                     'http://hl7.org/fhir/StructureDefinition/'+kind+'|4.0.1',*_profile(kind)['profile']}:
                 unsupported(ptr+'/meta/profile','unhandled-source-profile')
         for k in original.get('meta',{}):
-            if k not in {'versionId','lastUpdated','profile'}:unsupported(ptr+'/meta/'+k)
-        for pointer,node in _walk(original):
-            if isinstance(node,dict):
-                for k in node:
-                    if k in {'extension','modifierExtension','contained','implicitRules'} or k.startswith('_'):
-                        unsupported(ptr+pointer+'/'+k)
+            if k not in {'versionId','lastUpdated','profile'}:unsupported(ptr+'/meta/'+k.replace('~','~0').replace('/','~1'))
         for k in original:
             if k not in set(_FIELDS[kind].split())|{'resourceType','id','meta','language','text'}:
-                unsupported(ptr+'/'+k)
+                unsupported(ptr+'/'+k.replace('~','~0').replace('/','~1'))
         if kind=='Patient':continue
         r=deepcopy(original);r['id']=ref.removeprefix('urn:uuid:');r['meta']=_profile(kind)
         # Rewrite only Reference.reference values, never arbitrary equal clinical strings.

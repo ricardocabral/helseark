@@ -355,6 +355,24 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
         data = _regular(path, limits.sourceBytes)
         if hash_bytes(data) != digest:
             raise ArchiveError('SOURCE_HASH_MISMATCH', 'Declared source bytes differ.')
+        # A retained non-PDF intake receipt is host provenance, independent of
+        # editable producer labels, format claims, candidate IDs and locations.
+        # Legacy Task2 assets have no intake receipt; PDF has its own authority.
+        if not data.startswith(b'%PDF-') and ((path.parent/'source.json').exists() or (path.parent/'structured').exists()):
+            receipt = SourceReceipt(person, digest, len(data), 'application/octet-stream', path)
+            _source_bytes(vault, receipt)
+            candidate_digest = _candidate_inputs(directory)[1]
+            authority_path = path.parent/'structured'/f'{candidate_digest}.json'
+            if not authority_path.exists():
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Original structured mapping authority is unavailable; rebuild with explicit local configuration.')
+            authority = _bounded_json(authority_path, limits)
+            if (not isinstance(authority, dict) or authority.get('receiptVersion') != 1 or
+                    authority.get('identityConfirmed') is not True or
+                    authority.get('family') not in ('fhir-r4','csv-metrics') or not isinstance(authority.get('mapping'),dict) or
+                    authority.get('personId') != person or authority.get('sourceHashes') != metadata['sourceSha256'] or
+                    authority.get('structuredCandidateSha256') != candidate_digest or
+                    hash_bytes(_regular(directory/'coverage.json', CANDIDATE_FILE_BYTES)) != authority.get('structuredCoverageSha256')):
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured candidate or coverage differs from original host mapping; rebuild with explicit local configuration.')
         # Legacy non-intake Task2 assets remain supported; PDF intake originals
         # always require their real source/extraction receipts, not agent claims.
         if data.startswith(b'%PDF-'):
@@ -371,19 +389,6 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
                             entry['locator'].get('extractionSha256') != extraction['pagesSha256'] or
                             'bbox' in entry['locator']):
                         raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained page-only extraction.')
-    # Deterministic structured output is bound to the original trusted host
-    # mapping. Editable candidates cannot remove errors or substitute mappings.
-    # The toolkit-owned structured directory, not an editable candidate ID,
-    # selects the original host receipt even with explicit legacy source flags.
-    control_id = directory.name if directory.parent == vault.root/f'people/{person}/work/candidates' else metadata['candidateId']
-    control = _safe(vault.root, f".runtime/intake/{control_id}.json")
-    if control.exists():
-        authority = _bounded_json(control, limits)
-        if isinstance(authority, dict) and 'structuredCandidateSha256' in authority:
-            if (_candidate_inputs(directory)[1] != authority['structuredCandidateSha256'] or
-                    hash_bytes(_regular(directory/'coverage.json', CANDIDATE_FILE_BYTES)) !=
-                    authority.get('structuredCoverageSha256')):
-                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured candidate or coverage differs from original host mapping; rebuild with explicit local configuration.')
     candidate = Candidate(directory, metadata['candidateId'], person, base, bundle, evidence,
         tuple(Issue(**i) for i in metadata['unresolved']))
     # Preserve exact envelope binding: mandatory intake issues must be present,
@@ -608,8 +613,8 @@ def _structured_source(source: SourceReceipt, person: str):
 def _structured_candidate(vault, source, family, mapping, resources, evidence, issues, coverage):
     """One source authority and candidate-envelope boundary for deterministic adapters.
 
-    Mapping digest and coverage are bound in candidate unresolved metadata; editable
-    sidecars are explanatory only. No model/prompt execution is claimed.
+    Immutable source-side issuance binds mapping, candidate and coverage bytes;
+    editable sidecars cannot grant authority. No model/prompt execution is claimed.
     """
     cid = str(uuid4()); base = head(vault, source.personId)
     path = _safe(vault.root, f'people/{source.personId}/work/candidates/{cid}')
@@ -645,8 +650,16 @@ def _structured_candidate(vault, source, family, mapping, resources, evidence, i
             _write(path/name,encode_json(value))
         _write(path/'coverage.json',coverage_bytes)
         control = _safe(vault.root,f'.runtime/intake/{cid}.json'); _mkdir(control.parent)
-        _write(control,encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
-                                  'identityConfirmed':True,
-                                  'structuredCandidateSha256':_candidate_inputs(path)[1],
-                                  'structuredCoverageSha256':hash_bytes(coverage_bytes)}))
+        candidate_digest = _candidate_inputs(path)[1]
+        authority = {'receiptVersion':1, 'personId':source.personId,
+                     'sourceHashes':[source.sourceSha256], 'identityConfirmed':True,
+                     'family':family, 'mapping':document(mapping),
+                     'structuredCandidateSha256':candidate_digest,
+                     'structuredCoverageSha256':hash_bytes(coverage_bytes)}
+        # Source-local immutable issuance receipts outlive disposable runtime and
+        # work directories. Multiple explicit mappings get separate receipts.
+        retained = source.assetPath.parent/'structured'/f'{candidate_digest}.json'
+        _mkdir(retained.parent)
+        _write(retained,encode_json(authority))
+        _write(control,encode_json(authority))
     return read_candidate(vault,path,person=source.personId)

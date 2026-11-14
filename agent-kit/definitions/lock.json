@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "9c2bc2a6808b92b621d34f8fe9a5f40ec351a5b755d6bd7867bc0bdb8816c2ce",
-          "size": 21062
+          "sha256": "74556e5208ab1b57e09635daa6b2fb4434f08d614fe10276568c558489ebfaad",
+          "size": 21485
         }
       ],
       "license": "Apache-2.0",
@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a",
-          "size": 9254
+          "sha256": "650df39a78f79e3d947eafd8f40228f5b6fe2f61505cd3733130b83f310a8616",
+          "size": 10129
         }
       ],
       "license": "Apache-2.0",
@@ -819,8 +819,8 @@
       "files": [
         {
           "path": "docs/how-to/import-structured-data.md",
-          "sha256": "59a2c8dd70352c2d4f16d8a9ff41d640c807aa3d32094231b09695c83c8b10a0",
-          "size": 7104
+          "sha256": "f2545becb68aacf295897d89f3ffcc610f762cb978615382f3fbf8b242f8b643",
+          "size": 8476
         }
       ],
       "license": "Apache-2.0",
