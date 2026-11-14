@@ -6,7 +6,7 @@
     "checkedProposalSha256": {
       "anyOf": [
         {
-          "pattern": "^[0-9a-f]{64}$",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
           "type": "string"
         },
         {

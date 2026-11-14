@@ -23,16 +23,37 @@ def _number(token: str) -> int | Decimal:
     coefficient = whole + (fraction or "")
     scale = exp - len(fraction or "")
     digits = len(coefficient.lstrip("0") or "0")
-    # Apply limits to both the input and the required fixed-form representation.
-    # Otherwise 1e128 would emit 129 coefficient digits that cannot be read back.
-    if digits + max(scale, 0) > 128 or abs(exp) > 128 or abs(scale) > 128:
+    if digits > 128 or abs(exp) > 128:
         raise ArchiveError("NUMERIC_LIMIT", "Number exceeds archive limits.")
-    decimal_position = len(coefficient) + scale
-    expanded = (len(sign) + max(decimal_position, 1)
-                + (1 + max(-scale, 0) if scale < 0 else 0))
-    if expanded > 512:
+    if _fixed_size(sign, digits, scale, not coefficient.strip("0")) > 512:
         raise ArchiveError("NUMERIC_LIMIT", "Expanded number exceeds archive limits.")
     return Decimal(token) if fraction is not None or exponent is not None else int(token)
+
+
+def _fixed_size(sign, digits, scale, zero):
+    if scale >= 0:
+        return len(sign) + (1 if zero else digits + scale)
+    return len(sign) + max(digits + scale, 1) + 1 - scale
+
+
+def _canonical_number(token: str) -> int | Decimal:
+    # Fixed tokens must have a bounded source preimage, not merely fit in memory.
+    if len(token) > 512:
+        raise ArchiveError("NUMERIC_LIMIT", "Canonical number exceeds archive limits.")
+    match = _NUMBER.fullmatch(token)
+    if not match or match[4] is not None:
+        raise ArchiveError("INVALID_JSON", "Canonical numbers require fixed notation.")
+    _, whole, fraction, _ = match.groups()
+    coefficient = (whole + (fraction or "")).lstrip("0") or "0"
+    if fraction is not None:
+        allowed = len(coefficient) <= 128
+    else:
+        # At most 128 zeroes can have been appended by a source exponent.
+        removed = min(len(coefficient) - len(coefficient.rstrip("0")), 128)
+        allowed = len(coefficient) - removed <= 128
+    if not allowed:
+        raise ArchiveError("NUMERIC_LIMIT", "Canonical coefficient exceeds archive limits.")
+    return Decimal(token) if fraction is not None else int(token)
 
 
 def _pairs(pairs):
@@ -69,12 +90,26 @@ def _check_depth_text(text: str):
 
 
 def decode_json(data: bytes) -> JsonValue:
+    """Read source JSON with the original independent token limits."""
+    return _decode_json(data, _number)
+
+
+def decode_canonical_json(data: bytes) -> JsonValue:
+    """Read retained JSON: bounded fixed numbers with a permitted source preimage.
+
+    This validates numeric representation, not whitespace/key canonicality.
+    encode_json(decode_canonical_json(encode_json(value))) is byte-stable.
+    """
+    return _decode_json(data, _canonical_number)
+
+
+def _decode_json(data: bytes, number) -> JsonValue:
     try:
         text = data.decode("utf-8", errors="strict")
         if text.startswith("\ufeff"):
             raise ValueError
         _check_depth_text(text)
-        value = json.loads(text, parse_float=_number, parse_int=_number,
+        value = json.loads(text, parse_float=number, parse_int=number,
                            parse_constant=_reject_constant, object_pairs_hook=_pairs)
         # Also checks escaped lone surrogates, not just UTF-8 input bytes.
         encode_json(value)
@@ -84,18 +119,30 @@ def decode_json(data: bytes) -> JsonValue:
 
 
 def encode_json(value: JsonValue) -> bytes:
+    """Encode the bounded canonical value domain, including source expansions."""
     def render(item, depth):
         if item is None:
             return "null"
         if type(item) is bool:
             return "true" if item else "false"
         if type(item) is int:
-            return str(_number(str(item)))
+            # A 256-digit integer has at most 851 bits; avoid giant str(int).
+            if item.bit_length() > 851:
+                raise ArchiveError("NUMERIC_LIMIT", "Integer exceeds archive limits.")
+            token = str(item)
+            _canonical_number(token)
+            return token
         if isinstance(item, Decimal):
             if not item.is_finite():
                 raise ArchiveError("NUMERIC_LIMIT", "Non-finite decimal.")
-            _number(str(item))
-            return format(item, "f")
+            sign, digits, scale = item.as_tuple()
+            # Size checks precede fixed expansion, even for giant exponents.
+            if len(digits) > 512 or _fixed_size("-" if sign else "", len(digits),
+                                               scale, item.is_zero()) > 512:
+                raise ArchiveError("NUMERIC_LIMIT", "Expanded number exceeds archive limits.")
+            token = "0" if item.is_zero() and scale >= 0 else format(item, "f")
+            _canonical_number(token)
+            return token
         if isinstance(item, str):
             item.encode("utf-8", errors="strict")
             return json.dumps(item, ensure_ascii=False)

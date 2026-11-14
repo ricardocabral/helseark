@@ -54,7 +54,7 @@ def main(argv=None):
             print(output.get("personId", output.get("path")))
         return 0
     except ArchiveError as error:
-        sys.stderr.buffer.write(encode_json({"code": error.code, "message": error.safeMessage}))
+        sys.stderr.buffer.write(encode_json({"code": error.code, "message": error.safeMessage, "details": error.details}))
         return _EXIT.get(error.code, 5)
     except OSError:
         sys.stderr.buffer.write(encode_json({"code": "IO_ERROR", "message": "Archive I/O failed; reopen to determine committed state."}))

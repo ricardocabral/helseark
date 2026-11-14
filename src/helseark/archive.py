@@ -18,7 +18,7 @@ from typing import Iterator
 from jsonschema import Draft202012Validator
 
 from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, uuid_string
-from .serialization import encode_json, decode_json, hash_bytes
+from .serialization import encode_json, decode_canonical_json, hash_bytes
 
 _ENVELOPES = ("proposal.json", "evidence.json", "review.json", "validation.json")
 
@@ -46,26 +46,55 @@ def _read(root: Path, relative: str) -> bytes:
 
 
 def _json(root: Path, relative: str, *, data: bytes | None = None):
+    stored = _read(root, relative) if data is None else data
     try:
-        return decode_json(_read(root, relative) if data is None else data)
-    except ArchiveError as error:
-        error.details.setdefault("path", str(root / relative))
-        raise
+        return decode_canonical_json(stored)
+    except ArchiveError:
+        raise ArchiveError("INTEGRITY", "Invalid stored JSON.", {"path": relative}) from None
 
 
 def _schema(vault: Vault, name: str, value):
     lock_data = _read(vault.root, "definitions/lock.json")
     if hash_bytes(lock_data) != vault.config.definitionLockSha256:
-        raise ArchiveError("DEFINITION_MISMATCH", "Definition lock checksum mismatch.")
+        raise ArchiveError("DEFINITION_MISMATCH", "Definition lock checksum mismatch.", {"path": "definitions/lock.json"})
     relative = f"schemas/0.1.0/{name}.schema.json"
-    lock = decode_json(lock_data)
+    lock = _json(vault.root, "definitions/lock.json", data=lock_data)
     entries = [entry for artifact in lock["artifacts"] for entry in artifact["files"] if entry["path"] == relative]
     schema_data = _read(vault.root, "definitions/" + relative)
     if len(entries) != 1 or hash_bytes(schema_data) != entries[0]["sha256"] or len(schema_data) != entries[0]["size"]:
-        raise ArchiveError("DEFINITION_MISMATCH", "Pinned envelope contract checksum mismatch.")
-    schema = decode_json(schema_data)
+        raise ArchiveError("DEFINITION_MISMATCH", "Pinned envelope contract checksum mismatch.", {"path": "definitions/" + relative})
+    schema = _json(vault.root, "definitions/" + relative, data=schema_data)
+    # Unsupported pins are distinct from malformed supported envelopes, including genesis.
+    if isinstance(value, dict):
+        if "contractVersion" in value and value["contractVersion"] != vault.config.contractVersion:
+            raise ArchiveError("UNSUPPORTED_VERSION", "Envelope contract version is unsupported.", {"path": name + ".json"})
+        pins = value.get("versions")
+        if isinstance(pins, dict) and any(k in pins and pins[k] != v for k, v in _versions(vault).items()):
+            raise ArchiveError("UNSUPPORTED_VERSION", "Envelope version pins are unsupported.", {"path": name + ".json"})
     if not Draft202012Validator(schema).is_valid(value):
-        raise ArchiveError("INVALID_ENVELOPE", "Archive envelope violates its pinned contract.", {"schema": name})
+        raise ArchiveError("INVALID_ENVELOPE", "Archive envelope violates its pinned contract.", {"schema": name, "path": name + ".json"})
+
+
+@contextmanager
+def _stored_location(vault: Vault, directory: Path):
+    """Attach a vault-relative opaque location and classify stored-state failures."""
+    try:
+        yield
+    except ArchiveError as error:
+        prefix = directory.relative_to(vault.root).as_posix()
+        local = error.details.get("path", ".")
+        relative = local if local.startswith("people/") or local.startswith("definitions/") else (Path(prefix) / local).as_posix()
+        # Keep only generated names. Unexpected filenames may contain health data.
+        safe = []
+        for part in PurePosixPath(relative).parts:
+            if not re.fullmatch(r"(?:\.runtime|staging|people|accepted|resources|assets|sha256|blob|definitions|schemas|0\.1\.0|[a-z]+\.schema\.json|(?:vault|change|proposal|evidence|validation|review|lock)\.json|[0-9a-f-]{36}|[0-9]{8}-[0-9a-f-]{36}|[0-9a-f]{64}|[A-Z][A-Za-z0-9]{0,63}-[0-9a-f-]{36}\.json)", part):
+                break
+            safe.append(part)
+        error.details["path"] = "/".join(safe) or "."
+        code = error.code
+        if "accepted" in directory.relative_to(vault.root).parts and code not in ("UNSUPPORTED_VERSION", "DEFINITION_MISMATCH", "IO_ERROR", "UNSAFE_PATH"):
+            code = "INTEGRITY"
+        raise ArchiveError(code, error.safeMessage, error.details) from None
 
 
 def _versions(vault: Vault):
@@ -142,7 +171,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
         stage.mkdir(mode=0o700)
         (stage / "definitions").mkdir()
         _write(stage / "definitions/lock.json", lock_bytes)
-        lock = decode_json(lock_bytes)
+        lock = decode_canonical_json(lock_bytes)
         for artifact in lock["artifacts"]:
             for entry in artifact["files"]:
                 data = _read(bundle, entry["path"])
@@ -191,20 +220,23 @@ def open_vault(root: Path) -> Vault:
         raise ArchiveError("INVALID_ENVELOPE", "Invalid vault configuration.") from None
     lock_data = _read(root, "definitions/lock.json")
     if hash_bytes(lock_data) != vault.config.definitionLockSha256:
-        raise ArchiveError("DEFINITION_MISMATCH", "Definition lock checksum mismatch.")
-    lock = decode_json(lock_data)
+        raise ArchiveError("DEFINITION_MISMATCH", "Definition lock checksum mismatch.", {"path": "definitions/lock.json"})
+    lock = _json(root, "definitions/lock.json", data=lock_data)
     for artifact in lock["artifacts"]:
         for entry in artifact["files"]:
             data = _read(root, "definitions/" + entry["path"])
             if hash_bytes(data) != entry["sha256"] or len(data) != entry["size"]:
-                raise ArchiveError("DEFINITION_MISMATCH", "Definition inventory checksum mismatch.", {"path": entry["path"]})
+                raise ArchiveError("DEFINITION_MISMATCH", "Definition inventory checksum mismatch.", {"path": "definitions/" + entry["path"]})
     _schema(vault, "vault", value)
     for relative in ("people",):
         if not _safe(root, relative).is_dir():
             raise ArchiveError("INTEGRITY", "Missing vault directory.", {"path": relative})
     # Fail closed on corrupt accepted state, including people the caller did not select.
     for path in (root / "people").iterdir():
-        uuid_string(path.name)
+        try:
+            uuid_string(path.name)
+        except ArchiveError:
+            raise ArchiveError("INTEGRITY", "Invalid stored person directory.", {"path": "people"}) from None
         _history(vault, path.name)
     return vault
 
@@ -224,90 +256,97 @@ def _files(root: Path) -> set[str]:
 
 
 def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None):
-    proposal = _json(directory, "proposal.json")
-    evidence = _json(directory, "evidence.json")
-    validation = _json(directory, "validation.json")
-    review = _json(directory, "review.json")
-    for name, value in (("proposal", proposal), ("evidence", evidence), ("validation", validation), ("review", review)):
-        _schema(vault, name, value)
-    digest = hash_bytes(_read(directory, "proposal.json"))
-    previous = base.changeSha256 if base else None
-    if proposal["personId"] != person or evidence["personId"] != person or review["personId"] != person:
-        raise ArchiveError("PERSON_MISMATCH", "Envelope belongs to a different person.")
-    if proposal["baseChangeSha256"] != previous or review["baseChangeSha256"] != previous:
-        raise ArchiveError("STALE_BASE", "Reviewed base differs from accepted history.")
-    if proposal["versions"] != _versions(vault):
-        raise ArchiveError("UNSUPPORTED_VERSION", "Proposal pins differ from the vault.")
-    if (review["proposalSha256"] != digest or validation["checkedProposalSha256"] != digest
-            or review["validationSha256"] != hash_bytes(_read(directory, "validation.json"))
-            or proposal["evidenceSha256"] != hash_bytes(_read(directory, "evidence.json"))):
-        raise ArchiveError("REVIEW_MISMATCH", "Reviewed payload digests do not match.")
-    if any(issue["severity"] == "error" for issue in validation["issues"]) or any(c["result"] == "failed" for c in validation["coverage"]):
-        raise ArchiveError("VALIDATION_BLOCKED", "Failed checks cannot be accepted.")
-    expected_files = set(_ENVELOPES)
-    seen = set()
-    for entry in proposal["resources"]:
-        key = (entry["type"], entry["id"])
-        if key in seen:
-            raise ArchiveError("INTEGRITY", "Duplicate logical resource in one change.")
-        seen.add(key)
-        expected_path = f"resources/{entry['type']}-{entry['id']}.json"
-        if entry["path"] != expected_path:
-            raise ArchiveError("UNSAFE_PATH", "Unexpected resource inventory path.")
-        expected_files.add(expected_path)
-        data = _read(directory, expected_path)
-        resource = _json(directory, expected_path, data=data)
-        if (hash_bytes(data) != entry["sha256"] or not isinstance(resource, dict)
-                or resource.get("resourceType") != entry["type"] or resource.get("id") != entry["id"]
-                or not isinstance(resource.get("meta"), dict)
-                or resource["meta"].get("versionId") != entry["versionId"]):
-            raise ArchiveError("INTEGRITY", "Resource revision or checksum mismatch.", {"path": expected_path})
-        if entry["type"] == "Patient" and entry["id"] != person:
-            raise ArchiveError("PERSON_MISMATCH", "Patient identity differs from person directory.")
-    for asset in proposal["assets"]:
-        if asset["path"] != f"assets/sha256/{asset['sha256']}/blob":
-            raise ArchiveError("UNSAFE_PATH", "Unexpected asset path.")
-        data = _read(vault.root, f"people/{person}/{asset['path']}")
-        if hash_bytes(data) != asset["sha256"] or len(data) != asset["size"]:
-            raise ArchiveError("INTEGRITY", "Asset checksum mismatch.")
-    actual = _files(directory) - {"change.json"}
-    if actual != expected_files or not proposal["resources"]:
-        raise ArchiveError("INTEGRITY", "Payload inventory is incomplete or contains extra files.")
-    return proposal
+    with _stored_location(vault, directory):
+        proposal = _json(directory, "proposal.json")
+        evidence = _json(directory, "evidence.json")
+        validation = _json(directory, "validation.json")
+        review = _json(directory, "review.json")
+        for name, value in (("proposal", proposal), ("evidence", evidence), ("validation", validation), ("review", review)):
+            _schema(vault, name, value)
+        digest = hash_bytes(_read(directory, "proposal.json"))
+        previous = base.changeSha256 if base else None
+        if proposal["personId"] != person or evidence["personId"] != person or review["personId"] != person:
+            raise ArchiveError("PERSON_MISMATCH", "Envelope belongs to a different person.", {"path": "proposal.json"})
+        if proposal["baseChangeSha256"] != previous or review["baseChangeSha256"] != previous:
+            raise ArchiveError("STALE_BASE", "Reviewed base differs from accepted history.", {"path": "review.json"})
+        if proposal["versions"] != _versions(vault):
+            raise ArchiveError("UNSUPPORTED_VERSION", "Proposal pins differ from the vault.")
+        bindings = (
+            ("evidence.json", proposal["evidenceSha256"], hash_bytes(_read(directory, "evidence.json"))),
+            ("validation.json", validation["checkedProposalSha256"], digest),
+            ("review.json", review["proposalSha256"], digest),
+            ("review.json", review["validationSha256"], hash_bytes(_read(directory, "validation.json"))),
+        )
+        for path, recorded, actual in bindings:
+            if recorded != actual:
+                raise ArchiveError("REVIEW_MISMATCH", "Reviewed payload digests do not match.", {"path": path})
+        if any(issue["severity"] == "error" for issue in validation["issues"]) or any(c["result"] == "failed" for c in validation["coverage"]):
+            raise ArchiveError("VALIDATION_BLOCKED", "Failed checks cannot be accepted.", {"path": "validation.json"})
+        expected_files = set(_ENVELOPES)
+        seen = set()
+        for entry in proposal["resources"]:
+            key = (entry["type"], entry["id"])
+            if key in seen:
+                raise ArchiveError("INTEGRITY", "Duplicate logical resource in one change.")
+            seen.add(key)
+            expected_path = f"resources/{entry['type']}-{entry['id']}.json"
+            if entry["path"] != expected_path:
+                raise ArchiveError("UNSAFE_PATH", "Unexpected resource inventory path.")
+            expected_files.add(expected_path)
+            data = _read(directory, expected_path)
+            resource = _json(directory, expected_path, data=data)
+            if (hash_bytes(data) != entry["sha256"] or not isinstance(resource, dict)
+                    or resource.get("resourceType") != entry["type"] or resource.get("id") != entry["id"]
+                    or not isinstance(resource.get("meta"), dict)
+                    or resource["meta"].get("versionId") != entry["versionId"]):
+                raise ArchiveError("INTEGRITY", "Resource revision or checksum mismatch.", {"path": expected_path})
+            if entry["type"] == "Patient" and entry["id"] != person:
+                raise ArchiveError("PERSON_MISMATCH", "Patient identity differs from person directory.")
+        for asset in proposal["assets"]:
+            if asset["path"] != f"assets/sha256/{asset['sha256']}/blob":
+                raise ArchiveError("UNSAFE_PATH", "Unexpected asset path.")
+            data = _read(vault.root, f"people/{person}/{asset['path']}")
+            if hash_bytes(data) != asset["sha256"] or len(data) != asset["size"]:
+                raise ArchiveError("INTEGRITY", "Asset checksum mismatch.", {"path": f"people/{person}/{asset['path']}"})
+        actual = _files(directory) - {"change.json"}
+        if actual != expected_files or not proposal["resources"]:
+            raise ArchiveError("INTEGRITY", "Payload inventory is incomplete or contains extra files.")
+        return proposal
 
 
 def _history(vault: Vault, person: str):
     uuid_string(person)
     accepted = _safe(vault.root, f"people/{person}/accepted")
     if not accepted.is_dir():
-        raise ArchiveError("PERSON_NOT_FOUND", "No accepted history for the selected person.")
+        raise ArchiveError("PERSON_NOT_FOUND", "No accepted history for the selected person.", {"path": f"people/{person}/accepted"})
     result, base, current, revisions = [], None, {}, set()
     for directory in sorted(accepted.iterdir()):
-        _safe(vault.root, directory.relative_to(vault.root).as_posix())
-        change_data = _read(directory, "change.json")
-        change = _json(directory, "change.json", data=change_data)
-        _schema(vault, "change", change)
-        sequence = len(result) + 1
-        if (change["sequence"] != sequence or directory.name != f"{sequence:08d}-{change['transactionId']}"
-                or change["personId"] != person or change["versions"] != _versions(vault)
-                or change["previousChangeSha256"] != (base.changeSha256 if base else None)):
-            raise ArchiveError("INTEGRITY", "Accepted chain sequence, identity or parent mismatch.", {"path": directory.relative_to(vault.root).as_posix()})
-        proposal = _verify_payload(vault, person, directory, base)
-        if (change["preparedContentSha256"] != hash_bytes(_read(directory, "proposal.json"))
-                or change["resources"] != proposal["resources"] or change["assets"] != proposal["assets"]
-                or change["transactionId"] != proposal["transactionId"]
-                or change["payload"] != {n: hash_bytes(_read(directory, n)) for n in _ENVELOPES}):
-            raise ArchiveError("INTEGRITY", "Change inventory differs from reviewed payload.")
-        for entry in change["resources"]:
-            key = (entry["type"], entry["id"])
-            if entry["supersedesVersionId"] != current.get(key) or entry["versionId"] in revisions:
-                raise ArchiveError("INTEGRITY", "Broken or reused resource revision.")
-            current[key] = entry["versionId"]
-            revisions.add(entry["versionId"])
-        if sequence == 1 and ("Patient", person) not in current:
-            raise ArchiveError("INTEGRITY", "Genesis must create its Patient identity.")
-        base = Head(sequence, change["transactionId"], hash_bytes(change_data))
-        result.append((base, directory, change))
+        with _stored_location(vault, directory):
+            _safe(vault.root, directory.relative_to(vault.root).as_posix())
+            change_data = _read(directory, "change.json")
+            change = _json(directory, "change.json", data=change_data)
+            _schema(vault, "change", change)
+            sequence = len(result) + 1
+            if (change["sequence"] != sequence or directory.name != f"{sequence:08d}-{change['transactionId']}"
+                    or change["personId"] != person or change["versions"] != _versions(vault)
+                    or change["previousChangeSha256"] != (base.changeSha256 if base else None)):
+                raise ArchiveError("INTEGRITY", "Accepted chain sequence, identity or parent mismatch.", {"path": directory.relative_to(vault.root).as_posix()})
+            proposal = _verify_payload(vault, person, directory, base)
+            if (change["preparedContentSha256"] != hash_bytes(_read(directory, "proposal.json"))
+                    or change["resources"] != proposal["resources"] or change["assets"] != proposal["assets"]
+                    or change["transactionId"] != proposal["transactionId"]
+                    or change["payload"] != {n: hash_bytes(_read(directory, n)) for n in _ENVELOPES}):
+                raise ArchiveError("INTEGRITY", "Change inventory differs from reviewed payload.", {"path": "change.json"})
+            for entry in change["resources"]:
+                key = (entry["type"], entry["id"])
+                if entry["supersedesVersionId"] != current.get(key) or entry["versionId"] in revisions:
+                    raise ArchiveError("INTEGRITY", "Broken or reused resource revision.", {"path": "change.json"})
+                current[key] = entry["versionId"]
+                revisions.add(entry["versionId"])
+            if sequence == 1 and ("Patient", person) not in current:
+                raise ArchiveError("INTEGRITY", "Genesis must create its Patient identity.")
+            base = Head(sequence, change["transactionId"], hash_bytes(change_data))
+            result.append((base, directory, change))
     return result
 
 

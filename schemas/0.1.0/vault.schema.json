@@ -16,7 +16,7 @@
       "const": "0.1.0"
     },
     "definitionLockSha256": {
-      "pattern": "^[0-9a-f]{64}$",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
       "type": "string"
     },
     "fhirVersion": {
@@ -29,7 +29,7 @@
       "const": "helseark-json-1"
     },
     "vaultId": {
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
       "type": "string"
     }
   },
