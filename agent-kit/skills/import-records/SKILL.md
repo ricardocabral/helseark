@@ -65,3 +65,20 @@ every displayed limitation by issueId with an individual reason and current pers
 confirmation. Agents must not generate acknowledgments or acceptance decisions.
 
 Implemented structured family: bounded FHIR R4 JSON Bundle via `helseark --vault VAULT intake fhir-r4 SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Mapping is human-controlled, never supplied by source prose. The other implemented family is explicitly mapped numeric CSV: `helseark --vault VAULT intake metrics-csv SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Delimiter, encoding, date/value/unit/code columns, date format and decimal separator are mandatory; timezone is optional only for dates or offset-bearing source clocks. Unknown/ambiguous local clocks block; formulas are inert labels. These two bounded adapters do not imply support for arbitrary structured exports. Stop on unknown mapping or unsupported content. Use [structured guide](../../docs/how-to/import-structured-data.md) for candidate/review boundaries.
+
+## Source-assertion history (profile set 0.2.0)
+
+Use only the native families present in the selected schema packet. Distinguish
+MedicationRequest prescription/order from MedicationStatement reported use;
+neither proves adherence. Preserve dose text/schedule, stop status and unknown
+adherence. Do not derive diagnosis, interactions, risk or treatment advice.
+Keep Condition verification (suspected/unconfirmed, refuted, confirmed) separate
+from clinical status and onset separate from recording time. An explicit “no
+known allergies” assertion is an AllergyIntolerance with source wording, never
+an empty allergy list. Missing records are not that assertion. Preserve vaccine
+occurrenceString when its date is unknown, and unknown dose/series; never infer
+from age. Preserve procedure/encounter disposition and native periods. A parent's
+history is FamilyMemberHistory for the selected patient; relationship text does
+not authorize linking or reading another person's vault. Retain unsupported
+content as source/narrative with an explicit limitation. Review every scalar
+against source evidence. Read [history compatibility](../../docs/reference/clinical-model.md#history-profile-compatibility-and-query).

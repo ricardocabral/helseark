@@ -399,6 +399,7 @@ class TimelineRow:
     resultRefs: tuple[ResourceRef, ...]
     sourceRefs: tuple[EvidenceRef, ...]
     issues: tuple[Issue, ...]
+    resource: JsonValue
 
 
 @dataclass(frozen=True)

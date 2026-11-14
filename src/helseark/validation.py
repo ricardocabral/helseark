@@ -31,12 +31,43 @@ from jsonschema.exceptions import SchemaError
 from .contracts import (ArchiveError, Candidate, CheckCoverage, Issue,
                         JsonValue, ResourceRef, ValidationReport, Vault, uuid_string)
 from .serialization import decode_json, encode_json, hash_bytes
-from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs
+from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs, _reference_nodes
 
 _CORE = 'http://hl7.org/fhir/StructureDefinition/'
 _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
+# Added resource profiles are versioned independently of the frozen original six.
+_HISTORY = {
+    'AllergyIntolerance': 'allergy-intolerance',
+    'Condition': 'condition',
+    'Encounter': 'encounter',
+    'FamilyMemberHistory': 'family-member-history',
+    'Immunization': 'immunization',
+    'MedicationRequest': 'medication-request',
+    'MedicationStatement': 'medication-statement',
+    'Procedure': 'procedure',
+}
+_SLUGS.update(_HISTORY)
+_PATIENT_FIELDS = {
+    'Observation': 'subject',
+    'DiagnosticReport': 'subject',
+    'Specimen': 'subject',
+    'DocumentReference': 'subject',
+    'FamilyMemberHistory': 'patient',
+    'Encounter': 'subject',
+    'Procedure': 'subject',
+    'Immunization': 'patient',
+    'AllergyIntolerance': 'patient',
+    'Condition': 'subject',
+    'MedicationRequest': 'subject',
+    'MedicationStatement': 'subject',
+}
+
+
+def _profile(kind):
+    return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
+
 _SCHEMA = 'definitions/fhir-r4-json-schema/fhir.schema.json'
 _DIALECTS = {'http://json-schema.org/draft-06/schema#': (Draft6Validator, DRAFT6),
              'https://json-schema.org/draft/2020-12/schema': (Draft202012Validator, DRAFT202012)}
@@ -48,9 +79,23 @@ _FIELDS = {
     'Specimen': 'identifier accessionIdentifier status type subject receivedTime parent collection processing container condition note',
     'DocumentReference': 'masterIdentifier identifier status docStatus type category subject date author authenticator custodian relatesTo description securityLabel content context',
     'Provenance': 'target occurredPeriod occurredDateTime recorded policy location reason activity agent entity',
+    'MedicationStatement': 'identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage',
+    'MedicationRequest': 'identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory',
+    'Condition': 'identifier clinicalStatus verificationStatus category severity code bodySite subject encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString abatementDateTime abatementAge abatementPeriod abatementRange abatementString recordedDate recorder asserter stage evidence note',
+    'AllergyIntolerance': 'identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction',
+    'Immunization': 'identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied',
+    'Procedure': 'identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode',
+    'Encounter': 'identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf',
+    'FamilyMemberHistory': 'identifier instantiatesCanonical instantiatesUri status dataAbsentReason patient date name relationship sex bornPeriod bornDate bornString ageAge ageRange ageString estimatedAge deceasedBoolean deceasedAge deceasedRange deceasedDate deceasedString reasonCode reasonReference note condition',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('FamilyMemberHistory', 'status'): 'partial completed entered-in-error health-unknown',
+    ('Encounter', 'status'): 'planned arrived triaged in-progress onleave finished cancelled entered-in-error unknown',
+    ('Procedure', 'status'): 'preparation in-progress not-done on-hold stopped completed entered-in-error unknown',
+    ('Immunization', 'status'): 'completed entered-in-error not-done',
+    ('MedicationRequest', 'status'): 'active on-hold cancelled completed entered-in-error stopped draft unknown',
+    ('MedicationStatement', 'status'): 'active completed entered-in-error intended stopped on-hold unknown not-taken',
     ('Observation', 'status'): 'registered preliminary final amended corrected cancelled entered-in-error unknown',
     ('DiagnosticReport', 'status'): 'registered partial preliminary final amended corrected appended cancelled entered-in-error unknown',
     ('Specimen', 'status'): 'available unavailable unsatisfactory entered-in-error',
@@ -145,7 +190,13 @@ class DefinitionRegistry:
                     identifiers.append(canonical + '|' + value['version'])
             for identifier in identifiers:
                 if identifier in self._definitions:
-                    raise ArchiveError('INVALID_DEFINITION', 'Duplicate definition identifier.')
+                    previous = self._definitions[identifier]
+                    if identifier != canonical or not previous.get('version') or not value.get('version') or previous['version'] == value['version']:
+                        raise ArchiveError('INVALID_DEFINITION', 'Duplicate definition identifier.')
+                    if not all(re.fullmatch(r'[0-9]+[.][0-9]+[.][0-9]+', v) for v in (previous['version'], value['version'])):
+                        raise ArchiveError('INVALID_DEFINITION', 'Profile versions must use numeric SemVer.')
+                    if tuple(map(int, previous['version'].split('.'))) > tuple(map(int, value['version'].split('.'))):
+                        continue
                 self._definitions[identifier] = value
             if '$schema' in value:
                 dialect = _DIALECTS.get(value['$schema'])
@@ -161,8 +212,9 @@ class DefinitionRegistry:
         # Fail explicitly before accepting graphs that need missing core profiles.
         for name in [*_SLUGS, 'Bundle', 'SimpleQuantity']:
             self.resolve(_CORE + name)
-        for slug in _SLUGS.values():
-            self.resolve(_BASE + slug + '|0.1.0')
+        for kind in _SLUGS:
+            if kind not in _HISTORY:
+                self.resolve(_profile(kind))
         self.resolve(_SCHEMA)
 
     def resolve(self, identifier: str) -> JsonValue:
@@ -223,6 +275,11 @@ def schema_packet(vault: Vault, resourceTypes: Sequence[str], destination: Path)
     types = tuple(dict.fromkeys(resourceTypes))
     if not types or any(t not in _SLUGS and t != 'Bundle' for t in types):
         raise ArchiveError('UNSUPPORTED_RESOURCE', 'Requested schema resource type is unsupported.')
+    if vault.config.profileVersion != '0.2.0' and any(t in _HISTORY for t in types):
+        raise ArchiveError('UNSUPPORTED_PROFILE', 'History requires profile set 0.2.0; retain old vault pins.')
+    for kind in types:
+        if kind != 'Bundle':
+            registry.resolve(_profile(kind))
     destination = Path(destination).absolute()
     if destination.exists() or destination.is_symlink():
         raise ArchiveError('DESTINATION_EXISTS', 'Schema packet destination must not exist.')
@@ -236,7 +293,7 @@ def schema_packet(vault: Vault, resourceTypes: Sequence[str], destination: Path)
             target.write_bytes(data)
         (stage / 'definitions/lock.json').write_bytes(_read(vault.root, 'definitions/lock.json'))
         (stage / 'packet.json').write_bytes(encode_json({'contractVersion': '0.1.0', 'fhirVersion': '4.0.1',
-            'profileVersion': '0.1.0', 'resourceTypes': list(types),
+            'profileVersion': vault.config.profileVersion, 'resourceTypes': list(types),
             'definitionLockSha256': vault.config.definitionLockSha256,
             'coverage': 'Baseline archive rules only; terminology and full FHIR conformance not checked.'}))
         (stage / 'README.md').write_text('Offline Helseark 0.1.0 schema packet.\n'
@@ -379,7 +436,12 @@ class _Checks:
     def resource(self, r, key):
         self.family = 'supported-profile-rules'
         kind = r['resourceType']
-        profile = _BASE + _SLUGS[kind] + '|0.1.0'
+        profile = _profile(kind)
+        if kind == 'Provenance' and r.get('meta', {}).get('profile') == [_BASE + 'provenance|0.2.0'] and self.vault.config.profileVersion == '0.2.0':
+            profile = _BASE + 'provenance|0.2.0'
+        if kind in _HISTORY and self.vault.config.profileVersion != '0.2.0':
+            self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
+            return
         if r.get('meta', {}).get('profile') != [profile]:
             self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
         meta = r.get('meta', {})
@@ -428,14 +490,64 @@ class _Checks:
         if kind == 'Patient' and r['id'] != self.person:
             self.family = 'patient-reference-scope'
             self.issue('PERSON_MISMATCH', '/id', key)
-        if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'}:
+        if kind in _PATIENT_FIELDS:
+            patient_field = _PATIENT_FIELDS[kind]
             self.family = 'patient-reference-scope'
-            subject = r.get('subject', {}).get('reference') if isinstance(r.get('subject', {}), dict) else None
+            subject = r.get(patient_field, {}).get('reference') if isinstance(r.get(patient_field, {}), dict) else None
             if subject is None:
-                self.issue('SUBJECT_REQUIRED', '/subject', key)
+                self.issue('SUBJECT_REQUIRED', '/' + patient_field, key)
             elif subject != 'Patient/' + self.person and not (subject == 'urn:uuid:' + self.person and 'Patient/' + self.person in self.resources):
-                self.issue('PERSON_MISMATCH', '/subject/reference', key)
+                self.issue('PERSON_MISMATCH', '/' + patient_field + '/reference', key)
         self.family = 'supported-profile-rules'
+        if kind == 'MedicationRequest' and r.get('intent') not in 'proposal plan order original-order reflex-order filler-order instance-order option'.split():
+            self.issue('FHIR_STATUS_INVALID', '/intent', key)
+        if kind == 'Condition':
+            verification = {c.get('code') for c in r.get('verificationStatus', {}).get('coding', [])}
+            clinical = {c.get('code') for c in r.get('clinicalStatus', {}).get('coding', [])}
+            problem_list = any(c.get('code') == 'problem-list-item' for category in r.get('category', []) for c in category.get('coding', []))
+            if ('entered-in-error' in verification and 'clinicalStatus' in r or
+                    'entered-in-error' not in verification and problem_list and not clinical or
+                    any(k.startswith('abatement') for k in r) and not clinical.intersection({'inactive','resolved','remission'})):
+                self.issue('CONDITION_STATUS_CONFLICT', '/clinicalStatus', key)
+            for field, choices in (('stage', ('summary','assessment')), ('evidence', ('code','detail'))):
+                for index, value in enumerate(r.get(field, [])):
+                    if not any(value.get(choice) for choice in choices):
+                        self.issue('FHIR_REQUIRED', '/' + field + '/' + str(index), key)
+        if kind == 'Condition':
+            for field, system, allowed_codes in (
+                    ('verificationStatus','condition-ver-status','unconfirmed provisional differential confirmed refuted entered-in-error'),
+                    ('clinicalStatus','condition-clinical','active recurrence relapse inactive remission resolved')):
+                if field not in r:
+                    continue
+                codings = r[field].get('coding', [])
+                if not codings or any(c.get('system') != 'http://terminology.hl7.org/CodeSystem/' + system or c.get('code') not in allowed_codes.split() for c in codings):
+                    self.issue('FHIR_STATUS_INVALID', '/' + field, key)
+        if kind == 'AllergyIntolerance':
+            verification = {c.get('code') for c in r.get('verificationStatus', {}).get('coding', [])}
+            if ('entered-in-error' in verification) == ('clinicalStatus' in r):
+                self.issue('ALLERGY_STATUS_CONFLICT', '/clinicalStatus', key)
+        if kind == 'AllergyIntolerance':
+            for field, system, allowed_codes in (
+                    ('verificationStatus','allergyintolerance-verification','unconfirmed confirmed refuted entered-in-error'),
+                    ('clinicalStatus','allergyintolerance-clinical','active inactive resolved')):
+                if field not in r:
+                    continue
+                codings = r[field].get('coding', [])
+                if not codings or any(c.get('system') != 'http://terminology.hl7.org/CodeSystem/' + system or c.get('code') not in allowed_codes.split() for c in codings):
+                    self.issue('FHIR_STATUS_INVALID', '/' + field, key)
+        if kind == 'Immunization':
+            for index, education in enumerate(r.get('education', [])):
+                if not education.get('documentType') and not education.get('reference'):
+                    self.issue('FHIR_REQUIRED', '/education/' + str(index), key)
+        if kind == 'Encounter':
+            for index, state in enumerate(r.get('statusHistory', [])):
+                if state.get('status') not in _STATUSES[('Encounter','status')].split():
+                    self.issue('FHIR_STATUS_INVALID', '/statusHistory/' + str(index) + '/status', key)
+        if kind == 'FamilyMemberHistory':
+            has_age = any(k.startswith('age') for k in r)
+            has_born = any(k.startswith('born') for k in r)
+            if has_age and has_born or 'estimatedAge' in r and not has_age:
+                self.issue('FAMILY_AGE_CONFLICT', '/age', key)
         if kind == 'Observation':
             self.observation(r, '', key)
             for i, component in enumerate(r.get('component', [])):
@@ -613,26 +725,28 @@ class _Checks:
         if kind not in _SLUGS:
             self.issue('UNSUPPORTED_RESOURCE', ref=key)
             return
+        if kind in _HISTORY and self.vault.config.profileVersion != '0.2.0':
+            self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
+            return
         if kind == 'Patient' and resource.get('id') != self.person:
             self.issue('PERSON_MISMATCH', ref=key)
-        if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'}:
-            subject = resource.get('subject', {}).get('reference')
+        if kind in _PATIENT_FIELDS:
+            patient_field = _PATIENT_FIELDS[kind]
+            subject = resource.get(patient_field, {}).get('reference') if isinstance(resource.get(patient_field, {}), dict) else None
             if subject is None:
-                self.issue('SUBJECT_REQUIRED', '/subject', key)
+                self.issue('SUBJECT_REQUIRED', '/' + patient_field, key)
             elif subject != 'Patient/' + self.person and not (subject == 'urn:uuid:' + self.person and not self.prepared):
-                self.issue('PERSON_MISMATCH', '/subject/reference', key)
+                self.issue('PERSON_MISMATCH', '/' + patient_field + '/reference', key)
         if identity not in self.typed_resources:
             definition = self.registry.resolve(_CORE + kind)
-            differential = [] if kind == 'Patient' else self.registry.resolve(_BASE + _SLUGS[kind] + '|0.1.0')['differential']['element']
+            differential = [] if kind == 'Patient' else self.registry.resolve(resource.get('meta', {}).get('profile', [_profile(kind)])[0])['differential']['element']
             self.elements(resource, definition['snapshot']['element'], kind, '', key, differential)
             self.typed_resources.add(identity)
             self.family = 'patient-reference-scope'
         profiles = resource.get('meta', {}).get('profile', [])
         if any('|5.' in p or '|3.' in p for p in profiles):
             self.issue('FHIR_VERSION_MISMATCH', '/meta/profile', key)
-        for pointer, value in _walk(resource):
-            if not isinstance(value, dict) or 'reference' not in value:
-                continue
+        for pointer, value in _reference_nodes(resource):
             target = self.lookup(value['reference'], pointer + '/reference', key)
             if target is None:
                 continue
@@ -642,9 +756,11 @@ class _Checks:
             inherited_allowed = self.reference_types.get((key, pointer))
             if inherited_allowed is not None and target_kind not in inherited_allowed:
                 self.issue('REFERENCE_TYPE_MISMATCH', pointer, key)
-            allowed = {'subject': {'Patient'}, 'specimen': {'Specimen'}, 'result': {'Observation'},
+            allowed = {'subject': {'Patient'}, 'patient': {'Patient'}, 'specimen': {'Specimen'}, 'result': {'Observation'},
                        'hasMember': {'Observation'}, 'derivedFrom': {'Observation','DocumentReference'},
                        'parent': {'Specimen'}}.get(field)
+            if kind == 'MedicationStatement' and field == 'derivedFrom':
+                allowed = set(_SLUGS)
             if kind == 'Provenance' and re.fullmatch(r'/entity/[0-9]+/what', pointer):
                 entity = resource['entity'][int(pointer.split('/')[2])]
                 if entity.get('role') == 'source':

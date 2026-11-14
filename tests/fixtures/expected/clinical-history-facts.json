@@ -1,0 +1,57 @@
+{
+  "license": "CC0-1.0",
+  "source": "../synthetic/clinical-history/oracle/source.json",
+  "unsupported": "ImagingStudy: synthetic image pixels and acquisition details remain source only; not structured.",
+  "families": {
+    "MedicationStatement": {
+      "sourcePointer": "/reportedUse",
+      "attackLeaf": "/dosage/0/doseAndRate/0/doseQuantity/value",
+      "facts": {"/status": "active", "/medicationCodeableConcept/text": "Synthetic evening medicine", "/effectivePeriod/start": "2024-02", "/dosage/0/doseAndRate/0/doseQuantity/value": 1.250, "/dosage/0/doseAndRate/0/doseQuantity/unit": "mg", "/dosage/0/timing/repeat/frequency": 1, "/dosage/0/timing/repeat/period": 1, "/dosage/0/timing/repeat/periodUnit": "d", "/dosage/0/timing/repeat/when/0": "EVE", "/note/0/text": "Adherence unknown; stop date unknown"},
+      "absent": ["/effectivePeriod/end"],
+      "effectiveType": "effectivePeriod", "timePrecision": "period"
+    },
+    "MedicationRequest": {
+      "sourcePointer": "/prescription",
+      "attackLeaf": "/dosageInstruction/0/doseAndRate/0/doseQuantity/value",
+      "facts": {"/status": "active", "/intent": "order", "/medicationCodeableConcept/text": "Synthetic prescribed medicine", "/authoredOn": "2025-01", "/dosageInstruction/0/doseAndRate/0/doseQuantity/value": 2.500, "/dosageInstruction/0/doseAndRate/0/doseQuantity/unit": "mg", "/dosageInstruction/0/text": "2.500 mg daily; actual use unknown"},
+      "absent": ["/dispenseRequest"],
+      "effectiveType": "authoredOn", "timePrecision": "month"
+    },
+    "Condition": {
+      "sourcePointer": "/condition", "attackLeaf": "/verificationStatus/coding/0/code",
+      "facts": {"/clinicalStatus/coding/0/code": "active", "/verificationStatus/coding/0/code": "unconfirmed", "/code/text": "Synthetic suspected condition", "/onsetString": "Possibly childhood", "/recordedDate": "2025-09-01"},
+      "absent": ["/onsetDateTime"],
+      "effectiveType": "onsetString", "timePrecision": "unknown"
+    },
+    "AllergyIntolerance": {
+      "sourcePointer": "/allergy", "attackLeaf": "/code/text",
+      "facts": {"/code/text": "No known allergies explicitly reported", "/clinicalStatus/coding/0/code": "active", "/verificationStatus/coding/0/code": "confirmed"},
+      "absent": ["/onsetDateTime", "/reaction"],
+      "effectiveType": null, "timePrecision": "unknown"
+    },
+    "Immunization": {
+      "sourcePointer": "/vaccination", "attackLeaf": "/doseQuantity/value",
+      "facts": {"/status": "completed", "/vaccineCode/text": "Synthetic vaccine", "/occurrenceDateTime": "2021", "/doseQuantity/value": 0.500, "/doseQuantity/unit": "mL", "/protocolApplied/0/series": "Unknown", "/protocolApplied/0/doseNumberString": "Unknown"},
+      "absent": ["/protocolApplied/0/doseNumberPositiveInt"],
+      "effectiveType": "occurrenceDateTime", "timePrecision": "year"
+    },
+    "Procedure": {
+      "sourcePointer": "/procedure", "attackLeaf": "/statusReason/text",
+      "facts": {"/status": "not-done", "/code/text": "Synthetic planned procedure", "/statusReason/text": "Cancelled per source"},
+      "absent": ["/performedDateTime", "/performedPeriod", "/outcome"],
+      "effectiveType": null, "timePrecision": "unknown"
+    },
+    "Encounter": {
+      "sourcePointer": "/encounter", "attackLeaf": "/class/code",
+      "facts": {"/status": "cancelled", "/class/code": "AMB"},
+      "absent": ["/period"],
+      "effectiveType": null, "timePrecision": "unknown"
+    },
+    "FamilyMemberHistory": {
+      "sourcePointer": "/relative", "attackLeaf": "/condition/0/onsetAge/value",
+      "facts": {"/status": "completed", "/relationship/text": "Mother", "/condition/0/code/text": "Synthetic relative condition", "/condition/0/onsetAge/value": 45.00, "/condition/0/onsetAge/unit": "years", "/condition/0/contributedToDeath": false},
+      "absent": ["/bornDate", "/date"],
+      "effectiveType": null, "timePrecision": "unknown"
+    }
+  }
+}

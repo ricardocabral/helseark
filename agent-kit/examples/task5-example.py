@@ -25,7 +25,11 @@ def bound(name):
     return decode_json(data)
 bundle = bound('task5-bundle.json')
 evidence = bound('task5-evidence.json')
-candidate = {'contractVersion':'0.1.0','fhirVersion':'4.0.1','profileVersion':'0.1.0',
+manifest_bytes = _regular(Path(context['kitManifest']['path']), CANDIDATE_FILE_BYTES)
+if hash_bytes(manifest_bytes) != context['kitManifest']['sha256']:
+    raise SystemExit('Pinned synthetic example kit manifest differs.')
+pins = decode_json(manifest_bytes)['compatibility']
+candidate = {'contractVersion':pins['contractVersion'],'fhirVersion':pins['fhirVersion'],'profileVersion':pins['profileVersion'],
     'candidateId':meta['importId'],'personId':meta['personId'],
     'baseChangeSha256':context['base']['changeSha256'], 'sourceSha256':[source['sourceSha256']],
     'bundlePath':'bundle.json','evidencePath':'evidence.json',

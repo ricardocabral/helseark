@@ -166,7 +166,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
     bundle = _bundled_root()
     lock_bytes = _read(bundle, "definitions/lock.json")
     if config is None:
-        config = VaultConfig(1, "0.1.0", "0.1.0", "4.0.1", "helseark-json-1",
+        config = VaultConfig(1, "0.1.0", "0.2.0", "4.0.1", "helseark-json-1",
                              hash_bytes(lock_bytes), _json(bundle / "agent-kit", "manifest.json")["kitVersion"], hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
     if config.definitionLockSha256 != hash_bytes(lock_bytes):
         raise ArchiveError("DEFINITION_MISMATCH", "Requested definitions are not bundled.")
@@ -217,9 +217,9 @@ def open_definitions(root: Path) -> Vault:
     value = _json(root, "vault.json")
     # Check supported pins before reporting a generic envelope error.
     expected = {"archiveFormatVersion": 1, "contractVersion": "0.1.0",
-                "profileVersion": "0.1.0", "fhirVersion": "4.0.1",
+                "fhirVersion": "4.0.1",
                 "serializationVersion": "helseark-json-1"}
-    if not isinstance(value, dict) or any(value.get(k) != v for k, v in expected.items()):
+    if not isinstance(value, dict) or value.get("profileVersion") not in ("0.1.0", "0.2.0") or any(value.get(k) != v for k, v in expected.items()):
         raise ArchiveError("UNSUPPORTED_VERSION", "Vault version pins are unsupported.")
     try:
         vault = Vault(root, VaultConfig(**value))
@@ -676,16 +676,31 @@ def _check_reference(reference, current, exact_revisions, path):
         raise ArchiveError('UNRESOLVED_REVISION','Accepted resource has an unresolved local reference.',{'path':path})
 
 
-def _references(value):
-    """Yield FHIR Reference strings without interpreting text or attachment URLs."""
+def _reference_nodes(value, pointer='', resource_type=None):
+    """Yield actual FHIR Reference objects in the supported native surface.
+
+    Immunization.education.reference is a uri primitive, not a Reference. Keep
+    this distinction shared by scope validation, publication and exchange maps.
+    Paths are JSON pointers; resource_type is inherited only from the root.
+    """
+    if resource_type is None and isinstance(value, dict):
+        resource_type = value.get('resourceType')
     if isinstance(value, dict):
-        if 'reference' in value:
-            yield value['reference']
-        for item in value.values():
-            yield from _references(item)
+        education_uri = resource_type == 'Immunization' and bool(re.fullmatch(r'/education/[0-9]+', pointer))
+        if 'reference' in value and not education_uri:
+            yield pointer, value
+        for key, item in value.items():
+            token = key.replace('~', '~0').replace('/', '~1')
+            yield from _reference_nodes(item, pointer + '/' + token, resource_type)
     elif isinstance(value, list):
-        for item in value:
-            yield from _references(item)
+        for index, item in enumerate(value):
+            yield from _reference_nodes(item, pointer + '/' + str(index), resource_type)
+
+
+def _references(value):
+    """Yield only actual Reference strings; never interpret clinical text/URIs."""
+    for _, node in _reference_nodes(value):
+        yield node['reference']
 
 
 def _support_paths(vault: Vault) -> set[str]:

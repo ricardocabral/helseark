@@ -1,17 +1,28 @@
 # Clinical model and offline validation
 
-Applies to Helseark contracts/profiles **0.1.0**, archive format **1**, FHIR
+Applies to Helseark contract **0.1.0**, profile sets **0.1.0/0.2.0**, archive format **1**, FHIR
 **R4 4.0.1**. Clinical facts are native FHIR resources, never a parallel lab model.
 Every import needs human review of the final prepared bytes. Validation does not
 establish extraction accuracy, source identity, consent or medical correctness.
 
 ## Supported graph
 
-Six [local profiles](../../profiles/r4/0.1.0/README.md) use canonical base
-`https://github.com/ricardocabral/helseark/fhir`, with `|0.1.0` declarations:
+The frozen [profile set 0.1.0](../../profiles/r4/0.1.0/README.md) supports six types:
 Patient, Observation, DiagnosticReport, Specimen, DocumentReference, Provenance.
+The additive [0.2.0 package](../../profiles/r4/0.2.0/README.md) depends on that
+unchanged package and adds MedicationStatement, MedicationRequest, Condition,
+AllergyIntolerance, Immunization, Procedure, Encounter and FamilyMemberHistory,
+plus Provenance 0.2.0 for the expanded target graph. Profile set 0.2.0 therefore
+supports **14 clinical resource types**, with **15 versioned StructureDefinitions**
+retained locally: six at 0.1.0 and nine at 0.2.0, including both Provenance versions.
+All use canonical base `https://github.com/ricardocabral/helseark/fhir`.
+The original six retain `|0.1.0` declarations; the eight added types require
+`|0.2.0`. Provenance may declare `|0.2.0` in a 0.2.0 vault; its original `|0.1.0`
+declaration remains supported with its original target constraints. A vault's
+profile-set pin does not relabel every resource with that version.
+
 A candidate is a standard `Bundle` with `type=collection`. Bundle is a transport,
-not a seventh clinical profile. Its bookkeeping allows only resourceType, type,
+not an additional clinical profile. Its bookkeeping allows only resourceType, type,
 entry, id and optional meta.versionId/meta.lastUpdated. Entries contain only
 fullUrl/resource. Security, source, profile/tag metadata and all nested primitive
 metadata/extensions on the Bundle are unsupported. Transport revision labels
@@ -37,7 +48,8 @@ Source assets are bounded to 100 MiB before reading; candidate graphs to 10,000
 resources and individual clinical strings to 1 MiB. Strict serialization bounds
 nesting and numeric size. No truncation occurs.
 
-The bounded top-level fields are:
+The bounded top-level fields below apply to the six original types in both
+profile sets and to the eight added types only in profile set 0.2.0:
 
 | Resource | Clinical fields |
 | --- | --- |
@@ -47,6 +59,14 @@ The bounded top-level fields are:
 | Specimen | identifier, accessionIdentifier, status, type, subject, receivedTime, parent, collection, processing, container, condition, note |
 | DocumentReference | masterIdentifier, identifier, status, docStatus, type, category, subject, date, author, authenticator, custodian, relatesTo, description, securityLabel, content, context |
 | Provenance | target, occurredPeriod/DateTime, recorded, policy, location, reason, activity, agent, entity |
+| MedicationStatement | identifier, status, statusReason, category, medicationCodeableConcept, subject, context, effectiveDateTime, effectivePeriod, dateAsserted, informationSource, derivedFrom, reasonCode, reasonReference, note, dosage |
+| MedicationRequest | identifier, status, statusReason, intent, category, priority, doNotPerform, reportedBoolean, medicationCodeableConcept, subject, encounter, supportingInformation, authoredOn, requester, reasonCode, reasonReference, instantiatesCanonical, instantiatesUri, basedOn, groupIdentifier, courseOfTherapyType, insurance, note, dosageInstruction, dispenseRequest, substitution, priorPrescription, detectedIssue, eventHistory |
+| Condition | identifier, clinicalStatus, verificationStatus, category, severity, code, bodySite, subject, encounter, onsetDateTime, onsetAge, onsetPeriod, onsetRange, onsetString, abatementDateTime, abatementAge, abatementPeriod, abatementRange, abatementString, recordedDate, recorder, asserter, stage, evidence, note |
+| AllergyIntolerance | identifier, clinicalStatus, verificationStatus, type, category, criticality, code, patient, encounter, onsetDateTime, onsetAge, onsetPeriod, onsetRange, onsetString, recordedDate, recorder, asserter, lastOccurrence, note, reaction |
+| Immunization | identifier, status, statusReason, vaccineCode, patient, encounter, occurrenceDateTime, occurrenceString, recorded, primarySource, reportOrigin, location, manufacturer, lotNumber, expirationDate, site, route, doseQuantity, performer, note, reasonCode, reasonReference, isSubpotent, subpotentReason, education, programEligibility, fundingSource, reaction, protocolApplied |
+| Procedure | identifier, instantiatesCanonical, instantiatesUri, basedOn, partOf, status, statusReason, category, code, subject, encounter, performedDateTime, performedPeriod, performedString, performedAge, performedRange, recorder, asserter, performer, location, reasonCode, reasonReference, bodySite, outcome, report, complication, complicationDetail, followUp, note, focalDevice, usedReference, usedCode |
+| Encounter | identifier, status, statusHistory, class, classHistory, type, serviceType, priority, subject, episodeOfCare, basedOn, participant, appointment, period, length, reasonCode, reasonReference, diagnosis, account, hospitalization, location, serviceProvider, partOf |
+| FamilyMemberHistory | identifier, instantiatesCanonical, instantiatesUri, status, dataAbsentReason, patient, date, name, relationship, sex, bornPeriod, bornDate, bornString, ageAge, ageRange, ageString, estimatedAge, deceasedBoolean, deceasedAge, deceasedRange, deceasedDate, deceasedString, reasonCode, reasonReference, note, condition |
 
 Common bookkeeping fields are resourceType, UUID id, local meta, language and
 narrative text. Candidate meta contains only profile; prepared meta also contains
@@ -54,8 +74,10 @@ versionId/lastUpdated. Source meta.security/tag/source semantics remain in the
 retained original and are unsupported as generated local bookkeeping. Complex children must satisfy upstream structure/cardinality and the
 implemented invariant subset; their presence is not a claim of checking every
 FHIR invariant or terminology binding. References restrict this surface further:
-unsupported Practitioner, Organization, Encounter and Device resources cannot be
-resolved as structured records. A source issuer/actor can use an explicit local
+unsupported Practitioner, Organization and Device resources cannot be resolved
+as structured records. Encounter is supported in profile set 0.2.0; each native
+Reference must still satisfy its allowed target types and local profile constraints.
+A source issuer/actor can use an explicit local
 identifier where its native Reference allows it. Subjects must be literal.
 Supported Observation values are Quantity, CodeableConcept, string, boolean,
 integer, Range, Ratio, time, dateTime and Period; SampledData is unsupported.
@@ -182,8 +204,11 @@ and optional resource version from bounded verified members. A member without
 version resolves unversioned only; package version 4.0.1 is separate acquisition
 provenance in the definition lock and never fabricates a resource version.
 Actual duplicate core identities or conflicting extracted/core definitions fail
-DEFINITION_IDENTITY_CONFLICT. Registry completeness does not expand the six
-supported clinical profiles. No member is extracted to a source-controlled path
+DEFINITION_IDENTITY_CONFLICT. Registry completeness does not expand the supported
+clinical graph: six types for profile set 0.1.0, or 14 for profile set 0.2.0.
+The current local profile inventory contains 15 versioned StructureDefinitions,
+including both Provenance versions; resolving a core definition alone does not
+enable that resource type. No member is extracted to a source-controlled path
 at runtime.
 The genuine upstream schema retains draft-06; local envelopes retain
 2020-12. Unsupported dialects fail explicitly. Definition files are unmodified
@@ -315,3 +340,73 @@ and all entries, including nested meta/link/search extensions, primitive compani
 modifiers and escaped unknown fields. Each has a blocking source pointer; original
 byte retention alone is not a supported disposition. Exact source-local host issuance
 binds mapped candidates and coverage independently of their editable IDs or paths.
+
+### History profile compatibility and query
+
+Profile set 0.2.0 adds source-assertion history families. The original six
+profiles remain byte-identical at version 0.1.0. Provenance 0.2.0 widens the
+native target boundary to include the added families; the original Provenance
+0.1.0 remains supported. New vaults pin profile set
+0.2.0 and kit 0.1.4; existing 0.1.0 vaults continue using their retained locks,
+profiles and kits. They are readable without migration. New history resources
+require a 0.2.0 vault and its pinned history definitions; do not edit vault pins
+or repin accepted history to upgrade. No persisted clinical meaning is rewritten.
+The archive contract and FHIR release stay 0.1.0 and R4 4.0.1 respectively.
+
+`helseark --vault VAULT history --person PERSON --kind MedicationStatement --json`
+returns native assertions and their native Provenance at one head. Repeat `--kind`
+for multiple supported families; `--at-head HEAD.json` selects an exact snapshot.
+The Python API is `query.history(vault, person, kinds, at=None)`. It returns
+FHIR resources, without adding non-FHIR fields. `timeline` includes the complete
+native `resource` alongside exact revision, source evidence references and retained
+validation issues. This preserves qualifiers without deriving an active diagnosis
+or a medication list. Timeline order is identity order, not clinical chronology.
+Recording, assertion and event dates remain separate native fields. Partial,
+textual, age-based and absent event dates are not converted into invented dates.
+
+### MedicationStatement (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage`. Timeline uses ('effectiveDateTime', 'effectivePeriod'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+### MedicationRequest (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory`. Timeline uses ('authoredOn',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+### Condition (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier clinicalStatus verificationStatus category severity code bodySite subject encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString abatementDateTime abatementAge abatementPeriod abatementRange abatementString recordedDate recorder asserter stage evidence note`. Timeline uses ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Keep Condition verificationStatus (unconfirmed/provisional/differential, refuted,
+confirmed) separate from clinicalStatus. Retain onset and recordedDate independently.
+Refuted assertions remain visible; there is no inferred active-diagnosis summary.
+Contradictory entered-in-error/clinical status and abatement/active status block acceptance.
+
+### AllergyIntolerance (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction`. Timeline uses ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+An explicit no-known-allergies source statement is a nonempty AllergyIntolerance.code.text with its verification/clinical qualifiers and evidence. No records is unknown, not a negative assertion. Preserve suspected versus confirmed/refuted status, reactions and criticality without deriving clinical risk.
+
+### Immunization (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied`. Timeline uses ('occurrenceDateTime', 'occurrenceString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve occurrenceDateTime precision or occurrenceString for unknown dates. Keep unknown doseNumberString/series as stated; never calculate dates or series from age. A not-done resource is not an administered vaccine.
+
+### Procedure (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode`. Timeline uses ('performedDateTime', 'performedPeriod', 'performedString', 'performedAge', 'performedRange'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve performed choices, source status/reason, body site and outcome. Not-done/stopped does not prove completion, and a missing performed time stays unknown.
+
+### Encounter (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf`. Timeline uses ('period',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve class, status/statusHistory and period. Cancelled/planned encounters are not proof of a completed visit. Do not use an encounter period as an observation measurement time.
+
+### FamilyMemberHistory (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier instantiatesCanonical instantiatesUri status dataAbsentReason patient date name relationship sex bornPeriod bornDate bornString ageAge ageRange ageString estimatedAge deceasedBoolean deceasedAge deceasedRange deceasedDate deceasedString reasonCode reasonReference note condition`. Timeline uses ('date',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+The patient is the selected person; relationship and condition describe a relative. Never emit the relative assertion as the selected person's Condition, or resolve another person's vault from relationship/name text. Preserve age/born/deceased choices and unknown family history without inventing dates.

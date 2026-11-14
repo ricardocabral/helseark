@@ -1,0 +1,82 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-family-member-history",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-family-member-history",
+  "version": "0.2.0",
+  "name": "HelsearkFamilyMemberHistory",
+  "title": "Helseark FamilyMemberHistory",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "FamilyMemberHistory",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/FamilyMemberHistory",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "FamilyMemberHistory",
+        "path": "FamilyMemberHistory",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-family-member-history|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "FamilyMemberHistory.id",
+        "path": "FamilyMemberHistory.id",
+        "min": 1
+      },
+      {
+        "id": "FamilyMemberHistory.meta",
+        "path": "FamilyMemberHistory.meta",
+        "min": 1
+      },
+      {
+        "id": "FamilyMemberHistory.implicitRules",
+        "path": "FamilyMemberHistory.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "FamilyMemberHistory.contained",
+        "path": "FamilyMemberHistory.contained",
+        "max": "0"
+      },
+      {
+        "id": "FamilyMemberHistory.extension",
+        "path": "FamilyMemberHistory.extension",
+        "max": "0"
+      },
+      {
+        "id": "FamilyMemberHistory.modifierExtension",
+        "path": "FamilyMemberHistory.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "FamilyMemberHistory.patient",
+        "path": "FamilyMemberHistory.patient",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "FamilyMemberHistory.patient.reference",
+        "path": "FamilyMemberHistory.patient.reference",
+        "min": 1
+      }
+    ]
+  }
+}

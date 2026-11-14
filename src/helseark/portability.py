@@ -22,7 +22,7 @@ from .contracts import (ArchiveError, Vault, ResourceRef, ExportSelection,
                         ExportReceipt, IntegrityReport, Issue, Head, FHIRResource, JsonValue, uuid_string)
 from .serialization import encode_json, hash_bytes
 from .archive import (_writer_lock, _files, _read, _json, _safe, _write,
-                      _sync_tree, _sync_directory, _history, _references,
+                      _sync_tree, _sync_directory, _history, _references, _reference_nodes,
                       open_vault, open_definitions, doctor, head, _support_paths, _person_paths)
 from .query import parse_reference
 
@@ -108,15 +108,9 @@ def fhir_collection(vault: Vault, person: str, resourceRefs: tuple[ResourceRef, 
     mapping = [dict(personId=person, resourceType=k[0], id=k[1], versionId=k[2],
                     fullUrl='urn:uuid:'+k[2], references={ref:'urn:uuid:'+resolved(parse_reference(ref))['meta']['versionId'] for ref in _references(resources[k])}) for k in sorted(resources)]
     def rewrite(value):
-        if isinstance(value, dict):
-            if 'reference' in value:
-                target = resolved(parse_reference(value['reference']))
-                value['reference'] = 'urn:uuid:'+target['meta']['versionId']
-            for item in value.values():
-                rewrite(item)
-        elif isinstance(value, list):
-            for item in value:
-                rewrite(item)
+        for _, node in _reference_nodes(value):
+            target = resolved(parse_reference(node['reference']))
+            node['reference'] = 'urn:uuid:' + target['meta']['versionId']
     entries = []
     for item in mapping:
         resource = deepcopy(resources[(item['resourceType'],item['id'],item['versionId'])])
@@ -334,18 +328,13 @@ def _verify(bundle):
             raise ArchiveError('INTEGRITY', 'Original reference binding inventory mismatch.')
         # Check derived values while resolving each original Reference through the declared map.
         def rewrite(value):
-            if isinstance(value,dict):
-                if 'reference' in value:
-                    ref = parse_reference(value['reference'])
-                    matches = [m for m in mapping if m['resourceType']==ref.resourceType and m['id']==ref.id and
-                               (ref.versionId is None or m['versionId']==ref.versionId)]
-                    matches = [m for m in matches if m['fullUrl'] == bindings[value['reference']]]
-                    if len(matches)!=1:
-                        raise ArchiveError('INTEGRITY','Ambiguous or missing original reference mapping.')
-                    value['reference']=matches[0]['fullUrl']
-                for x in value.values():rewrite(x)
-            elif isinstance(value,list):
-                for x in value:rewrite(x)
+            for _, node in _reference_nodes(value):
+                ref = parse_reference(node['reference'])
+                matches = [m for m in mapping if m['resourceType']==ref.resourceType and m['id']==ref.id and
+                           (ref.versionId is None or m['versionId']==ref.versionId) and m['fullUrl']==bindings[node['reference']]]
+                if len(matches)!=1:
+                    raise ArchiveError('INTEGRITY','Ambiguous or missing original reference mapping.')
+                node['reference']=matches[0]['fullUrl']
         rewrite(original)
         if encode_json(original)!=encode_json(entry['resource']):
             raise ArchiveError('INTEGRITY','Derived collection differs from original revision.')

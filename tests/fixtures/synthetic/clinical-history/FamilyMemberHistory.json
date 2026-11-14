@@ -1,0 +1,55 @@
+[
+  {
+    "status": "completed",
+    "date": "2026-07",
+    "relationship": {
+      "text": "Mother"
+    },
+    "condition": [
+      {
+        "code": {
+          "text": "Synthetic relative condition, reported"
+        },
+        "onsetAge": {
+          "value": 45.00,
+          "unit": "years"
+        },
+        "contributedToDeath": false,
+        "note": [
+          {
+            "text": "Reported family history; no diagnosis of the selected patient."
+          }
+        ]
+      }
+    ],
+    "resourceType": "FamilyMemberHistory",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-family-member-history|0.2.0"
+      ]
+    },
+    "patient": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "health-unknown",
+    "relationship": {
+      "text": "Father"
+    },
+    "dataAbsentReason": {
+      "text": "Health history unknown; no other person vault linked."
+    },
+    "resourceType": "FamilyMemberHistory",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-family-member-history|0.2.0"
+      ]
+    },
+    "patient": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

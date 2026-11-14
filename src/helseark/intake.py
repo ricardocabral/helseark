@@ -441,12 +441,11 @@ def _resource_references(value, aliases):
     nested References. Literals, identifiers, codes and attachment URLs are data.
     Root resource IDs are handled separately by the caller.
     """
-    if isinstance(value, list):
-        return [_resource_references(v, aliases) for v in value]
-    if isinstance(value, dict):
-        return {k: aliases.get(v, v) if k == 'reference' and isinstance(v, str)
-                else _resource_references(v, aliases) for k,v in value.items()}
-    return value
+    from .archive import _reference_nodes
+    result = deepcopy(value)
+    for _, node in _reference_nodes(result):
+        node['reference'] = aliases.get(node['reference'], node['reference'])
+    return result
 
 
 def _evidence_references(evidence, aliases):
@@ -581,7 +580,7 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     provenance_id=new_id(); provenance_version=new_id(); provenance_ref=f'Provenance/{provenance_id}/_history/{provenance_version}'
     documents=[v for k,v in aliases.items() if k.startswith('DocumentReference/')]
     if not documents: raise ArchiveError('VALIDATION_BLOCKED','Imports require an evidenced source DocumentReference.')
-    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0'],'versionId':provenance_version,'lastUpdated':now},
+    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|' + vault.config.profileVersion],'versionId':provenance_version,'lastUpdated':now},
         'target':[{'reference':v} for v in dict.fromkeys(aliases.values())], 'recorded':now,
         'agent':[{'who':{'identifier':{'system':'urn:helseark:local-actor','value':'proposal-compiler'}}}],
         'entity':[{'role':'source','what':{'reference':v}} for v in documents] +
