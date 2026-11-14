@@ -37,7 +37,7 @@ import subprocess
 import sys
 from uuid import uuid4
 from helseark.archive import _publish_change
-from helseark.serialization import encode_json, decode_json, hash_bytes
+from helseark.serialization import encode_json, decode_json, decode_canonical_json, hash_bytes
 
 
 def write_json(path, value):
@@ -49,12 +49,12 @@ def update_payload(vault, person, destination):
     source = vault.root / "people" / person / "accepted" / f"{base.sequence:08d}-{base.transactionId}"
     shutil.copytree(source, destination)
     (destination / "change.json").unlink()
-    proposal = decode_json((destination / "proposal.json").read_bytes())
+    proposal = decode_canonical_json((destination / "proposal.json").read_bytes())
     proposal["baseChangeSha256"] = base.changeSha256
     proposal["transactionId"] = str(uuid4())
     proposal["kind"] = "correction"
     resource = proposal["resources"][0]
-    patient = decode_json((destination / resource["path"]).read_bytes())
+    patient = decode_canonical_json((destination / resource["path"]).read_bytes())
     resource["supersedesVersionId"] = patient["meta"]["versionId"]
     patient["meta"]["versionId"] = str(uuid4())
     patient["name"][0]["text"] = "Alex Revised"
@@ -63,10 +63,10 @@ def update_payload(vault, person, destination):
     resource["sha256"] = hash_bytes((destination / resource["path"]).read_bytes())
     write_json(destination / "proposal.json", proposal)
     proposal_hash = hash_bytes((destination / "proposal.json").read_bytes())
-    validation = decode_json((destination / "validation.json").read_bytes())
+    validation = decode_canonical_json((destination / "validation.json").read_bytes())
     validation["checkedProposalSha256"] = proposal_hash
     write_json(destination / "validation.json", validation)
-    review = decode_json((destination / "review.json").read_bytes())
+    review = decode_canonical_json((destination / "review.json").read_bytes())
     review.update(baseChangeSha256=base.changeSha256, proposalSha256=proposal_hash,
                   validationSha256=hash_bytes((destination / "validation.json").read_bytes()))
     write_json(destination / "review.json", review)
@@ -536,6 +536,15 @@ def test_canonical_numeric_payload_survives_publication_and_reopen(tmp_path, tok
     assert actual == expected
     if "." in token:
         assert actual.as_tuple() == expected.as_tuple()
+    # A later revision must read the retained expansion through the same boundary.
+    older_ref = ResourceRef("Patient", person, current["meta"]["versionId"])
+    later_payload = tmp_path / "prepared-later"
+    later_base = update_payload(reopened, person, later_payload)
+    later_head = _publish_change(reopened, person, later_payload, later_base)
+    reopened_again = open_vault(vault.root)
+    assert head(reopened_again, person) == later_head
+    assert encode_json(resolve(reopened_again, person, older_ref)) == expected_bytes
+    assert resolve(reopened_again, person, ResourceRef("Patient", person))["meta"]["versionId"] != older_ref.versionId
 
 
 @pytest.mark.parametrize("raw", [b"1e999999999", b"9" * 129,
