@@ -1,0 +1,44 @@
+{
+  "artifacts": [
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/change.schema.json",
+          "sha256": "6fbffabe998a0850066bb84d1f230d91b0e34789e6c0a9d057c5513ea59da503",
+          "size": 4525
+        },
+        {
+          "path": "schemas/0.1.0/evidence.schema.json",
+          "sha256": "f1c1438a2bb560e598c318ff2e1851155d739977ef1733bd9b03515a5c3b1fcf",
+          "size": 1268
+        },
+        {
+          "path": "schemas/0.1.0/proposal.schema.json",
+          "sha256": "ff60696c176da7728cca38bf5b28946a8519bfbabeb916c2461b787b85f7825a",
+          "size": 3999
+        },
+        {
+          "path": "schemas/0.1.0/review.schema.json",
+          "sha256": "a642c4610ace4883d52c67ec7250b6def8fb232f59182f37068aadca7e9cbee7",
+          "size": 2140
+        },
+        {
+          "path": "schemas/0.1.0/validation.schema.json",
+          "sha256": "9962bc1456e9ed953b65af9bddca5aba32bfe84eeb25d2f70614dbc33a056e51",
+          "size": 2146
+        },
+        {
+          "path": "schemas/0.1.0/vault.schema.json",
+          "sha256": "e0c0250b2728fd4000585fbe82c8017aed188266548226bad86379f0396f5bf6",
+          "size": 1033
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-contracts",
+      "version": "0.1.0"
+    }
+  ],
+  "contractVersion": "0.1.0",
+  "scope": "Task 1 local envelopes only; upstream FHIR definitions and profiles pending Task 2"
+}

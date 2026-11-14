@@ -1,0 +1,175 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:proposal",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assets": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "mediaType": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sha256",
+          "size",
+          "mediaType",
+          "path"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "baseChangeSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidateSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "evidenceSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "user-entry",
+        "import",
+        "correction",
+        "reextract"
+      ]
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "supersedesVersionId": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "pattern": "^[A-Z][A-Za-z0-9]{0,63}$",
+            "type": "string"
+          },
+          "versionId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "versionId",
+          "sha256",
+          "path",
+          "supersedesVersionId"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "transactionId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "versions": {
+      "additionalProperties": false,
+      "properties": {
+        "agentKitLockSha256": {
+          "type": "null"
+        },
+        "agentKitVersion": {
+          "type": "null"
+        },
+        "archiveFormatVersion": {
+          "const": 1
+        },
+        "contractVersion": {
+          "const": "0.1.0"
+        },
+        "definitionLockSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "fhirVersion": {
+          "const": "4.0.1"
+        },
+        "profileVersion": {
+          "const": "0.1.0"
+        },
+        "serializationVersion": {
+          "const": "helseark-json-1"
+        }
+      },
+      "required": [
+        "archiveFormatVersion",
+        "contractVersion",
+        "profileVersion",
+        "fhirVersion",
+        "serializationVersion",
+        "definitionLockSha256",
+        "agentKitVersion",
+        "agentKitLockSha256"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "personId",
+    "transactionId",
+    "kind",
+    "candidateSha256",
+    "baseChangeSha256",
+    "versions",
+    "resources",
+    "assets",
+    "evidenceSha256"
+  ],
+  "type": "object"
+}

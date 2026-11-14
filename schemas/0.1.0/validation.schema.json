@@ -1,0 +1,108 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:validation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "checkedProposalSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coverage": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "enum": [
+              "passed",
+              "failed",
+              "not-checked"
+            ]
+          }
+        },
+        "required": [
+          "family",
+          "result",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "issues": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "pointer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resourceRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "checkedProposalSha256",
+    "coverage",
+    "issues"
+  ],
+  "type": "object"
+}

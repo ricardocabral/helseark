@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools==80.9.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "helseark"
+version = "0.1.0"
+description = "Offline immutable personal health archive"
+requires-python = ">=3.12"
+dependencies = ["jsonschema==4.25.1"]
+
+[project.scripts]
+helseark = "helseark.cli:main"
+
+[dependency-groups]
+dev = ["pytest==8.4.2"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/helseark/schemas/0.1.0" = ["schemas/0.1.0/*.json"]
+"share/helseark/definitions" = ["definitions/lock.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
