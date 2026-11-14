@@ -628,16 +628,31 @@ def _check_reference(reference, current, exact_revisions, path):
         raise ArchiveError('UNRESOLVED_REVISION','Accepted resource has an unresolved local reference.',{'path':path})
 
 
-def _references(value):
-    """Yield FHIR Reference strings without interpreting text or attachment URLs."""
+def _reference_nodes(value, pointer='', resource_type=None):
+    """Yield actual FHIR Reference objects in the supported native surface.
+
+    Immunization.education.reference is a uri primitive, not a Reference. Keep
+    this distinction shared by scope validation, publication and exchange maps.
+    Paths are JSON pointers; resource_type is inherited only from the root.
+    """
+    if resource_type is None and isinstance(value, dict):
+        resource_type = value.get('resourceType')
     if isinstance(value, dict):
-        if 'reference' in value:
-            yield value['reference']
-        for item in value.values():
-            yield from _references(item)
+        education_uri = resource_type == 'Immunization' and bool(re.fullmatch(r'/education/[0-9]+', pointer))
+        if 'reference' in value and not education_uri:
+            yield pointer, value
+        for key, item in value.items():
+            token = key.replace('~', '~0').replace('/', '~1')
+            yield from _reference_nodes(item, pointer + '/' + token, resource_type)
     elif isinstance(value, list):
-        for item in value:
-            yield from _references(item)
+        for index, item in enumerate(value):
+            yield from _reference_nodes(item, pointer + '/' + str(index), resource_type)
+
+
+def _references(value):
+    """Yield only actual Reference strings; never interpret clinical text/URIs."""
+    for _, node in _reference_nodes(value):
+        yield node['reference']
 
 
 def doctor(vault: Vault) -> IntegrityReport:

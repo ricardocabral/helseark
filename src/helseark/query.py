@@ -74,7 +74,7 @@ def _date_window(from_date, to_date):
 
 
 # Native event time only. Recording/authorship does not imply event onset.
-_HISTORY_TIMES = {'AllergyIntolerance': ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), 'Condition': ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), 'MedicationRequest': ('authoredOn',), 'MedicationStatement': ('effectiveDateTime', 'effectivePeriod')}
+_HISTORY_TIMES = {'Immunization': ('occurrenceDateTime', 'occurrenceString'), 'AllergyIntolerance': ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), 'Condition': ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), 'MedicationRequest': ('authoredOn',), 'MedicationStatement': ('effectiveDateTime', 'effectivePeriod')}
 
 def _effective(resource):
     kind = resource.get('resourceType')

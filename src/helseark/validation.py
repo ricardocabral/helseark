@@ -31,18 +31,19 @@ from jsonschema.exceptions import SchemaError
 from .contracts import (ArchiveError, Candidate, CheckCoverage, Issue,
                         JsonValue, ResourceRef, ValidationReport, Vault, uuid_string)
 from .serialization import decode_json, encode_json, hash_bytes
-from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs
+from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs, _reference_nodes
 
 _CORE = 'http://hl7.org/fhir/StructureDefinition/'
 _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
 # Added resource profiles are versioned independently of the frozen original six.
-_HISTORY = {'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
+_HISTORY = {'Immunization': 'immunization', 'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
 _SLUGS['MedicationStatement'] = 'medication-statement'
 _SLUGS['MedicationRequest'] = 'medication-request'
 _SLUGS['Condition'] = 'condition'
 _SLUGS['AllergyIntolerance'] = 'allergy-intolerance'
+_SLUGS['Immunization'] = 'immunization'
 _PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
 
 _PATIENT_FIELDS['MedicationStatement'] = 'subject'
@@ -52,6 +53,8 @@ _PATIENT_FIELDS['MedicationRequest'] = 'subject'
 _PATIENT_FIELDS['Condition'] = 'subject'
 
 _PATIENT_FIELDS['AllergyIntolerance'] = 'patient'
+
+_PATIENT_FIELDS['Immunization'] = 'patient'
 
 def _profile(kind):
     return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
@@ -71,9 +74,11 @@ _FIELDS = {
     'MedicationRequest': 'identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory',
     'Condition': 'identifier clinicalStatus verificationStatus category severity code bodySite subject encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString abatementDateTime abatementAge abatementPeriod abatementRange abatementString recordedDate recorder asserter stage evidence note',
     'AllergyIntolerance': 'identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction',
+    'Immunization': 'identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('Immunization', 'status'): 'completed entered-in-error not-done',
     ('MedicationRequest', 'status'): 'active on-hold cancelled completed entered-in-error stopped draft unknown',
     ('MedicationStatement', 'status'): 'active completed entered-in-error intended stopped on-hold unknown not-taken',
     ('Observation', 'status'): 'registered preliminary final amended corrected cancelled entered-in-error unknown',
@@ -513,6 +518,10 @@ class _Checks:
                 codings = r[field].get('coding', [])
                 if not codings or any(c.get('system') != 'http://terminology.hl7.org/CodeSystem/' + system or c.get('code') not in allowed_codes.split() for c in codings):
                     self.issue('FHIR_STATUS_INVALID', '/' + field, key)
+        if kind == 'Immunization':
+            for index, education in enumerate(r.get('education', [])):
+                if not education.get('documentType') and not education.get('reference'):
+                    self.issue('FHIR_REQUIRED', '/education/' + str(index), key)
         if kind == 'Observation':
             self.observation(r, '', key)
             for i, component in enumerate(r.get('component', [])):
@@ -711,9 +720,7 @@ class _Checks:
         profiles = resource.get('meta', {}).get('profile', [])
         if any('|5.' in p or '|3.' in p for p in profiles):
             self.issue('FHIR_VERSION_MISMATCH', '/meta/profile', key)
-        for pointer, value in _walk(resource):
-            if not isinstance(value, dict) or 'reference' not in value:
-                continue
+        for pointer, value in _reference_nodes(resource):
             target = self.lookup(value['reference'], pointer + '/reference', key)
             if target is None:
                 continue
@@ -726,6 +733,8 @@ class _Checks:
             allowed = {'subject': {'Patient'}, 'patient': {'Patient'}, 'specimen': {'Specimen'}, 'result': {'Observation'},
                        'hasMember': {'Observation'}, 'derivedFrom': {'Observation','DocumentReference'},
                        'parent': {'Specimen'}}.get(field)
+            if kind == 'MedicationStatement' and field == 'derivedFrom':
+                allowed = set(_SLUGS)
             if kind == 'Provenance' and re.fullmatch(r'/entity/[0-9]+/what', pointer):
                 entity = resource['entity'][int(pointer.split('/')[2])]
                 if entity.get('role') == 'source':

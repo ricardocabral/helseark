@@ -342,3 +342,9 @@ Contradictory entered-in-error/clinical status and abatement/active status block
 Source assertions use `patient` for the selected Patient. Supported native fields: `identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction`. Timeline uses ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
 
 An explicit no-known-allergies source statement is a nonempty AllergyIntolerance.code.text with its verification/clinical qualifiers and evidence. No records is unknown, not a negative assertion. Preserve suspected versus confirmed/refuted status, reactions and criticality without deriving clinical risk.
+
+### Immunization (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied`. Timeline uses ('occurrenceDateTime', 'occurrenceString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve occurrenceDateTime precision or occurrenceString for unknown dates. Keep unknown doseNumberString/series as stated; never calculate dates or series from age. A not-done resource is not an administered vaccine.

@@ -501,12 +501,18 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         r['id']=rid; r['meta'].update(versionId=version,lastUpdated=now)
         resources.append(r)
         inventory.append({'type':r['resourceType'],'id':rid,'versionId':version,'path':f"resources/{r['resourceType']}-{rid}.json",'sha256':'','supersedesVersionId':previous})
-    def rewrite(value):
-        if isinstance(value,str): return aliases.get(value,value)
-        if isinstance(value,list): return [rewrite(v) for v in value]
-        if isinstance(value,dict): return {k:rewrite(v) for k,v in value.items()}
-        return value
-    resources=[rewrite(r) for r in resources]; evidence=rewrite(deepcopy(fresh.evidence))
+    from .archive import _reference_nodes
+    for resource in resources:
+        for _, node in _reference_nodes(resource):
+            node['reference'] = aliases.get(node['reference'], node['reference'])
+    evidence = deepcopy(fresh.evidence)
+    for entry in evidence['entries']:
+        target = entry.get('target', {})
+        if 'reference' in target:
+            target['reference'] = aliases.get(target['reference'], target['reference'])
+        for field in ('resourceRef', 'sourceDocument'):
+            if field in entry:
+                entry[field] = aliases.get(entry[field], entry[field])
     for final in dict.fromkeys(aliases.values()):
         evidence['entries'].append({'target':{'reference':final,'pointers':['/meta/versionId','/meta/lastUpdated']},'kind':'generated','rule':'prepare-revisions-1'})
     # Native FHIR Provenance records local compilation, never a clinical approver.

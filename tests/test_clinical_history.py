@@ -13,7 +13,15 @@ from helseark.serialization import decode_json, encode_json
 from helseark.validation import validate_candidate, schema_packet
 from test_validation import good, persist
 from test_query import enrich
-from test_review import approve
+from helseark.review import render_review, record_review
+from helseark.contracts import ReviewDecision
+
+
+def approve(vault, proposal):
+    view=render_review(vault,proposal)
+    acks={(i["code"],i["resourceRef"]): {"code":i["code"],"resourceRef":i["resourceRef"],"reason":"Synthetic human compared source and retained limitation."}
+          for i in view.issues if i["severity"] in ("review","warning")}
+    return record_review(vault,proposal,ReviewDecision(True,"accept-with-acknowledged-limitations",tuple(acks.values()),"synthetic human"))
 
 FIXTURES = Path(__file__).parent/'fixtures/synthetic/clinical-history'
 KINDS = sorted(p.stem for p in FIXTURES.glob('*.json')) or ['MedicationStatement']
@@ -24,6 +32,10 @@ def candidate_for(vault, candidate, kind):
     resources=[]
     for r in records:
         r=copy.deepcopy(r);r['id']=str(uuid4())
+        if kind=='Immunization' and r.get('status')=='completed':
+            # A uri and a source quote shaped like an alias are still source text.
+            r['education'][0]['reference']='urn:uuid:'+r['id']
+            r.setdefault('note',[]).append({'text':'urn:uuid:'+r['id']})
         resources.append({'fullUrl':'urn:uuid:'+r['id'],'resource':r})
     enrich(vault,candidate,resources)
     # Register the source with the same supported intake API used by CLI imports.
@@ -178,3 +190,10 @@ def test_allergy_absence_and_status_are_explicit_assertions(good):
     r['code']={'text':'No known allergies per source'}
     r['verificationStatus']['coding'][0]['code']='entered-in-error';persist(candidate)
     assert 'ALLERGY_STATUS_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}
+
+
+def test_immunization_date_is_not_inferred_from_age(good):
+    vault,candidate=good
+    _,entries=candidate_for(vault,candidate,'Immunization')
+    del entries[0]['resource']['occurrenceDateTime'];persist(candidate)
+    assert 'FHIR_REQUIRED' in {i.code for i in validate_candidate(vault,candidate).issues}
