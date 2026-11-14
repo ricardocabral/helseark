@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "fe35477b2d37af20204ad06b6de7b49cffc9009326a2aa24279b4abc07ce1938",
+    "definitionLockSha256": "34783775cba63ffa02f53d6c4472cd8073d163691038fac130ee1618925ec9a3",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.2.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "fe35477b2d37af20204ad06b6de7b49cffc9009326a2aa24279b4abc07ce1938",
+      "sha256": "34783775cba63ffa02f53d6c4472cd8073d163691038fac130ee1618925ec9a3",
       "size": 38016
     },
     {
@@ -59,8 +59,8 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "6a69cb00e25db20517b6d2009154cbbd5cdfc8409fae7dfc0ba8a11314d85f2b",
-      "size": 28573
+      "sha256": "ddd18aaf488fb9ff3559cbfb092a8c2daffb270c959e3ada10e2600cdf3706e6",
+      "size": 32532
     },
     {
       "path": "docs/reference/intake.md",
