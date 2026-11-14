@@ -233,7 +233,8 @@ def test_import_source_assertions_do_not_supply_human_confirmation(tmp_path):
     assert 'IDENTITY_CONFIRMED_REQUIRED' in handoff['stopReasons']
     assert handoff['permittedWrites']==['output/report.md']
     assert 'pdf-intake' not in handoff['stopReasons']
-    assert 'reviewed-publication' in handoff['workflowAvailability']['missingCapabilities']
+    assert 'reviewed-publication' not in handoff['workflowAvailability']['missingCapabilities']
+    assert 'structured-import' in handoff['workflowAvailability']['missingCapabilities']
     with pytest.raises(ArchiveError,match='INVALID_VARIABLE'):
         render(context,{**values,'identity_confirmed':None},'extract-report')
 

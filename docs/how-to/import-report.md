@@ -74,9 +74,51 @@ retention. Changed receipts/assets fail closed. See the [intake contract](../ref
 and [PDF limits](../reference/pdf-extraction.md). Choose a new packet/output directory
 when retrying; a hard-killed process may leave private incomplete work to inspect.
 
-Task6 preparation, bound human review and atomic accepted publication are still
-unimplemented. Keep the candidate for that future handoff; do not manually place it
+Preparation, bound human review and atomic accepted publication are described below. Keep the candidate through preparation and review; do not manually place it
 in accepted history or manufacture a review receipt. The [synthetic tutorial](../tutorials/first-archive.md)
 exercises the implemented boundary without any model account. It is not extraction
 accuracy evidence. An actual baseline/post-kit agent evaluation must record real
 transcripts and compare independently authored facts on the same bounded scenarios.
+
+## Prepare and accept the exact human-reviewed proposal
+
+After the external agent has stopped writing, prepare its candidate. Run these
+commands yourself under approved-user workflow control. Keep human decision files
+outside agent-permitted output directories. The toolkit has no embedded model.
+
+```sh
+helseark --vault "$VAULT" candidate prepare "$CANDIDATE" --person "$PERSON" --json
+# Use the returned path as PROPOSAL. Inspect all resources, quotes and limitations:
+helseark --vault "$VAULT" candidate review "$PROPOSAL" --person "$PERSON" --json
+```
+
+Create a human decision JSON file with this shape, adding one acknowledgment for
+each displayed review/warning issue using its exact code and resourceRef. Read the
+original source and confirm person assignment; do not copy an agent's approval.
+
+```json
+{
+  "confirmedPerson": true,
+  "decision": "accept-with-acknowledged-limitations",
+  "reviewerLabel": "vault-owner",
+  "acknowledgedIssues": [
+    {"code": "SOURCE_IDENTITY_REVIEW", "resourceRef": null,
+     "reason": "I checked the original person assignment and identity uncertainty."}
+  ]
+}
+```
+
+The list above is illustrative; your actual view may require additional issues.
+Errors cannot be acknowledged. Then record the decision and publish:
+
+```sh
+helseark --vault "$VAULT" candidate review "$PROPOSAL" --person "$PERSON" --decision "$HUMAN_DECISION" --json
+helseark --vault "$VAULT" candidate commit "$PROPOSAL" --person "$PERSON" --json
+```
+
+The receipt binds exact proposal and report bytes. Editing any bound candidate,
+resource, evidence, original/derived source or report invalidates review. A changed
+person head requires preparing/reviewing again. Retrying commit returns
+`already-accepted` and the original transaction. Keep the accepted directory and
+all inventoried assets; removing disposable work afterward preserves review proof.
+For changed extraction of an existing source, see [review and reconciliation](../reference/review.md).

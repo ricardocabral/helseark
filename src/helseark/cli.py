@@ -8,7 +8,10 @@ from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
-from .intake import add_source, build_packet, read_candidate
+from .intake import add_source, build_packet, read_candidate, prepare_candidate
+from .review import read_prepared, render_review, record_review, read_receipt
+from .contracts import ReviewDecision
+from .archive import commit_candidate
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
@@ -24,7 +27,7 @@ _EXIT = {
     "NUMERIC_LIMIT": 2, "DUPLICATE_KEY": 2, "DEPTH_LIMIT": 2,
     "INVALID_JSON": 2, "INVALID_INPUT": 2, "INVALID_PERSON": 2,
     "DESTINATION_EXISTS": 2, "INVALID_ID": 2, "INVALID_REFERENCE": 2,
-    "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
+    "SOURCE_AUTHORITY_REQUIRED": 3, "SOURCE_SCOPE_MISMATCH": 2, "IDENTITY_UNCONFIRMED": 3, "REEXTRACTION_REQUIRED": 3, "RECONCILIATION_REQUIRED": 3, "CANDIDATE_MISMATCH": 5, "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
     "UNSAFE_PATH": 2, "SOURCE_TOO_LARGE": 2, "PAGE_LIMIT": 2,
     "TEXT_FIELD_LIMIT": 2, "RESOURCE_LIMIT": 2, "INTAKE_ISSUES_MISSING": 2,
     "INVALID_ENVELOPE": 2, "PERSON_MISMATCH": 2, "UNSUPPORTED_RESOURCE": 6,
@@ -73,6 +76,19 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
+    candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
+    candidates = candidate.add_subparsers(dest='candidate_command', required=True)
+    for verb in ('prepare','review','commit'):
+        action=candidates.add_parser(verb)
+        action.add_argument('path',type=Path)
+        action.add_argument('--person',required=True)
+        action.add_argument('--json',action='store_true')
+        if verb=='prepare':
+            action.add_argument('--source',action='append',help='Explicit user-authorized source hash for legacy/unbound candidates; repeat for each source.')
+            action.add_argument('--reextract',action='store_true',help='Explicit user workflow intent for an existing source.')
+            action.add_argument('--reconciliation',type=Path,help='User-controlled JSON map: candidate urn to Type/UUID or null (new fact).')
+        if verb=='review':
+            action.add_argument('--decision',type=Path,help='User-controlled ReviewDecision JSON; omit to inspect only.')
     agent = commands.add_parser("agent", help="Discover tasks and prepare bounded local context; no model execution.")
     agents = agent.add_subparsers(dest="agent_command", required=True)
     tasks = agents.add_parser("tasks", help="List kit routes without clinical reads.")
@@ -152,7 +168,7 @@ def main(argv=None):
                 raise ArchiveError("INVALID_INPUT", "Provide --vault PATH or HELSEARK_VAULT.")
             if args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command == 'intake':
+            elif args.command in ('intake','candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
@@ -161,6 +177,37 @@ def main(argv=None):
                 built = build_packet(vault, source, args.packet,
                     identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
                 output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
+            elif args.command == 'candidate':
+                if args.candidate_command=='prepare':
+                    envelope=_json(args.path,'candidate.json')
+                    if not isinstance(envelope,dict) or envelope.get('personId')!=args.person:
+                        raise ArchiveError('PERSON_MISMATCH','Candidate differs from explicit person.')
+                    candidate=read_candidate(vault,args.path)
+                    if candidate.personId!=args.person:
+                        raise ArchiveError('PERSON_MISMATCH','Candidate differs from explicit person.')
+                    reconciliation=decode_json(args.reconciliation.read_bytes()) if args.reconciliation else None
+                    if reconciliation is not None and (not isinstance(reconciliation,dict) or any(v is not None and not isinstance(v,str) for v in reconciliation.values())):
+                        raise ArchiveError('INVALID_INPUT','Reconciliation must map references to strings or null.')
+                    proposal=prepare_candidate(vault,candidate,reextract=args.reextract,reconciliation=reconciliation,authorized_sources=tuple(args.source) if args.source else None)
+                    output={**document(proposal),'disposition':'already-accepted' if (proposal.path/'change.json').exists() else 'prepared'}
+                else:
+                    envelope=_json(args.path,'proposal.json')
+                    if not isinstance(envelope,dict) or envelope.get('personId')!=args.person:
+                        raise ArchiveError('PERSON_MISMATCH','Proposal differs from explicit person.')
+                    proposal=read_prepared(vault,args.path)
+                    if proposal.personId!=args.person:
+                        raise ArchiveError('PERSON_MISMATCH','Proposal differs from explicit person.')
+                    if args.candidate_command=='review':
+                        if args.decision:
+                            raw=decode_json(args.decision.read_bytes())
+                            if not isinstance(raw,dict) or set(raw)!={'confirmedPerson','decision','acknowledgedIssues','reviewerLabel'} or not isinstance(raw['acknowledgedIssues'],list) or not isinstance(raw['reviewerLabel'],str):
+                                raise ArchiveError('INVALID_INPUT','Expected explicit human ReviewDecision object.')
+                            decision=ReviewDecision(raw['confirmedPerson'],raw['decision'],tuple(raw['acknowledgedIssues']),raw['reviewerLabel'])
+                            output=document(record_review(vault,proposal,decision))
+                        else: output=document(render_review(vault,proposal))
+                    else:
+                        receipt=read_receipt(vault,proposal)
+                        output=document(commit_candidate(vault,proposal,receipt))
             elif args.command == "schema":
                 output = {"path": str(schema_packet(vault, args.resource, args.out))}
             elif args.command == "validate":
@@ -208,6 +255,8 @@ def main(argv=None):
                 print("Baseline archive checks blocked." if exit_code in {2, 4, 5, 6} else
                       "Baseline archive checks completed; review required; terminology not checked." if exit_code == 3 else
                       "Baseline archive checks passed; terminology not checked. Human review remains mandatory.")
+            elif args.command == 'candidate':
+                print(encode_json(output).decode(),end='')
             elif args.command == 'intake':
                 print(output['path'])
                 print('Host-retained context SHA-256: '+output['trustedContextSha256'])

@@ -209,5 +209,6 @@
     "unresolved",
     "producerProvenance"
   ],
-  "type": "object"
+  "type": "object",
+  "description": "Untrusted extraction only. Re-extraction intent, reconciliation and human approval are separate host workflow inputs; this envelope cannot grant acceptance authority."
 }

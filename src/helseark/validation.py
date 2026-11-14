@@ -31,7 +31,7 @@ from jsonschema.exceptions import SchemaError
 from .contracts import (ArchiveError, Candidate, CheckCoverage, Issue,
                         JsonValue, ResourceRef, ValidationReport, Vault, uuid_string)
 from .serialization import decode_json, encode_json, hash_bytes
-from .archive import _read, _safe, head, resolve, _versions, _json
+from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs
 
 _CORE = 'http://hl7.org/fhir/StructureDefinition/'
 _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
@@ -366,6 +366,8 @@ class _Checks:
             version = r.get('meta', {}).get('versionId')
             if version:
                 self.aliases[key + '/_history/' + version] = key
+        if len({r['id'] for r in self.resources.values()}) != len(self.resources):
+            self.issue('DUPLICATE_RESOURCE')
         for key, r in self.resources.items():
             self.resource(r, key)
         self.checked.update({'supported-profile-rules','time-precision'})
@@ -717,7 +719,7 @@ class _Checks:
                     if isinstance(leaf, (dict,list)):
                         continue
                     full = pointer + suffix
-                    generated = full in {'/id','/resourceType'} or full.startswith('/meta/') or bool(re.fullmatch(r'/content/[0-9]+/attachment/url', full))
+                    generated = (self.prepared and resource['resourceType'] == 'Provenance' and entry.get('rule') == 'prepare-provenance-1' and bool(re.fullmatch(r'/(?:recorded|target/[0-9]+/reference|agent/[0-9]+/who/identifier/(?:system|value)|entity/[0-9]+/(?:role|what/reference))', full))) or full in {'/id','/resourceType'} or full.startswith('/meta/') or bool(re.fullmatch(r'/content/[0-9]+/attachment/url', full))
                     if entry.get('kind') == 'generated' and not generated:
                         self.issue('GENERATED_CLINICAL_EVIDENCE', full, ref)
                     elif entry.get('kind') == 'user-entry' and not (self.prepared and resource['resourceType'] == 'Patient'):
@@ -901,6 +903,10 @@ def validate_proposal(vault: Vault, proposalDirectory: Path) -> ValidationReport
         if not registry.validate('urn:helseark:schema:0.1.0:proposal', proposal):
             checks.issue('INVALID_ENVELOPE')
             return checks.report(digest)
+        _verify_inputs(proposalDirectory,proposal)
+        for item in proposal.get('inputs', []):
+            if not re.fullmatch(r'inputs/[a-z-]+[.]json',item['path']) or hash_bytes(_read(proposalDirectory,item['path']))!=item['sha256']:
+                checks.issue('CANDIDATE_MISMATCH')
         checks.base = head(vault, checks.person)
         if proposal['baseChangeSha256'] != (checks.base.changeSha256 if checks.base else None):
             checks.issue('STALE_BASE')

@@ -1,0 +1,13 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "66666666-6666-4666-8666-666666666666",
+  "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-diagnostic-report|0.1.0"]},
+  "status": "final",
+  "code": {"text": "Synthetic laboratory report"},
+  "subject": {"reference": "Patient/PERSON"},
+  "effectiveDateTime": "2026-01",
+  "result": [
+    {"reference": "urn:uuid:33333333-3333-4333-8333-333333333333"},
+    {"reference": "urn:uuid:44444444-4444-4444-8444-444444444444"}
+  ]
+}

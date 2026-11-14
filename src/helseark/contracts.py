@@ -145,6 +145,8 @@ class PreparedProposal:
     proposalSha256: Sha256
     base: Head | None
     validation: ValidationReport
+    # Host control, never derived from untrusted packet authority.
+    candidatePath: Path | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -161,6 +163,19 @@ class ReviewReceipt:
     proposalSha256: Sha256
     validationSha256: Sha256
     base: Head | None
+    receiptSha256: Sha256 | None = None
+
+
+@dataclass(frozen=True)
+class ReviewView:
+    identitySummary: dict
+    resourcesAdded: tuple[dict, ...]
+    revisionsChanged: tuple[dict, ...]
+    omissions: tuple[str, ...]
+    duplicateCandidates: tuple[str, ...]
+    sourceLinks: tuple[dict, ...]
+    issues: tuple[dict, ...]
+    validationCoverage: tuple[dict, ...]
 
 
 @dataclass(frozen=True)
