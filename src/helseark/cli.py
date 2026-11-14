@@ -213,12 +213,7 @@ def main(argv=None):
                 output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
             elif args.command == 'candidate':
                 if args.candidate_command=='prepare':
-                    envelope=_json(args.path,'candidate.json')
-                    if not isinstance(envelope,dict) or envelope.get('personId')!=args.person:
-                        raise ArchiveError('PERSON_MISMATCH','Candidate differs from explicit person.')
-                    candidate=read_candidate(vault,args.path)
-                    if candidate.personId!=args.person:
-                        raise ArchiveError('PERSON_MISMATCH','Candidate differs from explicit person.')
+                    candidate=read_candidate(vault,args.path,person=args.person)
                     reconciliation=decode_json(args.reconciliation.read_bytes()) if args.reconciliation else None
                     if reconciliation is not None and (not isinstance(reconciliation,dict) or any(v is not None and not isinstance(v,str) for v in reconciliation.values())):
                         raise ArchiveError('INVALID_INPUT','Reconciliation must map references to strings or null.')

@@ -14,8 +14,8 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "f4eb8816237790a9968d31a077f72e8a50daef800a2bf3e191167ce59fe40f3d",
-      "size": 9279
+      "sha256": "f80d0729893e4706bd5a7d36fdfe9dca972a8666681bf3ba9d4a5dbf2121a6c0",
+      "size": 9475
     },
     {
       "path": "START-HERE.md",
@@ -283,7 +283,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.4",
+  "kitVersion": "0.1.5",
   "prompts": [
     {
       "id": "extract-report",

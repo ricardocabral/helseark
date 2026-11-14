@@ -495,7 +495,7 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         old = decode_json(_regular(directory/'proposal.json',CANDIDATE_FILE_BYTES))
         if old['candidateSha256']==candidate_digest and 'importReview' in old:
             return _accepted_proposal(vault,candidate.personId,directory,history[index-1][0] if index else None)
-    fresh = read_candidate(vault,candidate.path)
+    fresh = read_candidate(vault,candidate.path,person=candidate.personId)
     if fresh != candidate:
         raise ArchiveError('CANDIDATE_MISMATCH','Candidate differs from strict read-time content.')
     selected = decode_json(raw[0])['sourceSha256']

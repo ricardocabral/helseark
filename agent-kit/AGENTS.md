@@ -71,7 +71,8 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read and clinical-query. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read,
+reviewed-publication and clinical-query. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -85,9 +86,11 @@ Implemented command forms (operator-run; placeholders are documentation only):
 
 - `helseark --vault PATH intake add SOURCE --person UUID --packet ABSENT_PATH --agent-output ABSENT_OUTPUT --confirm-person --json`
 
-Discovery/context/render are documented in START-HERE.md. PDF intake and draft
-extraction are implemented; full import acceptance, structured import,
-correction, export, doctor and migration workflows remain unavailable. Selected-person
+Discovery/context/render are documented in START-HERE.md. PDF intake, draft
+extraction and human-reviewed PDF publication are implemented. Preparation,
+review and commit remain under operator control; agents cannot approve or commit.
+The broader import task remains unavailable because structured import is not
+implemented. Correction, export, doctor and migration workflows remain unavailable. Selected-person
 observations/timeline/record and date-filtered query context are implemented; see
 [query workflow](docs/how-to/query-history.md). Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
