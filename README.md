@@ -1,8 +1,8 @@
 # Helseark
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/svg/helseark-horizontal-reverse.svg">
-  <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-reverse.svg">
+  <img src="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
 </picture>
 
 A local personal and family health archive toolkit, under development.
@@ -38,14 +38,14 @@ receive the context you explicitly share with them.
 
 ## Documentation and participation
 
-- [Archive format and supported commands](docs/reference/archive-format.md)
-- [Clinical model](docs/reference/clinical-model.md), [agent protocol](docs/reference/agent-protocol.md), [PDF extraction](docs/reference/pdf-extraction.md)
-- [Privacy and agent boundaries](docs/explanation/privacy-and-agent-boundaries.md)
-- [Contributing](CONTRIBUTING.md), [coding guide](docs/development/coding-guide.md), [governance](GOVERNANCE.md), [changelog](CHANGELOG.md)
-- [Security reporting](SECURITY.md), [support](SUPPORT.md), [code of conduct](CODE_OF_CONDUCT.md)
-- [Release guide](docs/maintainers/releasing.md) and [licensing status](docs/maintainers/licensing.md)
-- [Logo and brand assets](docs/brand/README.md)
+- [Archive format and supported commands](https://github.com/ricardocabral/helseark/blob/main/docs/reference/archive-format.md)
+- [Clinical model](https://github.com/ricardocabral/helseark/blob/main/docs/reference/clinical-model.md), [agent protocol](https://github.com/ricardocabral/helseark/blob/main/docs/reference/agent-protocol.md), [PDF extraction](https://github.com/ricardocabral/helseark/blob/main/docs/reference/pdf-extraction.md)
+- [Privacy and agent boundaries](https://github.com/ricardocabral/helseark/blob/main/docs/explanation/privacy-and-agent-boundaries.md)
+- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](https://github.com/ricardocabral/helseark/blob/main/docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
+- [Security reporting](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md), [support](https://github.com/ricardocabral/helseark/blob/main/SUPPORT.md), [code of conduct](https://github.com/ricardocabral/helseark/blob/main/CODE_OF_CONDUCT.md)
+- [Release guide](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/releasing.md) and [licensing status](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/licensing.md)
+- [Logo and brand assets](https://github.com/ricardocabral/helseark/blob/main/docs/brand/README.md)
 
 Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
-[MIT License](LICENSE), matching Rikdom. Existing fixture/upstream terms are
+[MIT License](https://github.com/ricardocabral/helseark/blob/main/LICENSE), matching Rikdom. Existing fixture/upstream terms are
 listed in the licensing guide. User records are not licensed by the toolkit.

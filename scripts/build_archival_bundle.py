@@ -33,7 +33,7 @@ MAX_METADATA = 32 * 1024 * 1024
 CHUNK = 1024 * 1024
 ROOT = Path(__file__).resolve().parents[1]
 PINS = 'definitions/archival-sources.json'
-TOOLS = ('LICENSE', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md')
+TOOLS = ('scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md')
 # Version 1 is a complete, standalone R4 preservation contract. These roles and
 # notices are defined by the verifier, never inferred from untrusted inventory.
 SOURCE_ROLES = dict(core='tar.gz', specification='zip', schema='zip',
@@ -356,7 +356,8 @@ def build(pins_path, cache, output, fetch=False):
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as temp:
         stage = Path(temp)
-        files = {PINS: pins_path.read_bytes(), 'README.md': README}
+        files = {PINS: pins_path.read_bytes(), 'README.md': README,
+                 'LICENSE': local_path(ROOT / 'LICENSE').read_bytes()}
         for name in TOOLS:
             files[name] = local_path(ROOT / name).read_bytes()
         for key, records in inventories.items():
@@ -408,6 +409,10 @@ def verify(bundle):
         pin_path.write_bytes(pin_bytes)
         pins = load_pins(pin_path)
         required = {PINS, 'README.md', 'manifest.json', *TOOLS}
+        # Version-1 archives originally had no project license. Retain support
+        # for those exact archives; validate the added license when present.
+        if 'LICENSE' in archive.namelist():
+            required.add('LICENSE')
         required.update(r['path'] for r in REQUIRED_RETAIN)
         required.update('sources/' + s['sha256'] for s in pins['sources'])
         required.update(f'inventories/{s["id"]}.json' for s in pins['sources'] if s['format'] != 'raw')

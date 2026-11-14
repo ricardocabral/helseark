@@ -43,6 +43,9 @@ jobs:
       - name: Build source distribution and wheel
         run: uv build --no-sources
 
+      - name: Verify built distribution licensing
+        run: uv run --no-sync python tests/qualify_distribution.py dist
+
   base-optionality:
     name: Base-only PDF optionality / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

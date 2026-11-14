@@ -354,7 +354,7 @@ def rewrite_bundle(original, output, *, omit=(), change_pins=None, replacements=
             archive.writestr(name, data)
 
 
-@pytest.mark.parametrize('missing', ['LICENSE', 'README.md', 'scripts/build_archival_bundle.py',
+@pytest.mark.parametrize('missing', ['README.md', 'scripts/build_archival_bundle.py',
     'docs/reference/archival-bundle.md', 'licenses/cc0.html',
     'licenses/specification-license.html', 'licenses/core-package.json',
     'licenses/hl7-license.html', 'inventories/core.json', 'inventories/specification.json'])
@@ -559,3 +559,12 @@ def test_verify_rejects_missing_blob_even_with_consistent_manifest(inputs, tmp_p
     rewrite_bundle(good, bad, omit=['sources/' + source['sha256']])
     with pytest.raises(ValueError, match='structure'):
         archival.verify(bad)
+
+
+def test_verify_accepts_legacy_v1_without_project_license(inputs, tmp_path):
+    pins, cache = inputs
+    current, legacy = tmp_path / 'current.zip', tmp_path / 'legacy.zip'
+    archival.build(pins, cache, current)
+    # Original version-1 bundles predate the added project-license file.
+    rewrite_bundle(current, legacy, omit=['LICENSE'])
+    archival.verify(legacy)

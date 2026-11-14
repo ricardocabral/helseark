@@ -12,11 +12,14 @@ license users' health records and exports.
 | Material | Terms / required handling |
 | --- | --- |
 | Original synthetic clinical fixtures | Existing CC0 dedication in [fixtures README](../../tests/fixtures/README.md) |
-| Retained pre-renderer protocol fixture | Original [Apache-2.0 text](../../licenses/Apache-2.0.txt), notices and exact historical bytes remain; see its [provenance](../../tests/fixtures/synthetic/agent-workflows/historical-protocol1/README.md) |
+| Retained pre-renderer protocol fixture | Original [Apache-2.0 text](../../tests/fixtures/synthetic/agent-workflows/historical-protocol1/LICENSE), notices and exact historical bytes remain; see its [provenance](../../tests/fixtures/synthetic/agent-workflows/historical-protocol1/README.md) |
 | HL7 FHIR R4 definitions, schemas, docs and runtime archive | Preserve exact upstream notices and retained CC0 text, including third-party exceptions |
 | Python runtime, optional and development dependencies | Inspect exact locked distribution metadata and their own license files, including transitives |
 | Brand masters and exports | Retain source provenance; verify publication/reuse rights and trademark scope |
 | Future Java validator, OCR engines/models or terminology | Separate acquisition and license review; not covered by the project license |
+
+The Apache text is scoped to that historical fixture. It is not a second project
+license and is not listed as a Python distribution license.
 
 Current project metadata was aligned to MIT at the owner's request. This updates
 repository distribution pins; it does not rewrite existing archives or retained

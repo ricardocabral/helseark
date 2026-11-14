@@ -37,6 +37,10 @@ moving package registries. Pins must be reviewed and updated explicitly if an
 official download changes. Recorded HTTP Last-Modified is server metadata, not
 proof of the original release date or a cryptographic publisher signature.
 
+New bundles include the project MIT license. Verification also accepts original
+version-1 bundles without that added file; existing archives are not rewritten.
+When present, the license is covered by the manifest and nonempty-file checks.
+
 ## Contents and completeness
 
 | Bundle path | Meaning |
@@ -48,6 +52,7 @@ proof of the original release date or a cryptographic publisher signature.
 | `licenses/specification-license.html` | Exact license page inside the whole specification ZIP |
 | `licenses/core-package.json` | Exact core package identity/version/license declaration |
 | `licenses/cc0.html` | Exact CC0 1.0 legal text |
+| `LICENSE` | MIT license for the bundled Helseark builder/docs; present in new bundles |
 | `manifest.json` | Size/SHA-256 of every other bundle file |
 | `README.md`, `docs/reference/archival-bundle.md`, `scripts/build_archival_bundle.py` | Offline instructions and the standalone builder/verifier |
 
