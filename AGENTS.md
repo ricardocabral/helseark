@@ -1,6 +1,8 @@
 # Contributor instructions
 
-- Read the implementation plan and design in ignored `docs/internal` (in the primary clone if absent in a worktree). Never commit these documents or real health data.
+- Follow [CONTRIBUTING.md](CONTRIBUTING.md), the [coding guide](docs/development/coding-guide.md), and [SECURITY.md](SECURITY.md).
+- Public contributors use the references, tests, and self-contained issues. If private planning context is needed, ask the coordinator for public acceptance criteria; never publish internal plans.
+- Maintainer agents: read the implementation plan and design in ignored `docs/internal` (in the primary clone if absent in a worktree). Never commit these documents or real health data.
 - Workers use separate branches/worktrees. Preserve other sessions' changes. Do not amend or rewrite commits.
 - Implement the assigned plan task completely, including behavioral tests and its documentation. Report limitations honestly.
 - Use synthetic fixtures only. Preserve exact decimal precision, patient isolation, immutable accepted history, offline operation, and mandatory human review.

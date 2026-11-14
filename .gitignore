@@ -8,3 +8,10 @@ __pycache__/
 dist/
 build/
 .DS_Store
+
+# Local credentials and scratch health archives (keep all real data outside the repo).
+.env
+.env.*
+!.env.example
+/vaults/
+/local-data/
