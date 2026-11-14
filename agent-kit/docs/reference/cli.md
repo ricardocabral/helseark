@@ -23,9 +23,9 @@ must be absent. `--json` is available on every leaf command. Repeat options mark
 | `--vault V candidate prepare DIRECTORY --person P` | Returns prepared path, proposalSha256, validation and disposition; optional repeat `--source HASH` is explicit host source authority; `--reextract` and `--reconciliation JSON_PATH` are explicit user inputs for existing-source correspondence |
 | `--vault V candidate review PROPOSAL --person P` | Without `--decision` inspects only; with user-controlled `--decision JSON_PATH` records exact receipt. See [review](review.md) |
 | `--vault V candidate commit PROPOSAL --person P` | Requires bound receipt/host continuity; returns committed/already-accepted disposition, Head and logicalResources |
-| `--vault V observations --person P` | Native accepted Observation rows, defaults current and excludes cancelled/entered-in-error. Optional `--label` exact source text, `--code-system`, `--code`, `--from-date`, `--to-date`, `--include-invalidated`, `--at-head HEAD_JSON` |
-| `--vault V timeline --person P` | Current accepted resource timeline; optional `--at-head HEAD_JSON`; unknown-time bucket retained |
-| `--vault V record --person P --resource REF` | Native FHIR resource; optional `--at-head HEAD_JSON` |
+| `--vault V observations --person P` | Native accepted Observation rows, defaults current and excludes cancelled/entered-in-error. Optional `--label` exact source text, `--code-system`, `--code`, `--from-date`, `--to-date`, `--include-invalidated`, `--at-head HEAD_JSON_PATH` |
+| `--vault V timeline --person P` | Current accepted resource timeline; optional `--at-head HEAD_JSON_PATH`; unknown-time bucket retained |
+| `--vault V record --person P --resource REF` | Native FHIR resource; optional `--at-head HEAD_JSON_PATH` |
 | `--vault V doctor` | Read-only integrity report: checkedChanges/Resources/Assets, issues, orphanPaths; never repairs/deletes |
 | `--vault V backup create --out NEW_PATH` | Complete folder snapshot, optional `--include-work`; excludes derived/runtime; returns ExportReceipt |
 | `backup verify BUNDLE_DIRECTORY` | No vault needed; verifies inventory and closure; returns IntegrityReport |
@@ -35,9 +35,10 @@ must be absent. `--json` is available on every leaf command. Repeat options mark
 | `--vault V agent context --task TASK --person P --out NEW_PATH` | Repeat `--source HASH`, `--resource REF`; optional from/to dates, `--continuation PRIOR_CONTEXT_JSON`; defaults max-records 100, max-data-bytes 262144; returns exact packet and host trustedContextSha256 |
 | `--vault V agent render --context CONTEXT_JSON --person P --prompt ID --variables JSON_PATH --trusted-context-sha256 HOST_DIGEST` | Verifies original host authority and typed slots, returns text/provenance/readable paths; executes no agent |
 
-`REF` is `Type/UUID` or `Type/UUID/_history/UUID`. `HEAD_JSON` is an exact object
-with sequence (positive integer), transactionId and changeSha256. It selects an
-existing person snapshot; it is not a date. Query rows include resourceRef, effective,
+`REF` is `Type/UUID` or `Type/UUID/_history/UUID`. `HEAD_JSON_PATH` is a path
+to a JSON file containing the exact object with sequence (positive integer),
+transactionId and changeSha256; pass the file path, not a literal JSON object.
+It selects an existing person snapshot; it is not a date. Query rows include resourceRef, effective,
 timePrecision, timeFilterRelation, code, value/valueType, unit/comparator, referenceRanges, method,
 status, sourceRefs and issues. Use Decimal-preserving JSON for numeric scale.
 No trend aggregation, conversion or inferred diagnosis is performed. See

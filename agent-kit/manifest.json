@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "7f9578e0ae7347feea034b8940f575e7c19a802660cb0aeae40ec47d9fbf3da7",
+    "definitionLockSha256": "90787b8575a3119285ed356abc3fe34e4ed1e8eb8330e8c44ffa22630748ce26",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "7f9578e0ae7347feea034b8940f575e7c19a802660cb0aeae40ec47d9fbf3da7",
+      "sha256": "90787b8575a3119285ed356abc3fe34e4ed1e8eb8330e8c44ffa22630748ce26",
       "size": 38217
     },
     {
@@ -99,13 +99,13 @@
     },
     {
       "path": "docs/reference/archive-format.md",
-      "sha256": "62dd74716db41d0c3b4d5d0e94c1a8f0f884a7dca489147610b365a70135d8aa",
-      "size": 19690
+      "sha256": "a056de78bf9a8fe80861f97925284873449b8632363a5db4f5bf996d604190b5",
+      "size": 21516
     },
     {
       "path": "docs/reference/cli.md",
-      "sha256": "b5a37b0a0afc52d521181116489bfc3f6315dcb40bbc0812c92a8f7de645bbc8",
-      "size": 7381
+      "sha256": "936702a3c73ca4ece57001735f59593ff7b47ebd23c89eeba54a904c332f8cba",
+      "size": 7482
     },
     {
       "path": "docs/reference/clinical-model.md",
