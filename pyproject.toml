@@ -15,6 +15,10 @@ helseark = "helseark.cli:main"
 [dependency-groups]
 dev = ["pytest==8.4.2"]
 
+[tool.uv]
+# Preserve the lock's seven-day release cutoff without relying on user config.
+exclude-newer = "7 days"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
