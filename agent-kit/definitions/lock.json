@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "112ac8a082b2a7e5b7299660ae731f60b72cdd8663c7155eb56f1d1219968dd6",
-          "size": 19675
+          "sha256": "62dd74716db41d0c3b4d5d0e94c1a8f0f884a7dca489147610b365a70135d8aa",
+          "size": 19690
         }
       ],
       "license": "Apache-2.0",
@@ -793,8 +793,8 @@
       "files": [
         {
           "path": "docs/tutorials/first-archive.md",
-          "sha256": "4391521cc435127a537d18c2830fb88737db9ecbe2c7d9bc384129920a2ceecb",
-          "size": 4569
+          "sha256": "a2a07d39a5c92a266580bdb5491127133adc00ac7c46bc93853f651ce6cbeb4a",
+          "size": 8791
         }
       ],
       "license": "Apache-2.0",
@@ -852,6 +852,175 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-backup-and-restore",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/architecture.md",
+          "sha256": "ed2edb14981432c879b10c31c19a0bddea985866fc890415ae49d249c2017fc6",
+          "size": 1748
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-architecture",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/evaluation-and-limits.md",
+          "sha256": "8222703aee804d521979d79b4ba2397fd5ff20a8590be1d11559145ddba0a5e3",
+          "size": 1523
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-evaluation-and-limits",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/evolution.md",
+          "sha256": "5b997c5fe59359ef829663a2701ea19df31078ba808d218530be468f8ab28870",
+          "size": 1347
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-evolution",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/privacy-and-agent-boundaries.md",
+          "sha256": "3142df5050777d30206a995a3e20439124a51dbea7e38a858245b12507c0ce54",
+          "size": 3995
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-privacy-and-agent-boundaries",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/explanation/provenance-and-revisions.md",
+          "sha256": "7b5c1a7499fe352252f9bf6f2eed9cf2e3e8516d7ea5a9db25f0ab163417f41c",
+          "size": 1957
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-provenance-and-revisions",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/manage-family.md",
+          "sha256": "6f95d95d2d9362c404347280226bab2026b6c182a3398998a217133a1010d875",
+          "size": 1376
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-manage-family",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/troubleshoot.md",
+          "sha256": "fb7b4abf2923a643efd4fa87f598c59e25a2e66e599e2860337de1b37388bdbb",
+          "size": 1825
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-troubleshoot",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/index.md",
+          "sha256": "6558cb5f06c9ee35eca77634b41fe932c443218f06126fa76e8ed1a920aad9af",
+          "size": 3400
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-index",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/archival-bundle.md",
+          "sha256": "6fc2f3642fdfa16851625717ed59f152f22842a2e33f4ebdd1bdae29b5f0d7d8",
+          "size": 13848
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-archival-bundle",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/cli.md",
+          "sha256": "b5a37b0a0afc52d521181116489bfc3f6315dcb40bbc0812c92a8f7de645bbc8",
+          "size": 7381
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-cli",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/compatibility.md",
+          "sha256": "87d6eaadea64ff779ad2f045ea0ce1fd0d86e82d5e0b5e2b90a9c61f1ab41aa6",
+          "size": 1463
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-compatibility",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/python-api.md",
+          "sha256": "d465bb53760c40eb6a6b134fd2af4971629f092a1bf5446e5c5925145a0e06c1",
+          "size": 7052
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-python-api",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/evaluation-results.md",
+          "sha256": "001b91c5a8b3cbe838bd803b3c8cbb519f59a70cd548a6797f0d05a3b26cfeba",
+          "size": 2505
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-evaluation-results",
       "version": "0.1.0"
     }
   ],

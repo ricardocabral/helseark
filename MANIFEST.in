@@ -1,0 +1,6 @@
+include README.md AGENTS.md CLAUDE.md pyproject.toml uv.lock
+recursive-include docs *.md
+prune docs/internal
+recursive-include scripts *.py
+recursive-include tests *.py *.json *.txt *.md *.pdf
+global-exclude *.pyc

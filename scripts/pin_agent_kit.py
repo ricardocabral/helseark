@@ -61,7 +61,7 @@ def pin():
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.
-    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
+    references=[p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'docs').rglob('*.md')) if 'internal' not in p.parts]
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas/0.1.0').glob('*.json'))]

@@ -186,7 +186,8 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
         _write(stage / "README.md", b"Helseark archive format 1. Accepted JSON is authoritative.\n"
                b"Do not edit accepted history. Staging is unpublished and ignored.\n"
                b"Offline baseline validation and schema export are available; imports still require a reviewed publication workflow.\n"
-               b"Copy this whole folder while no writer is active to retain definitions and history.\n")
+               b"Copy this whole folder while no writer is active to retain definitions and history.\n"
+               b"Read AGENTS.md, vault.json and the pinned agent-kit release; its docs/index.md is the offline reader entry.\n")
         if config.agentKitVersion is not None:
             from .agent_context import install_kit
             install_kit(bundle, Vault(stage, config))

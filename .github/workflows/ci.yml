@@ -43,6 +43,18 @@ jobs:
       - name: Build source distribution and wheel
         run: uv build --no-sources
 
+      - name: Verify source and distribution closure
+        run: uv run --no-sync python tests/qualify_documentation_distribution.py . dist
+
+      - name: Execute installed offline documentation and restored onboarding
+        shell: bash
+        run: |
+          uv venv --python 3.12 "$RUNNER_TEMP/documentation-env"
+          wheels=(dist/*.whl)
+          uv pip install --python "$RUNNER_TEMP/documentation-env/bin/python" "${wheels[0]}[pdf]"
+          cp tests/qualify_documentation_installed.py "$RUNNER_TEMP/qualify-documentation.py"
+          "$RUNNER_TEMP/documentation-env/bin/python" "$RUNNER_TEMP/qualify-documentation.py" "$RUNNER_TEMP/documentation-journey" "$GITHUB_WORKSPACE"
+
   base-optionality:
     name: Base-only PDF optionality / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}

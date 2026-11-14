@@ -44,3 +44,6 @@ read only that person's canonical accepted graph. `agent context --task query`
 also accepts `--from-date`/`--to-date` with bounded continuation. Unknown-time rows
 remain visible. Complete a page sequence and preserve evidence authority before
 claiming a complete source-cited answer.
+
+Reader navigation: [offline documentation index](docs/index.md).
+This staged documentation kit is not production qualification.

@@ -317,7 +317,6 @@ def test_retained_original_protocol1_contracts_stay_readable_without_repinning_h
     fixtures=Path(__file__).parent/'fixtures/synthetic/agent-workflows/historical-protocol1'
     vault=archive.init_vault(tmp_path/'vault')
     release=vault.root/'agent-kit'/vault.config.agentKitVersion
-    (release/'START-HERE.md').write_bytes((fixtures/'START-HERE.md').read_bytes())
     lock_path=vault.root/'definitions/lock.json'
     lock=decode_json(lock_path.read_bytes())
     for name in ('agent-kit','agent-context'):
@@ -331,6 +330,13 @@ def test_retained_original_protocol1_contracts_stay_readable_without_repinning_h
         artifact['files'][:]=[f for f in artifact['files'] if f['path']!='schemas/0.1.0/agent-evidence-selection.schema.json']
     lock_path.write_bytes(encode_json(lock))
     manifest=decode_json((fixtures/'manifest.json').read_bytes())
+    # Restore actual retained template bytes too; never rehash current instructions
+    # into an old release when the current documentation evolves. No history exists yet.
+    for entry in manifest['files']:
+        data=(fixtures/entry['path']).read_bytes()
+        assert hash_bytes(data)==entry['sha256'] and len(data)==entry['size']
+        target=release/entry['path']; target.parent.mkdir(parents=True,exist_ok=True)
+        target.write_bytes(data)
     manifest['compatibility']['definitionLockSha256']=hash_bytes(lock_path.read_bytes())
     (release/'manifest.json').write_bytes(encode_json(manifest))
     config=replace(vault.config,agentKitVersion=manifest['kitVersion'],definitionLockSha256=hash_bytes(lock_path.read_bytes()),agentKitLockSha256=hash_bytes((release/'manifest.json').read_bytes()))

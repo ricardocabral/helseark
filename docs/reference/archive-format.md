@@ -70,7 +70,7 @@ fallback to installed latest and no automatic pin/history rewrite.
 
 The [local schemas](../../schemas/0.1.0/) use JSON Schema 2020-12 and reject
 unknown envelope fields, including nested ones. The retained
-[definitions lock](../../definitions/lock.json) inventories exact schema, profile,
+definitions lock (`definitions/lock.json` from the vault root) inventories exact schema, profile,
 reference and upstream definition bytes, sizes and hashes, with acquisition and
 license information. Upstream R4 JSON schemas retain draft-06. Local URN/canonical
 IDs resolve through the retained registry offline, with no remote fallback.

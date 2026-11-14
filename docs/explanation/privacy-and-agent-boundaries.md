@@ -6,11 +6,11 @@ trust boundaries: a candidate is untrusted even if its author used a strong mode
 or its JSON passes validation. Only a human review bound to final prepared bytes
 can authorize a later supported publication operation.
 
-The [common archive instructions](../../agent-kit/AGENTS.md) define person,
+The common archive instructions in the pinned kit AGENTS.md define person,
 source-data, output and review rules once. Focused skills reference those rules
 and the [actual clinical contracts](../reference/clinical-model.md). They do not
-grant write access to accepted history. Task discovery, bounded context and typed rendering are implemented. Most clinical
-workflow commands remain unavailable. Their templates support blocked assessments;
+grant write access to accepted history. Task discovery, bounded context and typed rendering are implemented. PDF intake, prepared human-controlled publication, queries and portability are
+available; structured imports, correction, migration and OCR remain unavailable. Their templates support blocked assessments;
 their presence is not proof of an available command or a successful model run.
 
 A selected person UUID and snapshot restrict what a packet may disclose. A
