@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "68ae3291a7c8285763eb2304227bfe96dc043054b1fabaec7e860b21f2d668ac",
+    "definitionLockSha256": "49ee16b3870db6ad7d02ba7610423274be5808d7216c059bec810f4852beb28f",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,23 +14,23 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "a670007c828edf17a019a9172b0067d0dfd182d73f97ffe6ae410a0249d6e912",
-      "size": 8502
+      "sha256": "cf53f0bc7a539d41a380d7700713e808ce117033ac3dd079c00fa7a245ae5ee6",
+      "size": 9041
     },
     {
       "path": "START-HERE.md",
-      "sha256": "762222c9c053aead7bab6e159bc8c629e1d1def104419d8d7fc9d6835ebd1221",
-      "size": 2572
+      "sha256": "8bb8ba774eea2628f860357e9aea650d77caa9fea6edb4d306100efcb5dc242d",
+      "size": 2587
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "68ae3291a7c8285763eb2304227bfe96dc043054b1fabaec7e860b21f2d668ac",
-      "size": 30012
+      "sha256": "49ee16b3870db6ad7d02ba7610423274be5808d7216c059bec810f4852beb28f",
+      "size": 30748
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "3529a1da66bb61167a5e104077302944b91d609913fe37ae7a12240767f27f8e",
-      "size": 26403
+      "sha256": "359876b5eb68b8a88d9477d6003825a3f3ce5eaea5576d498c9236be7432d4bf",
+      "size": 27987
     },
     {
       "path": "docs/reference/archive-format.md",
@@ -43,9 +43,19 @@
       "size": 16947
     },
     {
+      "path": "docs/reference/intake.md",
+      "sha256": "48215856b02d68204ac7cc45f50781a69633649e26f85429b579fe361fa34914",
+      "size": 11829
+    },
+    {
+      "path": "docs/reference/pdf-extraction.md",
+      "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
+      "size": 16349
+    },
+    {
       "path": "examples/README.md",
-      "sha256": "75f123b6f13b5eeb2ee1653e65fc7b81982a62aeff8d1cfd9aaeb59364b83914",
-      "size": 2457
+      "sha256": "6e55b14b483bcf13d0474a1edf53785e34f2db2e52a759dfee4dbb3fb3289155",
+      "size": 2779
     },
     {
       "path": "examples/extraction-fragment.json",
@@ -56,6 +66,26 @@
       "path": "examples/query-answer-excerpt.md",
       "sha256": "9175d90fe3a497f63a8a5446522d84fa4316ece32c28659f945c45ce93ee7cdc",
       "size": 1410
+    },
+    {
+      "path": "examples/task5-bundle.json",
+      "sha256": "dcdccf5be78e537f1195a5fc84b9643169bbaba087565f3013487940732ec8be",
+      "size": 2354
+    },
+    {
+      "path": "examples/task5-complete.pdf",
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442",
+      "size": 1756
+    },
+    {
+      "path": "examples/task5-evidence.json",
+      "sha256": "10a1b0702a051dc6a545b376dffe0fd2e43c9315641ec7a891fc4e239cfb2fab",
+      "size": 16472
+    },
+    {
+      "path": "examples/task5-example.py",
+      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a",
+      "size": 2097
     },
     {
       "path": "profiles/r4/0.1.0/README.md",
@@ -99,8 +129,8 @@
     },
     {
       "path": "prompts/extract-report.md",
-      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
-      "size": 3934
+      "sha256": "98bf757ab37f60ab4a3050ba107c99e38b6dcd6a8746f96436ef6e2ab65d09ef",
+      "size": 5136
     },
     {
       "path": "prompts/map-structured-export.md",
@@ -134,8 +164,8 @@
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
-      "sha256": "fa1b7c6d2ba743ec887cf95111366e0ea1022e8359432041d30bc4f3c0db294a",
-      "size": 18252
+      "sha256": "6251ace54f3aa297fd93e70b958aef4b10e0e21ea3c3515e94b8197f04998ab6",
+      "size": 19161
     },
     {
       "path": "schemas/0.1.0/agent-evidence-selection.schema.json",
@@ -194,8 +224,8 @@
     },
     {
       "path": "skills/import-records/SKILL.md",
-      "sha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "size": 2061
+      "sha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
+      "size": 4838
     },
     {
       "path": "skills/inspect-archive/SKILL.md",
@@ -228,7 +258,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.0",
+  "kitVersion": "0.1.2",
   "prompts": [
     {
       "id": "extract-report",
@@ -248,10 +278,10 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/extract-report.md",
-      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
+      "sha256": "98bf757ab37f60ab4a3050ba107c99e38b6dcd6a8746f96436ef6e2ab65d09ef",
       "skillId": "import-records",
-      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "skillVersion": "0.1.0",
+      "skillSha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
+      "skillVersion": "0.1.2",
       "taskIds": [
         "import"
       ],
@@ -314,7 +344,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.2"
     },
     {
       "id": "map-structured-export",
@@ -336,8 +366,8 @@
       "path": "prompts/map-structured-export.md",
       "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
       "skillId": "import-records",
-      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "skillVersion": "0.1.0",
+      "skillSha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
+      "skillVersion": "0.1.2",
       "taskIds": [
         "import"
       ],
@@ -803,7 +833,6 @@
     {
       "availability": {
         "missingCapabilities": [
-          "pdf-intake",
           "structured-import",
           "reviewed-publication"
         ],
@@ -835,7 +864,8 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/reference/intake.md"
       ],
       "requiredCapabilities": [
         "agent-context",

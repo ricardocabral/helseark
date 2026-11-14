@@ -271,7 +271,7 @@ class _Checks:
             self.failed.add(self.family)
 
     def source_issues(self, issues):
-        blocking = {'PERSON_MISMATCH','IDENTITY_UNRESOLVED','SOURCE_IDENTITY_UNRESOLVED','SOURCE_IDENTITY_MISMATCH'}
+        blocking = {'MULTIPLE_PERSON_CUES','PERSON_MISMATCH','IDENTITY_UNRESOLVED','SOURCE_IDENTITY_UNRESOLVED','SOURCE_IDENTITY_MISMATCH'}
         for issue in issues:
             if issue.code in blocking:
                 issue = Issue(issue.code, 'error', issue.pointer, issue.resourceRef, issue.message)
@@ -826,6 +826,9 @@ class _Checks:
 
 def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
     """Validate candidate bytes and its selected-person graph; never publish."""
+    # Local import avoids the intake/validator construction dependency. All disk
+    # rereads use intake's no-follow, allocation and JSON field/depth boundary.
+    from .intake import _bounded_json, LIMITS
     registry = load_definition_registry(vault)
     checks = _Checks(vault, registry, candidate.personId, candidate.base)
     try:
@@ -833,7 +836,7 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
             raise ArchiveError('UNSAFE_PATH', 'Candidate root cannot be a symlink.')
         uuid_string(candidate.personId)
         uuid_string(candidate.candidateId)
-        metadata = decode_json(_read(candidate.path, 'candidate.json'))
+        metadata = _bounded_json(candidate.path / 'candidate.json', LIMITS)
         if not isinstance(metadata, dict):
             raise ArchiveError('INVALID_ENVELOPE', 'Candidate metadata must be an object.')
         if metadata.get('fhirVersion') != vault.config.fhirVersion:
@@ -854,7 +857,7 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
         if head(vault, candidate.personId) != candidate.base:
             checks.issue('STALE_BASE')
         for field, value in (('bundlePath', candidate.bundle), ('evidencePath', candidate.evidence)):
-            disk = decode_json(_read(candidate.path, metadata[field]))
+            disk = _bounded_json(_safe(candidate.path, metadata[field]), LIMITS)
             if encode_json(disk) != encode_json(value):
                 checks.issue('CANDIDATE_MISMATCH')
         if metadata.get('producerProvenance') != candidate.evidence.get('producerProvenance'):

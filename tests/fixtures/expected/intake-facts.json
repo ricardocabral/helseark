@@ -1,0 +1,9 @@
+{
+  "fixture": "task5-complete.pdf",
+  "personCue": "Avery Synthetic",
+  "observationCount": 2,
+  "quantity": {"label": "Analyte Q", "valueToken": "0.050", "comparator": "<", "unit": "mg/L", "method": "M1", "rangeText": "0,00 - 0,10 mg/L", "date": "2026-01", "status": "final"},
+  "qualitative": {"label": "Qualitative", "value": "not detected", "date": "2026-01", "status": "final"},
+  "mustNotInvent": ["LOINC code", "timezone", "day", "bounding box", "other person", "accepted change"],
+  "evaluation": "Manually authored oracle; candidate fixture and model outputs are not its source."
+}

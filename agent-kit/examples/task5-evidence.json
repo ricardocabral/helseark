@@ -1,0 +1,594 @@
+{
+  "contractVersion": "0.1.0",
+  "personId": "11111111-1111-4111-8111-111111111111",
+  "entries": [
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/meta/profile/0"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Status: final",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Analyte Q: <0,050 mg/L",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Patient: Avery Synthetic",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Collected: 2026-01",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/valueQuantity/value"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "<0,050 mg/L",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/valueQuantity/comparator"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "<0,050 mg/L",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/valueQuantity/unit"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "<0,050 mg/L",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/referenceRange/0/text"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Reference: 0,00 - 0,10 mg/L",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/method/text"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Method: M1",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/meta/profile/0"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Status: final",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Qualitative: not detected",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Patient: Avery Synthetic",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Collected: 2026-01",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/valueString"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Qualitative: not detected",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/meta/profile/0"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Document status: current",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Patient: Avery Synthetic",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/content/0/attachment/contentType"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Format: application/pdf",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/content/0/attachment/title"
+        ]
+      },
+      "kind": "source",
+      "sourceSha256": "SOURCE_HASH",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "quote": "Report: Synthetic laboratory report",
+      "locator": {
+        "kind": "pdf-page",
+        "page": 1,
+        "pageRotationApplied": 0,
+        "coordinateSpace": "displayed-cropbox-top-left-normalized",
+        "extractionSha256": "EXTRACTION_HASH"
+      },
+      "extraction": {
+        "provenanceVersion": "1",
+        "status": "known",
+        "method": "pdf-text",
+        "tool": "pypdf",
+        "version": "7.0.0",
+        "model": null,
+        "preprocessing": []
+      }
+    },
+    {
+      "target": {
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/content/0/attachment/url"
+        ]
+      },
+      "kind": "generated",
+      "rule": "synthetic-example-id-link-profile-v1"
+    }
+  ],
+  "producerProvenance": {
+    "provenanceVersion": 1,
+    "status": "external-unknown",
+    "reason": "Pre-authored synthetic demonstration, not model output."
+  }
+}

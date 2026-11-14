@@ -157,6 +157,7 @@ def test_known_producer_provenance_is_strict_bound_and_retained(clinical_candida
     manifest=decode_json(Path(context.kitManifest.path).read_bytes())
     prompt=next(p for p in manifest['prompts'] if p['id']=='extract-report')
     provenance['promptVersion']=prompt['version'];provenance['promptSha256']=prompt['sha256']
+    provenance['skillVersion']=prompt['skillVersion']
     skill=next(t['skillPath'] for t in manifest['tasks'] if t['id']=='import')
     provenance['skillSha256']=hash_bytes((Path(context.kitManifest.path).parent/skill).read_bytes())
     metadata['producerProvenance']=provenance
@@ -231,7 +232,8 @@ def test_import_source_assertions_do_not_supply_human_confirmation(tmp_path):
     handoff=decode_json(result.text.split('\n',1)[1].split('\n# extract-report',1)[0].encode())
     assert 'IDENTITY_CONFIRMED_REQUIRED' in handoff['stopReasons']
     assert handoff['permittedWrites']==['output/report.md']
-    assert 'pdf-intake' in handoff['stopReasons']
+    assert 'pdf-intake' not in handoff['stopReasons']
+    assert 'reviewed-publication' in handoff['workflowAvailability']['missingCapabilities']
     with pytest.raises(ArchiveError,match='INVALID_VARIABLE'):
         render(context,{**values,'identity_confirmed':None},'extract-report')
 
@@ -313,7 +315,7 @@ def test_retained_original_protocol1_contracts_stay_readable_without_repinning_h
     from helseark.contracts import PersonDraft
     fixtures=Path(__file__).parent/'fixtures/synthetic/agent-workflows/historical-protocol1'
     vault=archive.init_vault(tmp_path/'vault')
-    release=vault.root/'agent-kit/0.1.0'
+    release=vault.root/'agent-kit'/vault.config.agentKitVersion
     (release/'START-HERE.md').write_bytes((fixtures/'START-HERE.md').read_bytes())
     lock_path=vault.root/'definitions/lock.json'
     lock=decode_json(lock_path.read_bytes())
@@ -330,7 +332,11 @@ def test_retained_original_protocol1_contracts_stay_readable_without_repinning_h
     manifest=decode_json((fixtures/'manifest.json').read_bytes())
     manifest['compatibility']['definitionLockSha256']=hash_bytes(lock_path.read_bytes())
     (release/'manifest.json').write_bytes(encode_json(manifest))
-    config=replace(vault.config,definitionLockSha256=hash_bytes(lock_path.read_bytes()),agentKitLockSha256=hash_bytes((release/'manifest.json').read_bytes()))
+    config=replace(vault.config,agentKitVersion=manifest['kitVersion'],definitionLockSha256=hash_bytes(lock_path.read_bytes()),agentKitLockSha256=hash_bytes((release/'manifest.json').read_bytes()))
+    old_release=vault.root/'agent-kit'/manifest['kitVersion']
+    if release != old_release:
+        release.rename(old_release)
+        release=old_release
     (vault.root/'vault.json').write_bytes(encode_json(asdict(config)))
     vault=archive.open_vault(vault.root)
     person=archive.add_person(vault,PersonDraft('Historical Synthetic'))
@@ -371,7 +377,7 @@ def test_manifest_declared_skill_identity_and_digest_are_enforced(tmp_path,field
         next(p for p in manifest['prompts'] if p['id']=='query-with-evidence')[field]=value
     vault=rewrite_manifest(vault,edit)
     with pytest.raises(ArchiveError,match='KIT_MISMATCH'):
-        agents.list_agent_tasks(vault.root/'agent-kit/0.1.0')
+        agents.list_agent_tasks(vault.root/'agent-kit'/vault.config.agentKitVersion)
 
 
 def test_host_output_can_use_only_selected_person_work(tmp_path):

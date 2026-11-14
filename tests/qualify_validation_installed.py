@@ -171,12 +171,19 @@ for mode in ['explicit','env','standalone']:
         for entry in a['files']:assert hash_bytes((packet/entry['path']).read_bytes())==entry['sha256']
     exports[mode]={'exit':0,'patientOpens':0,'verifiedFiles':len(files)}
 assert not patientlog.exists()
-assert run(args,5)['code']=='INTEGRITY'
+# Candidate validation is selected-person scope even with corrupt unrelated history.
+assert 'PERSON_MISMATCH' in {i['code'] for i in run(args,2)['issues']}
+# Whole-vault integrity remains global and must still reject this corruption.
+try:
+    archive.open_vault(vault)
+    raise AssertionError('Whole-vault integrity accepted corrupt unrelated history')
+except ArchiveError as error:
+    assert error.code == 'INTEGRITY'
 assert not network and not netlog.exists()
 result={'installedModule':archive.__file__,'python':sys.version,'dependencies':installed,
     'definitionLockSha256':hash_bytes((bundled/'definitions/lock.json').read_bytes()),
     'coreSha256':hash_bytes(core),'inventoryFiles':len(files),'registryResolved':resolved,
-    'goodCandidateExit':0,'wrongPersonExit':2,'unrelatedPatientIntegrityExit':5,
+    'goodCandidateExit':0,'wrongPersonExit':2,'unrelatedCandidateExit':2,'wholeVaultIntegrity':'INTEGRITY',
     'exports':exports,'runtimeNetworkAttempts':0,'goodCoverage':good['coverage']}
 (work/'result.json').write_bytes(encode_json(result))
 print(encode_json(result).decode())

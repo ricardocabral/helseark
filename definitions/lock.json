@@ -44,8 +44,8 @@
         },
         {
           "path": "schemas/0.1.0/agent-context.schema.json",
-          "sha256": "fa1b7c6d2ba743ec887cf95111366e0ea1022e8359432041d30bc4f3c0db294a",
-          "size": 18252
+          "sha256": "6251ace54f3aa297fd93e70b958aef4b10e0e21ea3c3515e94b8197f04998ab6",
+          "size": 19161
         }
       ],
       "license": "Apache-2.0",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "3529a1da66bb61167a5e104077302944b91d609913fe37ae7a12240767f27f8e",
-          "size": 26403
+          "sha256": "359876b5eb68b8a88d9477d6003825a3f3ce5eaea5576d498c9236be7432d4bf",
+          "size": 27987
         }
       ],
       "license": "Apache-2.0",
@@ -735,6 +735,32 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-agent-evidence-selection.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/intake.md",
+          "sha256": "48215856b02d68204ac7cc45f50781a69633649e26f85429b579fe361fa34914",
+          "size": 11829
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-intake",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/pdf-extraction.md",
+          "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
+          "size": 16349
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-pdf-extraction",
       "version": "0.1.0"
     }
   ],

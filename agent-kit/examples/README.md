@@ -35,3 +35,8 @@ validation does not satisfy that independent row oracle. The query example marks
 its projected month unverified because its raw assertions have no date evidence.
 The maintainer fixture notes describe supported-subset coverage and the distinction between omitted incoming
 content and unsupported emitted structured fields.
+
+Task5: `task5-complete.pdf`, `task5-bundle.json` and `task5-evidence.json` are
+synthetic supplied data, not model output. `task5-example.py PACKET NEW_DIRECTORY`
+binds the complete candidate to that one real retained packet. It never extracts
+new source facts or accepts records. See the installed first-intake tutorial.
