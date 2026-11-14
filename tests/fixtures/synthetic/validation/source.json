@@ -1,0 +1,14 @@
+{
+  "person": "Synthetic Person A",
+  "result": "<0,050 mg/L",
+  "label": "Synthetic CRP",
+  "status": "final",
+  "date": "2026-11",
+  "reference": "less than 5 mg/L",
+  "contradiction": "First row 2.0; amended row 3.0. Source relationship unresolved.",
+  "timezone": "2026-11-10 10:30 (timezone not stated)",
+  "docStatus": "current",
+  "mediaType": "application/json",
+  "title": "Synthetic source",
+  "reportLabel": "Synthetic laboratory report"
+}
