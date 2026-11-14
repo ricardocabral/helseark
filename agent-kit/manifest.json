@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "49ee16b3870db6ad7d02ba7610423274be5808d7216c059bec810f4852beb28f",
+    "definitionLockSha256": "3b33531e2a3d9420f360183e1c75347dc1e91fcef786807e48e5bc64637eafd9",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -19,23 +19,28 @@
     },
     {
       "path": "START-HERE.md",
-      "sha256": "8bb8ba774eea2628f860357e9aea650d77caa9fea6edb4d306100efcb5dc242d",
-      "size": 2587
+      "sha256": "d6dede43a743bafd2fec775123ab7da5f3415be326dc9e5276298816e1299a29",
+      "size": 2677
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "49ee16b3870db6ad7d02ba7610423274be5808d7216c059bec810f4852beb28f",
-      "size": 30748
+      "sha256": "3b33531e2a3d9420f360183e1c75347dc1e91fcef786807e48e5bc64637eafd9",
+      "size": 32224
+    },
+    {
+      "path": "docs/how-to/import-report.md",
+      "sha256": "8f787a12394a12701e10955a077beb457bbea919850dfb018d9aaaeb305b5cc5",
+      "size": 7284
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "359876b5eb68b8a88d9477d6003825a3f3ce5eaea5576d498c9236be7432d4bf",
-      "size": 27987
+      "sha256": "5e53e98010ac284dc5cea19036cadd97b12d56235b931fea0f65657a6b8defe0",
+      "size": 29077
     },
     {
       "path": "docs/reference/archive-format.md",
-      "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
-      "size": 18703
+      "sha256": "f019a392d6493508606814278924a9072cc3491b09e85ecd0ad6a10511349324",
+      "size": 19098
     },
     {
       "path": "docs/reference/clinical-model.md",
@@ -51,6 +56,16 @@
       "path": "docs/reference/pdf-extraction.md",
       "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
       "size": 16349
+    },
+    {
+      "path": "docs/reference/review.md",
+      "sha256": "42014c4b6e51eee93560c7161fb9b607c74415745ef620f80f0bb21ba7717288",
+      "size": 8662
+    },
+    {
+      "path": "docs/tutorials/first-archive.md",
+      "sha256": "a88da7b33d458b96651ee8378786f4bbb9d910134acc44db4c9fe1b0146cdb1a",
+      "size": 4004
     },
     {
       "path": "examples/README.md",
@@ -179,13 +194,13 @@
     },
     {
       "path": "schemas/0.1.0/candidate.schema.json",
-      "sha256": "421a5bc518da9cdf7609e312fafb28fbde877923ad92266a829e3219a3856be4",
-      "size": 4692
+      "sha256": "96b1e10c70c645cd6dd41d27c18574edf4fbae1f9bcbee92198dd9f24e82b160",
+      "size": 4879
     },
     {
       "path": "schemas/0.1.0/change.schema.json",
-      "sha256": "cb4f582de9d47719f99f0039d77859d4734b05445fca564345a7df27f34614ff",
-      "size": 4876
+      "sha256": "475ca00b35a9f24b4393dd5a22b39b266e8743e62b36328e4f0a2c012b4d50e5",
+      "size": 5027
     },
     {
       "path": "schemas/0.1.0/evidence.schema.json",
@@ -194,8 +209,8 @@
     },
     {
       "path": "schemas/0.1.0/proposal.schema.json",
-      "sha256": "9c29c90e155804325dae1bf7b4cf9b4d04adc16b6391613cc566c9886914c2bb",
-      "size": 5216
+      "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
+      "size": 7165
     },
     {
       "path": "schemas/0.1.0/review.schema.json",
@@ -204,13 +219,18 @@
     },
     {
       "path": "schemas/0.1.0/validation.schema.json",
-      "sha256": "095af4e8ad250cb885f056f8a275d287fbee8fc35a605ec00e323fbc44bce4ed",
-      "size": 2157
+      "sha256": "3a96316c75eb9a618053aabfb642a38922f0d55f168734bf4ff1904bb79ee113",
+      "size": 2322
     },
     {
       "path": "schemas/0.1.0/vault.schema.json",
       "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e",
       "size": 1209
+    },
+    {
+      "path": "schemas/0.1.1/review.schema.json",
+      "sha256": "572e145e4bea2958f44114ff467233fa65fcf1ee3b9f5fc01f7e53fb1bda1124",
+      "size": 2322
     },
     {
       "path": "skills/correct-records/SKILL.md",
@@ -224,8 +244,8 @@
     },
     {
       "path": "skills/import-records/SKILL.md",
-      "sha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
-      "size": 4838
+      "sha256": "047a408597c7a932492963ef52896d239066cc80d244f50e77cf8d6b2ac7857d",
+      "size": 5266
     },
     {
       "path": "skills/inspect-archive/SKILL.md",
@@ -258,7 +278,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.2",
+  "kitVersion": "0.1.3",
   "prompts": [
     {
       "id": "extract-report",
@@ -280,8 +300,8 @@
       "path": "prompts/extract-report.md",
       "sha256": "98bf757ab37f60ab4a3050ba107c99e38b6dcd6a8746f96436ef6e2ab65d09ef",
       "skillId": "import-records",
-      "skillSha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
-      "skillVersion": "0.1.2",
+      "skillSha256": "047a408597c7a932492963ef52896d239066cc80d244f50e77cf8d6b2ac7857d",
+      "skillVersion": "0.1.3",
       "taskIds": [
         "import"
       ],
@@ -366,8 +386,8 @@
       "path": "prompts/map-structured-export.md",
       "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
       "skillId": "import-records",
-      "skillSha256": "af7552a50d983589ffba7fe8b7ad992f9b1fda928267d3c4e25d9218d02c8dee",
-      "skillVersion": "0.1.2",
+      "skillSha256": "047a408597c7a932492963ef52896d239066cc80d244f50e77cf8d6b2ac7857d",
+      "skillVersion": "0.1.3",
       "taskIds": [
         "import"
       ],
@@ -833,8 +853,7 @@
     {
       "availability": {
         "missingCapabilities": [
-          "structured-import",
-          "reviewed-publication"
+          "structured-import"
         ],
         "status": "unavailable"
       },
@@ -864,8 +883,7 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md",
-        "docs/reference/intake.md"
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -960,8 +978,7 @@
     {
       "availability": {
         "missingCapabilities": [
-          "correction",
-          "reviewed-publication"
+          "correction"
         ],
         "status": "unavailable"
       },

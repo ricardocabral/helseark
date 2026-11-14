@@ -23,7 +23,7 @@ from .validation import DefinitionRegistry, load_definition_registry, _pointer, 
 
 _TASKS = frozenset(('inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate'))
 _CAPABILITIES = frozenset(('agent-discovery', 'agent-context', 'schema-export',
-    'baseline-validation', 'person-identity', 'raw-record-selection', 'pdf-intake', 'candidate-read'))
+    'baseline-validation', 'person-identity', 'raw-record-selection', 'pdf-intake', 'candidate-read', 'reviewed-publication'))
 _INSTRUCTION_BUDGET = 32768
 
 

@@ -5,7 +5,7 @@ actual import handoff and validates the supplied candidate. It needs Python 3.12
 an installed Helseark distribution with the pinned `pdf` extra, and an empty working
 directory. No model account, repository discovery or network is needed after setup.
 The supplied candidate is manually authored, not a model result. Nothing clinical
-is accepted in this lesson; mandatory human review/publication belongs Task6.
+is accepted in this lesson; use the human review steps below to accept it explicitly.
 
 Save the following as `first-intake.py` in an empty directory and run
 `python first-intake.py` with the interpreter where Helseark is installed:
@@ -64,8 +64,11 @@ The draft also preserves the original range text, method M1, month precision and
 qualitative result, without inventing a standardized code. These are examples of
 fields to inspect beside the original source, not medical interpretation.
 
-This lesson stops at Task5. Candidate preparation, a review view, a bound human
-receipt, accepted clinical records, query and backup/restore lessons cannot run yet.
+This deterministic script stops at a validated draft. Continue with the explicit
+human preparation/review/commit commands in [import a report](../how-to/import-report.md#prepare-and-accept-the-exact-human-reviewed-proposal),
+using lesson-vault, lesson-candidate and the personId field in lesson-packet/intake.json.
+Read every result beside the original PDF and provide your own per-issue reasons.
+Query and backup/restore commands remain future work.
 Never copy candidate files into accepted history. Use [import a report](../how-to/import-report.md)
 for a separately run external agent and the [intake reference](../reference/intake.md)
 for exact limits. Toolkit tests and supplied examples do not measure model accuracy.

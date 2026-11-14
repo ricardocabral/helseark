@@ -40,8 +40,7 @@ recover rendering authority from context.json or intake.json. A template alone
 cannot grant drafting or acceptance; follow the actual renderer disposition.
 Read [intake contract](../../docs/reference/intake.md) for limits and failures.
 
-PDF extraction/candidate reading are available. Structured import and Task6
-preparation/review/publication remain unavailable. The descriptor exposes this
+PDF extraction/candidate reading and human-controlled reviewed publication are available. Structured import remains unavailable. Agents still cannot record human decisions or commit. The descriptor exposes this
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
@@ -60,3 +59,8 @@ analyte, specimen, status or relationship to maximize result count. If required
 fields or attribution cannot be supported, itemize the assertion and exact quote
 as unstructured in the report. Report which assertions became values, notes or
 omissions and why; validation cannot decide whether that mapping is accurate.
+
+Human publication uses [exact issue review](../../docs/reference/review.md#exact-issue-decisions-and-historical-compatibility).
+The human inspects previous/new facts, omissions and both sources, then selects
+every displayed limitation by issueId with an individual reason and current person
+confirmation. Agents must not generate acknowledgments or acceptance decisions.

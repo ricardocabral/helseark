@@ -2,7 +2,7 @@
 
 This reference describes the implemented storage boundary. Offline baseline
 clinical validation, evidence contracts and pinned agent discovery/context/rendering
-are implemented; intake and reviewed import publication remain later tasks.
+are implemented, together with text-PDF intake and human-reviewed publication.
 Person creation accepts a narrow self-reported identity only.
 Validation is not a claim of medical correctness or full FHIR conformance.
 
@@ -32,7 +32,7 @@ echo supplied names, notes or birth dates.
 | --- | --- |
 | 0 | Success |
 | 2 | Invalid command/input, invalid person or existing destination |
-| 3 | Review binding mismatch (reserved for the reviewed-import entry point) |
+| 3 | Review required or review binding mismatch |
 | 4 | `ARCHIVE_BUSY` or `STALE_BASE` |
 | 5 | Integrity, unsupported path or I/O failure |
 | 6 | Unsupported version |
@@ -44,6 +44,7 @@ vault.json
 README.md
 definitions/lock.json
 definitions/schemas/0.1.0/*.schema.json
+definitions/schemas/0.1.1/review.schema.json
 people/<person UUID>/accepted/<8-digit sequence>-<transaction UUID>/
     change.json
     proposal.json
@@ -136,10 +137,14 @@ Person creation makes the same retained envelopes as a normal change:
 
 Changed resource, evidence, proposal or validation bytes invalidate the retained
 bindings. Readers check both change inventory and proposal inventory. Failed
-validation checks cannot be accepted. Import-specific issue acknowledgement,
-source matching, clinical admissibility and interactive human review are
-additional validation/review responsibilities; the interactive import review
-workflow is not implemented and there is no arbitrary-write CLI.
+validation checks cannot be accepted. The [reviewed publication boundary](review.md)
+implements source authority, exact human issue selection, preparation and atomic
+publication. There is no arbitrary-write CLI. New clinical review receipts use
+independently versioned contract `0.1.1`; all other envelope/vault contracts remain
+`0.1.0`. Genesis and historical receipts retain their original `0.1.0` schema and
+bytes. The reader dispatches review schemas by the receipt version and verifies
+the selected schema against that vault's original definition lock. An old vault
+is never silently repinned; an old reader cannot interpret the new receipt.
 
 Assets, when supplied by later preparation, are person-local at
 `assets/sha256/<digest>/blob`. Their entries contain SHA-256, byte size, media
@@ -281,7 +286,7 @@ is raised. Missing person/resource raises `PERSON_NOT_FOUND` /
 The internal `_publish_change(vault, person, payloadDirectory, expectedBase)`
 returns a Head after locking and verifying the prepared directory. That
 directory contains exactly proposal/evidence/validation/review JSON and the
-inventoried resource files; it must not supply `change.json`. Genesis uses
+inventoried resource and candidate-input files; it must not supply `change.json`. Genesis uses
 `expectedBase=None`; later publication requires the exact current Head.
 It is an internal primitive for Task 6, not permission to accept arbitrary
 FHIR. Stage material is retained on validation/publication failure for
