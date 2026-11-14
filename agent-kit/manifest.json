@@ -114,8 +114,8 @@
     },
     {
       "path": "examples/task5-example.py",
-      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a",
-      "size": 2097
+      "sha256": "b56a56fdf0bd35ee00dcf160afbfa43900b47bdbd84f67011caff55a54dcd131",
+      "size": 2416
     },
     {
       "path": "profiles/r4/0.1.0/README.md",
