@@ -184,7 +184,11 @@ assertions cannot supply them. Candidate IDs are explicit host allocations.
 
 Each slot is substituted once as exact JSON. Delimiter characters `<`, `>` and
 `&` are Unicode escaped without changing decoded values. Marker-looking source
-strings remain literal data. Unknown, missing, unbounded or ill-typed variables,
+strings remain literal data. Escaped inline data (including optional user-data
+slots) and context data together must fit the selected maxDataBytes. The handoff
+reports contextDataBytes, inlineDataBytes and handoffDataBytes. Escaping overhead
+counts; reduce inline payloads or explicitly rebuild with a larger budget rather
+than silently increasing limits or truncating values. Unknown, missing, unbounded or ill-typed variables,
 unknown template markers and incompatible task routes stop rendering.
 
 Context files are immutable inputs. The separately selected fresh output directory

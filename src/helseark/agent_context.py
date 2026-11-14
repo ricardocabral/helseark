@@ -519,6 +519,7 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
         if name in values and values[name] != value:
             raise ArchiveError('INVALID_VARIABLE', 'Selector differs from verified context.')
         values[name] = value
+    serialized = {}
     for name,spec in prompt['variables'].items():
         if name not in values:
             if 'default' in spec:
@@ -547,13 +548,19 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
         if isinstance(value,list) and (len(value)<spec.get('minItems',0) or
                 (spec.get('uniqueItems') and len({encode_json(v) for v in value})!=len(value))):
             raise ArchiveError('INVALID_VARIABLE','Prompt array violates declared bounds.')
+        serialized[name] = encoded.decode().rstrip('\n').replace('&',r'\u0026').replace('<',r'\u003c').replace('>',r'\u003e')
+    host_metadata = {'output_directory','candidate_id','identity_confirmed','correspondence_confirmed','source_scope_confirmed'}
+    inline_data_bytes = sum(len(serialized[name].encode('utf-8')) for name in set(values)-set(trusted)-host_metadata)
+    if context.dataBytes + inline_data_bytes > context.maxDataBytes:
+        raise ArchiveError('CONTEXT_BUDGET_EXCEEDED',
+            'Escaped inline data plus context exceed selected data budget; reduce inline data or rebuild with a larger maxDataBytes.')
     _output_directory(values['output_directory'],context,vault)
     template = files[prompt['path']].decode('utf-8')
     marker = re.compile(r'{{\s*([a-z][a-z0-9_]*)\s*}}')
     if set(marker.findall(template)) != set(prompt['variables']) or '{{' in marker.sub('',template) or '}}' in marker.sub('',template):
         raise ArchiveError('INVALID_KIT','Template has undeclared or unresolved placeholders.')
     def substitution(match):
-        return encode_json(values[match[1]]).decode().rstrip('\n').replace('&',r'\u0026').replace('<',r'\u003c').replace('>',r'\u003e')
+        return serialized[match[1]]
     text = marker.sub(substitution,template)
     provenance = {'provenanceVersion':1,'status':'known','promptId':promptId,'promptVersion':prompt['version'],
         'promptSha256':prompt['sha256'],'skillSha256':hash_bytes(files[task.skillPath]),'skillId':prompt['skillId'],'skillVersion':prompt['skillVersion'],
@@ -565,6 +572,8 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
     text = ('Verified runtime handoff (host restrictions remain required; blocked means report only and stop):\n'+
         encode_json({'personId':context.personId,'base':document(context.base),'returnedCount':context.returnedCount,
             'totalCount':context.totalCount,'continuation':document(context.continuation),
+            'contextDataBytes':context.dataBytes,'inlineDataBytes':inline_data_bytes,
+            'handoffDataBytes':context.dataBytes+inline_data_bytes,
             'disposition':'blocked' if blocked else 'draft','stopReasons':blocked,
             'permittedWrites':['output/report.md'] if blocked else prompt['outputArtifacts'],
             'producerProvenance':provenance}).decode()+'\n'+text)
