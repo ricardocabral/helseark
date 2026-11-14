@@ -17,9 +17,12 @@ def config(tmp_path):
                            tmp_path/'packages', ROOT/'profiles/r4/0.1.0',120,False,tmp_path/'java')
 
 
-def test_explicit_required_tool_absent_blocks():
+def test_explicit_required_tool_absent_blocks(tmp_path):
+    from test_intake import supplied_candidate
+    from test_review import prepare
+    vault, _, _, _, candidate = supplied_candidate(tmp_path)
     with pytest.raises(ArchiveError, match='VALIDATOR_UNAVAILABLE'):
-        tool.validate_with_official_tool(None, None, vault=None)
+        tool.validate_with_official_tool(prepare(vault, candidate), None, vault=vault)
 
 
 def test_wrong_digest_blocks_before_execution(tmp_path):
@@ -103,15 +106,22 @@ def test_host_configuration_is_strict(tmp_path,change):
     with pytest.raises(ArchiveError,match='INVALID_INPUT'): tool.load_validator_config(path)
 
 
-def test_validation_api_required_policy_blocks_without_java():
+def test_validation_api_required_policy_blocks_without_java(tmp_path):
     from helseark.validation import validate_proposal
+    from test_intake import supplied_candidate
+    from test_review import prepare
+    vault, _, _, _, candidate = supplied_candidate(tmp_path)
     with pytest.raises(ArchiveError,match='VALIDATOR_UNAVAILABLE'):
-        validate_proposal(None,Path('/absent'),requireOfficial=True)
+        validate_proposal(vault,prepare(vault,candidate).path,requireOfficial=True)
 
 
-def test_cli_required_policy_has_missing_tool_exit6(capsys):
+def test_cli_required_policy_has_missing_tool_exit6(tmp_path, capsys):
     from helseark.cli import main
-    assert main(['validate','proposal','/absent','--person','11111111-1111-4111-8111-111111111111','--require-official'])==6
+    from test_intake import supplied_candidate
+    from test_review import prepare
+    vault, person, _, _, candidate = supplied_candidate(tmp_path)
+    prepared = prepare(vault, candidate)
+    assert main(['--vault',str(vault.root),'validate','proposal',str(prepared.path),'--person',person,'--require-official'])==6
 
 
 def test_shared_mapping_preserves_historical_child_and_clinical_bytes(tmp_path):

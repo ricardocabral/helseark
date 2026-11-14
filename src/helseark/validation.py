@@ -890,8 +890,6 @@ def validate_proposal(vault: Vault, proposalDirectory: Path, *,
     """
     if requireOfficial or officialConfig is not None:
         from .fhir_validator import validate_with_official_tool
-        if officialConfig is None:
-            raise ArchiveError('VALIDATOR_UNAVAILABLE','Required full check has no explicit validator configuration.')
         from .review import read_prepared
         return validate_with_official_tool(read_prepared(vault,proposalDirectory),officialConfig,vault=vault)
     registry = load_definition_registry(vault)

@@ -116,7 +116,7 @@ def main():
         staging=Path(os.environ['TMPDIR'])
         active=list(staging.glob('helseark-validator-*'))
         assert not active,('Unexpected previous staging',active)
-        assert available>=900*1024*1024,('Insufficient bounded staging space',available)
+        assert available>=1024*1024*1024,('Insufficient bounded staging space',available)
         print('pre-Java free bytes',available,'active staging',len(active),'limit 700 MiB',flush=True)
     before_inputs=tool._runtime_inputs(config)
     # Demonstrate read guards work before relying on the qualified API result.
@@ -155,6 +155,10 @@ def main():
     human=decision(view)
     pending=args.output/'pending';clone(args.output/'workflow',pending)
     print('real positive',report.officialRun['resourceCount'],report.officialRun['counts'],'original person files',len(original),flush=True)
+    # Early failures must revoke genuine optional authority, without valid config.
+    from qualify_validator_requests import failed_request_matrix
+    requests=failed_request_matrix(pending,args.output/'failed-requests',config)
+    (args.output/'failed-requests.json').write_bytes(encode_json(requests))
     # Each attack has its own nonempty copy, genuine host authority is never forged.
     attacks=[]
     names=('forged-outcome','command','java-digest','policy','missing-extraction','missing-baseline',

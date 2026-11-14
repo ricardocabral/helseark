@@ -162,8 +162,6 @@ def main(argv=None):
     render.add_argument('--json', action='store_true')
     try:
         args = parser.parse_args(argv)
-        if getattr(args,'require_official',False) and not getattr(args,'official_config',None):
-            raise ArchiveError('VALIDATOR_UNAVAILABLE','Required full check has no explicit validator configuration.')
         exit_code = 0
         if args.command == "agent":
             path = args.vault or os.environ.get("HELSEARK_VAULT")
@@ -308,13 +306,10 @@ def main(argv=None):
                     metadata = _json(args.path, "proposal.json")
                     if not isinstance(metadata, dict) or metadata.get("personId") != args.person:
                         raise ArchiveError("PERSON_MISMATCH", "Proposal differs from explicitly selected person.")
-                    report = validate_proposal(vault, args.path)
-                    if args.official_config:
-                        from .fhir_validator import load_validator_config, validate_with_official_tool, verify_recorded_run
-                        if (args.path/'change.json').exists() or (args.path/'review.json').exists():
-                            raise ArchiveError('REVIEW_MISMATCH','Official validation must precede human review; prepare a fresh proposal.')
+                    if args.official_config or args.require_official:
+                        from .fhir_validator import validate_with_official_tool, verify_recorded_run
                         prepared = read_prepared(vault,args.path)
-                        report = validate_with_official_tool(prepared,load_validator_config(args.official_config),vault=vault)
+                        report = validate_with_official_tool(prepared,args.official_config,vault=vault)
                         verify_recorded_run(vault,replace(prepared,validation=report))
                         # Atomic replacement of the unreviewed report, never a clinical file.
                         from tempfile import NamedTemporaryFile
@@ -322,6 +317,8 @@ def main(argv=None):
                             temporary_report = Path(stream.name)
                             stream.write(encode_json(document(report))); stream.flush(); os.fsync(stream.fileno())
                         os.replace(temporary_report,args.path/'validation.json')
+                    else:
+                        report = validate_proposal(vault, args.path)
                 output = {"checkedProposalSha256": report.checkedProposalSha256,
                           "coverage": [asdict(c) for c in report.coverage],
                           "issues": [asdict(i) for i in report.issues]}

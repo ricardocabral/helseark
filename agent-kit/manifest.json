@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "4f52ba6bf7a7116b2852fdc598570992078207cbb6da7eb6ad16562dc2e6c18e",
+    "definitionLockSha256": "39c0ea722592851c05b644f0b6b50e4589e1ff4d10654c6a85a748a9198e46ba",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -29,8 +29,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "4f52ba6bf7a7116b2852fdc598570992078207cbb6da7eb6ad16562dc2e6c18e",
-      "size": 35246
+      "sha256": "39c0ea722592851c05b644f0b6b50e4589e1ff4d10654c6a85a748a9198e46ba",
+      "size": 35247
     },
     {
       "path": "definitions/validator-lock.json",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/how-to/run-offline-validator.md",
-      "sha256": "461ea9d481f9bd69949c2df128f715b98e3ad819b0637df44ff20f2fe8b141a1",
-      "size": 9727
+      "sha256": "55be3df24b21484a7c0447d2c3fb4242c542d4629cce3820d3a72eb46291b43a",
+      "size": 10186
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -94,8 +94,8 @@
     },
     {
       "path": "docs/reference/review.md",
-      "sha256": "bdea63687a2de7d08a77e043bff0d5df0b85ec8b096fb60cec91fe60415045c8",
-      "size": 8754
+      "sha256": "8dc249f5fdec9981c02509128912f6e9cf322c5000d7477661e5b09add955c20",
+      "size": 9144
     },
     {
       "path": "docs/tutorials/first-archive.md",
@@ -318,7 +318,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.3",
+  "kitVersion": "0.1.11",
   "prompts": [
     {
       "id": "extract-report",

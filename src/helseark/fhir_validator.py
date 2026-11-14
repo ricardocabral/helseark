@@ -167,21 +167,21 @@ def _outcome(data, returncode, mapping=None):
         _error('VALIDATOR_MALFORMED_OUTPUT', 'Validator did not produce a valid machine OperationOutcome.')
 
 
-def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorConfig | None, *, vault: Vault) -> ValidationReport:
+def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorConfig | Path | None, *, vault: Vault) -> ValidationReport:
     """Return an enriched report bound to exact proposal + derived Bundle bytes.
 
     The explicit vault provides patient scope and the pinned snapshot closure.
+    A config path is loaded only after revoking previous pending authority.
     Missing config blocks an explicitly requested full check. Baseline APIs never
     call Java. Terminology is deliberately unavailable in this qualified mode.
     """
-    if config is None:
-        _error('VALIDATOR_UNAVAILABLE', 'Required full check has no explicit validator configuration.')
-    _preparation_control(vault,proposal)
+    execution_id,config=_begin_execution(vault,proposal,config)
+    if (proposal.path/'review.json').exists():
+        _error('REVIEW_MISMATCH','Official validation must precede human review; prepare a fresh proposal.')
     from .archive import _json
     if 'officialValidationAuthority' not in _json(vault.root,'definitions/schemas/0.1.0/review.schema.json')['properties']:
         _error('UNSUPPORTED_VERSION','Pinned review contract cannot retain authenticated executions; preserve old pins and use a compatible workflow.')
     baseline, bundle, mapping = _context(vault, proposal)
-    execution_id=_begin_execution(vault,proposal,config)
     runtime_inputs=_runtime_inputs(config)
     issues, counts, run = _run_bundle(vault, bundle, mapping, config)
     coverage = tuple(c for c in baseline.coverage if c.family not in ('full-fhir','terminology')) + (
@@ -482,14 +482,37 @@ def _replace_host_control(target, value):
 
 
 def _begin_execution(vault, proposal, config):
-    """Invalidate prior review authority before a new tool/policy request starts."""
+    """Resolve pending scope, revoke, then resolve the requested configuration.
+
+    A generation with a null request digest is an unresolved/failed request,
+    never successful execution authority. Only the actual runner can retain it.
+    """
     from uuid import uuid4
-    from .archive import _writer_lock
+    from .archive import _writer_lock,_safe,_json,_read,_schema
     from .agent_context import document
+    if proposal is None or vault is None:
+        _error('INVALID_INPUT','An explicit vault and prepared proposal are required.')
     execution_id=str(uuid4())
     with _writer_lock(vault):
+        # Identity/path authorization precedes mutation; baseline/resource/runtime
+        # checks follow it. Editable copies cannot revoke the original proposal.
+        value=_json(proposal.path,'proposal.json');_schema(vault,'proposal',value)
+        expected=_safe(vault.root,f"work/proposals/{value['transactionId']}")
+        if (Path(proposal.path).absolute()!=expected.absolute() or
+                hash_bytes(_read(proposal.path,'proposal.json'))!=proposal.proposalSha256 or
+                value['personId']!=proposal.personId or value['candidateSha256']!=proposal.candidateSha256 or
+                value['baseChangeSha256']!=(proposal.base.changeSha256 if proposal.base else None)):
+            _error('REVIEW_MISMATCH','Request does not identify the original pending proposal.')
         path,control=_preparation_control(vault,proposal)
+        if proposal.candidatePath is None or str(proposal.candidatePath)!=control['candidatePath']:
+            _error('REVIEW_MISMATCH','Request differs from original host preparation scope.')
         control['officialExecutionId']=execution_id
+        control['officialRequestSha256']=None
+        _replace_host_control(path,control)
+        if isinstance(config,Path):
+            config=load_validator_config(config)
+        if config is None:
+            _error('VALIDATOR_UNAVAILABLE','Required full check has no explicit validator configuration.')
         control['officialRequestSha256']=hash_bytes(encode_json(document(config)))
         _replace_host_control(path,control)
-    return execution_id
+    return execution_id,config

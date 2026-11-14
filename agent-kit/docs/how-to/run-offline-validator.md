@@ -125,8 +125,13 @@ Sources: [official R4 validation scope and limits](https://hl7.org/fhir/R4/valid
 ## Execution authority and compatibility
 
 The corrected reader records a fresh host execution request outside editable
-proposals, before Java starts. A failed or superseding runtime/policy request
-invalidates the prior result. Only an actual completed validator run can retain
+proposals as soon as the explicit request identifies its original pending
+proposal. This happens before configuration loading, baseline checks or runtime
+checks. Missing configuration (`VALIDATOR_UNAVAILABLE`) and an invalid configuration
+retain their typed errors and invalidate the prior result. A generation with no
+resolved configuration is a failed request, never acceptance authority. The API,
+adapter and CLI follow this same rule. Only the exact authorized pending path can
+revoke its result; copied paths, other people/proposals and accepted history cannot. Only an actual completed validator run can retain
 the original complete report, outcome, coverage and runtime/policy binding.
 A report digest supplied inside the report is never execution authority.
 

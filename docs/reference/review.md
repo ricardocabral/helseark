@@ -115,7 +115,12 @@ checkpoint before review or commit. The checkpoint binds the entire report,
 outcome, original coverage, effective command/environment, complete selected Java
 runtime and other inputs, source inventory, person, vault, proposal and base, and
 required terminology policy. Starting another request supersedes the previous
-checkpoint even when that request fails. Partial or missing host state fails
+checkpoint once its exact authorized pending proposal is resolved, before
+configuration loading, baseline checks or runtime checks. Missing/invalid
+configuration leaves an explicit failed request without a configuration digest.
+Render, review and commit reject the previous result until a fresh actual
+successful execution. Copied or mismatched paths cannot revoke another pending
+proposal, and accepted history remains immutable. Partial or missing host state fails
 closed; mutable producer fields, report hashes or a `change.json` pathname cannot
 create authority.
 

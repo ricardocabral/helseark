@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "bdea63687a2de7d08a77e043bff0d5df0b85ec8b096fb60cec91fe60415045c8",
-          "size": 8754
+          "sha256": "8dc249f5fdec9981c02509128912f6e9cf322c5000d7477661e5b09add955c20",
+          "size": 9144
         }
       ],
       "license": "Apache-2.0",
@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "docs/how-to/run-offline-validator.md",
-          "sha256": "461ea9d481f9bd69949c2df128f715b98e3ad819b0637df44ff20f2fe8b141a1",
-          "size": 9727
+          "sha256": "55be3df24b21484a7c0447d2c3fb4242c542d4629cce3820d3a72eb46291b43a",
+          "size": 10186
         }
       ],
       "license": "Apache-2.0",
