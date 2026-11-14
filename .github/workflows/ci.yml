@@ -11,8 +11,8 @@ jobs:
   test-and-build:
     name: Python 3.12 / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    # The growing full suite needs time for both tests and package builds.
-    timeout-minutes: 25
+    # The full suite exceeded 25 minutes on hosted Ubuntu; keep all tests and builds.
+    timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
