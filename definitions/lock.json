@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "d755b9aa765a114628ab6dbebc6aaba122663a55052002766a6697f83d1d450b",
-          "size": 24187
+          "sha256": "7c168b7106c96751222b9d43b92e5f7376afa88b9e30f600f5e588b5108d6919",
+          "size": 25091
         }
       ],
       "license": "Apache-2.0",
@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "profiles/r4/0.2.0/README.md",
-          "sha256": "0542b9d0e76c894d72a7af0389b031dc1f7f0497bd6cbf740b2656f45ff326e7",
-          "size": 1419
+          "sha256": "a3a6dc38f3392b9e506b894f34b9b69e18db469a97c9f1032b692122d943265e",
+          "size": 1848
         }
       ],
       "license": "Apache-2.0",
@@ -930,6 +930,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-StructureDefinition-helseark-condition",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
+          "sha256": "89d9ff0e53aec281a428ab22283c7e8f3870401613015e0a8e6212d59b0f50a5",
+          "size": 2883
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-StructureDefinition-helseark-allergy-intolerance",
       "version": "0.1.0"
     }
   ],

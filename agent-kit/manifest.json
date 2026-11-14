@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "3cab36e6454a01c1d4505fcced816c5df6a3d016689a94a37093e42045e0d40e",
+    "definitionLockSha256": "cd2a103d6a0198946ea7727955be7ec42f867976ce4f1c5e2d33a19e4454ef44",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.2.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "3cab36e6454a01c1d4505fcced816c5df6a3d016689a94a37093e42045e0d40e",
-      "size": 35826
+      "sha256": "cd2a103d6a0198946ea7727955be7ec42f867976ce4f1c5e2d33a19e4454ef44",
+      "size": 36274
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
@@ -59,8 +59,8 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "d755b9aa765a114628ab6dbebc6aaba122663a55052002766a6697f83d1d450b",
-      "size": 24187
+      "sha256": "7c168b7106c96751222b9d43b92e5f7376afa88b9e30f600f5e588b5108d6919",
+      "size": 25091
     },
     {
       "path": "docs/reference/intake.md",
@@ -159,8 +159,13 @@
     },
     {
       "path": "profiles/r4/0.2.0/README.md",
-      "sha256": "0542b9d0e76c894d72a7af0389b031dc1f7f0497bd6cbf740b2656f45ff326e7",
-      "size": 1419
+      "sha256": "a3a6dc38f3392b9e506b894f34b9b69e18db469a97c9f1032b692122d943265e",
+      "size": 1848
+    },
+    {
+      "path": "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
+      "sha256": "89d9ff0e53aec281a428ab22283c7e8f3870401613015e0a8e6212d59b0f50a5",
+      "size": 2883
     },
     {
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json",
@@ -960,7 +965,8 @@
         "profiles/r4/0.2.0/StructureDefinition-helseark-medication-statement.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-provenance.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-medication-request.json",
-        "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json"
+        "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json",
+        "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json"
       ],
       "skillPath": "skills/import-records/SKILL.md"
     },
@@ -1024,7 +1030,8 @@
         "profiles/r4/0.2.0/StructureDefinition-helseark-medication-statement.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-provenance.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-medication-request.json",
-        "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json"
+        "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json",
+        "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json"
       ],
       "skillPath": "skills/query-history/SKILL.md"
     },

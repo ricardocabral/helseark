@@ -336,3 +336,9 @@ Keep Condition verificationStatus (unconfirmed/provisional/differential, refuted
 confirmed) separate from clinicalStatus. Retain onset and recordedDate independently.
 Refuted assertions remain visible; there is no inferred active-diagnosis summary.
 Contradictory entered-in-error/clinical status and abatement/active status block acceptance.
+
+### AllergyIntolerance (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction`. Timeline uses ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+An explicit no-known-allergies source statement is a nonempty AllergyIntolerance.code.text with its verification/clinical qualifiers and evidence. No records is unknown, not a negative assertion. Preserve suspected versus confirmed/refuted status, reactions and criticality without deriving clinical risk.

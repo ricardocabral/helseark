@@ -38,10 +38,11 @@ _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/hels
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
 # Added resource profiles are versioned independently of the frozen original six.
-_HISTORY = {'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
+_HISTORY = {'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
 _SLUGS['MedicationStatement'] = 'medication-statement'
 _SLUGS['MedicationRequest'] = 'medication-request'
 _SLUGS['Condition'] = 'condition'
+_SLUGS['AllergyIntolerance'] = 'allergy-intolerance'
 _PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
 
 _PATIENT_FIELDS['MedicationStatement'] = 'subject'
@@ -49,6 +50,8 @@ _PATIENT_FIELDS['MedicationStatement'] = 'subject'
 _PATIENT_FIELDS['MedicationRequest'] = 'subject'
 
 _PATIENT_FIELDS['Condition'] = 'subject'
+
+_PATIENT_FIELDS['AllergyIntolerance'] = 'patient'
 
 def _profile(kind):
     return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
@@ -67,6 +70,7 @@ _FIELDS = {
     'MedicationStatement': 'identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage',
     'MedicationRequest': 'identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory',
     'Condition': 'identifier clinicalStatus verificationStatus category severity code bodySite subject encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString abatementDateTime abatementAge abatementPeriod abatementRange abatementString recordedDate recorder asserter stage evidence note',
+    'AllergyIntolerance': 'identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction',
     'Bundle': 'type entry',
 }
 _STATUSES = {
@@ -491,6 +495,19 @@ class _Checks:
             for field, system, allowed_codes in (
                     ('verificationStatus','condition-ver-status','unconfirmed provisional differential confirmed refuted entered-in-error'),
                     ('clinicalStatus','condition-clinical','active recurrence relapse inactive remission resolved')):
+                if field not in r:
+                    continue
+                codings = r[field].get('coding', [])
+                if not codings or any(c.get('system') != 'http://terminology.hl7.org/CodeSystem/' + system or c.get('code') not in allowed_codes.split() for c in codings):
+                    self.issue('FHIR_STATUS_INVALID', '/' + field, key)
+        if kind == 'AllergyIntolerance':
+            verification = {c.get('code') for c in r.get('verificationStatus', {}).get('coding', [])}
+            if ('entered-in-error' in verification) == ('clinicalStatus' in r):
+                self.issue('ALLERGY_STATUS_CONFLICT', '/clinicalStatus', key)
+        if kind == 'AllergyIntolerance':
+            for field, system, allowed_codes in (
+                    ('verificationStatus','allergyintolerance-verification','unconfirmed confirmed refuted entered-in-error'),
+                    ('clinicalStatus','allergyintolerance-clinical','active inactive resolved')):
                 if field not in r:
                     continue
                 codings = r[field].get('coding', [])

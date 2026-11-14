@@ -167,3 +167,14 @@ def test_condition_status_conflicts_are_not_confirmed_diagnoses(good):
     r['abatementString']='Source states resolved'
     persist(candidate)
     assert 'CONDITION_STATUS_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}
+
+
+def test_allergy_absence_and_status_are_explicit_assertions(good):
+    vault,candidate=good
+    _,entries=candidate_for(vault,candidate,'AllergyIntolerance')
+    r=entries[1]['resource']
+    del r['code'];persist(candidate)
+    assert 'FHIR_REQUIRED' in {i.code for i in validate_candidate(vault,candidate).issues}
+    r['code']={'text':'No known allergies per source'}
+    r['verificationStatus']['coding'][0]['code']='entered-in-error';persist(candidate)
+    assert 'ALLERGY_STATUS_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}

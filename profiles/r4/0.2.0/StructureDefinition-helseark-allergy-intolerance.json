@@ -1,0 +1,92 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-allergy-intolerance",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-allergy-intolerance",
+  "version": "0.2.0",
+  "name": "HelsearkAllergyIntolerance",
+  "title": "Helseark AllergyIntolerance",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "AllergyIntolerance",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/AllergyIntolerance",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "AllergyIntolerance",
+        "path": "AllergyIntolerance",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-allergy-intolerance|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "AllergyIntolerance.id",
+        "path": "AllergyIntolerance.id",
+        "min": 1
+      },
+      {
+        "id": "AllergyIntolerance.meta",
+        "path": "AllergyIntolerance.meta",
+        "min": 1
+      },
+      {
+        "id": "AllergyIntolerance.implicitRules",
+        "path": "AllergyIntolerance.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "AllergyIntolerance.contained",
+        "path": "AllergyIntolerance.contained",
+        "max": "0"
+      },
+      {
+        "id": "AllergyIntolerance.extension",
+        "path": "AllergyIntolerance.extension",
+        "max": "0"
+      },
+      {
+        "id": "AllergyIntolerance.modifierExtension",
+        "path": "AllergyIntolerance.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "AllergyIntolerance.verificationStatus",
+        "path": "AllergyIntolerance.verificationStatus",
+        "min": 1
+      },
+      {
+        "id": "AllergyIntolerance.code",
+        "path": "AllergyIntolerance.code",
+        "min": 1
+      },
+      {
+        "id": "AllergyIntolerance.patient",
+        "path": "AllergyIntolerance.patient",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "AllergyIntolerance.patient.reference",
+        "path": "AllergyIntolerance.patient.reference",
+        "min": 1
+      }
+    ]
+  }
+}
