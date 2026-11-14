@@ -48,6 +48,11 @@ agent-kit/, the vault root or person directories remain unknown even when they
 look like support. Root explanatory files are not clinical facts; inspect their
 text before disclosure. Explicit --include-work retains unaccepted work only in
 work/ and people/UUID/work/; it does not resolve unknown files elsewhere.
+Directory enumeration and entry stat failures are failed inspections, never empty
+subtrees. Doctor reports IO_ERROR with a confined relative path and a preservation
+action while retaining successfully verified counts. All three output modes block
+until inspection is possible. Restore access or recover from a verified copy, then
+retry doctor; the toolkit never changes permissions or quarantines files for you.
 
 Inspect `export.json` with an ordinary JSON reader: `files` records relative
 paths, SHA-256 and byte lengths for every other file. `vault/` is the recoverable

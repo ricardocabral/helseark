@@ -30,7 +30,7 @@ def pin():
         task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/reference/archive-format.md',
             *(['docs/how-to/query-history.md'] if task['id']=='query' else [])]))
         if task['id'] in ('export','verify'):
-            task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'], 'known-material-closure',
+            task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'], 'known-material-closure', 'readable-audit-paths',
                 'exact-reference-bindings' if task['id']=='export' else 'diagnostic-path-actions']))
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])

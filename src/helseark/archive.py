@@ -11,6 +11,7 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 import shutil
+import stat
 import sysconfig
 from uuid import uuid4
 from typing import Iterator
@@ -685,12 +686,26 @@ def doctor(vault: Vault) -> IntegrityReport:
 
     def problem(code, path, action, severity='error'):
         issues.append(Issue(code, severity, path, None, action))
+
+    def unreadable(error, fallback='.'):
+        # Use lexical confinement, never resolve/follow a failed path or expose
+        # an external filename supplied by the filesystem exception.
+        relative = fallback
+        if error is not None and error.filename is not None:
+            try:
+                relative = Path(os.path.abspath(os.fsdecode(error.filename))).relative_to(vault.root).as_posix()
+            except (TypeError, ValueError):
+                pass
+        problem('IO_ERROR', relative,
+                'Preserve this unreadable entry. Restore inspection access or recover it from a verified copy, then retry doctor. A failed read is not an empty subtree; backup/export remains blocked.')
     try:
         _open_vault_metadata(vault.root)
         canonical.update(_support_paths(vault))
     except ArchiveError as error:
         problem(error.code, error.details.get('path', 'vault.json'),
                 'Restore the affected pinned file from a verified backup; do not repin history.')
+    except OSError as error:
+        unreadable(error, 'vault.json')
     try:
         people = _safe(vault.root, 'people')
         directories = sorted(people.iterdir())
@@ -711,21 +726,25 @@ def doctor(vault: Vault) -> IntegrityReport:
         except ArchiveError as error:
             problem(error.code, error.details.get('path', f'people/{person}/accepted'),
                     'Preserve this directory; restore the complete affected history from a verified backup. Never skip or rewrite a change.')
+        except OSError as error:
+            unreadable(error, f'people/{person}/accepted')
         asset_root = directory / 'assets'
-        if asset_root.exists():
-            try:
+        try:
+            if asset_root.exists():
                 for relative in _files(asset_root):
                     path = f'people/{person}/assets/{relative}'
                     # Sidecar receipts are bound inside Task6 proposals as retained artifacts.
                     if path not in assets and path not in bound_paths:
                         orphans.append(path)
-            except ArchiveError as error:
-                problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')
+        except ArchiveError as error:
+            problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')
+        except OSError as error:
+            unreadable(error, f'people/{person}/assets')
     for path in sorted(orphans):
         problem('ORPHAN_PATH', path, 'Preserve this unreferenced file; inspect intake/work or recover its missing accepted change before manual quarantine.', 'warning')
     # Inspect unknown material without following links or treating directory names
     # as authority. Work and disposable state are explicitly outside this audit.
-    for parent, dirs, files in os.walk(vault.root, followlinks=False):
+    for parent, dirs, files in os.walk(vault.root, followlinks=False, onerror=unreadable):
         relative_parent = Path(parent).relative_to(vault.root)
         if relative_parent == Path('.'):
             dirs[:] = [d for d in dirs if d not in ('work', 'derived', '.runtime')]
@@ -735,15 +754,24 @@ def doctor(vault: Vault) -> IntegrityReport:
             relative = (relative_parent / name).as_posix()
             try:
                 path = _safe(vault.root, relative)
-                if not path.is_dir() and not path.is_file():
+                mode = path.stat(follow_symlinks=False).st_mode
+                if not stat.S_ISDIR(mode) and not stat.S_ISREG(mode):
                     raise ArchiveError('UNSAFE_PATH', 'Not a regular file or directory.')
-                if path.is_file() and relative not in canonical and relative not in orphans:
+                # os.walk suppresses DirEntry.is_dir failures as files. A
+                # directory classified as a file has no established traversal.
+                if stat.S_ISDIR(mode) and name not in dirs:
+                    unreadable(None, relative)
+                if stat.S_ISREG(mode) and relative not in canonical and relative not in orphans:
                     problem('UNKNOWN_PATH', relative,
                             'Preserve this unaccounted file; inspect its ownership and scope before manual quarantine outside the vault. Backup/export is blocked; this is not accepted or pinned authority.')
             except ArchiveError as error:
                 if name in dirs:
                     dirs.remove(name)
                 problem(error.code, relative, 'Preserve this unsafe entry; inspect it without following links before manual quarantine.')
+            except OSError as error:
+                if name in dirs:
+                    dirs.remove(name)
+                unreadable(error, relative)
     try:
         staging = _safe(vault.root, '.runtime/staging')
         if staging.exists():

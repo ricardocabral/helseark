@@ -845,8 +845,8 @@
       "files": [
         {
           "path": "docs/how-to/backup-and-restore.md",
-          "sha256": "a545e39367fb8f448abd012b42a2f02afb4d24b6477a964d70eeaf9f205834ef",
-          "size": 5169
+          "sha256": "2af90956a9983bbe5dfe115d342e81e721bca7f19220213135a58812785f6af6",
+          "size": 5581
         }
       ],
       "license": "Apache-2.0",

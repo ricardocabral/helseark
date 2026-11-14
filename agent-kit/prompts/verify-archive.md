@@ -32,3 +32,5 @@ Human review remains mandatory. Do not claim workflow or model evaluation succes
 Implemented host commands and limitations: [portability guide](../docs/how-to/backup-and-restore.md), [export guide](../docs/how-to/export-records.md). Use actual outputs, counts and mapping; never invent a successful drill. PDF disclosure requires SOURCE_SCOPE_REVIEW_REQUIRED handling; source_scope_confirmed alone does not bypass the CLI gate.
 
 Use the actual doctor report: retain successfully checked counts and exact issue paths/actions, including UNKNOWN_PATH and unsafe staging entries. Preserve unknown files and symlinks without following or deleting them; unresolved unknown material blocks backups and both person export modes. Never label unlisted support files accepted or person-scoped.
+
+A failed directory enumeration or entry stat is IO_ERROR, not an empty successful read. Retain verified counts and the confined path/action; block all backup/person outputs until inspection is possible. Never change access or quarantine material automatically.

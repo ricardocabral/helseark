@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "56fcc68bf72d2a336cf75a05acaf480c00e8802957984b6f058fd07a31553d51",
+    "definitionLockSha256": "59bb55c73f806e31afa27563927fd82f2cd3a9a6f1f1c161084d58b83f5742f4",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,13 +24,13 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "56fcc68bf72d2a336cf75a05acaf480c00e8802957984b6f058fd07a31553d51",
+      "sha256": "59bb55c73f806e31afa27563927fd82f2cd3a9a6f1f1c161084d58b83f5742f4",
       "size": 33345
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
-      "sha256": "a545e39367fb8f448abd012b42a2f02afb4d24b6477a964d70eeaf9f205834ef",
-      "size": 5169
+      "sha256": "2af90956a9983bbe5dfe115d342e81e721bca7f19220213135a58812785f6af6",
+      "size": 5581
     },
     {
       "path": "docs/how-to/export-records.md",
@@ -189,8 +189,8 @@
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "16fd887dd03b3a20ea4495031cebd7d35012e84175c7591cc8b45cf1875a972a",
-      "size": 2818
+      "sha256": "2ec83bdcf341d9508955b0e5bdfc710f40d6b4ded953ea4490135830d1ce4aeb",
+      "size": 3080
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -279,8 +279,8 @@
     },
     {
       "path": "skills/verify-archive/SKILL.md",
-      "sha256": "f9c8484ddab92462e8e051056587347cb0946b7dcf2fa81d2912ae4c88ee0cb0",
-      "size": 2243
+      "sha256": "8bf8b56bb1524927bed777004c2e0777f88a0f85680b835226e074441992ca5e",
+      "size": 2505
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -699,9 +699,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "16fd887dd03b3a20ea4495031cebd7d35012e84175c7591cc8b45cf1875a972a",
+      "sha256": "2ec83bdcf341d9508955b0e5bdfc710f40d6b4ded953ea4490135830d1ce4aeb",
       "skillId": "verify-archive",
-      "skillSha256": "f9c8484ddab92462e8e051056587347cb0946b7dcf2fa81d2912ae4c88ee0cb0",
+      "skillSha256": "8bf8b56bb1524927bed777004c2e0777f88a0f85680b835226e074441992ca5e",
       "skillVersion": "0.1.0",
       "taskIds": [
         "verify"
@@ -1065,7 +1065,8 @@
         "pinned-head",
         "human-review-required",
         "known-material-closure",
-        "exact-reference-bindings"
+        "exact-reference-bindings",
+        "readable-audit-paths"
       ],
       "id": "export",
       "intent": "Prepare export scope context",
@@ -1127,7 +1128,8 @@
         "pinned-head",
         "human-review-required",
         "known-material-closure",
-        "diagnostic-path-actions"
+        "diagnostic-path-actions",
+        "readable-audit-paths"
       ],
       "id": "verify",
       "intent": "Prepare integrity inspection context",
