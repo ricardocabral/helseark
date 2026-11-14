@@ -293,16 +293,23 @@ def _bounded_json(path, limits):
     return value
 
 
-def read_candidate(vault: Vault, candidateDirectory: Path) -> Candidate:
+def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None = None) -> Candidate:
     """Read strict untrusted envelopes for real Task2 checks; never accept records."""
     directory = Path(candidateDirectory).absolute()
     fd = _directory(directory)
     os.close(fd)
     limits = LIMITS
     metadata = _bounded_json(directory / 'candidate.json', limits)
+    if isinstance(metadata, dict) and any(metadata.get(k) != v for k, v in
+            {'fhirVersion': vault.config.fhirVersion, 'profileVersion': vault.config.profileVersion,
+             'contractVersion': vault.config.contractVersion}.items() if k in metadata):
+        raise ArchiveError('UNSUPPORTED_VERSION', 'Candidate version pins are unsupported.')
     registry = load_definition_registry(vault)
     if not registry.validate('urn:helseark:schema:0.1.0:candidate', metadata):
         raise ArchiveError('INVALID_ENVELOPE', 'Candidate metadata violates pinned contract.')
+    # Caller authority is checked before metadata can select history or assets.
+    if person is not None and metadata['personId'] != person:
+        raise ArchiveError('PERSON_MISMATCH', 'Candidate differs from explicitly selected person.')
     person = metadata['personId']
     _person(vault, person)
     base = head(vault, person)
