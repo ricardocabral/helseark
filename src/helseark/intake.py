@@ -383,6 +383,35 @@ def _candidate_inputs(directory):
     return data, hash_bytes(encode_json([{'path':p,'sha256':hash_bytes(b)} for p,b in zip(paths,data)]))
 
 
+def _resource_references(value, aliases):
+    """Map native Reference.reference fields in a validated FHIR resource.
+
+    The supported native schemas reserve this field for References, including
+    nested References. Literals, identifiers, codes and attachment URLs are data.
+    Root resource IDs are handled separately by the caller.
+    """
+    if isinstance(value, list):
+        return [_resource_references(v, aliases) for v in value]
+    if isinstance(value, dict):
+        return {k: aliases.get(v, v) if k == 'reference' and isinstance(v, str)
+                else _resource_references(v, aliases) for k,v in value.items()}
+    return value
+
+
+def _evidence_references(evidence, aliases):
+    """Map only the envelope's declared resource links; preserve source prose."""
+    from copy import deepcopy
+    result = deepcopy(evidence)
+    for entry in result['entries']:
+        for field in ('resourceRef', 'sourceDocument'):
+            if field in entry:
+                entry[field] = aliases.get(entry[field], entry[field])
+        if 'target' in entry:
+            ref = entry['target']['reference']
+            entry['target']['reference'] = aliases.get(ref, ref)
+    return result
+
+
 def _extraction_identity(candidate):
     """Source-local anchors are evidence coordinates, never medical equivalence."""
     aliases = {}
@@ -397,14 +426,13 @@ def _extraction_identity(candidate):
             raise ArchiveError('RECONCILIATION_REQUIRED','Source-local anchors must distinguish each emitted resource.')
         anchors[ref] = anchor
         aliases[ref] = aliases[r['resourceType']+'/'+r['id']] = anchor
-    def normalized(value):
-        if isinstance(value, str): return aliases.get(value,value)
-        if isinstance(value, list): return [normalized(v) for v in value]
-        if isinstance(value, dict):
-            return {k:(aliases.get('urn:uuid:'+v,v) if k=='id' else normalized(v)) for k,v in value.items()}
-        return value
-    normalized_resources = sorted([normalized(e['resource']) for e in candidate.bundle['entry']],key=encode_json)
-    normalized_evidence = sorted([normalized(e) for e in candidate.evidence['entries']],key=encode_json)
+    normalized_resources = []
+    for entry in candidate.bundle['entry']:
+        resource = _resource_references(entry['resource'], aliases)
+        resource['id'] = anchors[entry['fullUrl']]
+        normalized_resources.append(resource)
+    normalized_resources.sort(key=encode_json)
+    normalized_evidence = sorted(_evidence_references(candidate.evidence, aliases)['entries'],key=encode_json)
     return anchors, hash_bytes(encode_json({'resources':normalized_resources,'evidence':normalized_evidence,
         'unresolved':[document(i) for i in candidate.unresolved]}))
 
@@ -494,12 +522,8 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         r['id']=rid; r['meta'].update(versionId=version,lastUpdated=now)
         resources.append(r)
         inventory.append({'type':r['resourceType'],'id':rid,'versionId':version,'path':f"resources/{r['resourceType']}-{rid}.json",'sha256':'','supersedesVersionId':previous})
-    def rewrite(value):
-        if isinstance(value,str): return aliases.get(value,value)
-        if isinstance(value,list): return [rewrite(v) for v in value]
-        if isinstance(value,dict): return {k:rewrite(v) for k,v in value.items()}
-        return value
-    resources=[rewrite(r) for r in resources]; evidence=rewrite(deepcopy(fresh.evidence))
+    resources=[_resource_references(r,aliases) for r in resources]
+    evidence=_evidence_references(fresh.evidence,aliases)
     for final in dict.fromkeys(aliases.values()):
         evidence['entries'].append({'target':{'reference':final,'pointers':['/meta/versionId','/meta/lastUpdated']},'kind':'generated','rule':'prepare-revisions-1'})
     # Native FHIR Provenance records local compilation, never a clinical approver.

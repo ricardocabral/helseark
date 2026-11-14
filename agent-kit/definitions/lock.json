@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "fa53d2876e46deae4fefaaf43cbddf13d5f97754bd71c26966b098d20daf2430",
-          "size": 27855
+          "sha256": "b533554efcdda025ad160dd43e5f6dd3aaf6d7d70df6b5da8d93395191c7f46b",
+          "size": 28196
         }
       ],
       "license": "Apache-2.0",
@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
-          "size": 18703
+          "sha256": "f019a392d6493508606814278924a9072cc3491b09e85ecd0ad6a10511349324",
+          "size": 19098
         }
       ],
       "license": "Apache-2.0",
@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "2fdc834db757b449a12933f275eaaa7bc78865ddc53f56d55325112015b5726c",
-          "size": 6377
+          "sha256": "42014c4b6e51eee93560c7161fb9b607c74415745ef620f80f0bb21ba7717288",
+          "size": 8662
         }
       ],
       "license": "Apache-2.0",
@@ -780,8 +780,8 @@
       "files": [
         {
           "path": "docs/how-to/import-report.md",
-          "sha256": "8e403a5c4129a02e315b34771e537b00a9e5675040b91d785bd908a7300fdc73",
-          "size": 7122
+          "sha256": "8f787a12394a12701e10955a077beb457bbea919850dfb018d9aaaeb305b5cc5",
+          "size": 7284
         }
       ],
       "license": "Apache-2.0",
@@ -801,6 +801,19 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-first-archive",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/review.schema.json",
+          "sha256": "572e145e4bea2958f44114ff467233fa65fcf1ee3b9f5fc01f7e53fb1bda1124",
+          "size": 2322
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-review.schema",
+      "version": "0.1.1"
     }
   ],
   "contractVersion": "0.1.0",

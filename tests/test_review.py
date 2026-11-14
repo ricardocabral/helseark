@@ -20,7 +20,7 @@ def prepare(vault, candidate, **kwargs):
 def approve(vault, proposal):
     from helseark.review import render_review, record_review
     view = render_review(vault, proposal)
-    acks = tuple({'code':i['code'], 'resourceRef':i['resourceRef'], 'reason':'Human checked original and retained limitation.'}
+    acks = tuple({'code':i['code'], 'resourceRef':i['resourceRef'], 'issueId':i['issueId'], 'reason':'Human checked original and retained limitation.'}
                  for i in view.issues if i['severity'] in ('review','warning'))
     return record_review(vault, proposal, ReviewDecision(True, 'accept-with-acknowledged-limitations', acks, 'synthetic human'))
 
@@ -177,6 +177,8 @@ def test_changed_extraction_omission_is_explicit_and_preserved(tmp_path):
     view=render_review(vault,second)
     assert f"Observation/{missing['id']}" in view.omissions
     assert view.revisionsChanged and all(r['resource']['status'] in ('current','final') for r in view.revisionsChanged)
+    assert all(r['previousResource'] and r['previousEvidence'] for r in view.revisionsChanged)
+    assert any(r['resource'].get('valueString')=='not detected' and r['evidence'] for r in view.omittedResources)
     commit_candidate(vault,second,approve(vault,second))
     assert len([r for r in iter_current(vault,person) if r['resourceType']=='Observation'])==2
     assert resolve(vault,person,ResourceRef('Observation',missing['id'],missing['versionId']))['valueString']=='not detected'
@@ -234,6 +236,12 @@ def test_different_sources_equal_values_and_conflicts_remain_separate(tmp_path,c
     second=prepare_candidate(vault,candidate)
     view=render_review(vault,second)
     assert view.duplicateCandidates and any(i['code']=='POSSIBLE_DUPLICATE_OR_CONTRADICTION' for i in view.issues)
+    quantity=next(pair for pair in view.comparisons if 'valueQuantity' in pair['previousResource'])
+    assert str(quantity['previousResource']['valueQuantity']['value'])=='0.050'
+    assert str(quantity['resource']['valueQuantity']['value'])==('0.075' if conflicting else '0.050')
+    assert quantity['previousEvidence'] and quantity['evidence']
+    assert {e['sourceSha256'] for e in quantity['previousEvidence']}=={source.sourceSha256}
+    assert {e['sourceSha256'] for e in quantity['evidence']}=={other.sourceSha256}
     commit_candidate(vault,second,approve(vault,second))
     observations=[r for r in iter_current(vault,person) if r['resourceType']=='Observation']
     assert len(observations)==4
@@ -324,3 +332,112 @@ def test_generated_provenance_does_not_authorize_clinical_reason(tmp_path):
     (p.path/'proposal.json').write_bytes(encode_json(inventory))
     report=validate_proposal(vault,p.path)
     assert any(i.code=='GENERATED_CLINICAL_EVIDENCE' and i.severity=='error' for i in report.issues)
+
+
+def collision_candidate(tmp_path):
+    from helseark.intake import read_candidate
+    vault,person,_,_,candidate=supplied_candidate(tmp_path)
+    meta=decode_json((candidate.path/'candidate.json').read_bytes())
+    for pointer,message in [('/valueQuantity','Check quantity A'),('/referenceRange','Check range B')]:
+        meta['unresolved'].append(dict(code='SEPARATE_LIMITATION',severity='review',pointer=pointer,resourceRef=None,message=message))
+    (candidate.path/'candidate.json').write_bytes(encode_json(meta))
+    return vault,person,read_candidate(vault,candidate.path)
+
+
+def test_distinct_displayed_issues_cannot_share_legacy_ack(tmp_path):
+    from helseark.review import render_review,record_review
+    vault,person,candidate=collision_candidate(tmp_path);p=prepare(vault,candidate)
+    view=render_review(vault,p)
+    acks={(i['code'],i['resourceRef']):dict(code=i['code'],resourceRef=i['resourceRef'],reason='Independent fixture selection') for i in view.issues if i['severity'] in ('review','warning')}
+    assert sum(i['code']=='SEPARATE_LIMITATION' for i in view.issues)==2
+    with pytest.raises(ArchiveError,match='REVIEW_REQUIRED'):
+        record_review(vault,p,ReviewDecision(True,'accept-with-acknowledged-limitations',tuple(acks.values()),'fixture'))
+    assert head(vault,person).sequence==1
+
+
+def test_exact_issue_selection_survives_work_and_runtime_deletion(tmp_path):
+    from helseark.review import render_review,record_review,read_prepared,read_receipt
+    from helseark.archive import commit_candidate
+    vault,person,candidate=collision_candidate(tmp_path);p=prepare(vault,candidate)
+    view=render_review(vault,p)
+    selected=[i for i in view.issues if i['severity'] in ('review','warning')]
+    assert len({i['issueId'] for i in selected})==len(selected)
+    assert any(i['code']=='VALIDATION_NOT_CHECKED' for i in selected)
+    acks=tuple(dict(code=i['code'],resourceRef=i['resourceRef'],issueId=i['issueId'],reason='Independent fixture selection') for i in selected)
+    receipt=record_review(vault,p,ReviewDecision(True,'accept-with-acknowledged-limitations',acks,'fixture'))
+    result=commit_candidate(vault,p,receipt)
+    accepted=vault.root/f'people/{person}/accepted/{result.head.sequence:08d}-{result.head.transactionId}'
+    saved=(accepted/'review.json').read_bytes()
+    shutil.rmtree(vault.root/'work');shutil.rmtree(vault.root/'.runtime');shutil.rmtree(candidate.path)
+    reopened=open_vault(vault.root);retained=read_prepared(reopened,accepted)
+    assert render_review(reopened,retained).identitySummary['acknowledgmentBinding']=='exact-issue-v1'
+    assert commit_candidate(reopened,retained,read_receipt(reopened,retained)).disposition=='already-accepted'
+    assert (accepted/'review.json').read_bytes()==saved
+
+
+@pytest.mark.parametrize('mutation',['missing','extra','duplicate','unknown','wrong-code','malformed','unchecked'])
+def test_exact_acknowledgments_fail_closed(tmp_path,mutation):
+    from helseark.review import render_review,record_review
+    vault,person,candidate=collision_candidate(tmp_path);p=prepare(vault,candidate)
+    selected=[i for i in render_review(vault,p).issues if i['severity'] in ('review','warning')]
+    acks=[dict(code=i['code'],resourceRef=i['resourceRef'],issueId=i['issueId'],reason='Fixture decision') for i in selected]
+    if mutation=='missing':acks.pop()
+    elif mutation=='extra':acks.append(dict(acks[0],issueId='0'*64))
+    elif mutation=='duplicate':acks.append(acks[0])
+    elif mutation=='unknown':acks[0]['issueId']='0'*64
+    elif mutation=='wrong-code':acks[0]['code']='wrong'
+    elif mutation=='malformed':acks[0]['code']=[]
+    elif mutation=='unchecked':acks=[a for a in acks if a['code']!='VALIDATION_NOT_CHECKED']
+    with pytest.raises(ArchiveError,match='REVIEW_REQUIRED'):
+        record_review(vault,p,ReviewDecision(True,'accept-with-acknowledged-limitations',tuple(acks),'fixture'))
+    assert head(vault,person).sequence==1
+
+
+def test_reference_looking_source_text_remains_literal_after_publication(tmp_path):
+    from helseark.intake import add_source,build_packet,read_candidate,prepare_candidate
+    from helseark.archive import commit_candidate
+    from helseark.review import render_review
+    from pypdf import PdfReader,PdfWriter
+    from pypdf.generic import DecodedStreamObject,NameObject
+    vault,person,source,_,candidate=supplied_candidate(tmp_path)
+    literal=candidate.bundle['entry'][0]['fullUrl']
+    writer=PdfWriter(clone_from=PdfReader(source.assetPath));stream=DecodedStreamObject()
+    stream.set_data(writer.pages[0].get_contents().get_data().replace(b'not detected',literal.encode()))
+    writer.pages[0][NameObject('/Contents')]=stream;writer.write(tmp_path/'literal.pdf')
+    other=add_source(vault,person,tmp_path/'literal.pdf');packet=build_packet(vault,other,tmp_path/'literal-packet',identityConfirmed=True)
+    oldext=decode_json((source.assetPath.parent/'extraction.json').read_bytes())['pagesSha256']
+    newext=decode_json((packet.path/'intake.json').read_bytes())['extraction']['pagesSha256']
+    for name in ('bundle.json','evidence.json'):
+        data=(candidate.path/name).read_bytes().replace(source.sourceSha256.encode(),other.sourceSha256.encode()).replace(oldext.encode(),newext.encode()).replace(b'not detected',literal.encode())
+        (candidate.path/name).write_bytes(data)
+    meta=decode_json((candidate.path/'candidate.json').read_bytes());meta.update(candidateId=packet.importId,sourceSha256=[other.sourceSha256]);(candidate.path/'candidate.json').write_bytes(encode_json(meta))
+    p=prepare_candidate(vault,read_candidate(vault,candidate.path))
+    view=render_review(vault,p);q=next(r for r in view.resourcesAdded if 'valueString' in r)
+    assert q['valueString']==literal
+    assert any(literal in e.get('quote','') for e in view.sourceLinks)
+    commit_candidate(vault,p,approve(vault,p))
+    reopened=open_vault(vault.root)
+    assert resolve(reopened,person,ResourceRef('Observation',q['id']))['valueString']==literal
+
+
+def test_exact_duplicate_issue_semantics_and_report_binding():
+    from helseark.contracts import ValidationReport,Issue,CheckCoverage
+    from helseark.review import _review_issues,_decision
+    issue=Issue('LIMIT','review','/a',None,'First field')
+    other=replace(issue,pointer='/b',message='Second field')
+    report=ValidationReport('1'*64,(),(issue,issue,other))
+    displayed=_review_issues(report)
+    assert len(displayed)==2
+    acks=tuple(dict(code=i['code'],resourceRef=i['resourceRef'],issueId=i['issueId'],reason='Independent fixture selection') for i in displayed)
+    decision=ReviewDecision(True,'accept-with-acknowledged-limitations',acks,'fixture')
+    assert len(_decision(report,replace(decision,acknowledgedIssues=tuple(reversed(acks)))))==2
+    with pytest.raises(ArchiveError,match='REVIEW_REQUIRED'):
+        _decision(replace(report,issues=(other,issue,issue)),decision)
+    with pytest.raises(ArchiveError,match='REVIEW_REQUIRED'):
+        _decision(replace(report,issues=(replace(issue,message='Changed meaning'),other)),decision)
+    with pytest.raises(ArchiveError,match='VALIDATION_BLOCKED'):
+        _decision(replace(report,coverage=(CheckCoverage('structural','failed',None),)),decision)
+    # Original decision shape still selects a unique limitation. Retention adds its exact ID.
+    unique=replace(report,issues=(issue,issue))
+    normalized=_decision(unique,replace(decision,acknowledgedIssues=(dict(code='LIMIT',resourceRef=None,reason='Fixture selection'),)))
+    assert len(normalized)==1 and normalized[0]['issueId']==_review_issues(unique)[0]['issueId']

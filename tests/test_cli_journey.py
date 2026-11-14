@@ -97,7 +97,7 @@ def test_candidate_prepare_human_review_commit_cli(tmp_path):
     issues=json.loads(view.stdout)['issues']
     decision=tmp_path/'human-decision.json'
     decision.write_bytes(encode_json({'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations',
-        'reviewerLabel':'synthetic human','acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Checked original synthetic report'} for i in issues if i['severity'] in ('review','warning')]}))
+        'reviewerLabel':'synthetic human','acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'issueId':i['issueId'],'reason':'Checked original synthetic report'} for i in issues if i['severity'] in ('review','warning')]}))
     approved=run('--vault',vault.root,'candidate','review',path,'--person',person,'--decision',decision,'--json')
     assert approved.returncode==0,approved.stderr
     from pathlib import Path

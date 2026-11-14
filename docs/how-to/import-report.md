@@ -93,7 +93,8 @@ helseark --vault "$VAULT" candidate review "$PROPOSAL" --person "$PERSON" --json
 ```
 
 Create a human decision JSON file with this shape, adding one acknowledgment for
-each displayed review/warning issue using its exact code and resourceRef. Read the
+each displayed review/warning issue using its displayed issueId, exact code and resourceRef, including unchecked
+validation families. Give a specific reason for each selection. Read the
 original source and confirm person assignment; do not copy an agent's approval.
 
 ```json
@@ -102,7 +103,8 @@ original source and confirm person assignment; do not copy an agent's approval.
   "decision": "accept-with-acknowledged-limitations",
   "reviewerLabel": "vault-owner",
   "acknowledgedIssues": [
-    {"code": "SOURCE_IDENTITY_REVIEW", "resourceRef": null,
+    {"issueId": "COPY_THE_64_HEX_ISSUE_ID_FROM_YOUR_VIEW",
+     "code": "SOURCE_IDENTITY_REVIEW", "resourceRef": null,
      "reason": "I checked the original person assignment and identity uncertainty."}
   ]
 }

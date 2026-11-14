@@ -9,12 +9,14 @@ this actor is not a clinician or approver. The accepted source status (`final`,
 `current`, etc.) remains distinct from workflow acceptance status.
 
 `render_review(vault, proposal)` returns identity and base, every emitted resource,
-changed revisions, preserved omissions, duplicate/contradiction suggestions, source
+changed revisions with previous resources/evidence, preserved omitted resources,
+paired old/new duplicate/contradiction comparisons with both sources, source
 quotes and page locators, issues and validation coverage. Read original sources
 beside all results. Quote consistency does not prove the row association correct.
 `record_review(vault, proposal, ReviewDecision(...))` requires explicit human person
 confirmation, a local reviewer label, an acceptance decision and an individual
-`{code, resourceRef, reason}` for exactly each review/warning issue. No blanket
+`{issueId, code, resourceRef, reason}` for exactly each displayed review/warning
+issue, including each unchecked validation family. No blanket
 acknowledgment exists. Errors, failed validation and unresolved identity block.
 The label is not a verified identity or a digital signature.
 
@@ -95,3 +97,37 @@ contracts. Older copied kits/definitions and accepted history remain readable; t
 toolkit does not automatically repin or migrate them. An old schema that cannot
 represent the new review inventory blocks preparation. Schema migration is a later
 workflow; preserve the original vault and its definitions.
+
+
+## Exact issue decisions and historical compatibility
+
+New receipts use the independently versioned review contract `0.1.1` from
+`schemas/0.1.1/review.schema.json`. Other archive envelopes remain `0.1.0`.
+New publication requires this pinned schema; an older vault must not be silently
+repinned. Its accepted history remains readable with its original definitions.
+
+The displayed `issueId` hashes `helseark-json-1` encoding of
+`{version: "exact-issue-v1", validationSha256: SHA256(validation.json), issue: ISSUE}`.
+ISSUE contains code, severity, pointer, resourceRef and message. This binds the
+selection to the original report, before any reference rewriting or display
+sorting. A changed report requires fresh review. The view collapses truly
+identical five-field issues into one explicit limitation; different messages,
+pointers, resources or severities remain separate. It includes one
+`VALIDATION_NOT_CHECKED` limitation per unchecked family, with its reason and
+`/coverage/FAMILY` pointer (JSON Pointer escaped). Acknowledgment records awareness
+of that gap; it does not turn an unchecked family into a passed check.
+
+The original `ReviewDecision` outer shape is unchanged. Three-field acknowledgment
+inputs remain supported only when code/resourceRef selects exactly one displayed
+required issue; ambiguous input fails and requires the displayed issueId.
+No reason, person confirmation or missing selection is generated. New receipts
+always retain exact issueIds. Unknown, extra, duplicate, missing or mismatched
+selections fail. Errors and unresolved identity remain blocking.
+
+Historical `0.1.0` receipts retain their original bytes and code/resourceRef
+semantics. Accepted views label these `legacy-code-resourceRef`: their inventory
+proves the retained decision bytes, **not individual acknowledgment of distinct
+issues sharing that key or unchecked coverage**. Reading or retrying an already
+accepted transaction does not reapprove it. An unaccepted old receipt cannot
+publish; the human must review again to create a `0.1.1` receipt. New receipts are
+verified against retained validation after all work/runtime directories are gone.

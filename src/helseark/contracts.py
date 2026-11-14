@@ -176,6 +176,9 @@ class ReviewView:
     sourceLinks: tuple[dict, ...]
     issues: tuple[dict, ...]
     validationCoverage: tuple[dict, ...]
+    # Disposable comparisons resolved at the proposal's exact selected-person base.
+    comparisons: tuple[dict, ...] = ()
+    omittedResources: tuple[dict, ...] = ()
 
 
 @dataclass(frozen=True)

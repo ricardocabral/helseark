@@ -23,6 +23,26 @@ def _blocked(report):
         raise ArchiveError('VALIDATION_BLOCKED','Blocking validation failures cannot be acknowledged.')
 
 
+def _review_issues(report: ValidationReport) -> tuple[dict, ...]:
+    """Bind each distinct displayed issue to its exact report, without positions.
+
+    Byte-identical issues are one limitation. Different severity, pointer, message
+    or resource is a different limitation. Coverage gaps are explicit limitations.
+    """
+    digest = hash_bytes(encode_json(document(report)))
+    issues = [asdict(i) for i in report.issues]
+    issues.extend(asdict(Issue('VALIDATION_NOT_CHECKED', 'review',
+        '/coverage/' + c.family.replace('~', '~0').replace('/', '~1'), None,
+        c.reason or 'Validation family was not checked.'))
+        for c in report.coverage if c.result == 'not-checked')
+    unique = {}
+    for issue in issues:
+        identity = hash_bytes(encode_json({'version': 'exact-issue-v1',
+                                         'validationSha256': digest, 'issue': issue}))
+        unique[identity] = {**issue, 'issueId': identity}
+    return tuple(unique.values())
+
+
 def read_prepared(vault, directory, *, candidate_path=None, base=None):
     """Reload exact prepared content; live candidate path comes only from host control."""
     directory=Path(directory).absolute()
@@ -87,48 +107,111 @@ def render_review(vault: Vault, proposal: PreparedProposal) -> ReviewView:
     value=_verify_prepared(vault,proposal,current=not accepted)
     resources=[_json(proposal.path,i['path']) for i in value['resources']]
     info=value.get('importReview',{})
+    evidence=_json(proposal.path,'evidence.json')['entries']
+    def source_evidence(entries, resource):
+        logical=f"{resource['resourceType']}/{resource['id']}"
+        exact=f"{logical}/_history/{resource['meta']['versionId']}"
+        return tuple(e for e in entries if e['kind']=='source' and
+                     e.get('target',{}).get('reference',e.get('resourceRef')) in (logical,exact))
+    needed=set(info.get('omissions',[])) | set(info.get('duplicateCandidates',[]))
+    needed.update(f"{i['type']}/{i['id']}" for i in value['resources'] if i['supersedesVersionId'])
+    previous={}
+    if needed and proposal.base:
+        from .archive import _history
+        for h,directory,change in _history(vault,proposal.personId):
+            if h.sequence>proposal.base.sequence: break
+            old_evidence=_json(directory,'evidence.json')['entries']
+            for item in change['resources']:
+                logical=f"{item['type']}/{item['id']}"
+                if logical in needed:
+                    resource=_json(directory,item['path'])
+                    previous[logical]={'resource':resource,'evidence':source_evidence(old_evidence,resource)}
+    revisions=[]
+    for r,i in zip(resources,value['resources']):
+        if i['supersedesVersionId']:
+            old=previous[f"{i['type']}/{i['id']}"]
+            revisions.append({'resource':r,'supersedesVersionId':i['supersedesVersionId'],
+                              'previousResource':old['resource'],'previousEvidence':old['evidence'],
+                              'evidence':source_evidence(evidence,r)})
+    comparisons=[]
+    for ref in info.get('duplicateCandidates',[]):
+        old=previous[ref]
+        for resource in resources:
+            if (resource['resourceType']==old['resource']['resourceType']=='Observation' and
+                resource['id']!=old['resource']['id'] and
+                resource.get('code')==old['resource'].get('code') and
+                resource.get('effectiveDateTime')==old['resource'].get('effectiveDateTime')):
+                comparisons.append({'resource':resource,'evidence':source_evidence(evidence,resource),
+                                    'previousResource':old['resource'],'previousEvidence':old['evidence']})
+    omitted=tuple(previous[ref] for ref in info.get('omissions',[]))
+    sources=[e for e in evidence if e['kind']=='source']
+    sources.extend(e for old in previous.values() for e in old['evidence'])
+    legacy=accepted and _json(proposal.path,'review.json')['contractVersion']=='0.1.0'
     patient=resolve(vault,proposal.personId,ResourceRef('Patient',proposal.personId),at=proposal.base)
     return ReviewView({'personId':proposal.personId,'patient':patient,'base':asdict(proposal.base) if proposal.base else None,
-                       'acceptanceStatus':'accepted' if accepted else 'prepared-unaccepted'},
+                       'acceptanceStatus':'accepted' if accepted else 'prepared-unaccepted',
+                       'acknowledgmentBinding':'legacy-code-resourceRef' if legacy else 'exact-issue-v1',
+                       'reviewQualification':('Legacy decision bytes are retained; individual acknowledgment of colliding issues and unchecked coverage is not established.' if legacy else None)},
         tuple(r for r,i in zip(resources,value['resources']) if i['supersedesVersionId'] is None),
-        tuple({'resource':r,'supersedesVersionId':i['supersedesVersionId']} for r,i in zip(resources,value['resources']) if i['supersedesVersionId']),
+        tuple(revisions),
         tuple(info.get('omissions',[])),tuple(info.get('duplicateCandidates',[])),
-        tuple(e for e in _json(proposal.path,'evidence.json')['entries'] if e['kind']=='source'),
-        tuple(asdict(i) for i in proposal.validation.issues),tuple(asdict(c) for c in proposal.validation.coverage))
+        tuple({encode_json(e):e for e in sources}.values()),
+        _review_issues(proposal.validation),tuple(asdict(c) for c in proposal.validation.coverage),
+        tuple(comparisons),omitted)
 
 
 def _decision(report, decision):
+    """Validate human selections and return exact acknowledgments for retention.
+
+    Original three-field decisions remain usable only for unambiguous selectors.
+    No selection, reason or confirmation is inferred for a missing limitation.
+    """
     _blocked(report)
-    if not isinstance(decision,ReviewDecision) or decision.confirmedPerson is not True or not isinstance(decision.reviewerLabel,str) or not decision.reviewerLabel.strip():
+    if (not isinstance(decision,ReviewDecision) or decision.confirmedPerson is not True or
+        not isinstance(decision.reviewerLabel,str) or not decision.reviewerLabel.strip() or
+        not isinstance(decision.acknowledgedIssues,(tuple,list))):
         raise ArchiveError('REVIEW_REQUIRED','Explicit human identity confirmation and reviewer label required.')
     # Unknown identity is not an acknowledgeable extraction limitation.
     if any(i.code in {'IDENTITY_UNCONFIRMED','IDENTITY_MISMATCH','MULTIPLE_PERSON_CUES','PERSON_MISMATCH','IDENTITY_UNRESOLVED','SOURCE_IDENTITY_UNRESOLVED','SOURCE_IDENTITY_MISMATCH'} for i in report.issues):
         raise ArchiveError('VALIDATION_BLOCKED','Unresolved identity cannot be acknowledged.')
-    required={(i.code,i.resourceRef) for i in report.issues if i.severity in ('review','warning')}
+    required={i['issueId']:i for i in _review_issues(report) if i['severity'] in ('review','warning')}
     supplied=set()
+    normalized=[]
     for ack in decision.acknowledgedIssues:
-        if not isinstance(ack,dict) or set(ack)!={'code','resourceRef','reason'} or not isinstance(ack['reason'],str) or not ack['reason'].strip():
+        if (not isinstance(ack,dict) or set(ack) not in ({'code','resourceRef','reason'}, {'code','resourceRef','reason','issueId'}) or
+            not isinstance(ack['code'],str) or not (ack['resourceRef'] is None or isinstance(ack['resourceRef'],str)) or
+            not isinstance(ack['reason'],str) or not ack['reason'].strip()):
             raise ArchiveError('REVIEW_REQUIRED','Each limitation needs an explicit reason.')
-        key=(ack['code'],ack['resourceRef'])
+        matches=[identity for identity,i in required.items() if (i['code'],i['resourceRef'])==(ack['code'],ack['resourceRef'])]
+        if 'issueId' in ack:
+            key=ack['issueId']
+            if not isinstance(key,str) or key not in matches:
+                raise ArchiveError('REVIEW_REQUIRED','Unknown or mismatched exact issue selection.')
+        elif len(matches)==1:
+            key=matches[0]
+        else:
+            raise ArchiveError('REVIEW_REQUIRED','Legacy selection must identify exactly one displayed issue; use issueId.')
         if key in supplied: raise ArchiveError('REVIEW_REQUIRED','Duplicate acknowledgment.')
         supplied.add(key)
-    if supplied!=required or decision.decision not in ('accept','accept-with-acknowledged-limitations') or required and decision.decision!='accept-with-acknowledged-limitations':
+        normalized.append({**ack,'issueId':key})
+    if supplied!=set(required) or decision.decision not in ('accept','accept-with-acknowledged-limitations') or required and decision.decision!='accept-with-acknowledged-limitations':
         raise ArchiveError('REVIEW_REQUIRED','Acknowledge exactly the displayed limitations individually.')
+    return normalized
 
 
 def record_review(vault: Vault, proposal: PreparedProposal, decision: ReviewDecision, *, clock: Callable[[], datetime] | None = None) -> ReviewReceipt:
     from .archive import _write
     _verify_prepared(vault,proposal)
-    _decision(proposal.validation,decision)
+    acknowledgments=_decision(proposal.validation,decision)
     instant=(clock or (lambda:datetime.now(timezone.utc)))()
     if instant.tzinfo is None or instant.utcoffset() is None:
         raise ArchiveError('INVALID_INPUT','Review clock requires timezone.')
     validation_digest=hash_bytes(_read(proposal.path,'validation.json'))
-    value={'contractVersion':'0.1.0','personId':proposal.personId,'proposalSha256':proposal.proposalSha256,
+    value={'contractVersion':'0.1.1','personId':proposal.personId,'proposalSha256':proposal.proposalSha256,
         'validationSha256':validation_digest,'baseChangeSha256':proposal.base.changeSha256 if proposal.base else None,
         'decision':decision.decision,'reviewer':{'kind':'local-user','label':decision.reviewerLabel},
         'reviewedAt':instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z'),
-        'confirmedPerson':decision.confirmedPerson,'acknowledgedIssues':list(decision.acknowledgedIssues)}
+        'confirmedPerson':decision.confirmedPerson,'acknowledgedIssues':acknowledgments}
     _schema(vault,'review',value)
     path=proposal.path/'review.json'; data=encode_json(value)
     _write(path,data)

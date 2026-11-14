@@ -403,3 +403,8 @@ Human decision JSON, re-extraction intent, reconciliation and runtime preparatio
 control stay outside hostile source text and agent-writable packet/output trees.
 The agent can emit a candidate or report only; it cannot self-authorize acceptance.
 Retain exact accepted proposal/input/report/receipt/assets after clearing work.
+
+Human-controlled publication retains review contract `0.1.1` exact issue identities.
+See [exact issue decisions](review.md#exact-issue-decisions-and-historical-compatibility)
+for unchecked coverage, legacy input ambiguity and qualified historical receipts.
+An agent never supplies a person's confirmation or acknowledgment on their behalf.

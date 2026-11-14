@@ -44,3 +44,8 @@ PDF extraction/candidate reading and human-controlled reviewed publication are a
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
+
+Human publication uses [exact issue review](../../docs/reference/review.md#exact-issue-decisions-and-historical-compatibility).
+The human inspects previous/new facts, omissions and both sources, then selects
+every displayed limitation by issueId with an individual reason and current person
+confirmation. Agents must not generate acknowledgments or acceptance decisions.
