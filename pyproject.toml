@@ -13,7 +13,7 @@ dependencies = ["jsonschema==4.25.1"]
 helseark = "helseark.cli:main"
 
 [dependency-groups]
-dev = ["pytest==8.4.2"]
+dev = ["pytest==9.0.3"]
 
 [tool.uv]
 # Preserve the lock's seven-day release cutoff without relying on user config.
