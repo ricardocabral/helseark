@@ -323,3 +323,7 @@ textual, age-based and absent event dates are not converted into invented dates.
 ### MedicationStatement (profile 0.2.0)
 
 Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage`. Timeline uses ('effectiveDateTime', 'effectivePeriod'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+### MedicationRequest (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory`. Timeline uses ('authoredOn',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.

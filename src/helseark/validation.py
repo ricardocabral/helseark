@@ -38,11 +38,14 @@ _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/hels
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
 # Added resource profiles are versioned independently of the frozen original six.
-_HISTORY = {'MedicationStatement': 'medication-statement'}
+_HISTORY = {'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
 _SLUGS['MedicationStatement'] = 'medication-statement'
+_SLUGS['MedicationRequest'] = 'medication-request'
 _PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
 
 _PATIENT_FIELDS['MedicationStatement'] = 'subject'
+
+_PATIENT_FIELDS['MedicationRequest'] = 'subject'
 
 def _profile(kind):
     return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
@@ -59,9 +62,11 @@ _FIELDS = {
     'DocumentReference': 'masterIdentifier identifier status docStatus type category subject date author authenticator custodian relatesTo description securityLabel content context',
     'Provenance': 'target occurredPeriod occurredDateTime recorded policy location reason activity agent entity',
     'MedicationStatement': 'identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage',
+    'MedicationRequest': 'identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('MedicationRequest', 'status'): 'active on-hold cancelled completed entered-in-error stopped draft unknown',
     ('MedicationStatement', 'status'): 'active completed entered-in-error intended stopped on-hold unknown not-taken',
     ('Observation', 'status'): 'registered preliminary final amended corrected cancelled entered-in-error unknown',
     ('DiagnosticReport', 'status'): 'registered partial preliminary final amended corrected appended cancelled entered-in-error unknown',
@@ -464,6 +469,8 @@ class _Checks:
             elif subject != 'Patient/' + self.person and not (subject == 'urn:uuid:' + self.person and 'Patient/' + self.person in self.resources):
                 self.issue('PERSON_MISMATCH', '/' + patient_field + '/reference', key)
         self.family = 'supported-profile-rules'
+        if kind == 'MedicationRequest' and r.get('intent') not in 'proposal plan order original-order reflex-order filler-order instance-order option'.split():
+            self.issue('FHIR_STATUS_INVALID', '/intent', key)
         if kind == 'Observation':
             self.observation(r, '', key)
             for i, component in enumerate(r.get('component', [])):

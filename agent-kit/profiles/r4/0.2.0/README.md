@@ -1,2 +1,4 @@
 
 - MedicationStatement: source-authored subject scope; native fields `identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage`. Timeline time: ('effectiveDateTime', 'effectivePeriod'). Preserve qualifiers, source evidence and unknown dates.
+
+- MedicationRequest: source-authored subject scope; native fields `identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory`. Timeline time: ('authoredOn',). Preserve qualifiers, source evidence and unknown dates.
