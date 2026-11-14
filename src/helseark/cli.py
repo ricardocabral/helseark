@@ -13,6 +13,7 @@ from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, do
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
     "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
@@ -78,6 +79,8 @@ def main(argv=None):
     context.add_argument("--json", action="store_true")
     render = agents.add_parser('render', help='Verify a packet and render declared JSON slots; no agent execution.')
     render.add_argument('--context', type=Path, required=True)
+    render.add_argument('--trusted-context-sha256', required=True,
+        help='Digest retained by the host from agent context stdout, outside editable packet files.')
     render.add_argument('--person', required=True)
     render.add_argument('--prompt', required=True)
     render.add_argument('--variables', type=Path, required=True)
@@ -97,7 +100,8 @@ def main(argv=None):
                 expected = Path(path).resolve() / 'agent-kit' / packet.kitVersion / 'manifest.json'
                 if packet.personId != args.person or Path(packet.kitManifest.path) != expected:
                     raise ArchiveError('CONTEXT_MISMATCH', 'Packet differs from selected vault/person.')
-                output = document(render_task_prompt(packet, args.prompt, decode_json(args.variables.read_bytes())))
+                output = document(render_task_prompt(packet, args.prompt, decode_json(args.variables.read_bytes()),
+                    trusted_context_sha256=args.trusted_context_sha256))
             else:
                 if not path:
                     raise ArchiveError('INVALID_INPUT', 'Provide --vault PATH or HELSEARK_VAULT.')
@@ -119,9 +123,10 @@ def main(argv=None):
                         token = ContextContinuation(raw['personId'], raw['taskId'], Head(**raw['base']), raw['requestSha256'], raw['offset'])
                     except (KeyError, TypeError):
                         raise ArchiveError('INVALID_CONTINUATION', 'Prior context must contain a continuation.') from None
-                output = document(build_agent_context(vault, args.person, args.task,
+                built = build_agent_context(vault, args.person, args.task,
                     ContextRequest(tuple(args.source), tuple(refs), args.from_date, args.to_date,
-                        args.max_records, args.max_data_bytes, token), args.out))
+                        args.max_records, args.max_data_bytes, token), args.out)
+                output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
         elif args.command == "init":
             vault = init_vault(args.path)
             output = {"vaultId": vault.config.vaultId, "path": str(vault.root)}
@@ -191,6 +196,8 @@ def main(argv=None):
                 print(output['text'])
             else:
                 print(output.get("personId", output.get("path")))
+                if args.command == 'agent' and args.agent_command == 'context':
+                    print('Host-retained context SHA-256: '+output['trustedContextSha256'])
         return exit_code
     except ArchiveError as error:
         sys.stderr.buffer.write(encode_json({"code": error.code, "message": error.safeMessage, "details": error.details}))

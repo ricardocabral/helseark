@@ -7,7 +7,7 @@ import sys
 
 import pytest
 from helseark import archive, agent_context as agents
-from helseark.contracts import ArchiveError, ContextRequest, ResourceRef
+from helseark.contracts import ArchiveError, ContextRequest, ContextContinuation, ResourceRef
 from helseark.serialization import decode_json, encode_json, hash_bytes
 from test_agent_context import family, accept_fixture
 from test_validation import good as clinical_candidate, OBS
@@ -112,6 +112,7 @@ def test_cli_uses_same_renderer(tmp_path):
     slots.write_bytes(encode_json(variables(tmp_path)))
     result = subprocess.run([sys.executable, '-m', 'helseark.cli', '--vault', str(vault.root),
         'agent', 'render', '--context', str(context.path), '--person', context.personId,
+        '--trusted-context-sha256', context.trustedContextSha256,
         '--prompt', 'query-with-evidence', '--variables', str(slots), '--json'], capture_output=True)
     assert result.returncode == 0, result.stderr
     assert decode_json(result.stdout) == agents.document(render(context, variables(tmp_path)))
@@ -509,7 +510,7 @@ def test_real_shared_row_builder_renderer_authorization_and_originals(clinical_c
     # Revoking source scope cannot preserve an explicit-source selection, even
     # when all self-declared file and context hashes remain internally coherent.
     context=rewrite_packet(context,selectedSources=())
-    with pytest.raises(ArchiveError,match='EVIDENCE_SCOPE_REQUIRED'):
+    with pytest.raises(ArchiveError,match='CONTEXT_MISMATCH'):
         render(context,variables(tmp_path))
     assert before=={p:hash_bytes(p.read_bytes()) for p in before}
 
@@ -647,3 +648,112 @@ def test_rendered_inline_data_respects_selected_budget_after_delimiter_escaping(
     source=result.text.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0]
     assert header['inlineDataBytes']==len(source.encode())+len(b'""')
     assert header['handoffDataBytes']==context.dataBytes+header['inlineDataBytes'] <= 8000
+
+
+def test_mutable_packet_cannot_bootstrap_host_authority(tmp_path):
+    _, context, _ = packet(tmp_path)
+    loaded = agents.read_agent_context(context.path)
+    with pytest.raises(ArchiveError, match='CONTEXT_AUTHORITY_REQUIRED'):
+        render(loaded, variables(tmp_path))
+    assert loaded.trustedContextSha256 is None
+    assert 'trustedContextSha256' not in agents.document(context)
+    assert agents.render_task_prompt(loaded, 'query-with-evidence', variables(tmp_path),
+        trusted_context_sha256=context.trustedContextSha256) == render(context, variables(tmp_path))
+
+
+@pytest.mark.parametrize('change', ['source-addition', 'source-removal', 'records-removal',
+    'total-count', 'returned-count', 'limits', 'continuation', 'task', 'person'])
+def test_host_authority_rejects_packet_scope_and_completeness_edits(tmp_path, change):
+    from test_validation import asset
+    vault, person, other = family(tmp_path)
+    digest = asset(vault, person, b'Explicitly selected synthetic source')
+    context = agents.build_agent_context(vault, person, 'query',
+        ContextRequest(sourceHashes=(digest,)), tmp_path/'packet')
+    if change == 'source-addition':
+        extra = asset(vault, person, b'UNREQUESTED SOURCE SECRET independent reviewer')
+        changes = {'selectedSources': (*context.selectedSources, agents._source(vault, person, extra))}
+    else:
+        changes = {
+            'source-removal': {'selectedSources': ()},
+            'records-removal': {'selectedRecords': (), 'evidencePaths': (), 'returnedCount': 0,
+                'dataBytes': context.identity.size},
+            'total-count': {'totalCount': 999}, 'returned-count': {'returnedCount': 999},
+            'limits': {'maxDataBytes': 999999, 'maxRecords': 999},
+            'continuation': {'continuation': ContextContinuation(
+                person, 'query', context.base, 'a'*64, 99)},
+            'task': {'taskId': 'correct'}, 'person': {'personId': other},
+        }[change]
+    changed = rewrite_packet(context, **changes)
+    # Passing the original in-memory builder object remains safe even when its
+    # metadata is replaced to match the edited file.
+    with pytest.raises(ArchiveError, match='CONTEXT_MISMATCH'):
+        render(changed, variables(tmp_path))
+    with pytest.raises(ArchiveError, match='CONTEXT_MISMATCH'):
+        agents.render_task_prompt(agents.read_agent_context(context.path), 'query-with-evidence',
+            variables(tmp_path), trusted_context_sha256=context.trustedContextSha256)
+
+
+def test_repeated_data_slots_count_actual_escaped_occurrences(tmp_path):
+    from test_agent_context import kit, repin_file, rewrite_manifest
+    from helseark.contracts import PersonDraft
+    vault = archive.init_vault(tmp_path/'vault')
+    path = 'prompts/query-with-evidence.md'
+    data = (kit(vault)/path).read_bytes()+b'\nRepeat: {{ source_data }}\n'
+    vault = repin_file(vault, path, data)
+    def edit(manifest):
+        next(p for p in manifest['prompts'] if p['id']=='query-with-evidence')['sha256'] = hash_bytes(data)
+    vault = rewrite_manifest(vault, edit)
+    person = archive.add_person(vault, PersonDraft('Synthetic'))
+    context = agents.build_agent_context(vault, person, 'query', ContextRequest(maxDataBytes=8000), tmp_path/'packet')
+    with pytest.raises(ArchiveError, match='CONTEXT_BUDGET_EXCEEDED'):
+        render(context, {'source_data': {'text': 'x'*4500}, 'output_directory': str(tmp_path/'output')})
+    result = render(context, {'source_data': {'text': '<>& {{ request }}'}, 'output_directory': str(tmp_path/'output')})
+    header = decode_json(result.text.split('\n',1)[1].split('\n# query-with-evidence',1)[0].encode())
+    slot = result.text.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0]
+    assert result.text.count(slot) == 2
+    assert decode_json(slot.encode()) == {'text': '<>& {{ request }}'}
+    assert header['inlineDataBytes'] == 2*len(slot.encode())+len(b'""')
+    assert header['handoffDataBytes'] == context.dataBytes+header['inlineDataBytes']
+    # Pad the real serialized UTF-8/escaped slots to exactly the selected limit.
+    spare = 8000-header['handoffDataBytes']
+    values = {'source_data': {'text': '<>& {{ request }}'+'x'*(spare//2)},
+        'request': 'x'*(spare%2), 'output_directory': str(tmp_path/'output')}
+    exact = render(context, values)
+    exact_header = decode_json(exact.text.split('\n',1)[1].split('\n# query-with-evidence',1)[0].encode())
+    assert exact_header['handoffDataBytes'] == 8000
+    with pytest.raises(ArchiveError, match='CONTEXT_BUDGET_EXCEEDED'):
+        render(context, {**values, 'request': values['request']+'x'})
+
+
+def test_host_authority_rejects_genuine_alternate_revision(clinical_candidate, tmp_path):
+    vault, candidate = clinical_candidate
+    person = candidate.personId
+    accept_fixture(vault, candidate, tmp_path)
+    old = archive.resolve(vault, person, ResourceRef('Observation', OBS))['meta']['versionId']
+    supersedes = {(e['resource']['resourceType'], e['resource']['id']):
+        archive.resolve(vault, person, ResourceRef(e['resource']['resourceType'], e['resource']['id']))['meta']['versionId']
+        for e in candidate.bundle['entry']}
+    later = tmp_path/'later'
+    later.mkdir()
+    candidate = replace(candidate, base=archive.head(vault, person))
+    accept_fixture(vault, candidate, later, supersedes)
+    current = agents.build_agent_context(vault, person, 'query',
+        ContextRequest(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path/'current')
+    historical = agents.build_agent_context(vault, person, 'query',
+        ContextRequest(resourceRefs=(ResourceRef('Observation', OBS, old),)), tmp_path/'historical')
+    assert historical.selectedRecords != current.selectedRecords
+    assert historical.base == current.base
+    # Both are genuine valid selections at the same current accepted head.
+    render(historical, variables(tmp_path))
+    with pytest.raises(ArchiveError, match='CONTEXT_MISMATCH'):
+        agents.render_task_prompt(agents.read_agent_context(historical.path), 'query-with-evidence',
+            variables(tmp_path), trusted_context_sha256=current.trustedContextSha256)
+
+
+def test_packet_file_cannot_supply_its_own_receipt(tmp_path):
+    _, context, _ = packet(tmp_path)
+    value = agents.document(context)
+    value['trustedContextSha256'] = context.trustedContextSha256
+    (context.path/'context.json').write_bytes(encode_json(value))
+    with pytest.raises(ArchiveError, match='CONTEXT_MISMATCH'):
+        agents.read_agent_context(context.path)

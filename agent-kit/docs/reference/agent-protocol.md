@@ -259,7 +259,53 @@ cannot turn missing commands into supported operations.
 
 ## Prompt rendering and host handoff
 
-`render_task_prompt(context, promptId, variables)` returns the protocol's frozen
+Rendering requires host-retained construction authority outside editable packet
+files. `build_agent_context` keeps `trustedContextSha256` on its returned frozen
+in-memory AgentContext. This is SHA256 of `encode_json(document(context))`, covering
+the complete constructed metadata: vault/kit routes, person, accepted head, task,
+exact selected revisions/sources, limits, sizes/hashes, counts and continuation.
+The field is **never serialized in context.json** or `document(context)`. Retain
+that original builder object in the host and use the original three-argument
+renderer API, or retain its digest separately and pass `trusted_context_sha256=`.
+The builder's verified request determines the resulting selection; an edited
+packet cannot replace that host decision. The renderer also verifies original
+bytes/projections and the current accepted head, including a final freshness check.
+
+`read_agent_context(path)` only decodes untrusted metadata and returns no authority.
+Rendering that result without an independently retained digest fails
+`CONTEXT_AUTHORITY_REQUIRED` (exit 2). An authority field inserted in context.json
+is rejected. Another digest in an editable packet, a recomputed digest of files at
+render time, or a source-supplied digest cannot authorize the packet. Altered
+sources, removed/swapped revisions, counts, limits and continuation fail
+`CONTEXT_MISMATCH` (exit 5), even if all newly named source bytes are genuine.
+
+For a process boundary, the CLI `agent context --json` returns the metadata plus
+`trustedContextSha256` **on stdout only**. The plain-text response prints it too.
+The trusted caller captures this response directly from the builder invocation it
+made with explicit person/task/request, retains the digest in its own session or
+host-managed job state, and passes it via `agent render --trusted-context-sha256`.
+Do not let the external agent replace that argument from packet files or request
+an automatic wider rebuild. No receipt cache or additional clinical store is
+created. Losing the host digest requires a new explicit build, not trusting a
+packet's self-report. A digest establishes continuity with that construction; it
+is neither a signature nor authentication of the operator or human source consent.
+
+Task5 intake consumer contract: after explicit person/source selection, call the
+same `build_agent_context(..., 'import', ContextRequest(sourceHashes=(...)), ...)`
+and retain its original result/digest in the intake host. Pass that result to
+`render_task_prompt`, or on reload pass the retained digest as the keyword/CLI
+argument above. Keep host output/candidate allocations and human confirmation
+arguments separate from extracted source data. If persisting job state, protect
+its authority through the host's actual trust boundary; a second agent-editable
+work file is not trusted job state. Do not load authority from intake packet JSON,
+assert authenticated human review, add sources after EVIDENCE_SCOPE_REQUIRED, or
+rewrite accepted bytes. Later review of prepared clinical bytes remains mandatory.
+Offline hosts can carry the digest separately with the retained packet/definitions;
+plain files remain readable and portable under their existing path/reference
+contract. This handoff adds no OS ACL, model runtime or network dependency.
+
+
+`render_task_prompt(context, promptId, variables, *, trusted_context_sha256=None)` returns the protocol's frozen
 RenderedPrompt record: text, promptId, promptVersion, promptSha256, skillSha256,
 kitSha256, inputContractIds and outputContractIds. It verifies the packet against
 its retained manifest, definitions, selected person's accepted revisions, evidence,
@@ -268,7 +314,7 @@ requires rebuilding. It loads only manifest-declared instructions; slot values
 never trigger file reads, shell commands or expression evaluation.
 
 CLI: `helseark --vault PATH agent render --context PACKET --person UUID --prompt
-query-with-evidence --variables SLOTS_JSON --json`. SLOTS_JSON is an explicit host
+query-with-evidence --variables SLOTS_JSON --trusted-context-sha256 HOST_DIGEST --json`. SLOTS_JSON is an explicit host
 input file, not an include mechanism inside a slot. The CLI checks the selected
 vault/person against the packet before rendering. Provide `source_data` as an
 object and `output_directory` as an absolute absent directory. `request` defaults
@@ -278,12 +324,15 @@ must match it. Import/correction human confirmations are separate required
 boolean arguments supplied by the host after an explicit human decision; source
 assertions cannot supply them. Candidate IDs are explicit host allocations.
 
-Each slot is substituted once as exact JSON. Delimiter characters `<`, `>` and
+Every declared slot occurrence is substituted as exact JSON in a single pass. Delimiter characters `<`, `>` and
 `&` are Unicode escaped without changing decoded values. Marker-looking source
 strings remain literal data. Escaped inline data (including optional user-data
 slots) and context data together must fit the selected maxDataBytes. The handoff
 reports contextDataBytes, inlineDataBytes and handoffDataBytes. Escaping overhead
-counts; reduce inline payloads or explicitly rebuild with a larger budget rather
+counts for **every actual occurrence**, including repeated declared slots. Trusted
+selectors and explicit host metadata (output/candidate IDs and human decisions)
+remain separate from inline source/user data. Validate the complete template before
+counting; marker-looking inserted strings are never scanned again. Reduce inline payloads or explicitly rebuild with a larger budget rather
 than silently increasing limits or truncating values. Unknown, missing, unbounded or ill-typed variables,
 unknown template markers and incompatible task routes stop rendering.
 

@@ -24,9 +24,15 @@ Discovery, bounded context and typed prompt rendering are available. Read common
 a fabricated prompt. Other task workflows remain unavailable until their runtime
 dependencies exist; templates support blocked assessments, not command execution.
 Use `helseark --vault PATH agent render --context PACKET --person UUID --prompt
-PROMPT_ID --variables SLOTS_JSON --json` for a verified handoff. The variables
+PROMPT_ID --variables SLOTS_JSON --trusted-context-sha256 HOST_DIGEST --json` for a verified handoff. The variables
 file contains an inline source_data object and a separately authorized absolute,
 absent output_directory. Read-only packet files never become the writable output.
 The renderer verifies current head and retained bytes and returns provenance.
 Human confirmations must be explicit host decisions. The host supplies filesystem
 and tool restrictions; this toolkit invokes no agent and enforces no OS sandbox.
+
+The host retains the construction digest returned by `agent context` stdout or
+its original in-memory builder result. Reloaded packet files cannot authorize
+rendering: `agent render` requires `--trusted-context-sha256` from that host.
+Never compute replacement authority from a packet or broaden sources to retry.
+See [host handoff](docs/reference/agent-protocol.md#prompt-rendering-and-host-handoff).

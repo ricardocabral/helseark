@@ -48,3 +48,10 @@ adds a revision without changing accepted old bytes. An export snapshot declares
 omissions. A migration preserves its original vault and needs its own verified
 mapping and destination graph. These boundaries prevent a convenient draft from
 being mistaken for accepted history.
+
+Rendering binds a packet to the digest retained by its host when the builder
+processed the explicit request. Reloading mutable files cannot establish that
+authority; the host passes the original digest separately. This is continuity of
+request scope, not authenticated human consent or an OS access-control boundary.
+No receipt cache or second clinical store is created. See the
+[handoff contract](../reference/agent-protocol.md#prompt-rendering-and-host-handoff).

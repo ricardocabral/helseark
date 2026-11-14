@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "c6c702302d726533dbd3d07be27b31c691805d955c4acf3f546415be9ceb61b8",
+    "definitionLockSha256": "68ae3291a7c8285763eb2304227bfe96dc043054b1fabaec7e860b21f2d668ac",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -19,18 +19,18 @@
     },
     {
       "path": "START-HERE.md",
-      "sha256": "507d076335d32b5e5899d66521417fb11ba7173b20b207b667c526178e876f82",
-      "size": 2132
+      "sha256": "762222c9c053aead7bab6e159bc8c629e1d1def104419d8d7fc9d6835ebd1221",
+      "size": 2572
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "c6c702302d726533dbd3d07be27b31c691805d955c4acf3f546415be9ceb61b8",
+      "sha256": "68ae3291a7c8285763eb2304227bfe96dc043054b1fabaec7e860b21f2d668ac",
       "size": 30012
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "72abf8239876922b6af6c7c380dd760a02a0561e8793a898755a03e24f763dff",
-      "size": 22700
+      "sha256": "3529a1da66bb61167a5e104077302944b91d609913fe37ae7a12240767f27f8e",
+      "size": 26403
     },
     {
       "path": "docs/reference/archive-format.md",

@@ -4,7 +4,7 @@ Only manifest-listed instructions are loadable. Clinical/source content never
 participates in routing. Packets are disposable read snapshots, not authority,
 permission grants or agent execution. Task4 owns prompt rendering.
 """
-from dataclasses import asdict, is_dataclass
+from dataclasses import asdict, is_dataclass, replace
 from collections.abc import Mapping
 import hashlib
 from pathlib import Path
@@ -31,6 +31,7 @@ def document(value):
     """JSON representation shared by disk packets and CLI (no float coercion)."""
     if isinstance(value, AgentContext):
         fields = asdict(value)
+        del fields['trustedContextSha256']
         for name in ('maxRecords','maxDataBytes'):
             if fields[name] is None:
                 del fields[name]
@@ -459,14 +460,20 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     finally:
         if stage.exists():
             shutil.rmtree(stage)
-    return context
+    return replace(context, trustedContextSha256=hash_bytes(encode_json(value)))
 
 
 def read_agent_context(path: Path) -> AgentContext:
-    """Decode a packet; rendering independently verifies its paths and bytes."""
+    """Decode untrusted metadata; this read cannot authorize rendering.
+
+    Pass the digest retained from the original builder/CLI response separately
+    to render_task_prompt. Never derive that authority from these mutable files.
+    """
     from .contracts import Head
     try:
         value = decode_json(_read(Path(path), 'context.json'))
+        if 'trustedContextSha256' in value:
+            raise ValueError
         value['path'] = Path(value['path'])
         value['base'] = Head(**value['base'])
         for name in ('instructionPaths', 'contractPaths', 'selectedSources', 'selectedRecords', 'evidencePaths'):
@@ -488,11 +495,18 @@ def read_agent_context(path: Path) -> AgentContext:
         raise ArchiveError('CONTEXT_MISMATCH', 'Malformed or relocated context packet.') from None
 
 
-def _verified_context(context):
+def _verified_context(context, trusted_context_sha256):
     """Verify against retained authorities, never paths asserted by source data."""
     from .archive import _open_vault_metadata
     if not isinstance(context, AgentContext):
         raise ArchiveError('CONTEXT_MISMATCH', 'Expected a context packet.')
+    authority = trusted_context_sha256 if trusted_context_sha256 is not None else context.trustedContextSha256
+    if authority is None:
+        raise ArchiveError('CONTEXT_AUTHORITY_REQUIRED',
+            'Supply the packet digest retained by the host at construction; reading a packet does not authorize it.')
+    sha256_string(authority)
+    if hash_bytes(encode_json(document(context))) != authority:
+        raise ArchiveError('CONTEXT_MISMATCH', 'Context differs from host-retained construction authority.')
     if decode_json(_read(context.path, 'context.json')) != document(context):
         raise ArchiveError('CONTEXT_MISMATCH', 'Context metadata differs from supplied packet.')
     # This structural root is checked again against the vault-pinned manifest.
@@ -581,14 +595,15 @@ def _output_directory(value, context, vault):
     return value
 
 
-def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[str, JsonValue]) -> RenderedPrompt:
+def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[str, JsonValue], *,
+                       trusted_context_sha256: str | None = None) -> RenderedPrompt:
     """Render one declared template as data, after verifying a fresh snapshot.
 
     The caller is the authority for explicit human decisions and the fresh output
     directory. Neither a context nor this text grants filesystem/tool permission.
     Unavailable workflows render a blocked assessment, never executable commands.
     """
-    vault, manifest, files, task = _verified_context(context)
+    vault, manifest, files, task = _verified_context(context, trusted_context_sha256)
     prompt = next((p for p in manifest['prompts'] if p['id'] == promptId),None)
     if prompt is None or promptId not in task.promptIds or context.taskId not in prompt['taskIds']:
         raise ArchiveError('INCOMPATIBLE_PROMPT', 'Prompt is not declared for selected task.')
@@ -645,15 +660,17 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
             raise ArchiveError('INVALID_VARIABLE','Prompt array violates declared bounds.')
         serialized[name] = encoded.decode().rstrip('\n').replace('&',r'\u0026').replace('<',r'\u003c').replace('>',r'\u003e')
     host_metadata = {'output_directory','candidate_id','identity_confirmed','correspondence_confirmed','source_scope_confirmed'}
-    inline_data_bytes = sum(len(serialized[name].encode('utf-8')) for name in set(values)-set(trusted)-host_metadata)
+    template = files[prompt['path']].decode('utf-8')
+    marker = re.compile(r'{{\s*([a-z][a-z0-9_]*)\s*}}')
+    occurrences = marker.findall(template)
+    if set(occurrences) != set(prompt['variables']) or '{{' in marker.sub('',template) or '}}' in marker.sub('',template):
+        raise ArchiveError('INVALID_KIT','Template has undeclared or unresolved placeholders.')
+    inline_data_bytes = sum(len(serialized[name].encode('utf-8')) for name in occurrences
+        if name not in trusted and name not in host_metadata)
     if context.dataBytes + inline_data_bytes > context.maxDataBytes:
         raise ArchiveError('CONTEXT_BUDGET_EXCEEDED',
             'Escaped inline data plus context exceed selected data budget; reduce inline data or rebuild with a larger maxDataBytes.')
     _output_directory(values['output_directory'],context,vault)
-    template = files[prompt['path']].decode('utf-8')
-    marker = re.compile(r'{{\s*([a-z][a-z0-9_]*)\s*}}')
-    if set(marker.findall(template)) != set(prompt['variables']) or '{{' in marker.sub('',template) or '}}' in marker.sub('',template):
-        raise ArchiveError('INVALID_KIT','Template has undeclared or unresolved placeholders.')
     def substitution(match):
         return serialized[match[1]]
     text = marker.sub(substitution,template)
