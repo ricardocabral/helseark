@@ -425,6 +425,40 @@ def _snapshot(vault: Vault, person: str, at: Head | None):
     raise ArchiveError("UNKNOWN_HEAD", "Snapshot head is not in this person's history.")
 
 
+
+class _ResourceSnapshot:
+    """One verified selected-person read, with current and exact revision indexes.
+
+    Owned by archive and discarded after a query. Every new instance verifies
+    the full accepted history, even for an earlier Head; no derived authority
+    or cross-call cache can conceal later payload corruption.
+    """
+
+    def __init__(self, vault: Vault, person: str, at: Head | None):
+        self.transactions = _snapshot(vault, person, at)
+        self._revisions = {}
+        current = {}
+        for _, directory, change in self.transactions:
+            for entry in change['resources']:
+                data = _read(directory, entry['path'])
+                # Bind the bytes used by this call to the verified inventory.
+                if hash_bytes(data) != entry['sha256']:
+                    raise ArchiveError('INTEGRITY', 'Resource checksum mismatch.')
+                resource = _json(directory, entry['path'], data=data)
+                key = (entry['type'], entry['id'])
+                self._revisions[ResourceRef(*key, entry['versionId'])] = resource
+                current[key] = resource
+        self.current = [current[key] for key in sorted(current)]
+        self._current = current
+
+    def resolve(self, ref: ResourceRef) -> FHIRResource:
+        resource = (self._current.get((ref.resourceType, ref.id)) if ref.versionId is None
+                    else self._revisions.get(ref))
+        if resource is None:
+            raise ArchiveError('RESOURCE_NOT_FOUND', "Resource revision is absent from this person's snapshot.")
+        return resource
+
+
 def resolve(vault: Vault, person: str, ref: ResourceRef, at: Head | None = None) -> FHIRResource:
     for _, directory, change in reversed(_snapshot(vault, person, at)):
         for entry in change["resources"]:

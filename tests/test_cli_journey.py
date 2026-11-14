@@ -126,3 +126,44 @@ def test_candidate_commands_fail_closed_on_non_object(tmp_path,verb,filename):
     result=run('--vault',vault.root,'candidate',verb,path,'--person',person,'--json')
     assert result.returncode==2,result.stderr
     assert b'Traceback' not in result.stderr and not result.stdout
+
+from test_query import corpus
+from test_validation import good as clinical_candidate
+
+
+def test_observations_timeline_record_cli_explicit_scope(corpus,tmp_path):
+    from dataclasses import asdict
+    from helseark.serialization import decode_json, encode_json
+    v,c,ids,base,_=corpus
+    result=run('--vault',v.root,'observations','--person',c.personId,'--label','Proteína C reativa — ultrassensível','--json')
+    assert result.returncode==0,result.stderr
+    rows=decode_json(result.stdout)
+    assert len(rows)==7
+    month=next(r for r in rows if r['resourceRef']['id']==ids['month'])
+    assert b'0.050' in result.stdout and month['comparator']=='<' and month['timePrecision']=='month'
+    assert month['sourceRefs']
+    for command in ('observations','timeline','record'):
+        missing=run('--vault',v.root,command,'--json')
+        assert missing.returncode==2 and decode_json(missing.stderr)['code']=='INVALID_INPUT'
+    timeline=run('--vault',v.root,'timeline','--person',c.personId,'--json')
+    assert timeline.returncode==0,timeline.stderr
+    assert any(r['status']=='entered-in-error' for r in decode_json(timeline.stdout))
+    pin=tmp_path/'head.json';pin.write_bytes(encode_json(asdict(base)))
+    ref=month['resourceRef'];reference=f"Observation/{ref['id']}/_history/{ref['versionId']}"
+    record=run('--vault',v.root,'record','--person',c.personId,'--resource',reference,'--at-head',pin,'--json')
+    assert record.returncode==0,record.stderr
+    assert decode_json(record.stdout)['valueQuantity']['value'].as_tuple()==month['value']['value'].as_tuple()
+    invalid=run('--vault',v.root,'observations','--person',c.personId,'--from-date','2026-02-30','--json')
+    assert invalid.returncode==2 and decode_json(invalid.stderr)['code']=='INVALID_FILTER'
+
+
+
+def test_query_cli_rejects_offset_normalization(corpus):
+    from helseark.serialization import decode_json
+    v, c, _, _, _ = corpus
+    for offset in ('+00:60', '+01:99', '+02:60', '-00:60', '-02:60', '+14:01', '-14:01'):
+        result = run('--vault', v.root, 'observations', '--person', c.personId,
+                     '--from-date', '2024-02-29T00:00:00.00000001'+offset, '--json')
+        assert result.returncode == 2
+        assert decode_json(result.stderr)['code'] == 'INVALID_FILTER'
+        assert not result.stdout

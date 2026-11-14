@@ -97,6 +97,7 @@ try:
 except ArchiveError as error:
     assert error.code=='CONTEXT_MISMATCH'
 print('PASS installed exact extraction read/hash/budget; reload requires original authority; source path rejected')
+
 kit = v.root / 'agent-kit' / v.config.agentKitVersion
 r = subprocess.run([sys.executable, str(kit / 'examples/task5-example.py'),
     str(work / 'packet'), str(work / 'candidate')], env=env, capture_output=True)

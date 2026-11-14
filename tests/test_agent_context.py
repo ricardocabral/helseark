@@ -51,7 +51,7 @@ sys.addaudithook(audit)
 tasks = list_agent_tasks(root)
 assert {t.id for t in tasks} == {'inspect','import','query','correct','export','verify','migrate'}
 assert next(t for t in tasks if t.id=='inspect').availability.status == 'available'
-assert all(t.availability.missingCapabilities for t in tasks if t.id!='inspect')
+assert all(t.availability.missingCapabilities for t in tasks if t.id not in ('inspect','query'))
 '''
     result = subprocess.run([sys.executable, '-c', script, str(kit(vault))], capture_output=True)
     assert result.returncode == 0, result.stderr
@@ -251,13 +251,16 @@ def test_reject_oversized_instructions_and_single_record_without_truncating(tmp_
     assert not (tmp_path / 'too-small').exists() and not (tmp_path / 'too-large').exists()
 
 
-def test_date_filters_unavailable_and_availability_not_manifest_assertion(tmp_path):
+def test_date_filters_available_and_availability_not_manifest_assertion(tmp_path):
     discover, build, Request = api()
     vault, person, _ = family(tmp_path)
     vault = rewrite_manifest(vault, lambda m: m['tasks'][2]['availability'].update(status='available', missingCapabilities=[]))
+    assert next(t for t in discover(kit(vault)) if t.id == 'query').availability.status == 'available'
+    context = build(vault, person, 'query', Request(fromDate='2020'), tmp_path / 'dates')
+    assert context.returnedCount == 1  # undated Patient remains explicitly unknown
+    assert context.issues[0].code == 'QUERY_TIME_SELECTION'
+    vault = rewrite_manifest(vault, lambda m: m['tasks'][2]['requiredCapabilities'].append('unimplemented-test-capability'))
     assert next(t for t in discover(kit(vault)) if t.id == 'query').availability.status == 'unavailable'
-    with pytest.raises(ArchiveError, match='CAPABILITY_UNAVAILABLE'):
-        build(vault, person, 'query', Request(fromDate='2020'), tmp_path / 'dates')
 
 
 def test_missing_version_never_falls_back_and_asset_digest_is_verified(tmp_path):
