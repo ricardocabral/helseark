@@ -15,7 +15,8 @@ def test_correct_ignores_denied_and_corrupt_other_nonempty_history(tmp_path):
     proposal=prepare_candidate(v,c);commit_candidate(v,proposal,approve(v,proposal))
     q=add_person(v,PersonDraft('Avery Synthetic'))
     second=build_packet(v,add_source(v,q,source.assetPath),tmp_path/'packet-q',identityConfirmed=True)
-    script=Path(__file__).resolve().parents[1]/'agent-kit/examples/task5-example.py'
+    script=Path(sys.prefix)/'share/helseark/agent-kit/examples/task5-example.py'
+    if not script.is_file():script=Path(__file__).resolve().parents[1]/'agent-kit/examples/task5-example.py'
     subprocess.run([sys.executable,str(script),str(second.path),str(tmp_path/'candidate-q')],check=True,capture_output=True)
     proposal=prepare_candidate(v,read_candidate(v,tmp_path/'candidate-q'));commit_candidate(v,proposal,approve(v,proposal))
     assert len([r for r in iter_current(v,q) if r['resourceType']=='Observation'])==2

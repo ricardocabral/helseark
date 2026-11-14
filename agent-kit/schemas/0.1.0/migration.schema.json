@@ -1,0 +1,264 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "planSha256",
+    "planClass",
+    "sourceHeads",
+    "sourceVersionSet",
+    "targetVersionSet",
+    "transformations",
+    "expectedCounts",
+    "semanticLosses",
+    "blockedRecords",
+    "requiredDefinitions",
+    "sourceInventory",
+    "byteMappings"
+  ],
+  "properties": {
+    "planSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "planClass": {
+      "const": "archive-contract"
+    },
+    "sourceHeads": {
+      "type": "object",
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence",
+              "transactionId",
+              "changeSha256"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "transactionId": {
+                "type": "string"
+              },
+              "changeSha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          {
+            "type": "null"
+          }
+        ]
+      }
+    },
+    "sourceVersionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "archiveFormatVersion",
+        "contractVersion",
+        "profileVersion",
+        "fhirVersion",
+        "serializationVersion"
+      ],
+      "properties": {
+        "archiveFormatVersion": {
+          "type": "integer"
+        },
+        "contractVersion": {
+          "type": "string"
+        },
+        "profileVersion": {
+          "type": "string"
+        },
+        "fhirVersion": {
+          "type": "string"
+        },
+        "serializationVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "targetVersionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "archiveFormatVersion",
+        "contractVersion",
+        "profileVersion",
+        "fhirVersion",
+        "serializationVersion"
+      ],
+      "properties": {
+        "archiveFormatVersion": {
+          "type": "integer"
+        },
+        "contractVersion": {
+          "type": "string"
+        },
+        "profileVersion": {
+          "type": "string"
+        },
+        "fhirVersion": {
+          "type": "string"
+        },
+        "serializationVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "transformations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "expectedCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changes",
+        "resources",
+        "assets"
+      ],
+      "properties": {
+        "changes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assets": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "semanticLosses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "reason"
+        ],
+        "properties": {
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blockedRecords": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "reason"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "requiredDefinitions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "sourceInventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "byteMappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sourcePath",
+          "destinationPath",
+          "oldSha256",
+          "newSha256",
+          "size"
+        ],
+        "properties": {
+          "sourcePath": {
+            "type": "string"
+          },
+          "destinationPath": {
+            "type": "string"
+          },
+          "oldSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "newSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:helseark:schema:0.1.0:migration"
+}

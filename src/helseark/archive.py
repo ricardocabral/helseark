@@ -748,6 +748,8 @@ def doctor(vault: Vault) -> IntegrityReport:
     try:
         _open_vault_metadata(vault.root)
         canonical.update(_support_paths(vault))
+        from .migrations import _receipt_paths
+        canonical.update(_receipt_paths(vault))
     except ArchiveError as error:
         problem(error.code, error.details.get('path', 'vault.json'),
                 'Restore the affected pinned file from a verified backup; do not repin history.')

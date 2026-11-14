@@ -24,7 +24,7 @@ def check(root=ROOT):
         path = root/entry['path']
         assert not path.is_symlink(), entry['path']
         data = path.read_bytes()
-        assert entry['synthetic'] is True and entry['license'] in ('CC0-1.0','Apache-2.0')
+        assert entry['synthetic'] is True and entry['license'] in ('CC0-1.0','Apache-2.0','MIT')
         assert entry['provenance'] and entry['sha256']==hashlib.sha256(data).hexdigest() and entry['size']==len(data), entry['path']
     cases=json.loads((root/'examples/synthetic-family/expected-facts.json').read_text())
     assert cases['synthetic'] is True and all(c['coverage'] for c in cases['cases'])

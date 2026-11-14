@@ -304,6 +304,9 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                 kind = 'selected-current'
             else:
                 paths = _support_paths(vault)
+                if person is None:
+                    from .migrations import _receipt_paths
+                    paths.update(_receipt_paths(vault))
                 for p in people:
                     paths.update(_person_paths(vault, p, _history(vault, p)))
                 if includeWork:
@@ -318,7 +321,7 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                 report = doctor(open_vault(stage/'vault'))
                 _blocked(report)
                 counts = {'changes':report.checkedChanges,'resources':report.checkedResources,'assets':report.checkedAssets}
-                omissions = ('derived','.runtime') + (() if includeWork else ('work',))
+                omissions = ('derived','.runtime') + (() if includeWork else ('work',)) + (('household migration receipts',) if person else ())
                 kind = 'full-person' if person else 'backup'
             _write(stage/'README.md',b'Helseark export format 1. export.json inventories every other file by SHA-256 and byte size.\n'
                    b'vault/ is exact accepted authority for backup/full-person; support/ and resources/ describe a NEW selected snapshot.\n'

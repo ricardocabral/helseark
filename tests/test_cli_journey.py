@@ -190,7 +190,7 @@ def test_correction_removal_restore_public_journey(tmp_path):
     view=cli('candidate','review',prepared['path'],'--person',p)
     decision=tmp_path/'decision.json'
     decision.write_bytes(encode_json({'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations','reviewerLabel':'Synthetic human',
-        'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Checked original synthetic source'} for i in view['issues'] if i['severity'] in ('review','warning')]}))
+        'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'issueId':i['issueId'],'reason':'Checked original synthetic source'} for i in view['issues'] if i['severity'] in ('review','warning')]}))
     cli('candidate','review',prepared['path'],'--person',p,'--decision',decision)
     cli('candidate','commit',prepared['path'],'--person',p)
     cli('observations','--person',p)

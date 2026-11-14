@@ -80,3 +80,13 @@ jobs:
 
       - name: Verify absent dependency and base-only behavior
         run: uv run --no-sync python tests/check_pdf_optionality.py
+
+  fixture-provenance:
+    name: Synthetic fixture provenance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - name: Verify declared provenance and byte inventory
+        run: python3 scripts/check_fixture_manifest.py

@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt is version `0.1.2`, the import skill is `0.1.4`, and the query prompt/skill are `0.1.1`; other prompts and skills retain `0.1.0`. Each declares task-specific slots below
+The extraction prompt is version `0.1.2`, the import skill is `0.1.4`, and the query prompt/skill are `0.1.1`; correction and migration prompts/skills are `0.1.1`; remaining prompts and skills retain `0.1.0`. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export and integrity-report. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, integrity-report, correction and migration. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -89,7 +89,7 @@ Discovery/context/render are documented in START-HERE.md. PDF intake, draft
 extraction and human-reviewed PDF publication are implemented. Preparation,
 review and commit remain under operator control; agents cannot approve or commit.
 The broader import task remains unavailable because structured import is not
-implemented. Export, backup/restore and doctor are implemented. Correction and migration remain unavailable. Selected-person
+implemented. Export, backup/restore and doctor are implemented. Corrections, recoverable person erasure and non-destructive migration copies are implemented. Selected-person
 observations/timeline/record and date-filtered query context are implemented; see
 [query workflow](docs/how-to/query-history.md). Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
@@ -142,3 +142,8 @@ unavailable structured import. Human-controlled reviewed publication is availabl
 draft disposition and whole-workflow availability. No acceptance permission follows.
 
 Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.
+
+Migration host commands: [plan/apply](docs/how-to/migrate-archive.md),
+[compatibility](docs/reference/compatibility.md). A selected-person packet is not
+whole-vault authority. Agents emit assessments only; humans explicitly review
+host-generated plan digests. No in-place rewrite, implicit upgrade or FHIR conversion.

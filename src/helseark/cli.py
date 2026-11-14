@@ -17,6 +17,9 @@ from .contracts import ReviewDecision
 from .archive import commit_candidate, doctor
 from .portability import (backup, verify_export, restore, export_person, plan_person_erasure,
                           apply_person_erasure, restore_person_erasure, read_erasure_plan)
+from .migrations import (CURRENT, open_migration_source, plan_migration, plan_fhir_migration,
+                         apply_migration, read_migration_plan)
+from dataclasses import replace
 from .contracts import ExportSelection
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
@@ -24,6 +27,7 @@ from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
     "CORRECTION_STATUS": 2, "APPROVAL_REQUIRED": 3, "ERASURE_SCOPE_UNKNOWN": 3,
+    "INVALID_MIGRATION_PLAN": 2, "MIGRATION_BLOCKED": 6, "MIGRATION_STAGING_EXISTS": 4,
     "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
@@ -131,6 +135,20 @@ def main(argv=None):
     action.add_argument('quarantine',type=Path)
     action.add_argument('--approve',required=True)
     action.add_argument('--json',action='store_true')
+    migrations = commands.add_parser('migrate', help='Plan offline; explicitly review before writing a separate vault.').add_subparsers(dest='migration_command', required=True)
+    for verb in ('plan','apply'):
+        action = migrations.add_parser(verb)
+        action.add_argument('--test-only-legacy', action='store_true', help='Allow the labeled synthetic test-only layout; never a public legacy release.')
+        action.add_argument('--json', action='store_true')
+        if verb == 'plan':
+            targets = action.add_mutually_exclusive_group(required=True)
+            targets.add_argument('--to-contract')
+            targets.add_argument('--to-fhir', help='Separate unsupported FHIR conversion report.')
+        else:
+            action.add_argument('--plan', type=Path, required=True, help='Exact host-generated plan JSON file.')
+            action.add_argument('--reviewed-plan-sha256', required=True, help='Digest explicitly approved by the human reviewer.')
+            action.add_argument('--into', type=Path, required=True)
+            action.add_argument('--resume', action='store_true', help='Explicitly revalidate and resume this task-owned staging.')
     diagnose = commands.add_parser('doctor', help='Audit accepted history and report recovery paths without deleting anything.')
     diagnose.add_argument('--json', action='store_true')
     backups = commands.add_parser('backup').add_subparsers(dest='backup_command', required=True)
@@ -236,7 +254,9 @@ def main(argv=None):
             path = args.vault or os.environ.get("HELSEARK_VAULT")
             if not path:
                 raise ArchiveError("INVALID_INPUT", "Provide --vault PATH or HELSEARK_VAULT.")
-            if args.command == 'doctor':
+            if args.command == 'migrate':
+                vault = open_migration_source(Path(path), allowTestFixture=args.test_only_legacy)
+            elif args.command == 'doctor':
                 from .contracts import Vault, VaultConfig
                 try:
                     vault = Vault(Path(path).absolute(), VaultConfig(**_json(Path(path), 'vault.json')))
@@ -260,6 +280,15 @@ def main(argv=None):
                     output = document(apply_person_erasure(vault,read_erasure_plan(args.plan),args.approve))
                 else:
                     output = document(restore_person_erasure(vault,args.quarantine,args.approve))
+            elif args.command == 'migrate':
+                if args.migration_command == 'plan':
+                    plan = (plan_fhir_migration(vault,args.to_fhir) if args.to_fhir else
+                            plan_migration(vault,replace(CURRENT,contractVersion=args.to_contract)))
+                    output = document(plan)
+                    exit_code = 6 if plan.blockedRecords else 0
+                else:
+                    output = document(apply_migration(vault,read_migration_plan(args.plan),args.into,
+                        reviewedPlanSha256=args.reviewed_plan_sha256,resume=args.resume))
             elif args.command == 'doctor':
                 report = doctor(vault)
                 output = document(report)
@@ -345,7 +374,7 @@ def main(argv=None):
             else:
                 person_id = add_person(vault, PersonDraft(args.name, args.birth_date, args.note))
                 output = {"personId": person_id}
-        if args.json or args.command in ('doctor','backup','export'):
+        if args.json or args.command in ('doctor','backup','export','migrate'):
             sys.stdout.buffer.write(encode_json(output))
         else:
             if args.command in ('observations','timeline','record'):

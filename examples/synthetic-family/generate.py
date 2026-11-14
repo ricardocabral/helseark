@@ -1,4 +1,4 @@
-"""Executable invented family lesson, Apache-2.0; generated fixture data CC0.
+"""Executable invented family lesson, MIT; generated fixture data CC0.
 
 python generate.py ABSENT_OUTPUT_DIRECTORY --synthetic-review-decisions
 Requires installed helseark[pdf]. Uses only the installed supplied candidate.
@@ -32,9 +32,10 @@ def generate(output, *, synthetic_review_decisions=False):
     def run(*args, expected=0):
         child=subprocess.run([sys.executable,'-m','helseark.cli',*map(str,args),'--json'],
                              cwd=output,capture_output=True)
-        calls.append({'args':list(map(str,args)),'exit':child.returncode,'expected':expected})
+        calls.append({'command':child.args,'args':list(map(str,args)),'exit':child.returncode,'expected':expected,
+                      'stdout':child.stdout.decode(),'stderr':child.stderr.decode()})
         if child.returncode!=expected:
-            raise RuntimeError((args,child.returncode,child.stderr.decode()))
+            raise RuntimeError({'command':child.args,'status':child.returncode,'stdout':child.stdout,'stderr':child.stderr})
         return decode_json(child.stdout if expected==0 else child.stderr)
     vault=output/'vault';run('init',vault)
     def cli(*args,**kwargs):return run('--vault',vault,*args,**kwargs)
@@ -44,7 +45,7 @@ def generate(output, *, synthetic_review_decisions=False):
         view=cli('candidate','review',proposal['path'],'--person',person)
         decision={'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations',
           'reviewerLabel':'SYNTHETIC illustrative decision; not authenticated medical approval',
-          'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],
+          'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'issueId':i['issueId'],
              'reason':'Synthetic fixture decision: retain this disclosed limitation.'}
              for i in view['issues'] if i['severity'] in ('warning','review')]}
         decision_path=output/('decision-'+str(len(calls))+'.json')
