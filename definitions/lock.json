@@ -3,19 +3,24 @@
     {
       "files": [
         {
+          "path": "schemas/0.1.0/candidate.schema.json",
+          "sha256": "52b902028c381f06fb479097a96a67f9ef3cb82049e024d41adca02a9185b7f7",
+          "size": 2665
+        },
+        {
           "path": "schemas/0.1.0/change.schema.json",
           "sha256": "812e96fdbc96920334f06c37c25d681a243533dec8a8f9322ec79224b72f8c1b",
           "size": 4690
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "1242a61ddf73a1b1accfaf8cb8b3f04a6aba7ed1e064d8d09f2cf9c4a643f058",
-          "size": 1279
+          "sha256": "30c14fea7cc9b6aca9f7fee2056b841e21f0507468736896814f6a0f1bcaa4c8",
+          "size": 10477
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
-          "sha256": "5d814e1a11494df27b1a06aa0461ca3d0364ec0c60b2012e0dbf6225ceb28759",
-          "size": 4131
+          "sha256": "8b4c4c11b808a2d5f2753327618c09d675ad712128048b10b6a3756cf63e021f",
+          "size": 5030
         },
         {
           "path": "schemas/0.1.0/review.schema.json",
@@ -37,8 +42,653 @@
       "origin": "repository-authored",
       "packageId": "helseark-contracts",
       "version": "0.1.0"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:11:28+00:00",
+      "files": [
+        {
+          "path": "definitions/upstream-inventory.json",
+          "sha256": "93a0bbe3b10e48c6a449c53f394e273c5b70cd2cffb33961b56c3edfccb8c7d0",
+          "size": 28241
+        },
+        {
+          "path": "definitions/docs/r4/cc0-1.0.html",
+          "sha256": "b43732f4c1463b087cf10d4daf8d8766514b2bf8f21bc5ef50905f95be227726",
+          "size": 32223
+        },
+        {
+          "path": "definitions/docs/r4/datatypes-definitions.html",
+          "sha256": "bb084e4451eb0359c29df4e155a809e15cdd7b2270095a9aaa7bd96f0ec86846",
+          "size": 180283
+        },
+        {
+          "path": "definitions/docs/r4/datatypes.html",
+          "sha256": "03d88289865b77620321652f4b9b5c954b795c17715aa0a24f1a220dc12af573",
+          "size": 1364305
+        },
+        {
+          "path": "definitions/docs/r4/diagnosticreport.html",
+          "sha256": "c7872244ae561cd552afcb035fb8a8c3a1681a81067e3d61449c50cb69b67cbc",
+          "size": 259555
+        },
+        {
+          "path": "definitions/docs/r4/documentreference.html",
+          "sha256": "0c76c8827205023617507a4b0575b94305d23326c68dcb330b71c7fc99ebdd97",
+          "size": 302069
+        },
+        {
+          "path": "definitions/docs/r4/downloads.html",
+          "sha256": "e42cc57b4934bd8018d6d4bb46dff9ec1749fcdaf429c9d6c5d75bce2fbfedc0",
+          "size": 19967
+        },
+        {
+          "path": "definitions/docs/r4/json.html",
+          "sha256": "29f37b0f90451ab55318ab371f35dd3176c5b24c1d5f4406cb855a1dbf1bc56e",
+          "size": 36583
+        },
+        {
+          "path": "definitions/docs/r4/license.html",
+          "sha256": "b2aeb02247ca2aa855ed1fce29f62600aeeb8dcc8257ec1e0b40ceaf4fd60a15",
+          "size": 22009
+        },
+        {
+          "path": "definitions/docs/r4/observation-definitions.html",
+          "sha256": "0377eafc8bd2d9753724141ef0039926e6ed1d142abcaef88fad6e2d9ffdf998",
+          "size": 60059
+        },
+        {
+          "path": "definitions/docs/r4/observation.html",
+          "sha256": "1388e9c5df3495fc5307376f23f178f5ff7d06366a0b79bee12aaa135a652480",
+          "size": 575414
+        },
+        {
+          "path": "definitions/docs/r4/patient.html",
+          "sha256": "fb65456ffb34331ac685b9bee21baa69cc43ca4118a56778501e56811ba8a8b3",
+          "size": 320662
+        },
+        {
+          "path": "definitions/docs/r4/profiling.html",
+          "sha256": "66b75593b754e692743cad349ebbba426b3275a61f87a53d3b583fb83b082e78",
+          "size": 89620
+        },
+        {
+          "path": "definitions/docs/r4/provenance.html",
+          "sha256": "1f0fd44cfa491592d4900654267e650142f7b0fe050d69c744b1ce6c8b596c29",
+          "size": 217624
+        },
+        {
+          "path": "definitions/docs/r4/references.html",
+          "sha256": "c7b2bade9002d88236d10f8c55754bc4b43edb3297d196a42935f30107bbee0f",
+          "size": 123187
+        },
+        {
+          "path": "definitions/docs/r4/specimen.html",
+          "sha256": "4a5f85a2adb692b34abb7ba593eac47e0c3e219b340bbd3b008c6527bdd2709b",
+          "size": 318327
+        },
+        {
+          "path": "definitions/docs/r4/validation.html",
+          "sha256": "d1372a4d0614d0d298edd6e92e3f74542329d31d7691cb0054782b6131d6e5bb",
+          "size": 31627
+        },
+        {
+          "path": "definitions/fhir-r4-json-schema/fhir.schema.json",
+          "sha256": "2230406893b4cf002a4ee1e5e2bbeca22ac5d2d4931b3e9ef7b9594bbc376a01",
+          "size": 3386892
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Address.json",
+          "sha256": "49c580b7d2046e0ea7aba1ac0fcb1369ae0a92790414baae8fffcc483a769e21",
+          "size": 23663
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Age.json",
+          "sha256": "05d6aba194959cc1cda1eebf592f45649dec833fe41cc2741f23f76b10a97907",
+          "size": 12068
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Annotation.json",
+          "sha256": "e181043a206c383b05ef74d6914457fbc0eb77a28fd6856e1d720aa33a4b48ce",
+          "size": 9291
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Attachment.json",
+          "sha256": "acce838cf4c297dead66ec243b92ebfda68b8a76ea0603e10c9963feceb9f969",
+          "size": 20616
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-BackboneElement.json",
+          "sha256": "919bf12de10bcc0b4e0b65ed6234e82b0d14a829eef21355e74e642f8ffd3260",
+          "size": 9462
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Bundle.json",
+          "sha256": "8229e58c10f75e34f7ae3bc719109416d8e058d23a7abb8cd620122db68adda9",
+          "size": 81552
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-CodeableConcept.json",
+          "sha256": "94004b63149919705cb814f0cc13dcf801d8bab7e00b4e3a337427acda675ba9",
+          "size": 10657
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Coding.json",
+          "sha256": "ebe5ecf63d818acf7bc855b34e50a1f3a798a4ae440987a554f44a331827156c",
+          "size": 15859
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ContactDetail.json",
+          "sha256": "54c1c1a9ee2c4dfd933e55b0a9ceda3a09e9e1d3f1fb330ce70b7bf226357fd2",
+          "size": 6540
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ContactPoint.json",
+          "sha256": "8bdcd8869d41e0f443823b31b3e504e194850da3f875b55d07427caa1ae74abc",
+          "size": 14252
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Contributor.json",
+          "sha256": "69cab99d244480bbbf43c4b07b3a4d84b112743e8ad76ebc074366d4d388ac56",
+          "size": 7410
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Count.json",
+          "sha256": "2e3541670b9e8aae8bfb0d132ad4ecef589e27f9f4b87fc972164e09808b6a41",
+          "size": 12301
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DataRequirement.json",
+          "sha256": "546d27ce903a4c6ed5eb9dcda30a57a92dab515b4a42f86bd3a58d53820f75ff",
+          "size": 39435
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DiagnosticReport.json",
+          "sha256": "9250647e26bd893484eefbd133ff9813cf7c7cc295afd48e1df9a1ee2b770225",
+          "size": 65737
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Distance.json",
+          "sha256": "8ecb08dc37542bfdde410b82183a285e06939b608eb2968459bc75ae46f28633",
+          "size": 11868
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DocumentReference.json",
+          "sha256": "9b671e99cce7c7c7cdb09395a66bcf524565fc5823cb718fe0679633c69113cc",
+          "size": 95650
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DomainResource.json",
+          "sha256": "a18458dabb37be1bf98e937a2c434115d806c691f44cf8bee12c38bcd98412f8",
+          "size": 23705
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Dosage.json",
+          "sha256": "f11860657943794630125742cdeb8120b7261e450f6daf4ec6489114ea3c807e",
+          "size": 44509
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Duration.json",
+          "sha256": "0347d05e26ffbda49adbb7aca672a43737b1252949f2460c9cac04a24ce43c9a",
+          "size": 12013
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Element.json",
+          "sha256": "20830570772422ddaa06acb709ff8462f00c3ce8bc24c104d118710faacd1654",
+          "size": 6146
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Expression.json",
+          "sha256": "28bf1228896b1c3844e1b52865832d413cb15a5effbf30ef18ec2786a7af278f",
+          "size": 10558
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Extension.json",
+          "sha256": "9470f0873f62573d729dc78255d20cfb9ad59014621a1686c67071b570fbc8fc",
+          "size": 9630
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-HumanName.json",
+          "sha256": "39abf369c7aa8082203f017f77fbee1c078b9d0ecff6da0d1f8b1986dec207e3",
+          "size": 17498
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Identifier.json",
+          "sha256": "b5227053428f8a15e96effc2155b6a41a8e7850ca0c73f18a8332d22393ccf3f",
+          "size": 18640
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Meta.json",
+          "sha256": "04af4f73dacb7bf3c3a3c1fd53a716273b3eaeafb9c93a4db2eb17fec8fcdc87",
+          "size": 15849
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Money.json",
+          "sha256": "e4a9f4060aaa7120e88373ed9894e3ecf0e4108dae96a1e63edf07bc4f18c7ba",
+          "size": 7698
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Narrative.json",
+          "sha256": "e8aa46de26f2e1c39a9e7f0ff9e69979e4fe6aea54340fb301849ae0ab2614b6",
+          "size": 11163
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Observation.json",
+          "sha256": "037032dfe299064946ecfc195e4b8b921f6fef6b31e9dc571131bf7fc138e633",
+          "size": 119966
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ParameterDefinition.json",
+          "sha256": "224296176174149fb5e9d96ace192a3cca1ba974bc2a3917660dc8cc299909bb",
+          "size": 12646
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Patient.json",
+          "sha256": "7f157a56ade5c6a9d4c8d13d676a0069a585412578f6a93f794baf9e8d0a4bd4",
+          "size": 88208
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Period.json",
+          "sha256": "7a9029144ac3d53491b1b0861ed2b4a504fcb9c210c96f6a25d21f537825ce93",
+          "size": 9380
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Provenance.json",
+          "sha256": "1c2c7fde07ee9c35aadd70d001f9f8c932b71aa3551edbc904fe8a168905e497",
+          "size": 60948
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Quantity.json",
+          "sha256": "5473f2536e80c5cd5e2b052c8e9d0f51957a5733f4337c5ed000079a3c33e8a8",
+          "size": 15484
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Range.json",
+          "sha256": "dd0bff7dc67bdbbc45c25afb837370bf885ecd9a0b4c39826d8af18d61938ce0",
+          "size": 8292
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Ratio.json",
+          "sha256": "1a1e5c31d17691dd4ebfe7e14a1f105e4921ab58ec963cd354ae2bfe36e70377",
+          "size": 7887
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Reference.json",
+          "sha256": "413f80a8107b637af28bfc0e1c1147d125dfe2938e7655086c353a9aea1c5048",
+          "size": 19635
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-RelatedArtifact.json",
+          "sha256": "2081e3770c34f0dc9918e18127ea92179e7104b84cb75681ce539a95a4c4460a",
+          "size": 12989
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Resource.json",
+          "sha256": "20e855671ff358a8cfcfb22bec37efe602eaba3e30716d8cf03ee44dffac22bc",
+          "size": 9736
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-SampledData.json",
+          "sha256": "160d2f1023cb32aaccbdc56a3ef6217f4f651acc0b3f7acdba2d43eaf6daab63",
+          "size": 14443
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Signature.json",
+          "sha256": "19d9773ded5fb73e6c60a2c2024064aec4f02649b08de5c2f5083272c34a78e6",
+          "size": 17794
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Specimen.json",
+          "sha256": "7104b14e414460a02b17c576f86ff3cc0a1414789fe789aecc9a3ab7c1e2ce74",
+          "size": 75351
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Timing.json",
+          "sha256": "c227e277f92adc8975d7939f6db995f8352ca6bd806d45983c2dc8a93ea8e10c",
+          "size": 43191
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-TriggerDefinition.json",
+          "sha256": "35a63fa188db5132bbbb0093ddddd275cdb50a300311ee1585b2f052ce42e370",
+          "size": 15965
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-UsageContext.json",
+          "sha256": "0c400ad9baf3f494ecdaca5cef10acda95fef24242759754169d37174c3fcc0e",
+          "size": 9177
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-base64Binary.json",
+          "sha256": "a51c3c6dccf8c42f810b9c6183300570453ef25a09eb4c8a86aca74d97f0722c",
+          "size": 4687
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-boolean.json",
+          "sha256": "2adcef348bede84379faa940e0fefa5c4056f792f900c46ef8afe48194b4959d",
+          "size": 4462
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-canonical.json",
+          "sha256": "59afa21ad1aa393e0fd74a51c5a5de851624a8ab4068c9a4f2552551a82d5083",
+          "size": 4731
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-code.json",
+          "sha256": "2f19cdb6b72bfe4e64ce5cce1ce7fd39dc610f21303d546de006dd9cc681610d",
+          "size": 4782
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-date.json",
+          "sha256": "527c6349dfd44b3f5a5c3e378c2d65b8f9ab28e1167d69e00cf8f9e9cb17ae3b",
+          "size": 5000
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-dateTime.json",
+          "sha256": "b79f31bb66eb49e19c7f832691856db9cde5c0263fbb9dd0c3975be228119afd",
+          "size": 5867
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-decimal.json",
+          "sha256": "e9ed0a0e9d1eefb1656c1dceec8f228ff1a164960e872fc821603f80bda2f90f",
+          "size": 4883
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-id.json",
+          "sha256": "ed5981e3d0bf1fdd30b9278fc1d74cc68e3303525fd91c376afd21f6b3189a07",
+          "size": 5023
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-instant.json",
+          "sha256": "35751ce500aa816e3025dd92590d7d92f4df38747929c42b46c7a9f369e21e0a",
+          "size": 5443
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-integer.json",
+          "sha256": "2ae1359fb47f1368afad5b2cf7ac0c4c6f40f6feee05efab5270cd3147452d9c",
+          "size": 4690
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-markdown.json",
+          "sha256": "0fac500d984ff46c66bfb1f1d9bf77ae643ba42d23dd88a70ee19ed5310424f6",
+          "size": 5137
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-oid.json",
+          "sha256": "8582ac15fb991f083a0b9f3ec5dec0588ac1f4cdeefb75b7612406a69dc10da7",
+          "size": 4507
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-positiveInt.json",
+          "sha256": "051835bd0c6cf35da72f39b327d79e6f933b2b20832cc7ea2a88a1bc9ac9b4f0",
+          "size": 4632
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-string.json",
+          "sha256": "0c389d669772f8a7b6c59fb07265ac9263a3808cd4968e3ab012e55f6b677091",
+          "size": 4620
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-time.json",
+          "sha256": "8c7be8d87141914ad939783aae3ccd49b9df6740b63020910645ff76aac471d9",
+          "size": 4517
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-unsignedInt.json",
+          "sha256": "cf89bf6727805cc6081dcabb8e4b466f38c80b27af1cc50ca38e117e90476a07",
+          "size": 4662
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-uri.json",
+          "sha256": "3753c4fca85112c45f05684de7f63c645a5d5c7fc57320c43a5faa308c53420e",
+          "size": 4574
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-url.json",
+          "sha256": "26d08df23b54d1a61f4db7a447d03339224cc390314d8e4b5ba753f7cc3fb318",
+          "size": 4359
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-uuid.json",
+          "sha256": "d192dd8d6e47877bd933e04acc48f321f7c9db8d8eea0a9aefd878ef261749b9",
+          "size": 4677
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-xhtml.json",
+          "sha256": "bd854b3a64c2df1102ed77fb4473584c0ff9472ced77e64d384cb00e0ccb4e83",
+          "size": 4061
+        },
+        {
+          "path": "definitions/hl7.fhir.r4.core/4.0.1/package/package.json",
+          "sha256": "7614377a54db343e48a9b3b862114f9f63ad1d5f746f6f0f7af68e55ac81c6f7",
+          "size": 434
+        }
+      ],
+      "license": "CC0-1.0; HL7 trademark and third-party terminology exclusions apply (see retained license.html)",
+      "origin": "https://hl7.org/fhir/R4/downloads.html",
+      "packageId": "helseark-upstream-inventory",
+      "sources": [
+        {
+          "format": "tar.gz",
+          "id": "core",
+          "license": "CC0-1.0",
+          "sha256": "b090bf929e1f665cf2c91583720849695bc38d2892a7c5037c56cb00817fb091",
+          "size": 4531911,
+          "url": "https://hl7.org/fhir/R4/hl7.fhir.r4.core.tgz"
+        },
+        {
+          "format": "zip",
+          "id": "schema",
+          "license": "CC0-1.0",
+          "sha256": "75e5560da3cf503895a44c8ca7af17a83b4cca6c2cb5ba1883d2aec0d1cb5ac6",
+          "size": 287789,
+          "url": "https://hl7.org/fhir/R4/fhir.schema.json.zip"
+        },
+        {
+          "format": "raw",
+          "id": "cc0-1.0",
+          "license": "CC0-1.0",
+          "sha256": "b43732f4c1463b087cf10d4daf8d8766514b2bf8f21bc5ef50905f95be227726",
+          "size": 32223,
+          "url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode.en"
+        },
+        {
+          "format": "raw",
+          "id": "datatypes-definitions",
+          "license": "CC0-1.0",
+          "sha256": "bb084e4451eb0359c29df4e155a809e15cdd7b2270095a9aaa7bd96f0ec86846",
+          "size": 180283,
+          "url": "https://hl7.org/fhir/R4/datatypes-definitions.html"
+        },
+        {
+          "format": "raw",
+          "id": "datatypes",
+          "license": "CC0-1.0",
+          "sha256": "03d88289865b77620321652f4b9b5c954b795c17715aa0a24f1a220dc12af573",
+          "size": 1364305,
+          "url": "https://hl7.org/fhir/R4/datatypes.html"
+        },
+        {
+          "format": "raw",
+          "id": "diagnosticreport",
+          "license": "CC0-1.0",
+          "sha256": "c7872244ae561cd552afcb035fb8a8c3a1681a81067e3d61449c50cb69b67cbc",
+          "size": 259555,
+          "url": "https://hl7.org/fhir/R4/diagnosticreport.html"
+        },
+        {
+          "format": "raw",
+          "id": "documentreference",
+          "license": "CC0-1.0",
+          "sha256": "0c76c8827205023617507a4b0575b94305d23326c68dcb330b71c7fc99ebdd97",
+          "size": 302069,
+          "url": "https://hl7.org/fhir/R4/documentreference.html"
+        },
+        {
+          "format": "raw",
+          "id": "downloads",
+          "license": "CC0-1.0",
+          "sha256": "e42cc57b4934bd8018d6d4bb46dff9ec1749fcdaf429c9d6c5d75bce2fbfedc0",
+          "size": 19967,
+          "url": "https://hl7.org/fhir/R4/downloads.html"
+        },
+        {
+          "format": "raw",
+          "id": "json",
+          "license": "CC0-1.0",
+          "sha256": "29f37b0f90451ab55318ab371f35dd3176c5b24c1d5f4406cb855a1dbf1bc56e",
+          "size": 36583,
+          "url": "https://hl7.org/fhir/R4/json.html"
+        },
+        {
+          "format": "raw",
+          "id": "license",
+          "license": "CC0-1.0",
+          "sha256": "b2aeb02247ca2aa855ed1fce29f62600aeeb8dcc8257ec1e0b40ceaf4fd60a15",
+          "size": 22009,
+          "url": "https://hl7.org/fhir/R4/license.html"
+        },
+        {
+          "format": "raw",
+          "id": "observation-definitions",
+          "license": "CC0-1.0",
+          "sha256": "0377eafc8bd2d9753724141ef0039926e6ed1d142abcaef88fad6e2d9ffdf998",
+          "size": 60059,
+          "url": "https://hl7.org/fhir/R4/observation-definitions.html"
+        },
+        {
+          "format": "raw",
+          "id": "observation",
+          "license": "CC0-1.0",
+          "sha256": "1388e9c5df3495fc5307376f23f178f5ff7d06366a0b79bee12aaa135a652480",
+          "size": 575414,
+          "url": "https://hl7.org/fhir/R4/observation.html"
+        },
+        {
+          "format": "raw",
+          "id": "patient",
+          "license": "CC0-1.0",
+          "sha256": "fb65456ffb34331ac685b9bee21baa69cc43ca4118a56778501e56811ba8a8b3",
+          "size": 320662,
+          "url": "https://hl7.org/fhir/R4/patient.html"
+        },
+        {
+          "format": "raw",
+          "id": "profiling",
+          "license": "CC0-1.0",
+          "sha256": "66b75593b754e692743cad349ebbba426b3275a61f87a53d3b583fb83b082e78",
+          "size": 89620,
+          "url": "https://hl7.org/fhir/R4/profiling.html"
+        },
+        {
+          "format": "raw",
+          "id": "provenance",
+          "license": "CC0-1.0",
+          "sha256": "1f0fd44cfa491592d4900654267e650142f7b0fe050d69c744b1ce6c8b596c29",
+          "size": 217624,
+          "url": "https://hl7.org/fhir/R4/provenance.html"
+        },
+        {
+          "format": "raw",
+          "id": "references",
+          "license": "CC0-1.0",
+          "sha256": "c7b2bade9002d88236d10f8c55754bc4b43edb3297d196a42935f30107bbee0f",
+          "size": 123187,
+          "url": "https://hl7.org/fhir/R4/references.html"
+        },
+        {
+          "format": "raw",
+          "id": "specimen",
+          "license": "CC0-1.0",
+          "sha256": "4a5f85a2adb692b34abb7ba593eac47e0c3e219b340bbd3b008c6527bdd2709b",
+          "size": 318327,
+          "url": "https://hl7.org/fhir/R4/specimen.html"
+        },
+        {
+          "format": "raw",
+          "id": "validation",
+          "license": "CC0-1.0",
+          "sha256": "d1372a4d0614d0d298edd6e92e3f74542329d31d7691cb0054782b6131d6e5bb",
+          "size": 31627,
+          "url": "https://hl7.org/fhir/R4/validation.html"
+        }
+      ],
+      "version": "1"
+    },
+    {
+      "files": [
+        {
+          "path": "profiles/r4/0.1.0/README.md",
+          "sha256": "28f3251c6b7956e5d95b19fd262d3f463a8d6bc7574b50587e3a6deca7da00e8",
+          "size": 11402
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+          "sha256": "7aef1eb3e068b25eab868aca96d9c4fda9dcd9564e4069467f2fb24578ae4fce",
+          "size": 4092
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+          "sha256": "de9e51a227cc8b027a6daf7f2e4121fcdd28becb12ce6c7e507d7021f9e54f5e",
+          "size": 4420
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+          "sha256": "b72814f1b0ed6a5adbf63499cbc7e322151ef1f8c7f6c762fa89afd86125ddd7",
+          "size": 6525
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+          "sha256": "4f74d8292f2c11e406f5aa6438092ee044b1b4a3ca7bed5fb975f0ae1ba5563f",
+          "size": 2411
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+          "sha256": "4a2eb4f06c4cbaa1609fced2807a12986611b0e76be0080acd044637d02577c8",
+          "size": 5778
+        },
+        {
+          "path": "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+          "sha256": "0dba5a183a73c319de06c71e44bf4d2b180585a9d14b22d7d18ecb3551c5b175",
+          "size": 3344
+        },
+        {
+          "path": "profiles/r4/0.1.0/package.json",
+          "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c",
+          "size": 402
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark.fhir.r4",
+      "version": "0.1.0"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:11:28+00:00",
+      "files": [
+        {
+          "path": "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+          "sha256": "b090bf929e1f665cf2c91583720849695bc38d2892a7c5037c56cb00817fb091",
+          "size": 4531911
+        }
+      ],
+      "license": "CC0-1.0",
+      "origin": "https://hl7.org/fhir/R4/hl7.fhir.r4.core.tgz",
+      "packageId": "hl7.fhir.r4.core",
+      "version": "4.0.1"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/clinical-model.md",
+          "sha256": "f3edafce80fd74a848fc7c6783b2868fb11bd7afee0f0e9985ab3785aa780d0c",
+          "size": 13344
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-clinical-reference",
+      "version": "0.1.0"
     }
   ],
   "contractVersion": "0.1.0",
-  "scope": "Task 1 local envelopes only; upstream FHIR definitions and profiles pending Task 2"
+  "scope": "Complete genuine core package archive, unchanged combined draft-06 schema, selected extracted core definitions and reference pages, six local profiles and local contracts; full specification remains a separate archival deliverable. No full-validator/terminology conformance claim."
 }
