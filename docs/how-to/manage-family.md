@@ -23,6 +23,22 @@ require a new plan and explicit approval. Unclassified person-linked work blocks
 removal for manual isolation; shared data is never guessed safe to delete.
 The roster is derived from active person directories and needs no database update.
 
+In migrated vaults, inspect `retainedLocalMetadata` before approval. Each entry
+identifies a shared migration receipt by vault-relative path, SHA-256 and size,
+with the selected person's UUID and historical source head. Open those exact
+receipts to inspect the retained accepted/source/work paths and hashes. These
+household receipts remain in the active vault byte for byte, including metadata
+about the removed person; deleting them would also remove another person's
+migration history. Their inventory is bound to the removal digest. Added or
+changed receipts require a new plan and approval, including when resuming apply.
+If this residue is unacceptable, stop before apply and arrange explicit manual
+disposition of shared history; this command does not silently remove it.
+
+The result repeats `retainedLocalMetadata` and lists its active file locations
+in `remainingKnownCopies`, alongside quarantine, known external copies and limits.
+The quarantine journal and result also retain removal metadata. Restoring uses
+the approved journal and recovers the selected bytes without rewriting receipts.
+
 The operation moves the selected person's directory and identified disposable
 copies to quarantine under the writer lock. It never rewrites accepted clinical
 history or another person's files. `plan.json` is synced before moving anything.

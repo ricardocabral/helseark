@@ -1,6 +1,6 @@
 # Compatibility and migration contracts
 
-Applies to toolkit 0.1.2 and kit 0.1.8. Version axes are independent.
+Applies to toolkit 0.1.2 and kit 0.1.10. Version axes are independent.
 
 | Axis | Supported value | Unsupported behavior |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ Applies to toolkit 0.1.2 and kit 0.1.8. Version axes are independent.
 | FHIR | R4 4.0.1 | Separate blocked FHIR conversion report |
 | Serialization | helseark-json-1 | Explicit error |
 | Agent protocol | 1 | Explicit error |
-| Current kit | 0.1.8 | Exact retained compatible manifests required |
+| Current kit | 0.1.10 | Exact retained compatible manifests required |
 | Test-only layout | helseark-test-only-layout-0 | Requires explicit fixture opt-in; no public release status |
 
 Production archive 1 semantics are frozen for this release. New toolkit code does
@@ -82,7 +82,24 @@ filesystems are not implied by a process-death test. Windows is unsupported.
 Original vault/verified backup is rollback; no inverse conversion is promised.
 
 Migration receipts are household metadata: doctor checks their closed receipt
-shape and sealed plan, and whole-vault backups retain their exact bytes. Person
+shape, sealed plan and historical self-consistency, and whole-vault backups retain their exact bytes. Person
 exports omit these mappings explicitly. A receipt records a historical copy; it
 is not authenticated authority or a claim that mutable work still has old hashes.
 Unknown or malformed files under `migrations/` block whole-vault recovery/export.
+
+Historical validation requires an exact supported version pair and its single
+dispatched operation, safe unique source/destination paths, complete mapping
+coverage of the dispatched source inventory, exact old hash/size bindings, complete
+required-definition/kit inventory, and unchanged new hashes for both lossless
+operations. It never compares historical mutable work or source heads to today's
+state, requires no signature, and does not rewrite valid old receipts. Kit 0.1.8
+remains a compatible historical input; 0.1.9 is reserved for separate integration.
+New vaults use 0.1.10; existing vaults retain their exact pins and accepted history.
+
+Person removal plans/results inventory retained shared receipts in
+`retainedLocalMetadata` (path, SHA-256, size, personId, sourceHead). Approval binds
+that disclosure; remaining-known-copies also lists their active paths. Removal
+does not erase this historical metadata or securely delete quarantine/backups.
+Older removal journals without this field remain restorable with their original
+digest. Applying an old plan in a vault with undisclosed local receipts requires
+a new plan and approval.

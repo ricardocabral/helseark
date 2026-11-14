@@ -549,10 +549,30 @@ def _erasure_scope(vault, person):
     return canonical, minimal(work), minimal(derived)
 
 
+def _retained_person_metadata(vault, person):
+    """Inventory shared receipts that remain active, never move another's bytes.
+
+    Receipt contents retain historical UUIDs, heads and all-person path/hash
+    inventories. Approval binds these exact local bytes, not just a warning.
+    """
+    from .migrations import _receipt_paths
+    retained = []
+    for path in sorted(_receipt_paths(vault)):
+        data = _read(vault.root, path)
+        if person.encode() in data:
+            value = _json(vault.root, path)
+            retained.append({'path':path, 'sha256':hash_bytes(data), 'size':len(data),
+                             'personId':person, 'sourceHead':value['plan']['sourceHeads'].get(person)})
+    return tuple(retained)
+
+
 def _erasure_value(plan):
     from .agent_context import document
     value = document(plan)
     value.pop('digest')
+    # Preserve approval digests for pre-disclosure journals with no local residue.
+    if not plan.retainedLocalMetadata:
+        value.pop('retainedLocalMetadata')
     return value
 
 
@@ -565,6 +585,7 @@ def read_erasure_plan(path: Path):
         raw['baseHeads'] = {p:Head(**h) if h else None for p,h in raw['baseHeads'].items()}
         for key in ('canonicalPaths','workPaths','derivedPaths','knownExternalCopies','limitations'):
             raw[key] = tuple(raw[key])
+        raw['retainedLocalMetadata'] = tuple(raw.get('retainedLocalMetadata', ()))
         raw['quarantineDestination'] = Path(raw['quarantineDestination'])
         return ErasurePlan(**raw)
     except (KeyError,TypeError,ValueError,AttributeError):
@@ -605,7 +626,8 @@ def plan_person_erasure(vault: Vault, person: str, quarantineDestination: Path):
                 record = _json(vault.root,path)
                 external.extend(record[k] for k in ('packetPath','outputDirectory','candidatePath') if isinstance(record.get(k),str) and not Path(record[k]).is_relative_to(vault.root))
         plan = ErasurePlan('',person,_heads(vault),canonical,work,derived,destination,
-            tuple(sorted(set(external))),_ERASURE_LIMITS,vault.config.vaultId,inventory)
+            tuple(sorted(set(external))),_ERASURE_LIMITS,vault.config.vaultId,inventory,
+            _retained_person_metadata(vault,person))
         return replace(plan,digest=hash_bytes(encode_json(_erasure_value(plan))))
 
 
@@ -657,6 +679,8 @@ def apply_person_erasure(vault: Vault, plan, approvedDigest: str):
     with _writer_lock(vault):
         resuming = quarantine.exists()
         roots = _erasure_check(vault,plan,approvedDigest,resuming=resuming)
+        if _retained_person_metadata(vault,plan.personId) != plan.retainedLocalMetadata:
+            raise ArchiveError('STALE_BASE','Retained local metadata changed; inspect and approve a new removal plan.')
         if resuming:
             if read_erasure_plan(quarantine/'plan.json') != plan:
                 raise ArchiveError('INTEGRITY','Quarantine belongs to a different plan.')
@@ -690,7 +714,9 @@ def apply_person_erasure(vault: Vault, plan, approvedDigest: str):
                 from .archive import _publication_boundary
                 _publication_boundary('erasure-after-move')
         _erasure_inventory(vault,plan,quarantine)
-        receipt = ErasureReceipt(quarantine,roots,(str(quarantine),*plan.knownExternalCopies,*plan.limitations))
+        receipt = ErasureReceipt(quarantine,roots,
+            (str(quarantine),*(str(vault.root/item['path']) for item in plan.retainedLocalMetadata),
+             *plan.knownExternalCopies,*plan.limitations),plan.retainedLocalMetadata)
         receipt_path = quarantine/'receipt.json'
         if not receipt_path.exists(): _write(receipt_path,encode_json(document(receipt)))
         _sync_tree(quarantine)

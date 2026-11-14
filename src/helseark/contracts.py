@@ -446,6 +446,7 @@ class ErasurePlan:
     limitations: tuple[str, ...]
     vaultId: str
     inventory: dict[str, Sha256]
+    retainedLocalMetadata: tuple[dict[str, JsonValue], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -453,6 +454,7 @@ class ErasureReceipt:
     quarantinePath: Path
     removedActivePaths: tuple[str, ...]
     remainingKnownCopies: tuple[str, ...]
+    retainedLocalMetadata: tuple[dict[str, JsonValue], ...] = ()
 
 
 @dataclass(frozen=True)

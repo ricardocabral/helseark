@@ -1,7 +1,7 @@
 # Migrate into a separate vault
 
-Applies to toolkit 0.1.0, archive 1, contract/profile 0.1.0, FHIR R4 4.0.1,
-serializer `helseark-json-1`, kit 0.1.4. See [compatibility](../reference/compatibility.md).
+Applies to toolkit 0.1.2, archive 1, contract/profile 0.1.0, FHIR R4 4.0.1,
+serializer `helseark-json-1`, kit 0.1.10. See [compatibility](../reference/compatibility.md).
 Migration changes storage layout, never clinical meaning or human review decisions.
 
 1. Stop other writers. Create a verified backup outside the source:
@@ -43,6 +43,11 @@ Migration changes storage layout, never clinical meaning or human review decisio
 4. Compare queries for each person and inspect the returned mapping inventory
    (`migrations/PLAN_SHA256.json`). It is separate migration provenance, outside
    accepted history. Preserve the original vault and backup as rollback.
+
+These shared receipts contain person UUIDs, historical heads and file paths/hashes
+for the household. They survive later [person removal](manage-family.md), which
+requires explicit approval of their retained local metadata inventory. They are
+included in whole-vault backups and omitted from person exports.
 
 ## Interrupted operations
 

@@ -5,7 +5,7 @@ real path transformation without inventing an old public clinical format. All
 production v1 moves are identity copies under the exact retained definitions.
 """
 from dataclasses import asdict, replace
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from jsonschema import Draft202012Validator
 
@@ -128,6 +128,52 @@ def read_migration_plan(path: Path) -> MigrationPlan:
     return MigrationPlan(**raw)
 
 
+def _historical_plan_consistent(plan: dict) -> bool:
+    """Check the closed dispatch's historical byte contract, without live reads.
+
+    Both supported operations copy bytes unchanged. The wrapper operation strips
+    only snapshot/vault/ and leaves its container metadata outside the mapping.
+    Keep this contract aligned with plan_migration's dispatch and inventory rules.
+    """
+    source = VersionSet(**plan['sourceVersionSet'])
+    target = VersionSet(**plan['targetVersionSet'])
+    operation = _DISPATCH.get((source, target))
+    if operation is None or plan['transformations'] != [operation]:
+        return False
+
+    def unique_paths(paths):
+        seen = set()
+        for path in paths:
+            parsed = PurePosixPath(path)
+            if (not path or path == '.' or '\\' in path or '\x00' in path or parsed.is_absolute() or
+                    parsed.as_posix() != path or '..' in parsed.parts or path in seen):
+                return False
+            seen.add(path)
+        return all(not any(parent.as_posix() in seen for parent in PurePosixPath(p).parents)
+                   for p in seen)
+
+    inventory = plan['sourceInventory']
+    mappings = plan['byteMappings']
+    if (not unique_paths([entry['path'] for entry in inventory]) or
+            any(PurePosixPath(entry['path']).parts[0] in ('.runtime', 'derived') for entry in inventory) or
+            not unique_paths([entry['sourcePath'] for entry in mappings]) or
+            not unique_paths([entry['destinationPath'] for entry in mappings])):
+        return False
+    prefix = 'snapshot/vault/' if source == TEST_ONLY else ''
+    retained = [entry for entry in inventory if entry['path'].startswith(prefix)]
+    if not any(entry['path'] == prefix+'vault.json' for entry in retained):
+        return False
+    expected = [{'sourcePath':entry['path'], 'destinationPath':entry['path'][len(prefix):],
+                 'oldSha256':entry['sha256'], 'newSha256':entry['sha256'], 'size':entry['size']}
+                for entry in retained]
+    definitions = [entry for entry in inventory
+                   if entry['path'].startswith((prefix+'definitions/', prefix+'agent-kit/'))]
+    return (mappings == expected and plan['requiredDefinitions'] == definitions and
+            any(entry['path'] == prefix+'definitions/lock.json' for entry in definitions) and
+            any(entry['path'].startswith(prefix+'agent-kit/') and
+                entry['path'].endswith('/manifest.json') for entry in definitions))
+
+
 def _receipt_paths(vault: Vault) -> set[str]:
     """Recognize sealed household migration metadata, never person-export support.
 
@@ -156,7 +202,8 @@ def _receipt_paths(vault: Vault) -> set[str]:
                 value['validatedCounts'] != plan['expectedCounts'] or
                 value['originalUnchanged'] is not True or
                 value['meaning'] != 'Layout migration only; accepted review and correction history is unchanged.' or
-                plan['semanticLosses'] or plan['blockedRecords']):
+                plan['semanticLosses'] or plan['blockedRecords'] or
+                not _historical_plan_consistent(plan)):
             raise ArchiveError('INTEGRITY', 'Migration receipt differs from its sealed plan.', {'path':path})
         paths.add(path)
     return paths

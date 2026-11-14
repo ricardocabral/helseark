@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "392ba2d3724d21725a9331ec22ba31c80b86dc80d57ee07fafd46a9099bfe240",
+    "definitionLockSha256": "ac0e1a68f16fe2f4ccd949e8c19eb57b3a7357f203b5b06225fd5223a514623e",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "392ba2d3724d21725a9331ec22ba31c80b86dc80d57ee07fafd46a9099bfe240",
+      "sha256": "ac0e1a68f16fe2f4ccd949e8c19eb57b3a7357f203b5b06225fd5223a514623e",
       "size": 36129
     },
     {
@@ -54,13 +54,13 @@
     },
     {
       "path": "docs/how-to/manage-family.md",
-      "sha256": "c1d2b364d39dfb09d08e972ea6a66b6b6b08e6715fa36a778c225a2c3067d279",
-      "size": 4093
+      "sha256": "8733b7f675a9b95f40723bcc0af71e06fc0f99f1662f336bc80c410019aa6d19",
+      "size": 5196
     },
     {
       "path": "docs/how-to/migrate-archive.md",
-      "sha256": "840064731069c30f649276baf70c7e354dfbf4ac7afdef922c4d79e8578c03eb",
-      "size": 4014
+      "sha256": "ebfc9c928b43b52452be347e14ed2fa65469ec897a3271bd04c1acffbf858ff0",
+      "size": 4324
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -84,8 +84,8 @@
     },
     {
       "path": "docs/reference/compatibility.md",
-      "sha256": "f1cee9c4178e4bd83bbdd7ee48d70a186938156292ce5ac26547aa324d2243bd",
-      "size": 5510
+      "sha256": "a78461a832e71f5c8401dacdf2b414f4691d04e2cd4bbe5453359fccdb258313",
+      "size": 6685
     },
     {
       "path": "docs/reference/intake.md",
@@ -328,7 +328,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.8",
+  "kitVersion": "0.1.10",
   "prompts": [
     {
       "id": "extract-report",
@@ -1224,7 +1224,8 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "historical-receipt-consistency"
       ],
       "id": "migrate",
       "intent": "Prepare migration scope context",
