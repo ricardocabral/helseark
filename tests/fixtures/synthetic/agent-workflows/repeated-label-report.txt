@@ -1,0 +1,4 @@
+SYNTHETIC ONLY — row-attribution counterexample
+Person: Synthetic Person A
+Row A | Analyte: Synthetic CRP | Result: <0,05 mg/L | Collection month: 2026-10 | Method: Synthetic assay M0 | Range: 0,00–0,40 mg/L
+Row B | Analyte: Synthetic CRP | Result: <0,05 mg/L | Collection month: 2026-11 | Method: Synthetic assay M1 | Range: 0,00–0,50 mg/L

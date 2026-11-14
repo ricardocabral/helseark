@@ -1,0 +1,257 @@
+{
+  "contractVersion": "0.1.0",
+  "entries": [
+    {
+      "kind": "generated",
+      "rule": "synthetic-example-bookkeeping-v1",
+      "target": {
+        "pointers": [
+          "/id"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "generated",
+      "rule": "synthetic-example-bookkeeping-v1",
+      "target": {
+        "pointers": [
+          "/meta/profile/0"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/status"
+      },
+      "quote": "final",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/status"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/label"
+      },
+      "quote": "Synthetic CRP",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/code/text"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/personLabel"
+      },
+      "quote": "Synthetic Person A",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/subject/reference"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/collectionMonth"
+      },
+      "quote": "2026-11",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/effectiveDateTime"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/result"
+      },
+      "quote": "<0,05 mg/L",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/valueQuantity/value"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/result"
+      },
+      "quote": "<0,05 mg/L",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/valueQuantity/comparator"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/result"
+      },
+      "quote": "<0,05 mg/L",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/valueQuantity/unit"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/referenceText"
+      },
+      "quote": "Women: 0,00–0,50 mg/L; Men: 0,00–0,70 mg/L",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/referenceRange/0/text"
+        ],
+        "reference": "urn:uuid:33333333-3333-4333-8333-333333333333"
+      }
+    },
+    {
+      "kind": "generated",
+      "rule": "synthetic-example-bookkeeping-v1",
+      "target": {
+        "pointers": [
+          "/id"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "generated",
+      "rule": "synthetic-example-bookkeeping-v1",
+      "target": {
+        "pointers": [
+          "/meta/profile/0"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/docStatus"
+      },
+      "quote": "current",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/status"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/personLabel"
+      },
+      "quote": "Synthetic Person A",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/subject/reference"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/mediaType"
+      },
+      "quote": "application/json",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/content/0/attachment/contentType"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "source",
+      "locator": {
+        "kind": "json-pointer",
+        "pointer": "/title"
+      },
+      "quote": "Synthetic structured source",
+      "sourceDocument": "urn:uuid:77777777-7777-4777-8777-777777777777",
+      "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "target": {
+        "pointers": [
+          "/content/0/attachment/title"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    },
+    {
+      "kind": "generated",
+      "rule": "synthetic-example-bookkeeping-v1",
+      "target": {
+        "pointers": [
+          "/content/0/attachment/url"
+        ],
+        "reference": "urn:uuid:77777777-7777-4777-8777-777777777777"
+      }
+    }
+  ],
+  "personId": "11111111-1111-4111-8111-111111111111"
+}

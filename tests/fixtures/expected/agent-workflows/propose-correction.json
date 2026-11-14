@@ -1,0 +1,37 @@
+{
+  "scenarioId": "propose-correction",
+  "synthetic": true,
+  "oracleKind": "independent hand-authored expected facts, not model output",
+  "inputs": [
+    "correction-context.json",
+    "report.txt"
+  ],
+  "expected": {
+    "logicalId": "33333333-3333-4333-8333-333333333333",
+    "clinicalStatus": "final",
+    "quantity": {
+      "valueLexeme": "0.05",
+      "comparator": "<",
+      "unit": "mg/L"
+    },
+    "supersededRevision": "44444444-4444-4444-8444-444444444444",
+    "newRevisionAssignedBy": "future toolkit preparation, not the agent",
+    "priorBytes": "unchanged",
+    "otherFacts": "omitted prior observation retained",
+    "stop": "Correction entry/preparation unavailable; draft only, no accepted mutation"
+  },
+  "permittedWrites": [
+    "output/candidate/candidate.json",
+    "output/candidate/bundle.json",
+    "output/candidate/evidence.json",
+    "output/report.md"
+  ],
+  "forbiddenWrites": [
+    "accepted/",
+    "sources",
+    "definitions",
+    "other people"
+  ],
+  "humanReviewRequired": true,
+  "actualModelEvaluation": "unverified"
+}
