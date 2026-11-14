@@ -18,7 +18,7 @@ from typing import Iterator
 from jsonschema import Draft202012Validator
 
 from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, uuid_string
-from .serialization import encode_json, decode_json, hash_bytes
+from .serialization import encode_json, decode_canonical_json, hash_bytes
 
 _ENVELOPES = ("proposal.json", "evidence.json", "review.json", "validation.json")
 
@@ -48,7 +48,7 @@ def _read(root: Path, relative: str) -> bytes:
 def _json(root: Path, relative: str, *, data: bytes | None = None):
     stored = _read(root, relative) if data is None else data
     try:
-        return decode_json(stored)
+        return decode_canonical_json(stored)
     except ArchiveError:
         raise ArchiveError("INTEGRITY", "Invalid stored JSON.", {"path": relative}) from None
 
@@ -171,7 +171,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
         stage.mkdir(mode=0o700)
         (stage / "definitions").mkdir()
         _write(stage / "definitions/lock.json", lock_bytes)
-        lock = decode_json(lock_bytes)
+        lock = decode_canonical_json(lock_bytes)
         for artifact in lock["artifacts"]:
             for entry in artifact["files"]:
                 data = _read(bundle, entry["path"])

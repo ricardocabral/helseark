@@ -502,3 +502,48 @@ def test_definition_corruption_reports_actual_vault_relative_path(tmp_path):
     with pytest.raises(ArchiveError, match='DEFINITION_MISMATCH') as raised:
         open_vault(vault.root)
     assert raised.value.details['path'] == path.relative_to(vault.root).as_posix()
+
+
+@pytest.mark.parametrize("token", [
+    "1e128", "0e128", "0.1e-128", "9" * 128 + "e128",
+    "-0." + "0" * 509,
+])
+def test_canonical_numeric_payload_survives_publication_and_reopen(tmp_path, token):
+    from helseark.serialization import decode_canonical_json
+    vault = init_vault(tmp_path / "vault")
+    person = add_person(vault, PersonDraft("Synthetic Serialization Fixture"))
+    payload = tmp_path / "prepared"
+    base = update_payload(vault, person, payload)
+    proposal = decode_canonical_json((payload / "proposal.json").read_bytes())
+    entry = proposal["resources"][0]
+    patient = decode_canonical_json((payload / entry["path"]).read_bytes())
+    # Storage-only synthetic field, with no claim of clinical validation.
+    patient["_serializationFixture"] = decode_json(token.encode())
+    write_json(payload / entry["path"], patient)
+    expected_bytes = (payload / entry["path"]).read_bytes()
+    entry["sha256"] = hash_bytes(expected_bytes)
+    rebind_proposal(payload, proposal)
+    published = _publish_change(vault, person, payload, base)
+    reopened = open_vault(vault.root)
+    current = resolve(reopened, person, ResourceRef("Patient", person))
+    assert encode_json(current) == expected_bytes
+    assert list(iter_current(reopened, person)) == [current]
+    assert head(reopened, person) == published
+    assert "_serializationFixture" not in resolve(
+        reopened, person, ResourceRef("Patient", person), at=base)
+    actual = current["_serializationFixture"]
+    expected = patient["_serializationFixture"]
+    assert actual == expected
+    if "." in token:
+        assert actual.as_tuple() == expected.as_tuple()
+
+
+@pytest.mark.parametrize("raw", [b"1e999999999", b"9" * 129,
+                                 b"0." + b"0" * 511])
+def test_canonical_archive_boundary_rejects_unbounded_numbers(tmp_path, raw):
+    from helseark.archive import _json
+    (tmp_path / "fixture.json").write_bytes(raw)
+    with pytest.raises(ArchiveError) as error:
+        _json(tmp_path, "fixture.json")
+    assert error.value.code == "INTEGRITY"
+    assert error.value.details == {"path": "fixture.json"}

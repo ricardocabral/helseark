@@ -188,15 +188,54 @@ are rejected. JSON decimal/exponent tokens become `Decimal`; integer tokens
 become `int`. Fixed-form decimal rendering never rounds and preserves
 fractional trailing zeros: `1.20` remains `1.20`.
 
-Before Decimal construction or expansion, numeric tokens are limited to 1,024
-characters, coefficient digits to 128 (excluding leading zeroes), absolute
-explicit and effective decimal exponent to 128, and expanded output to 512
-characters. These limits also apply to the fixed-form output coefficient, so
-`1e127` is supported but `1e128` is rejected with `NUMERIC_LIMIT`: its
-required fixed representation would contain 129 coefficient digits. This
-conservative closure rule ensures all emitted numbers can be decoded by the
-same contract. Nothing is truncated or rounded. Source tokens for clinical
-imports must be retained as source evidence by later tasks.
+The source reader `decode_json` applies the original independent limits:
+token at most 1,024 characters, coefficient at most 128 digits (excluding
+leading zeroes; all-zero coefficients count as one), absolute **explicit**
+exponent at most 128, and fixed output at most 512 characters including sign
+and decimal point, excluding final LF. It checks these before Decimal
+construction or fixed expansion. There is no additional effective-exponent
+limit. In particular `1e128`, `0e128` and `0.1e-128` are accepted.
+
+Source limits are not closed under fixed rendering: `1e128` produces a
+129-digit integer. Use `decode_canonical_json` for retained bytes produced by
+`encode_json`, including all archive stored/prepared JSON readers. This is
+an explicit bounded representation boundary, never a trusted/unbounded bypass:
+
+- Numeric tokens must use fixed notation and fit in 512 characters.
+- Fractional tokens have at most 128 coefficient digits after leading zeroes.
+  Fractional scale can reach 510 unsigned or 509 signed, including zero.
+- Integer tokens may have at most 256 digits excluding sign, but removing
+  **at most 128 trailing zeroes** must leave at most 128 coefficient digits.
+  An arbitrary 129-digit integer is therefore still rejected.
+- Duplicate-key, Unicode, float, non-finite and depth restrictions are shared.
+  This reader checks numeric representation, not exact whitespace/key order;
+  hashes continue to bind the actual retained bytes.
+
+These are exactly the fixed values/scales obtainable from permitted source
+numbers. For an integer, the removed zeroes give a source coefficient and an
+explicit exponent no greater than 128. Every permitted fractional fixed
+token is itself an allowed source: its coefficient fits, explicit exponent
+is zero, and token length is at most 512. Conversely, source expansion can
+append at most 128 integer zeroes and cannot enlarge a fractional coefficient.
+This proves representation closure.
+
+`encode_json` accepts this canonical value domain for Python ints/Decimals,
+including values whose *particular* scientific spelling would exceed source
+limits. Source spelling limits belong to `decode_json`; encoding Python
+values does not validate an unavailable original token. The contract is
+`decode_canonical_json(encode_json(decode_json(source)))`: exact value and
+fractional scale, with byte-stable re-encoding, independent of Decimal context.
+Positive integer exponent spelling and integer negative zero are normalized;
+fractional negative zero and trailing zeroes survive. Nothing is rounded or
+truncated. Giant nonzero exponents are size-checked before expansion; zero with
+nonnegative scale emits `0` directly without exponent expansion.
+
+This restores originally permitted source inputs within `helseark-json-1`;
+existing emitted fixed bytes remain readable. Integer Decimal negative zero
+now emits `0` so its reread is byte-stable; the older `-0` remains readable.
+No accepted bytes or original plan/design documents are rewritten. Callers
+that previously used `decode_json` for encoder output must use the canonical
+reader. Clinical source-token preservation remains later-task work.
 
 SHA-256 identifies exact bytes; reformatting accepted JSON changes its digest.
 This is a project serializer, not a claim of standards-based canonical JSON.
@@ -256,19 +295,6 @@ opaque file paths identify JSON/schema/resource/asset failures; inventory
 failures identify the affected directory when no single expected file explains
 the error. Unexpected names are omitted in favor of the nearest safe directory.
 Absolute root paths and record values are never needed in these diagnostics.
-
-Numeric acceptance explicitly includes **both** the original token limits and
-round-trip closure limits: at most 128 coefficient digits after fixed-form
-expansion and absolute effective scale at most 128. Thus `1e128`, `0e128` and
-`0.1e-128` are rejected, while `1e127`, `1e-128` and a 128-digit fractional
-coefficient are accepted exactly. This qualifies the design's originally
-independent bounds before freezing the serializer; it does not assert that all
-numbers within those original independent bounds are accepted. The 512-character
-cap is a defensive ceiling, unreachable independently under the tighter
-coefficient/scale limits. There is no separately isolated 512-character boundary
-test. Tests use Decimal precision 2 to verify that accepted values and fractional
-scale survive without rounding. Clinical source-token preservation remains
-Task 2/5 work.
 
 For distribution qualification, build with the declared `setuptools==80.9.0`,
 then rebuild the sdist outside the checkout. Install its wheel and locked runtime
