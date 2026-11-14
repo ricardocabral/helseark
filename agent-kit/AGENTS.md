@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt is `0.1.1`, the structured mapping prompt is `0.1.2`, and the import skill is `0.1.4`; other prompt versions are pinned in the manifest. Each declares task-specific slots below
+The extraction prompt is `0.1.1`, the structured mapping prompt is `0.1.3`, and the import skill is `0.1.4`; other prompt versions are pinned in the manifest. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -137,5 +137,5 @@ external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
 Historical kit 0.1.1 allowed confirmed retained PDF drafts while its descriptor listed
-unavailable structured import and reviewed publication. Current kit 0.1.4 exposes the two bounded structured families; The renderer reports both
+unavailable structured import and reviewed publication. Current kit 0.1.5 exposes the two bounded structured families; The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.
