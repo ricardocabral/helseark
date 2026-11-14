@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "5e53e98010ac284dc5cea19036cadd97b12d56235b931fea0f65657a6b8defe0",
-          "size": 29077
+          "sha256": "3056a130dda8abd9c21fac0f37cb7a6f594c4ab06ef64f969bbb34b77faa1042",
+          "size": 29406
         }
       ],
       "license": "MIT",
@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "f019a392d6493508606814278924a9072cc3491b09e85ecd0ad6a10511349324",
-          "size": 19098
+          "sha256": "20b37796846b16b39a531ac59e4fedd373ab50401079015d33ae9599fcdae1d8",
+          "size": 20386
         }
       ],
       "license": "MIT",
@@ -793,8 +793,8 @@
       "files": [
         {
           "path": "docs/tutorials/first-archive.md",
-          "sha256": "0a1f5841587d1137756e79c677a3ce5fb79d42f04fc572159969cf39f021aab3",
-          "size": 4599
+          "sha256": "c8597c58a12ead78cb4b44f18ab0cab21f1ae4782a6f30876d48694393eb260c",
+          "size": 4774
         }
       ],
       "license": "MIT",
@@ -839,6 +839,45 @@
       "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-license",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/export-records.md",
+          "sha256": "deffd35b98fdb1b5852449b4f081d7259a1023f227b99ad5cbc05e0c342ec642",
+          "size": 3673
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-export-records",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/backup-and-restore.md",
+          "sha256": "2af90956a9983bbe5dfe115d342e81e721bca7f19220213135a58812785f6af6",
+          "size": 5581
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-backup-and-restore",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/export.schema.json",
+          "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb",
+          "size": 4012
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-export.schema",
       "version": "0.1.0"
     }
   ],

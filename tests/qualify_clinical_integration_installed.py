@@ -1,7 +1,7 @@
 """Offline installed public CLI integration oracle; synthetic decisions, agentRuns=0.
 
 Copy outside checkout. Run with installed Python: SCRIPT FRESH_ROOT DENIED_CHECKOUT
-NATIVE_REPORT_FIXTURE. No private publication API or model is used.
+NATIVE_REPORT_FIXTURE [--portability]. No private publication API or model is used.
 """
 from pathlib import Path
 from copy import deepcopy
@@ -17,7 +17,7 @@ import helseark
 from pypdf import PdfReader, PdfWriter
 from pypdf.generic import DecodedStreamObject, NameObject
 
-root, checkout, report_fixture = map(lambda s: Path(s).resolve(), sys.argv[1:])
+root, checkout, report_fixture = map(lambda s: Path(s).resolve(), sys.argv[1:4])
 root.mkdir()
 assert not Path(helseark.__file__).resolve().is_relative_to(checkout)
 console = Path(sys.executable).parent / 'helseark'
@@ -47,6 +47,7 @@ source = root / 'synthetic.pdf'
 writer.write(source)
 # Make independent source hashes/read-denial witnesses before restricting child CLI.
 other_file = next((vault / 'people' / other / 'accepted').glob('*/resources/*.json'))
+other_original = other_file.read_bytes()
 other_file.write_bytes(b'UNSELECTED CORRUPTION')
 guard = root / 'guard'
 guard.mkdir()
@@ -221,3 +222,43 @@ print(json.dumps(dict(agentRuns=0, publicCli=True, observedRows=2, transactions=
     acknowledgedLimitations=[acknowledgments,second_acks], originalAcceptedFiles=len(originals),
     originalReceipts=len(receipts), denialWitnesses=3, forbiddenAttempts=0,
     extractionReceipt=True, exactCitations=True, idempotentAfterRemoval=True)), flush=True)
+
+if sys.argv[4:] == ['--portability']:
+    # Household audit needs both people. Restore only this oracle's deliberate
+    # corruption and remove its other-person denial after scoped checks passed.
+    other_file.write_bytes(other_original)
+    env['DENY_OTHER'] = str(root/'never-read-other-witness')
+    before = {str(p.relative_to(vault)):hash_bytes(p.read_bytes())
+              for p in (vault/'people').rglob('*') if p.is_file()}
+    backup = root/'backup'
+    cli('--vault',vault,'backup','create','--out',backup)
+    verified = cli('backup','verify',backup)
+    assert not verified['issues']
+    assert (verified['checkedChanges'],verified['checkedResources'],verified['checkedAssets']) == (4,11,2)
+    restored = root/'restored'
+    cli('backup','restore',backup,'--into',restored)
+    for name in ('work','derived','.runtime'):
+        shutil.rmtree(restored/name,ignore_errors=True)
+    report = cli('--vault',restored,'doctor')
+    assert report == verified
+    after = {str(p.relative_to(restored)):hash_bytes(p.read_bytes())
+             for p in (restored/'people').rglob('*') if p.is_file()}
+    assert before == after
+    assert cli('--vault',restored,'observations','--person',person) == current
+    assert cli('--vault',restored,'observations','--person',person,'--at-head',head_file) == old_rows
+    assert cli('--vault',restored,'record','--person',person,'--resource',exact)['valueQuantity']['value'] == Decimal('0.050')
+    for name,digest in {**originals,**receipts}.items():
+        assert hash_bytes((restored/name).read_bytes()) == digest
+    selected = root/'selected'
+    cli('--vault',restored,'export','--person',person,'--mode','selected-current','--no-sources','--out',selected)
+    selected_report = cli('backup','verify',selected)
+    assert not selected_report['issues'] and selected_report['checkedResources'] == 10
+    assert not (selected/'sources').exists()
+    assert all(other.encode() not in p.read_bytes() and b'UNSELECTED SYNTHETIC' not in p.read_bytes()
+               for p in selected.rglob('*') if p.is_file())
+    cli('--vault',restored,'export','--person',person,'--out',root/'blocked-pdf',exit_code=3)
+    assert not (root/'blocked-pdf').exists()
+    assert not events.exists()
+    print(json.dumps(dict(portability=True, people=2, changes=4, revisions=11, blobs=2,
+        equalPersonFiles=len(before), observations=2, selectedRevisions=10,
+        otherPersonLeaks=0, forbiddenAttempts=0, oldPinsPreserved=True)),flush=True)

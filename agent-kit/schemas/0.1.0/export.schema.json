@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:helseark:schema:0.1.0:export",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "exportId",
+    "kind",
+    "people",
+    "heads",
+    "omissions",
+    "referenceMap",
+    "counts",
+    "files"
+  ],
+  "properties": {
+    "format": {
+      "const": "helseark-export-1"
+    },
+    "exportId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "kind": {
+      "enum": [
+        "backup",
+        "full-person",
+        "selected-current"
+      ]
+    },
+    "people": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      }
+    },
+    "heads": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+      },
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "null"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sequence",
+              "transactionId",
+              "changeSha256"
+            ],
+            "properties": {
+              "sequence": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "transactionId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+              },
+              "changeSha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "omissions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "referenceMap": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "personId",
+          "resourceType",
+          "id",
+          "versionId",
+          "fullUrl",
+          "references"
+        ],
+        "properties": {
+          "personId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "resourceType": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "versionId": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+          },
+          "fullUrl": {
+            "type": "string"
+          },
+          "references": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changes",
+        "resources",
+        "assets"
+      ],
+      "properties": {
+        "changes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "resources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "assets": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "size"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

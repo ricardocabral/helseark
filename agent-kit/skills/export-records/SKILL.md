@@ -15,5 +15,10 @@ Prompt routes: [`prepare-export`](../../prompts/prepare-export.md).
 
 Capability dependencies: `agent-context`, `person-export`. Check availability in the
 [common capability section](../../AGENTS.md#capability-availability), then the trusted
-runtime registry; this dependency list does not establish availability. This skill is
-draft-only until those dependencies are implemented and evaluated.
+runtime registry; this dependency list does not establish availability. The public commands are implemented; no independent agent evaluation is claimed.
+Use [export](../../docs/how-to/export-records.md) and [backup/doctor](../../docs/how-to/backup-and-restore.md).
+Actual command output and nonzero checked counts are required for a success report.
+
+The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. PDF source scope remains blocked without a reviewed derivative workflow.
+
+Require a clean doctor report before either export mode. Report exact UNKNOWN_PATH locations, preserve unknown material, and block pending scope resolution; never copy arbitrary root/person files or unlisted definitions/kit files. Full household backups follow the same unknown-material blocking policy.

@@ -8,19 +8,21 @@ from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
-from .intake import add_source, build_packet, read_candidate, prepare_candidate
-from .review import read_prepared, render_review, record_review, read_receipt
-from .contracts import ReviewDecision
-from .archive import commit_candidate
 from .query import observations, timeline, parse_reference
 from .archive import resolve
 from .contracts import ObservationFilter
+from .intake import add_source, build_packet, read_candidate, prepare_candidate
+from .review import read_prepared, render_review, record_review, read_receipt
+from .contracts import ReviewDecision
+from .archive import commit_candidate, doctor
+from .portability import backup, verify_export, restore, export_person
+from .contracts import ExportSelection
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
 from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
-    "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
+    "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
     "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
@@ -106,6 +108,26 @@ def main(argv=None):
             query.add_argument('--include-invalidated',action='store_true')
         if name == 'record':
             query.add_argument('--resource',required=True,help='Type/UUID or Type/UUID/_history/UUID.')
+    diagnose = commands.add_parser('doctor', help='Audit accepted history and report recovery paths without deleting anything.')
+    diagnose.add_argument('--json', action='store_true')
+    backups = commands.add_parser('backup').add_subparsers(dest='backup_command', required=True)
+    create = backups.add_parser('create')
+    create.add_argument('--out', type=Path, required=True)
+    create.add_argument('--include-work', action='store_true')
+    create.add_argument('--json', action='store_true')
+    for verb in ('verify','restore'):
+        action = backups.add_parser(verb)
+        action.add_argument('bundle', type=Path)
+        action.add_argument('--json', action='store_true')
+        if verb == 'restore':
+            action.add_argument('--into', type=Path, required=True)
+    exchange = commands.add_parser('export')
+    exchange.add_argument('--person', required=True)
+    exchange.add_argument('--out', type=Path, required=True)
+    exchange.add_argument('--mode', choices=('full-person','selected-current'), default='full-person')
+    exchange.add_argument('--resource', action='append', default=[])
+    exchange.add_argument('--no-sources', action='store_true')
+    exchange.add_argument('--json', action='store_true')
     agent = commands.add_parser("agent", help="Discover tasks and prepare bounded local context; no model execution.")
     agents = agent.add_subparsers(dest="agent_command", required=True)
     tasks = agents.add_parser("tasks", help="List kit routes without clinical reads.")
@@ -172,6 +194,14 @@ def main(argv=None):
                     ContextRequest(tuple(args.source), tuple(refs), args.from_date, args.to_date,
                         args.max_records, args.max_data_bytes, token), args.out)
                 output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
+        elif args.command == 'backup' and args.backup_command in ('verify','restore'):
+            if args.backup_command == 'verify':
+                report = verify_export(args.bundle)
+                output = document(report)
+                exit_code = 5 if report.issues else 0
+            else:
+                restored = restore(args.bundle, args.into)
+                output = {'path': str(restored.root), 'vaultId': restored.config.vaultId}
         elif args.command == "init":
             vault = init_vault(args.path)
             output = {"vaultId": vault.config.vaultId, "path": str(vault.root)}
@@ -183,13 +213,28 @@ def main(argv=None):
             path = args.vault or os.environ.get("HELSEARK_VAULT")
             if not path:
                 raise ArchiveError("INVALID_INPUT", "Provide --vault PATH or HELSEARK_VAULT.")
-            if args.command == 'schema':
+            if args.command == 'doctor':
+                from .contracts import Vault, VaultConfig
+                try:
+                    vault = Vault(Path(path).absolute(), VaultConfig(**_json(Path(path), 'vault.json')))
+                except TypeError:
+                    raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
+            elif args.command == 'schema':
                 vault = open_definitions(Path(path))
             elif args.command in ('intake','candidate','observations','timeline','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
-            if args.command in ('observations','timeline','record'):
+            if args.command == 'doctor':
+                report = doctor(vault)
+                output = document(report)
+                exit_code = 5 if any(i.severity=='error' for i in report.issues) else 3 if report.issues else 0
+            elif args.command == 'backup':
+                output = document(backup(vault,args.out,includeWork=args.include_work))
+            elif args.command == 'export':
+                output = document(export_person(vault,args.person,args.out,
+                    ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources)))
+            elif args.command in ('observations','timeline','record'):
                 at = None
                 if args.at_head:
                     raw = decode_json(args.at_head.read_bytes())
@@ -264,7 +309,7 @@ def main(argv=None):
             else:
                 person_id = add_person(vault, PersonDraft(args.name, args.birth_date, args.note))
                 output = {"personId": person_id}
-        if args.json:
+        if args.json or args.command in ('doctor','backup','export'):
             sys.stdout.buffer.write(encode_json(output))
         else:
             if args.command in ('observations','timeline','record'):

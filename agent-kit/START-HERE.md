@@ -22,7 +22,7 @@ external agent needs separate OS/tool restrictions; these files are guidance.
 Discovery, bounded context and typed prompt rendering are available. Read common
 `AGENTS.md` and the selected manifest skill/prompt only. `inspect` routes without
 a fabricated prompt. PDF drafts and human-controlled reviewed publication are available. Structured import
-and other task workflows remain unavailable until their runtime dependencies exist; templates support blocked assessments, not command execution.
+correction and migration remain unavailable. Query, person export, doctor and backup/restore are implemented; see [recovery](docs/how-to/backup-and-restore.md) and [export](docs/how-to/export-records.md). Templates produce reports, not command execution.
 Use `helseark --vault PATH agent render --context PACKET --person UUID --prompt
 PROMPT_ID --variables SLOTS_JSON --trusted-context-sha256 HOST_DIGEST --json` for a verified handoff. The variables
 file contains an inline source_data object and a separately authorized absolute,
