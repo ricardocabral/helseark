@@ -365,15 +365,20 @@ def test_default_100_records_and_byte_budget_on_real_accepted_graph(clinical_can
             candidate.evidence['entries'].append(e)
     persist(candidate)
     accept_fixture(vault, candidate, tmp_path)
-    first = build(vault, candidate.personId, 'query', Request(maxDataBytes=1048576), tmp_path / 'first')
+    # DiagnosticReport.result's label→reference mapping is not a whole literal
+    # value binding. The selector must refuse it, rather than guess semantics.
+    with pytest.raises(ArchiveError, match='EVIDENCE_SCOPE_REQUIRED'):
+        build(vault, candidate.personId, 'query', Request(), tmp_path/'unscoped-graph')
+    hashes = tuple(sorted({e['sourceSha256'] for e in candidate.evidence['entries'] if e['kind'] == 'source'}))
+    first = build(vault, candidate.personId, 'query', Request(sourceHashes=hashes, maxDataBytes=1048576), tmp_path / 'first')
     assert first.totalCount == 104 and first.returnedCount == 100 and first.continuation.offset == 100
-    second = build(vault, candidate.personId, 'query', Request(maxDataBytes=1048576, continuation=first.continuation), tmp_path / 'second')
+    second = build(vault, candidate.personId, 'query', Request(sourceHashes=hashes, maxDataBytes=1048576, continuation=first.continuation), tmp_path / 'second')
     assert second.returnedCount == 4 and second.continuation is None
     assert len({f.sourcePath for f in (*first.selectedRecords, *second.selectedRecords)}) == 104
-    default = build(vault, candidate.personId, 'query', Request(), tmp_path / 'default')
+    default = build(vault, candidate.personId, 'query', Request(sourceHashes=hashes), tmp_path / 'default')
     assert 0 < default.returnedCount < 100 and default.dataBytes <= 262144 and default.continuation
     assert default.dataBytes == sum(f.size for f in (default.identity, *default.selectedRecords, *default.evidencePaths))
-    small = build(vault, candidate.personId, 'query', Request(maxDataBytes=16384), tmp_path / 'small')
+    small = build(vault, candidate.personId, 'query', Request(sourceHashes=hashes, maxDataBytes=16384), tmp_path / 'small')
     assert 0 < small.returnedCount < 100 and small.dataBytes <= 16384 and small.continuation
     assert small.returnedCount == len(small.selectedRecords)
 
@@ -467,6 +472,30 @@ sys.addaudithook(audit)
     selection = decode_json((Path(packet['path'])/packet['evidencePaths'][0]['path']).read_bytes())
     assert selection['revision'] == exact and any(e.get('quote') == '<0,050 mg/L' for e in selection['entries'])
     assert all(p.read_bytes() and hash_bytes(p.read_bytes()) == sha for p, sha in original_hashes.items())
+    # Repeat the independent sharedRow witness in the installed runtime. A
+    # rejected quote must not yield a partial packet or require repository reads.
+    from test_validation import good
+    shared_root = tmp_path/'shared-installed'
+    shared_root.mkdir()
+    shared_vault, shared_candidate = good.__wrapped__(shared_root)
+    digest, _ = shared_quote_change(shared_vault, shared_candidate)
+    accept_fixture(shared_vault, shared_candidate, shared_root)
+    accepted = shared_vault.root/f'people/{shared_candidate.personId}/accepted'
+    hashes = {p:hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
+    out = tmp_path/'installed-shared-blocked'
+    args = ['--vault',str(shared_vault.root),'agent','context','--task','query','--person',shared_candidate.personId,
+            '--resource',f'Observation/{OBS}','--out',str(out),'--json']
+    blocked = subprocess.run([command,*args],cwd=tmp_path,env=env,capture_output=True)
+    assert blocked.returncode != 0 and decode_json(blocked.stderr)['code'] == 'EVIDENCE_SCOPE_REQUIRED'
+    assert b'UNRELATED CLINICAL SECRET' not in blocked.stdout + blocked.stderr
+    assert not out.exists() and not list(tmp_path.glob('.helseark-context-*'))
+    authorized = run(*args, '--source', digest)
+    assert authorized['returnedCount'] == authorized['totalCount'] == 1
+    assert len(authorized['selectedSources']) == 1 and authorized['selectedSources'][0]['sha256'] == digest
+    projected = decode_json((Path(authorized['path'])/authorized['evidencePaths'][0]['path']).read_bytes())
+    i = next(i for i,e in enumerate(projected['entries']) if 'UNRELATED CLINICAL SECRET' in e.get('quote',''))
+    assert projected['entrySelections'][i]['mode'] == 'explicit-source'
+    assert hashes == {p:hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
     assert events.read_text() == ''
 
 
@@ -613,6 +642,153 @@ def two_source_change(vault, candidate):
     return digest
 
 
+def shared_quote_change(vault, candidate, quote=None, pointers=None):
+    """The reviewer's accepted sharedRow, not a mutation of accepted history."""
+    from test_validation import asset, DOC
+    secret = two_source_change(vault, candidate)
+    old = next(e['sourceSha256'] for e in candidate.evidence['entries']
+               if e.get('target', {}).get('reference') == 'urn:uuid:' + OBS and e['kind'] == 'source')
+    source = decode_json((vault.root / f'people/{candidate.personId}/assets/sha256/{old}/blob').read_bytes())
+    other = next(e['resource']['id'] for e in candidate.bundle['entry']
+                 if e['resource']['resourceType'] == 'Observation' and e['resource']['id'] != OBS)
+    source['sharedRow'] = quote or f'Synthetic CRP; UNRELATED CLINICAL SECRET sharedRow; Observation/{other}; source {secret}'
+    digest = asset(vault, candidate.personId, encode_json(source))
+    next(e['resource'] for e in candidate.bundle['entry'] if e['resource']['id'] == DOC)[
+        'content'][0]['attachment']['url'] = f'assets/sha256/{digest}/blob'
+    for e in candidate.evidence['entries']:
+        if e.get('sourceSha256') == old:
+            e['sourceSha256'] = digest
+        if e.get('target', {}).get('reference') == 'urn:uuid:' + OBS and e['target']['pointers'] == (pointers or ['/code/text']):
+            e.update(quote=source['sharedRow'], locator={'kind':'json-pointer', 'pointer':'/sharedRow'})
+    persist(candidate)
+    return digest, secret
+
+
+@pytest.mark.parametrize('quote', [None, 'not Synthetic CRP', 'Synthetic CRP Synthetic CRP'])
+def test_accepted_shared_quote_fails_closed_without_source_scope(clinical_candidate, tmp_path, quote):
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    digest, secret = shared_quote_change(vault, candidate, quote)
+    accept_fixture(vault, candidate, tmp_path)
+    accepted = vault.root / f'people/{candidate.personId}/accepted'
+    before = {p:hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
+    request = Request(resourceRefs=(ResourceRef('Observation', OBS),))
+    with pytest.raises(ArchiveError, match='EVIDENCE_SCOPE_REQUIRED') as blocked:
+        build(vault, candidate.personId, 'query', request, tmp_path/'blocked')
+    assert blocked.value.details['sourceSha256'] == digest
+    assert secret not in str(blocked.value) and 'UNRELATED CLINICAL SECRET' not in str(blocked.value)
+    assert not (tmp_path/'blocked').exists() and not list(tmp_path.glob('.helseark-context-*'))
+    # Selecting a different source, or merely a larger budget, grants no scope.
+    with pytest.raises(ArchiveError, match='EVIDENCE_SCOPE_REQUIRED'):
+        build(vault, candidate.personId, 'query', replace(request, sourceHashes=(secret,), maxDataBytes=1048576), tmp_path/'wrong-source')
+    packet = build(vault, candidate.personId, 'query', replace(request, sourceHashes=(digest,)), tmp_path/'authorized')
+    selection = decode_json(readable(packet.evidencePaths[0], packet).read_bytes())
+    assert selection['selectionVersion'] == '2'
+    entry = next(e for e in selection['entries'] if e.get('target', {}).get('pointers') == ['/code/text'])
+    expected = next(e['quote'] for e in candidate.evidence['entries']
+                    if e.get('target', {}).get('reference') == 'urn:uuid:' + OBS and e['target']['pointers'] == ['/code/text'])
+    assert entry['quote'] == expected
+    assert len(packet.selectedSources) == 1 and packet.selectedSources[0].sha256 == digest
+    assert before == {p:hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
+
+
+def test_safe_whole_value_quote_selection_has_explicit_original_binding(clinical_candidate, tmp_path):
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    shared_quote_change(vault, candidate, '  Synthetic CRP\n')
+    from test_validation import EXTRACTION
+    import copy
+    source_entry = next(e for e in candidate.evidence['entries']
+                        if e.get('target', {}).get('reference') == 'urn:uuid:' + OBS and e['target']['pointers'] == ['/code/text'])
+    source_entry['extraction'] = copy.deepcopy(EXTRACTION)
+    source_entry['extraction']['preprocessing'] = [{'method':'synthetic', 'tool':'fixture', 'version':'1',
+                                                  'parameters':{'private':'UNRELATED METADATA SECRET'}}]
+    persist(candidate)
+    accept_fixture(vault, candidate, tmp_path)
+    packet = build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path/'safe')
+    selection = decode_json(readable(packet.evidencePaths[0], packet).read_bytes())
+    assert selection['selectionVersion'] == '2'
+    i = next(i for i,e in enumerate(selection['entries']) if e.get('target', {}).get('pointers') == ['/code/text'])
+    assert selection['entries'][i]['quote'] == 'Synthetic CRP'
+    binding = selection['entrySelections'][i]
+    assert binding['mode'] == 'whole-value' and binding['quoteSpan'] == {'start':2,'end':15}
+    original = next(p for p in (vault.root/f'people/{candidate.personId}/accepted').glob('*/evidence.json')
+                    if hash_bytes(p.read_bytes()) == selection['original']['sha256'])
+    entry = decode_json(original.read_bytes())['entries'][int(selection['original']['entryPointers'][i].split('/')[-1])]
+    assert hash_bytes(encode_json(entry)) == binding['originalEntrySha256']
+    assert entry['quote'][2:15] == selection['entries'][i]['quote']
+    # Locator/extraction/description text is bound by hash, not copied as another quote channel.
+    assert set(selection['entries'][i]) == {'kind','target','quote','sourceSha256','sourceDocument'}
+    assert b'UNRELATED METADATA SECRET' not in readable(packet.evidencePaths[0], packet).read_bytes()
+
+
+def test_selection_owner_recomputes_original_bindings_and_complete_entries(clinical_candidate, tmp_path):
+    import copy
+    from helseark.agent_context import select_revision_evidence
+    from helseark.validation import load_definition_registry
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    accept_fixture(vault, candidate, tmp_path)
+    packet = build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path/'packet')
+    expected = readable(packet.evidencePaths[0], packet).read_bytes()
+    original, directory, change = archive._history(vault, candidate.personId)[-1]
+    entry = next(e for e in change['resources'] if e['type'] == 'Observation')
+    resource = decode_json(readable(packet.selectedRecords[0], packet).read_bytes())
+    regenerated = select_revision_evidence(candidate.personId, entry, (directory/'evidence.json').read_bytes(),
+        original, change, resource, load_definition_registry(vault), identity=decode_json(readable(packet.identity, packet).read_bytes()))
+    assert regenerated == expected
+    selection = decode_json(expected)
+    for mutation in ('missing-entry', 'invented-quote', 'wrong-index', 'wrong-span', 'unauthorized-mode'):
+        altered = copy.deepcopy(selection)
+        i = next(i for i,e in enumerate(altered['entries']) if e['kind'] == 'source')
+        if mutation == 'missing-entry':
+            for array in (altered['entries'], altered['entrySelections'], altered['original']['entryPointers']):
+                array.pop(i)
+        elif mutation == 'invented-quote':
+            altered['entries'][i]['quote'] = 'invented quotation'
+        elif mutation == 'wrong-index':
+            altered['original']['entryPointers'][i] = '/entries/9999'
+        elif mutation == 'wrong-span':
+            altered['entrySelections'][i]['quoteSpan']['start'] += 1
+        else:
+            altered['entrySelections'][i] = {**altered['entrySelections'][i], 'mode':'explicit-source'}
+            altered['entrySelections'][i].pop('quoteSpan')
+        # Even recomputing the untrusted packet's file hash cannot change the
+        # output of the shared owner against the verified original inputs.
+        assert hash_bytes(encode_json(altered)) != hash_bytes(regenerated), mutation
+
+
+def test_shared_target_must_support_every_pointer(clinical_candidate, tmp_path):
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    entry = next(e for e in candidate.evidence['entries']
+                 if e.get('target', {}).get('reference') == 'urn:uuid:' + OBS and e['target']['pointers'] == ['/code/text'])
+    entry['target']['pointers'].append('/status')
+    persist(candidate)
+    accept_fixture(vault, candidate, tmp_path)
+    with pytest.raises(ArchiveError, match='EVIDENCE_SCOPE_REQUIRED'):
+        build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path/'blocked')
+
+
+@pytest.mark.parametrize(('pointers','quote'), [
+    (['/effectiveDateTime'], '2026-11-10 10:30 (timezone not stated)'),
+    (['/valueQuantity/value'], '0.050'),
+    (['/valueQuantity/value'], '>0,050 mg/L'),
+    (['/valueQuantity/value'], '<0,05 mg/L'),
+    (['/valueQuantity/value'], '<0,050 mg/L; unrelated second result 18'),
+    (['/valueQuantity/unit'], 'mg/L'),
+])
+def test_required_date_and_numeric_context_is_never_cropped(clinical_candidate, tmp_path, pointers, quote):
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    digest, _ = shared_quote_change(vault, candidate, quote, pointers)
+    accept_fixture(vault, candidate, tmp_path)
+    with pytest.raises(ArchiveError, match='EVIDENCE_SCOPE_REQUIRED'):
+        build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path/'blocked')
+    packet = build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),), sourceHashes=(digest,)), tmp_path/'authorized')
+    assert any(e.get('quote') == quote for e in decode_json(readable(packet.evidencePaths[0], packet).read_bytes())['entries'])
+
+
 def readable(file, context):
     path = Path(file.path)
     return path if path.is_absolute() else context.path / path
@@ -647,7 +823,17 @@ def test_exact_revision_evidence_is_disposable_scoped_and_budgeted(clinical_cand
     assert selection['original']['sha256'] == hash_bytes(before)
     assert selection['original']['changeSha256'] == hash_bytes((original.parent / 'change.json').read_bytes())
     original_entries = decode_json(before)['entries']
-    assert selection['entries'] == [original_entries[int(p.split('/')[-1])] for p in selection['original']['entryPointers']]
+    assert len(selection['entries']) == len(selection['entrySelections']) == len(selection['original']['entryPointers'])
+    for selected, binding, pointer in zip(selection['entries'], selection['entrySelections'], selection['original']['entryPointers']):
+        original_entry = original_entries[int(pointer.split('/')[-1])]
+        assert hash_bytes(encode_json(original_entry)) == binding['originalEntrySha256']
+        if binding['mode'] == 'archive-entry':
+            assert selected == original_entry
+        else:
+            assert binding['mode'] == 'whole-value'
+            span = binding['quoteSpan']
+            assert selected['quote'] == original_entry['quote'][span['start']:span['end']]
+            assert selected['target'] == original_entry['target']
     assert all(e.get('target', {}).get('reference', e.get('resourceRef')) == ref for e in selection['entries'])
     assert any(e.get('quote') == '<0,050 mg/L' for e in selection['entries'])
     assert any(e['kind'] == 'generated' and len(e['target']['pointers']) == 2 for e in selection['entries'])
@@ -713,10 +899,16 @@ def test_evidence_multiple_revisions_generations_and_exact_numbers(clinical_cand
         assert encode_json(resource['valueQuantity']['value']) == encode_json(value)
         evidence = decode_canonical_json(readable(page.evidencePaths[0], page).read_bytes())
         originals.add(evidence['original']['sha256'])
-        selected = next(e for e in evidence['entries'] if 'extraction' in e)
+        i = next(i for i,e in enumerate(evidence['entries']) if e.get('target',{}).get('pointers') == quantities[0]['target']['pointers'])
+        selected = evidence['entries'][i]
         assert selected['target']['pointers'] == quantities[0]['target']['pointers']
         assert selected['quote'] == numeric_quote
-        assert encode_json(selected['extraction']['preprocessing'][0]['parameters']['exact']) == encode_json(value)
+        original = next(p for p in (vault.root/f'people/{candidate.personId}/accepted').glob('*/evidence.json')
+                        if hash_bytes(p.read_bytes()) == evidence['original']['sha256'])
+        original_entries = decode_canonical_json(original.read_bytes())['entries']
+        original_entry = original_entries[int(evidence['original']['entryPointers'][i].split('/')[-1])]
+        assert hash_bytes(encode_json(original_entry)) == evidence['entrySelections'][i]['originalEntrySha256']
+        assert encode_json(original_entry['extraction']['preprocessing'][0]['parameters']['exact']) == encode_json(value)
         assert page.dataBytes == sum(f.size for f in (page.identity, *page.selectedRecords, *page.evidencePaths))
     assert len(versions) == len(originals) == 2
 

@@ -16,9 +16,9 @@ from jsonschema import Draft202012Validator
 from .archive import _bundled_root, _safe, _read, _history, head, resolve
 from .contracts import (ArchiveError, Vault, ResourceRef, AgentTask, ContextRequest,
     AgentTaskDescriptor, CapabilityAvailability, ContextFile, ContextContinuation,
-    AgentContext, Issue, uuid_string, sha256_string)
+    AgentContext, Issue, Head, FHIRResource, JsonValue, uuid_string, sha256_string)
 from .serialization import decode_json, decode_canonical_json, encode_json, hash_bytes
-from .validation import load_definition_registry, _pointer
+from .validation import DefinitionRegistry, load_definition_registry, _pointer, _walk
 
 _TASKS = frozenset(('inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate'))
 _CAPABILITIES = frozenset(('agent-discovery', 'agent-context', 'schema-export',
@@ -171,18 +171,67 @@ def _source(vault, person, digest):
     return ContextFile(str(path), digest, size, str(path))
 
 
-def _evidence_selection(person, entry, data, original, change, resource, registry):
-    """Project exact entries, retaining original indexes without a readable route.
+def _whole_value_quote(item, resource, identity, person):
+    """Only whole literal values and complete exact quantities, never prose search.
 
-    Whole revisions are the selection unit. Never follow sourceDocument/locator
-    links: quotes are retained evidence, broader source/page reads require an
-    explicit sourceHashes request. Accepted entries are copied unchanged.
+    Removing surrounding ASCII whitespace is the only quote text transformation.
+    All targeted leaves must be supported; one matching leaf is insufficient.
+    """
+    quote = item['quote'].strip(' \t\r\n')
+    if not quote or item.get('transformation', {}).get('rule') not in (None, 'decimal-comma-v1'):
+        return None
+    for pointer in item['target']['pointers']:
+        leaves = 0
+        for suffix, value in _walk(_pointer(resource, pointer)):
+            if isinstance(value, (dict, list)):
+                continue
+            leaves += 1
+            leaf = pointer + suffix
+            quantity_path, _, field = leaf.rpartition('/')
+            quantity = _pointer(resource, quantity_path)
+            if (field in ('value', 'unit', 'comparator') and isinstance(quantity, dict)
+                    and 'value' in quantity and 'unit' in quantity):
+                # Require every clinical token, including comparator and unit, even
+                # if this particular entry targets only the numeric leaf.
+                number = encode_json(quantity['value']).decode().strip()
+                patterns = (number, number.replace('.', ','))
+                comparator = re.escape(quantity.get('comparator', ''))
+                unit = re.escape(quantity['unit'])
+                if any(re.fullmatch(comparator + r'[ \t]*' + re.escape(n) + r'[ \t]+' + unit, quote)
+                       for n in patterns):
+                    continue
+                return None
+            if isinstance(value, str) and quote == value:
+                continue
+            if not isinstance(value, str) and quote == encode_json(value).decode().strip():
+                continue
+            # An explicit subject→selected identity link can support its name;
+            # no arbitrary reference traversal or inferred clinical equivalence.
+            if (leaf == '/subject/reference' and value == 'Patient/' + person and
+                    any(quote == name.get('text') for name in identity.get('name', []))):
+                continue
+            return None
+        if not leaves:
+            return None
+    start = len(item['quote']) - len(item['quote'].lstrip(' \t\r\n'))
+    return quote, {'start': start, 'end': start + len(quote)}
+
+
+def select_revision_evidence(person: str, entry: dict, data: bytes, original: Head,
+                             change: dict, resource: FHIRResource, registry: DefinitionRegistry,
+                             *, identity: dict[str, JsonValue], source_hashes: tuple[str, ...] = ()) -> bytes:
+    """The single builder/consumer selection owner; returns canonical v2 bytes.
+
+    Inputs are verified selected-person accepted history, exact revision/resource,
+    the packet identity and explicit requested source hashes. Recompute and compare
+    bytes when verifying a packet; schema/file hashes alone cannot prove completeness.
+    This is not an archive verifier or a filesystem permission boundary.
     """
     if hash_bytes(data) != change['payload']['evidence.json']:
         raise ArchiveError('INTEGRITY', 'Selected evidence differs from accepted inventory.')
     evidence = decode_canonical_json(data)
     revision = f"{entry['type']}/{entry['id']}/_history/{entry['versionId']}"
-    entries, pointers = [], []
+    entries, pointers, selections = [], [], []
     for index, item in enumerate(evidence['entries']):
         target = item.get('target', {})
         if target.get('reference', item.get('resourceRef')) != revision:
@@ -192,14 +241,36 @@ def _evidence_selection(person, entry, data, original, change, resource, registr
                 _pointer(resource, pointer)
         except (ValueError, TypeError, KeyError, IndexError):
             raise ArchiveError('INTEGRITY', 'Selected evidence pointer does not resolve in its revision.') from None
-        entries.append(item)
+        binding = {'originalEntrySha256': hash_bytes(encode_json(item)), 'mode': 'archive-entry'}
+        selected = item
+        if item['kind'] == 'source':
+            if item['sourceSha256'] in source_hashes:
+                binding['mode'] = 'explicit-source'
+            else:
+                safe = _whole_value_quote(item, resource, identity, person)
+                if safe is None:
+                    raise ArchiveError('EVIDENCE_SCOPE_REQUIRED',
+                        'Required evidence cannot be separated mechanically from broader or ambiguous source text. '
+                        'Requesting its sourceSha256 exposes the whole source, which may include unrelated records '
+                        'or people; obtain explicit approval of that exposure first, or select other records.',
+                        {'revision': revision, 'entryPointer': f'/entries/{index}',
+                         'sourceSha256': item['sourceSha256']})
+                quote, span = safe
+                binding.update(mode='whole-value', quoteSpan=span)
+                # Free-text locator/extraction/transform metadata can also contain
+                # unrelated data. Bind it through the original entry hash rather
+                # than copying it into the external packet under another name.
+                selected = {k:item[k] for k in ('kind', 'target', 'sourceSha256', 'sourceDocument')}
+                selected['quote'] = quote
+        entries.append(selected)
+        selections.append(binding)
         pointers.append(f'/entries/{index}')
     if not entries:
         raise ArchiveError('INTEGRITY', 'Selected revision has no retained evidence.')
-    selection = {'selectionVersion': '1', 'personId': person, 'revision': revision,
+    selection = {'selectionVersion': '2', 'personId': person, 'revision': revision,
         'original': {'changeSha256': original.changeSha256,
                      'sha256': hash_bytes(data), 'entryPointers': pointers},
-        'entries': entries}
+        'entries': entries, 'entrySelections': selections}
     if not registry.validate('urn:helseark:schema:0.1.0:agent-context#/$defs/evidenceSelection', selection):
         raise ArchiveError('INVALID_ENVELOPE', 'Generated evidence selection violates pinned context contract.')
     return encode_json(selection)
@@ -315,8 +386,9 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         if hash_bytes(data) != entry['sha256']:
             raise ArchiveError('INTEGRITY', 'Selected record differs from accepted inventory.')
         original, change = evidence_origins[directory]
-        evidence = _evidence_selection(person, entry, _read(directory, 'evidence.json'),
-            original, change, decode_canonical_json(data), registry)
+        evidence = select_revision_evidence(person, entry, _read(directory, 'evidence.json'),
+            original, change, decode_canonical_json(data), registry,
+            identity=identity, source_hashes=request.sourceHashes)
         size = len(data) + len(evidence)
         if size + len(identity_bytes) > request.maxDataBytes:
             raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'One whole record with scoped evidence plus identity exceeds data budget; increase maxDataBytes or select other records.')

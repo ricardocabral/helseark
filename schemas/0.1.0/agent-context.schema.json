@@ -6,7 +6,128 @@
       "properties": {
         "entries": {
           "items": {
-            "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/entries/items"
+            "anyOf": [
+              {
+                "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/entries/items"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "source"
+                  },
+                  "quote": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sourceDocument": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sourceSha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "target": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "pointers": {
+                        "items": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "type": "array",
+                        "uniqueItems": true
+                      },
+                      "reference": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reference",
+                      "pointers"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "target",
+                  "sourceSha256",
+                  "sourceDocument",
+                  "quote"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "entrySelections": {
+          "items": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "else": {
+                  "not": {
+                    "required": [
+                      "quoteSpan"
+                    ]
+                  }
+                },
+                "if": {
+                  "properties": {
+                    "mode": {
+                      "const": "whole-value"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "quoteSpan"
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "archive-entry",
+                  "whole-value",
+                  "explicit-source"
+                ]
+              },
+              "originalEntrySha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "quoteSpan": {
+                "additionalProperties": false,
+                "properties": {
+                  "end": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "start": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "mode",
+              "originalEntrySha256"
+            ],
+            "type": "object"
           },
           "minItems": 1,
           "type": "array"
@@ -48,7 +169,7 @@
           "type": "string"
         },
         "selectionVersion": {
-          "const": "1"
+          "const": "2"
         }
       },
       "required": [
@@ -56,7 +177,8 @@
         "personId",
         "revision",
         "original",
-        "entries"
+        "entries",
+        "entrySelections"
       ],
       "type": "object"
     }

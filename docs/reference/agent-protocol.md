@@ -97,28 +97,88 @@ a backup/export.
 
 `evidencePaths` contains one disposable JSON selection per returned exact
 revision under `evidence/`, in selectedRecords order. The payload contract is
-`agent-context.schema.json#/$defs/evidenceSelection`: selectionVersion `1`,
-personId, revision (`Type/UUID/_history/UUID`), original and entries.
+`agent-context.schema.json#/$defs/evidenceSelection`: selectionVersion `2`,
+personId, revision (`Type/UUID/_history/UUID`), original, entries and
+entrySelections. Version 1 is no longer emitted or accepted by this selector.
 `original` contains the accepted changeSha256, exact evidence-file sha256 and
-entryPointers (`/entries/N`) in original order. Each output entry is an unchanged
-copy at that original index: exact target revision, field pointers, quotes,
-locators, sourceDocument, hashes and generated rules retain their meaning.
-Original entry pointers identify the original evidence, not indexes in the
-selection. They are identifiers, not filesystem routes. No original evidence
-path is published. Accepted evidence is never rewritten; deleting a packet has
-no effect on the archive. This projection is not a second canonical evidence
-store or an independently verifiable proof of acceptance; archive integrity
-verification remains necessary to verify the original bindings.
+entryPointers (`/entries/N`) in original order. The three arrays `entries`,
+`entrySelections` and `original.entryPointers` have equal lengths and correspond
+positionally. Every original entry targeting the exact revision is represented;
+none is silently dropped, including duplicate entries and multi-field targets.
+Indexes refer to the original array, never the shorter selection. Each
+entrySelections item binds `originalEntrySha256 = SHA256(encode_json(original
+entry))` and one mode:
 
-Selection never follows sourceDocument or locator links to expand scope.
-Necessary source identifiers and quotes in selected entries are evidence for the
-selected revision; they do not authorize reading whole sources, extraction
-artifacts or pages. `selectedSources` contains exactly the requested sourceHashes,
-including none when none were requested. If a workflow needs a broader source or
-page, it must disclose that additional exposure and obtain explicit source scope
-before requesting a new context with those hashes. Import exposes no historical
-evidence. A task with general filesystem access can still read the vault;
-external tools must enforce the packet's scope, which is not a filesystem ACL.
+- `archive-entry`: generated/user-entry evidence is unchanged.
+- `whole-value`: a source entry contains only kind, target, sourceSha256,
+  sourceDocument and quote. The original target and all its pointers are intact.
+  `quoteSpan: {start, end}` indexes Unicode characters in the original quote,
+  zero-based with exclusive end. Only surrounding ASCII space/tab/CR/LF can be
+  removed. The quote must support **every** targeted scalar leaf by literal
+  equality, or by a complete exact quantity token. No substring search, prose
+  interpretation, fuzzy matching, date reduction, unit conversion or numeric
+  normalization is used. The only reference-name binding is an explicit
+  subject pointing to the selected Patient plus exact identity name.text.
+- `explicit-source`: if this entry's sourceSha256 was explicitly requested, the
+  entire original entry is copied unchanged. This can expose unrelated source
+  content. Larger budgets, another source, or selecting a referenced record do
+  not authorize it. This mode records the request; it does not authenticate
+  whether a caller obtained human permission.
+
+For quantity value/unit/comparator leaves, the quote must contain the complete
+selected quantity: exact comparator (including absence), exact fixed-point
+number with preserved scale (dot or decimal comma), then the exact unit. Missing
+or altered qualifiers, precision or units fail. All pointers of a shared target
+must pass. An unknown source transformation also fails narrow selection. Exact
+partial dates remain exact; a longer clock passage cannot be cropped into a
+partial date. These mechanical checks establish text consistency and disclosure
+bounds, not medical accuracy or correctness of the original field mapping.
+
+Unrestricted locator, extraction parameters and transformation descriptions can
+carry broader source text too. In whole-value mode those original metadata are
+bound by the original entry digest rather than published. The original locator
+still locates the **original** quote; quoteSpan is relative to that quote, never
+an edited locator or a claim that the source was rewritten. A consumer needing
+that metadata must use a trusted internal verifier or request explicit source
+scope. This deliberate metadata projection is not a complete canonical evidence
+envelope. Entries in explicit-source mode retain original metadata and exact
+numbers; accepted originals are never changed.
+
+An ambiguous/broader quotation, unsupported mapping, empty target container or
+unsafe required entry fails the entire build with `EVIDENCE_SCOPE_REQUIRED`.
+There is no partial output or fallback that discards support. The safe error
+names the selected revision, original entry pointer and required sourceSha256,
+but never the quote. It explains that requesting this hash exposes the whole
+source, possibly including unrelated records or people. A caller must explain
+that exposure and obtain explicit approval before resubmitting with that hash,
+or select other records. Arbitrary prose, shared rows, negation, repeated text
+and reduced date precision are deliberately not automatically separable.
+Whitespace-only sub-selection is supported; general redaction is not.
+
+No original evidence path is published. Accepted evidence is immutable;
+deleting a packet has no effect on the archive. SourceDocument/digest metadata
+is provenance, not permission to read whole sources, extraction artifacts or
+pages. `selectedSources` is exactly the explicit deduplicated sourceHashes.
+Import exposes no historical evidence. A packet is not a filesystem ACL.
+
+`select_revision_evidence` in `helseark.agent_context` is the single selection
+owner for builders and downstream consumers. Its inputs are the selected person,
+accepted resource inventory entry, exact original evidence bytes, accepted Head
+and change document, exact decoded resource, retained DefinitionRegistry, and
+keyword-only packet identity and explicit source_hashes. It returns canonical
+v2 selection bytes. A trusted consumer first verifies the selected person's
+accepted history and exact change/resource/evidence hashes, pinned definitions,
+identity, head/task/request scope and safe file routes; it then recomputes this
+selection and compares **bytes**, enforcing complete original index ordering,
+quote transformation, metadata projection and explicit source authorization.
+It must not maintain a duplicate selector or treat self-declared hashes/schema
+validity as proof of original binding or completeness. Original evidence may be
+read internally for verification; neither it nor its route goes to the agent.
+This checkout supplies no renderer or production consumer. Combined integration
+must additionally reject missing/tampered files, escaping/absolute/symlink
+projection paths, redirected sourcePath, stale real-writer snapshots, omitted
+entries, fabricated quotes and wrong original indexes even if packet hashes
+are recomputed. Independent combined review remains required.
 
 `dataBytes` counts actual embedded identity, whole selected records and all
 scoped evidence bytes (including selection provenance). `instructionBytes`
@@ -126,12 +186,12 @@ counts base plus selected skill/prompt bytes. Explicit source and definition
 reference sizes do not consume the data budget; their full sizes are reported.
 Base and selected instructions have a fixed 32 KiB ceiling. The builder refuses
 an oversized identity or any single whole record with its evidence plus identity
-with `CONTEXT_BUDGET_EXCEEDED`. It never truncates values, quotes or pointers.
+with `CONTEXT_BUDGET_EXCEEDED`. It never truncates clinical values or pointers; quote selection follows only the explicit rules above.
 `--max-records` and `--max-data-bytes` explicitly change data budgets;
 instruction overflow requires a smaller compatible kit. A page stops before
 crossing either limit. Evidence may therefore reduce records per default page.
 The selection contract must exist in the retained pinned definition registry;
-a release predating it fails explicitly, without using installed latest schemas
+a retained release lacking the v2 selection contract fails explicitly, without using installed latest schemas
 or rewriting an existing vault's pins.
 
 `returnedCount` is this page's record count; `totalCount` is the whole selected
@@ -165,7 +225,8 @@ publication, clinical queries, correction/re-extraction, person export, integrit
 report/doctor, migration, OCR, terminology and the official full FHIR validator
 are not implemented on this base. Task4 must not advertise those commands.
 
-Errors include UNKNOWN_TASK/INVALID_INPUT/INVALID_CONTINUATION/budget errors
+Errors include EVIDENCE_SCOPE_REQUIRED (default integrity/blocked exit 5),
+UNKNOWN_TASK/INVALID_INPUT/INVALID_CONTINUATION/budget errors
 (exit 2), STALE_BASE (4), KIT_MISMATCH/DEFINITION_MISMATCH/integrity (5), and
 MISSING_KIT/INVALID_KIT/unsupported pins or capabilities (6). Schema and clinical
 validation behavior remains owned by Task2. No instruction file relaxes it.
