@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "20b37796846b16b39a531ac59e4fedd373ab50401079015d33ae9599fcdae1d8",
-          "size": 20386
+          "sha256": "e543606fa02eabe3a9e0dc1a050a2bfcb7395b996d2c0edd5c491145b9027fea",
+          "size": 21053
         }
       ],
       "license": "MIT",
@@ -845,8 +845,8 @@
       "files": [
         {
           "path": "docs/how-to/export-records.md",
-          "sha256": "deffd35b98fdb1b5852449b4f081d7259a1023f227b99ad5cbc05e0c342ec642",
-          "size": 3673
+          "sha256": "d18f6a27a68539e9c35354f2ad74bc1fa741fca96ae695b3895c0de22b09d0d4",
+          "size": 9858
         }
       ],
       "license": "MIT",
@@ -878,6 +878,32 @@
       "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-export.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/export-2.schema.json",
+          "sha256": "3625fdb8bfb8466f822ba859bbcdb9b2f18d34a7c183f8a1e51eff60e419d334",
+          "size": 15387
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-export-2.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/source-disclosure.schema.json",
+          "sha256": "6de37d185425c1a6b79fb6c020f21a7789c4d8ce9d20374ce248dcb97183d85b",
+          "size": 11062
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-source-disclosure.schema",
       "version": "0.1.0"
     }
   ],

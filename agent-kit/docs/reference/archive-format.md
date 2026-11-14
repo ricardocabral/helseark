@@ -343,7 +343,18 @@ Orphan sidecars/blobs and incomplete staging are reported and never discarded.
 Review binding checks use Task6's retained proposal, three candidate inputs,
 validation, review and source/extraction receipts, without work or runtime caches.
 
-The combined clinical/portability distributable uses agent kit `0.1.7`. It retains
+The combined clinical/portability distributable uses agent kit `0.1.8`. It retains
 contract `0.1.0` archive pins and the separate `0.1.1` exact-issue review receipt
 contract. This new kit identity does not change existing vaults, historical kit
 content, accepted receipts or their original definition/license pins.
+
+### Reviewed source disclosure
+
+`helseark-export-2` adds required `sourceDisclosure` (strict source-plan-1 and
+source-review-1 contracts), dispatched separately from unchanged export format 1.
+See [export workflow](../how-to/export-records.md). Plans bind vault/person, Head,
+selection, reference closure and exact original/derivative hashes and sizes.
+Host digest controls under `.runtime/source-disclosures` are ephemeral authority;
+portable receipts are audit declarations only. Recovery chains retain original
+bytes; derivative snapshots declare unresolved original evidence and all source
+omissions. Neither local labels nor hashes authenticate human identity.

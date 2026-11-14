@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export and integrity-report. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, reviewed-source-disclosure and integrity-report. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -142,3 +142,5 @@ unavailable structured import. Human-controlled reviewed publication is availabl
 draft disposition and whole-workflow availability. No acceptance permission follows.
 
 Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.
+
+Explicit original-source inclusion and supplied derivative exchange use host export-plan/export-review/export --review. Only a human supplies the disclosure decision; agent reports and prompt flags grant no authority. See the person export guide.

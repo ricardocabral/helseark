@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "5df39c72ab2822933974a44a7f9889bb1b2aef4bc65dfcdb4a059c6fdfb9c5d6",
+    "definitionLockSha256": "b42503f9724ea50dc56cf5ece1902374a56f76b005d2acc49b5d6e7d2507edc7",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,8 +14,8 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "a65838260067d0f4fb3a0a5c4dc3509689a8e8b82c0a0b06ab0f47280f734913",
-      "size": 9807
+      "sha256": "68ffb55d6ef0976bd72182c90dc8cd3cb62fb4cd10975f4ac120addb8f90b71b",
+      "size": 10083
     },
     {
       "path": "START-HERE.md",
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "5df39c72ab2822933974a44a7f9889bb1b2aef4bc65dfcdb4a059c6fdfb9c5d6",
-      "size": 33935
+      "sha256": "b42503f9724ea50dc56cf5ece1902374a56f76b005d2acc49b5d6e7d2507edc7",
+      "size": 34697
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/how-to/export-records.md",
-      "sha256": "deffd35b98fdb1b5852449b4f081d7259a1023f227b99ad5cbc05e0c342ec642",
-      "size": 3673
+      "sha256": "d18f6a27a68539e9c35354f2ad74bc1fa741fca96ae695b3895c0de22b09d0d4",
+      "size": 9858
     },
     {
       "path": "docs/how-to/import-report.md",
@@ -54,8 +54,8 @@
     },
     {
       "path": "docs/reference/archive-format.md",
-      "sha256": "20b37796846b16b39a531ac59e4fedd373ab50401079015d33ae9599fcdae1d8",
-      "size": 20386
+      "sha256": "e543606fa02eabe3a9e0dc1a050a2bfcb7395b996d2c0edd5c491145b9027fea",
+      "size": 21053
     },
     {
       "path": "docs/reference/clinical-model.md",
@@ -174,8 +174,8 @@
     },
     {
       "path": "prompts/prepare-export.md",
-      "sha256": "a67fb3758d125b7972b73a500d6c7e35f2201b5bc680b0031f4e9ce38d4b9331",
-      "size": 2848
+      "sha256": "761fb3659cf23d6e932ec36eb297f967f98ba8403b6c61a43f8f518ecdf2cdce",
+      "size": 3248
     },
     {
       "path": "prompts/propose-correction.md",
@@ -223,6 +223,11 @@
       "size": 17173
     },
     {
+      "path": "schemas/0.1.0/export-2.schema.json",
+      "sha256": "3625fdb8bfb8466f822ba859bbcdb9b2f18d34a7c183f8a1e51eff60e419d334",
+      "size": 15387
+    },
+    {
       "path": "schemas/0.1.0/export.schema.json",
       "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb",
       "size": 4012
@@ -236,6 +241,11 @@
       "path": "schemas/0.1.0/review.schema.json",
       "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca",
       "size": 2184
+    },
+    {
+      "path": "schemas/0.1.0/source-disclosure.schema.json",
+      "sha256": "6de37d185425c1a6b79fb6c020f21a7789c4d8ce9d20374ce248dcb97183d85b",
+      "size": 11062
     },
     {
       "path": "schemas/0.1.0/validation.schema.json",
@@ -259,8 +269,8 @@
     },
     {
       "path": "skills/export-records/SKILL.md",
-      "sha256": "30f52a8f986f658e577e3ea360dcaf64063596de0600eccae1dc27a59008ad5f",
-      "size": 2135
+      "sha256": "610e05ccdf932556a9a6a1206f588ce74edf39e58988f73d8553bb13e45fa0ab",
+      "size": 2566
     },
     {
       "path": "skills/import-records/SKILL.md",
@@ -298,7 +308,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.7",
+  "kitVersion": "0.1.8",
   "prompts": [
     {
       "id": "extract-report",
@@ -637,9 +647,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/prepare-export.md",
-      "sha256": "a67fb3758d125b7972b73a500d6c7e35f2201b5bc680b0031f4e9ce38d4b9331",
+      "sha256": "761fb3659cf23d6e932ec36eb297f967f98ba8403b6c61a43f8f518ecdf2cdce",
       "skillId": "export-records",
-      "skillSha256": "30f52a8f986f658e577e3ea360dcaf64063596de0600eccae1dc27a59008ad5f",
+      "skillSha256": "610e05ccdf932556a9a6a1206f588ce74edf39e58988f73d8553bb13e45fa0ab",
       "skillVersion": "0.1.0",
       "taskIds": [
         "export"
@@ -1100,7 +1110,8 @@
       "requiredCapabilities": [
         "agent-context",
         "task-instructions",
-        "person-export"
+        "person-export",
+        "reviewed-source-disclosure"
       ],
       "requiredInputs": [
         "personId"

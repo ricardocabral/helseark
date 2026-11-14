@@ -129,6 +129,8 @@ def save_candidate():
         (candidate / (name + '.json')).write_bytes(enc(data))
 
 def publish(path):
+    absent = command('candidate','commit',path,exit_code=3)
+    assert absent['code'] == 'REVIEW_REQUIRED'
     view = command('candidate', 'review', path)
     issues = [i for i in view['issues'] if i['severity'] in ('review','warning')]
     assert issues and len({i['issueId'] for i in issues}) == len(issues)
@@ -262,3 +264,13 @@ if sys.argv[4:] == ['--portability']:
     print(json.dumps(dict(portability=True, people=2, changes=4, revisions=10, blobs=2,
         equalPersonFiles=len(before), observations=2, selectedRevisions=9,
         otherPersonLeaks=0, forbiddenAttempts=0, oldPinsPreserved=True)),flush=True)
+
+# Accepted corruption remains an integrity failure after successful recovery checks.
+latest = sorted(accepted.iterdir())[-1] / 'review.json'
+retained = latest.read_bytes()
+latest.write_bytes(b'{')
+damaged = {str(p.relative_to(vault)):hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
+assert command('candidate','commit',latest.parent,exit_code=5)['code'] == 'INTEGRITY'
+assert damaged == {str(p.relative_to(vault)):hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
+latest.write_bytes(retained)
+print('Absent decision REVIEW_REQUIRED/3; accepted corruption INTEGRITY/5, damaged bytes unchanged; synthetic only',flush=True)

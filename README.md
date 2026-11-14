@@ -17,8 +17,9 @@ context packets and prompt rendering. Text-PDF intake retains sources and create
 scoped external-agent handoffs. Human-controlled preparation, exact-issue review
 and publication of PDF candidates are implemented, along with selected-person
 observations, timeline and exact-revision queries. Doctor, verified backup/restore
-and person export are implemented; PDF source disclosure requires a separate
-reviewed route and remains blocked. Structured import, correction and migration
+and person export are implemented; PDF source disclosure requires the explicit
+export-plan/export-review route for knowing original inclusion or supplied
+derivative exchange. Structured import, correction and migration
 remain unavailable. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
 

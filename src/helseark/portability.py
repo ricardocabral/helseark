@@ -127,24 +127,26 @@ def fhir_collection(vault: Vault, person: str, resourceRefs: tuple[ResourceRef, 
 
 def _scope_sources(vault, person):
     # Person assignment authorizes intake, not disclosure of every page of a PDF.
-    # There is no reviewed derivative/scope receipt in format 1 yet: fail closed.
+    # No explicit host-recorded review was supplied: retain default denial.
     for _, directory, change in _history(vault, person):
         if any(a['mediaType']=='application/pdf' for a in change['assets']):
             raise ArchiveError('SOURCE_SCOPE_REVIEW_REQUIRED',
                                'PDF disclosure requires a reviewed source-scope or derivative workflow. Use selected-current --no-sources for a clinical snapshot.')
 
 
-def _manifest(stage, kind, people, heads, omissions, mapping, counts):
+def _manifest(stage, kind, people, heads, omissions, mapping, counts, disclosure=None):
     files = [{'path':p, 'sha256':hash_bytes(_read(stage,p)), 'size':len(_read(stage,p))}
              for p in sorted(_files(stage))]
     value = {'format':'helseark-export-1', 'exportId':str(uuid4()), 'kind':kind,
              'people':people, 'heads':heads, 'omissions':list(omissions),
              'referenceMap':mapping, 'counts':counts, 'files':files}
+    if disclosure is not None:
+        value.update(format='helseark-export-2', sourceDisclosure=disclosure)
     _write(stage/'export.json', encode_json(value))
     return value
 
 
-def _export(vault, destination, *, person=None, selection=None, includeWork=False):
+def _export(vault, destination, *, person=None, selection=None, includeWork=False, review=None):
     destination = _destination(destination, vault.root)
     stage = Path(mkdtemp(prefix='.helseark-export-', dir=destination.parent))
     try:
@@ -152,9 +154,13 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
             open_vault(vault.root)
             _blocked(doctor(vault))
             people = [person] if person else sorted(p.name for p in (vault.root/'people').iterdir())
+            disclosure = None
+            if review is not None:
+                from .source_disclosure import reviewed_disclosure
+                disclosure = reviewed_disclosure(vault,person,selection,review)
             if person:
                 uuid_string(person); head(vault,person)
-                if selection.includeSources:
+                if selection.includeSources and disclosure is None:
                     _scope_sources(vault,person)
             heads = {p:asdict(head(vault,p)) if head(vault,p) else None for p in people}
             selected = selection is not None and selection.mode=='selected-current'
@@ -173,7 +179,7 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                         if (entry['type'],entry['id'],entry['versionId']) in included:
                             _write(stage/f"resources/{entry['versionId']}.json",_read(directory,entry['path']))
                 asset_paths = set()
-                if selection.includeSources:
+                if selection.includeSources and (disclosure is None or disclosure['plan']['originalDisposition']=='included-exact'):
                     for _,_,change in _history(vault,person):
                         asset_paths.update(f"people/{person}/{a['path']}" for a in change['assets'])
                     for _,directory,_ in _history(vault,person):
@@ -182,7 +188,14 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                     _copy(vault.root,stage/'sources',asset_paths)
                 else:
                     omissions += ('all source assets and review/evidence envelopes',)
-                counts = {'changes':0,'resources':len(mapping),'assets':sum(p.endswith('/blob') for p in asset_paths)}
+                if disclosure and disclosure['plan']['derivatives']:
+                    from .source_disclosure import _derivative_objects, _derivative_bytes
+                    for item in _derivative_objects(disclosure['plan']['derivatives']):
+                        data = _derivative_bytes(review, item)
+                        path = stage/item['path']; path.parent.mkdir(parents=True,exist_ok=True); _write(path,data)
+                    omissions += tuple(disclosure['plan']['limitations'])
+                derivative_count = len({d['path'] for d in disclosure['plan']['derivatives']}) if disclosure else 0
+                counts = {'changes':0,'resources':len(mapping),'assets':sum(p.endswith('/blob') for p in asset_paths)+derivative_count}
                 kind = 'selected-current'
             else:
                 paths = _support_paths(vault)
@@ -202,11 +215,16 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                 counts = {'changes':report.checkedChanges,'resources':report.checkedResources,'assets':report.checkedAssets}
                 omissions = ('derived','.runtime') + (() if includeWork else ('work',))
                 kind = 'full-person' if person else 'backup'
-            _write(stage/'README.md',b'Helseark export format 1. export.json inventories every other file by SHA-256 and byte size.\n'
+            readme = (b'Helseark export. export.json inventories every other file by SHA-256 and byte size.\n'
                    b'vault/ is exact accepted authority for backup/full-person; support/ and resources/ describe a NEW selected snapshot.\n'
                    b'collection.json is derived; referenceMap maps exact revisions to urn:uuid fullUrls. Original resource bytes remain separate.\n'
                    b'No signatures or encryption. Hashes detect changes, not a malicious rewrite of the entire folder.\n')
-            manifest = _manifest(stage,kind,people,heads,omissions,mapping,counts)
+            if disclosure:
+                notice = ('\nSOURCE DISCLOSURE REVIEW: ' + disclosure['plan']['originalDisposition'] + '\n' +
+                          '\n'.join(disclosure['plan']['limitations']) + '\n')
+                readme += notice.encode()
+            _write(stage/'README.md',readme)
+            manifest = _manifest(stage,kind,people,heads,omissions,mapping,counts,disclosure)
             _blocked(verify_export(stage))
             _sync_tree(stage)
             _publish(stage,destination)
@@ -221,8 +239,8 @@ def backup(vault: Vault, destination: Path, *, includeWork: bool = False) -> Exp
     return _export(vault,destination,includeWork=includeWork)
 
 
-def export_person(vault: Vault, person: str, destination: Path, selection: ExportSelection) -> ExportReceipt:
-    return _export(vault,destination,person=person,selection=selection)
+def export_person(vault: Vault, person: str, destination: Path, selection: ExportSelection, *, review: Path | None = None) -> ExportReceipt:
+    return _export(vault,destination,person=person,selection=selection,review=review)
 
 
 def _verify(bundle):
@@ -232,7 +250,11 @@ def _verify(bundle):
     manifest = _json(bundle,'export.json')
     # The installed schema is only a format parser, not authority for archived clinical pins.
     from .archive import _bundled_root
-    schema = _json(_bundled_root(),'schemas/0.1.0/export.schema.json')
+    version = manifest.get('format') if isinstance(manifest,dict) else None
+    schemas = {'helseark-export-1':'export.schema.json','helseark-export-2':'export-2.schema.json'}
+    if version not in schemas:
+        raise ArchiveError('UNSUPPORTED_VERSION','Unsupported export format; use a compatible reader.')
+    schema = _json(_bundled_root(),'schemas/0.1.0/'+schemas[version])
     if not Draft202012Validator(schema).is_valid(manifest):
         raise ArchiveError('INVALID_ENVELOPE','Invalid export manifest.')
     expected = {f['path'] for f in manifest['files']}
@@ -242,6 +264,9 @@ def _verify(bundle):
         data = _read(bundle,item['path'])
         if len(data)!=item['size'] or hash_bytes(data)!=item['sha256']:
             raise ArchiveError('INTEGRITY','Export digest mismatch.',{'path':item['path']})
+    if version=='helseark-export-2':
+        from .source_disclosure import verify_disclosure
+        verify_disclosure(bundle,manifest)
     if manifest['kind']=='full-person' and len(manifest['people'])!=1:
         raise ArchiveError('INTEGRITY','Full-person export must contain exactly one person.')
     if manifest['kind'] in ('backup','full-person'):
@@ -258,7 +283,7 @@ def _verify(bundle):
         return report
     if len(manifest['people'])!=1 or set(manifest['heads'])!=set(manifest['people']):
         raise ArchiveError('INTEGRITY','Selected snapshot must bind exactly one person and Head.')
-    if manifest['counts']['changes']!=0 or manifest['counts']['assets']!=sum(p.startswith('sources/') and p.endswith('/blob') for p in actual):
+    if manifest['counts']['changes']!=0 or manifest['counts']['assets']!=sum(p.startswith(('sources/','derivatives/')) and p.endswith('/blob') for p in actual):
         raise ArchiveError('INTEGRITY','Selected snapshot counts differ from its inventory.')
     support_vault = open_definitions(bundle/'support')
     from .agent_context import _vault_kit
@@ -271,6 +296,9 @@ def _verify(bundle):
             r'[0-9a-f]{64}/(?:blob|source[.]json|extraction[.]json)', p[len(source_prefix):]) for p in sources):
         raise ArchiveError('INTEGRITY', 'Snapshot source path is outside the selected person asset scope.')
     allowed = {'export.json', 'README.md', 'collection.json'} | sources
+    if version == 'helseark-export-2':
+        # verify_disclosure already checked these exact objects and every mapping.
+        allowed.update(item['path'] for item in manifest['sourceDisclosure']['plan']['derivatives'])
     allowed.update('support/' + p for p in _support_paths(support_vault))
     allowed.update(f"resources/{m['versionId']}.json" for m in manifest['referenceMap'])
     if actual != allowed:

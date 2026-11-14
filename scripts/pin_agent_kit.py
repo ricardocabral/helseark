@@ -39,10 +39,10 @@ def pin():
             'import':['agent-context','schema-export','baseline-validation','task-instructions','pdf-intake','structured-import','reviewed-publication'],
             'query':['agent-context','task-instructions','clinical-query'],
             'correct':['agent-context','baseline-validation','task-instructions','correction','reviewed-publication'],
-            'export':['agent-context','task-instructions','person-export'],
+            'export':['agent-context','task-instructions','person-export','reviewed-source-disclosure'],
             'verify':['agent-context','task-instructions','integrity-report'],
             'migrate':['agent-context','task-instructions','migration']}[task['id']]
-        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','clinical-query','reviewed-publication','person-export','integrity-report']]
+        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','clinical-query','reviewed-publication','person-export','reviewed-source-disclosure','integrity-report']]
         task['availability']={'status':'unavailable' if missing else 'available','missingCapabilities':missing}
         for name in task['promptIds']:
             path=f'prompts/{name}.md'; data=(kit/path).read_bytes()
