@@ -31,7 +31,7 @@ The renderer verifies current head and retained bytes and returns provenance.
 Human confirmations must be explicit host decisions. The host supplies filesystem
 and tool restrictions; this toolkit invokes no agent and enforces no OS sandbox.
 
-The host retains the construction digest returned by `agent context` stdout or
+The host retains the construction digest returned by `agent context` / `intake add` stdout or
 its original in-memory builder result. Reloaded packet files cannot authorize
 rendering: `agent render` requires `--trusted-context-sha256` from that host.
 Never compute replacement authority from a packet or broaden sources to retry.

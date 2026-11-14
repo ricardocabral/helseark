@@ -410,7 +410,7 @@
       "uniqueItems": true
     },
     "dataBytes": {
-      "description": "Actual embedded identity, selected record and scoped evidence bytes. Explicit original source references and definition references are excluded.",
+      "description": "Actual supplied identity, selected records, scoped evidence and selected retained extraction bytes. Original source and definition references are excluded.",
       "minimum": 0,
       "type": "integer"
     },
@@ -637,6 +637,39 @@
     "returnedCount": {
       "minimum": 0,
       "type": "integer"
+    },
+    "selectedExtractions": {
+      "description": "Optional exact retained extraction read receipts from explicitly selected import originals; included in dataBytes and host construction authority. Absent on legacy packets.",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
     },
     "selectedRecords": {
       "items": {

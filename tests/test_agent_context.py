@@ -137,7 +137,7 @@ def test_context_uses_vault_pins_not_latest_installed_kit(tmp_path):
     context = build(vault, person, 'inspect', Request(), tmp_path / 'packet')
     assert (context.path / context.instructionPaths[0].path).read_bytes() == b'Historical offline kit\n'
     assert context.manifestSha256 == vault.config.agentKitLockSha256
-    assert context.kitVersion == '0.1.0'
+    assert context.kitVersion == vault.config.agentKitVersion
     assert archive.open_vault(vault.root).config == vault.config
 
 
@@ -407,7 +407,7 @@ def test_actual_installed_wheel_discovery_context_with_network_denied(tmp_path, 
     result = subprocess.run(['uv','venv','--python',sys.executable,str(env_root)], capture_output=True)
     assert result.returncode == 0, result.stderr
     setup_env = {**os.environ, 'UV_PROJECT_ENVIRONMENT': str(env_root)}
-    result = subprocess.run(['uv','sync','--locked','--offline','--no-install-project','--no-dev'], cwd=root, env=setup_env, capture_output=True)
+    result = subprocess.run(['uv','sync','--locked','--offline','--no-install-project','--no-dev','--extra','pdf'], cwd=root, env=setup_env, capture_output=True)
     assert result.returncode == 0, result.stderr
     result = subprocess.run(['uv','pip','install','--offline','--no-deps','--python',str(env_root / 'bin/python'),str(wheel)], capture_output=True)
     assert result.returncode == 0, result.stderr
@@ -583,6 +583,43 @@ sys.addaudithook(audit)
         '--variables', str(slots), '--trusted-context-sha256', repeated['trustedContextSha256'], '--json'],
         cwd=tmp_path, env=env, capture_output=True)
     assert over.returncode == 2 and decode_json(over.stderr)['code'] == 'CONTEXT_BUDGET_EXCEEDED'
+    # Real Task5 CLI, with checkout, network and the other person denied.
+    env['HELSEARK_DENY_PERSON']=str(vault/'people'/other)
+    source=tmp_path/'installed-report.pdf'
+    source.write_bytes((root/'tests/fixtures/synthetic/task5-complete.pdf').read_bytes())
+    intake=run('--vault',str(vault),'intake','add',str(source),'--person',person,
+        '--packet',str(tmp_path/'intake-packet'),'--agent-output',str(tmp_path/'intake-output'),
+        '--confirm-person','--json')
+    intake_path=Path(intake['path'])
+    assert intake['trustedContextSha256'] and other not in json.dumps(intake)
+    assert all(intake['trustedContextSha256'].encode() not in p.read_bytes()
+        for p in intake_path.rglob('*') if p.is_file())
+    prompt=(intake_path/'prompt.txt').read_text()
+    header=json.JSONDecoder().raw_decode(prompt.split('\n',1)[1])[0]
+    assert header['disposition']=='draft' and header['workflowAvailability']['status']=='unavailable'
+    source_data=decode_json(prompt.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0].encode())
+    slots.write_bytes(encode_json({'source_data':source_data,'identity_confirmed':True,
+        'candidate_id':intake['importId'],'output_directory':str(tmp_path/'intake-output')}))
+    render_args=['--vault',str(vault),'agent','render','--context',str(intake_path/'context'),
+        '--person',person,'--prompt','extract-report','--variables',str(slots),'--json']
+    run(*render_args,'--trusted-context-sha256',intake['trustedContextSha256'])
+    no_authority=subprocess.run([command,*render_args],cwd=tmp_path,env=env,capture_output=True)
+    assert no_authority.returncode==2
+    extra_source=tmp_path/'extra.pdf'
+    extra_source.write_bytes((root/'tests/fixtures/synthetic/lab-rotated.pdf').read_bytes())
+    extra=run('--vault',str(vault),'intake','add',str(extra_source),'--person',person,
+        '--packet',str(tmp_path/'extra-packet'),'--json')
+    metadata_path=intake_path/'context/context.json'
+    original=metadata_path.read_bytes()
+    metadata=decode_json(original)
+    extra_context=decode_json((Path(extra['path'])/'context/context.json').read_bytes())
+    metadata['selectedSources']+=extra_context['selectedSources']
+    metadata_path.write_bytes(encode_json(metadata))
+    expanded=subprocess.run([command,*render_args,'--trusted-context-sha256',intake['trustedContextSha256']],
+        cwd=tmp_path,env=env,capture_output=True)
+    assert expanded.returncode==5 and decode_json(expanded.stderr)['code']=='CONTEXT_MISMATCH'
+    metadata_path.write_bytes(original)
+    assert not (tmp_path/'intake-output').exists()
     assert events.read_text() == ''
 
 
