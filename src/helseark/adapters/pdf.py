@@ -17,6 +17,7 @@ import stat
 import subprocess
 import sys
 import time
+import uuid
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -67,6 +68,31 @@ def _directory(path: Path) -> int:
     except OSError:
         os.close(fd)
         raise _error('UNSAFE_PATH') from None
+
+
+def _publish_directory(parent: int, stage: str, destination: str) -> None:
+    """Atomic absent-destination rename; never fall back to replacing rename.
+
+    Both names are siblings beneath the held parent. This adapter does not
+    change the accepted-archive publisher or its separate durability policy.
+    """
+    import ctypes
+    libc = ctypes.CDLL(None, use_errno=True)
+    try:
+        rename = getattr(libc, 'renameatx_np' if sys.platform == 'darwin' else 'renameat2')
+    except AttributeError:
+        raise _error('PDF_PLATFORM_UNSUPPORTED') from None
+    rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+    rename.restype = ctypes.c_int
+    # Darwin RENAME_EXCL=4; Linux RENAME_NOREPLACE=1.
+    if rename(parent, os.fsencode(stage), parent, os.fsencode(destination),
+              4 if sys.platform == 'darwin' else 1) != 0:
+        code = ctypes.get_errno()
+        if code in (errno.EEXIST, errno.ENOTEMPTY):
+            raise _error('DESTINATION_EXISTS')
+        if code in (errno.ENOSYS, errno.EINVAL, errno.ENOTSUP):
+            raise _error('PDF_PLATFORM_UNSUPPORTED')
+        raise OSError(code, 'Directory publication failed')
 
 
 def _resident_reader():
@@ -147,7 +173,7 @@ def extract_pdf(source: Path, outputDirectory: Path, limits: 'IntakeLimits') -> 
         raise _error('PDF_PLATFORM_UNSUPPORTED')
     parent = _directory(outputDirectory.parent)
     output = None
-    created = False
+    stage = None
     try:
         src_parent = _directory(source.parent)
         try:
@@ -165,12 +191,11 @@ def extract_pdf(source: Path, outputDirectory: Path, limits: 'IntakeLimits') -> 
                 raise _error('UNSAFE_PATH')
             if before.st_size > limits.sourceBytes:
                 raise _error('SOURCE_TOO_LARGE')
-            try:
-                os.mkdir(outputDirectory.name, mode=0o700, dir_fd=parent)
-            except FileExistsError:
-                raise _error('DESTINATION_EXISTS') from None
-            created = True
-            output = os.open(outputDirectory.name, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+            # Reserve a private sibling without ever occupying the final name.
+            name = '.pdf-' + uuid.uuid4().hex
+            os.mkdir(name, mode=0o700, dir_fd=parent)
+            stage = name
+            output = os.open(stage, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
             original_fd = os.open('original.pdf', os.O_CREAT | os.O_EXCL | os.O_WRONLY | os.O_NOFOLLOW, 0o600, dir_fd=output)
             digest = hashlib.sha256()
             size = 0
@@ -235,17 +260,19 @@ def extract_pdf(source: Path, outputDirectory: Path, limits: 'IntakeLimits') -> 
         fd = os.open('pages.json', os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600, dir_fd=output)
         with os.fdopen(fd, 'wb') as stream:
             stream.write(data)
+        receipt = ExtractionArtifact('pdf-text', PIN, outputDirectory.absolute() / 'pages.json',
+                                     hashlib.sha256(data).hexdigest(), len(pages), tuple(issues))
         os.unlink('.result', dir_fd=output)
-        return ExtractionArtifact('pdf-text', PIN, outputDirectory.absolute() / 'pages.json',
-                                  hashlib.sha256(data).hexdigest(), len(pages), tuple(issues))
+        _publish_directory(parent, stage, outputDirectory.name)
+        stage = None
+        return receipt
     except OSError:
         raise _error('PDF_IO') from None
     finally:
-        failed = sys.exc_info()[0] is not None
         try:
             if output is not None:
                 try:
-                    if failed:
+                    if stage is not None:
                         for name in ('original.pdf', '.result', 'pages.json'):
                             try:
                                 os.unlink(name, dir_fd=output)
@@ -253,8 +280,8 @@ def extract_pdf(source: Path, outputDirectory: Path, limits: 'IntakeLimits') -> 
                                 pass
                 finally:
                     os.close(output)
-            if created and failed:
-                os.rmdir(outputDirectory.name, dir_fd=parent)
+            if stage is not None:
+                os.rmdir(stage, dir_fd=parent)
         except OSError:
             raise _error('PDF_IO') from None
         finally:

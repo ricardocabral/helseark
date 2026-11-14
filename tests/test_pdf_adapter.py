@@ -305,3 +305,245 @@ def test_unavailable_memory_accounting_is_unsupported(tmp_path, monkeypatch):
     assert caught.value.code == 'PDF_PLATFORM_UNSUPPORTED'
     assert caught.value.details == {'exitCode': 6}
     assert not (tmp_path / 'out').exists()
+
+
+@pytest.mark.parametrize('finish', ['success', 'kill', 'invalid', 'collision-empty', 'collision-sentinel'])
+def test_final_absent_while_real_child_stopped_and_atomic_publication(tmp_path, monkeypatch, finish):
+    """Catches visible partial output and check-then-overwriting publication."""
+    import os
+    import signal
+    import stat
+    extract, limits = adapter()
+    source = SYNTHETIC / ('pdf/corrupt.pdf' if finish == 'invalid' else 'lab-text.pdf')
+    destination = tmp_path / 'out'
+    processes = []
+    real_popen = subprocess.Popen
+
+    def stopped_child(*args, **kwargs):
+        process = real_popen(*args, **kwargs)
+        processes.append(process)
+        try:
+            os.kill(process.pid, signal.SIGSTOP)
+            pid, status = os.waitpid(process.pid, os.WUNTRACED)
+            assert pid == process.pid and os.WIFSTOPPED(status)
+            assert not destination.exists()
+            stages = list(tmp_path.iterdir())
+            assert len(stages) == 1 and stages[0].name.startswith('.pdf-')
+            assert stat.S_IMODE(stages[0].stat().st_mode) == 0o700
+            assert (stages[0] / 'original.pdf').read_bytes() == source.read_bytes()
+            if finish.startswith('collision'):
+                destination.mkdir()
+                if finish == 'collision-sentinel':
+                    (destination / 'sentinel').write_bytes(b'unchanged')
+            if finish == 'kill':
+                process.kill()
+            else:
+                os.kill(process.pid, signal.SIGCONT)
+            return process
+        except BaseException:
+            process.kill()
+            process.wait()
+            raise
+
+    monkeypatch.setattr(subprocess, 'Popen', stopped_child)
+    if finish == 'success':
+        receipt = extract(source, destination, limits)
+        assert set(p.name for p in destination.iterdir()) == {'original.pdf', 'pages.json'}
+        assert json.loads(receipt.pagesPath.read_bytes())['pages'][1]['page'] == 2
+        assert (destination / 'original.pdf').read_bytes() == source.read_bytes()
+        assert stat.S_IMODE(destination.stat().st_mode) == 0o700
+        assert all(stat.S_IMODE(p.stat().st_mode) == 0o600 for p in destination.iterdir())
+    else:
+        with pytest.raises(ArchiveError) as caught:
+            extract(source, destination, limits)
+        assert caught.value.code == {'kill': 'PDF_RESOURCE_LIMIT', 'invalid': 'PDF_INVALID',
+            'collision-empty': 'DESTINATION_EXISTS', 'collision-sentinel': 'DESTINATION_EXISTS'}[finish]
+        if finish.startswith('collision'):
+            assert sorted(p.name for p in destination.iterdir()) == (
+                ['sentinel'] if finish.endswith('sentinel') else [])
+            if finish.endswith('sentinel'):
+                assert (destination / 'sentinel').read_bytes() == b'unchanged'
+        else:
+            assert not destination.exists()
+    assert not list(tmp_path.glob('.pdf-*'))
+    assert len(processes) == 1 and processes[0].poll() is not None
+    with pytest.raises(ChildProcessError):
+        os.waitpid(processes[0].pid, os.WNOHANG)
+
+
+@pytest.mark.parametrize('kind', ['empty', 'sentinel', 'file', 'symlink'])
+def test_preexisting_destination_never_replaced(tmp_path, kind):
+    extract, limits = adapter()
+    destination = tmp_path / 'out'
+    if kind in ('empty', 'sentinel'):
+        destination.mkdir()
+        if kind == 'sentinel':
+            (destination / 'sentinel').write_bytes(b'keep')
+    elif kind == 'file':
+        destination.write_bytes(b'keep')
+    else:
+        target = tmp_path / 'target'; target.mkdir()
+        destination.symlink_to(target, target_is_directory=True)
+    before = destination.lstat()
+    with pytest.raises(ArchiveError) as caught:
+        extract(SYNTHETIC / 'lab-text.pdf', destination, limits)
+    assert caught.value.code == 'DESTINATION_EXISTS'
+    assert destination.lstat().st_ino == before.st_ino
+    assert not list(tmp_path.glob('.pdf-*'))
+    if kind == 'sentinel':
+        assert (destination / 'sentinel').read_bytes() == b'keep'
+    if kind == 'file':
+        assert destination.read_bytes() == b'keep'
+
+
+def test_default_page_boundary_keeps_all_empty_pages(tmp_path):
+    extract, limits = adapter()
+    from pypdf import PdfWriter
+    for count in (500, 501):
+        writer = PdfWriter()
+        for _ in range(count):
+            writer.add_blank_page(width=100, height=100)
+        source = tmp_path / f'pages-{count}.pdf'; writer.write(source)
+        destination = tmp_path / f'out-{count}'
+        if count == 500:
+            result = extract(source, destination, limits)
+            pages = json.loads(result.pagesPath.read_bytes())['pages']
+            assert len(pages) == result.pageCount == 500
+            assert [p['page'] for p in pages] == list(range(1, 501))
+            assert all(p['text'] == '' for p in pages)
+            assert sum(i.code == 'OCR_REQUIRED' for i in result.issues) == 500
+        else:
+            with pytest.raises(ArchiveError) as caught:
+                extract(source, destination, limits)
+            assert caught.value.code == 'PAGE_LIMIT'
+            assert not destination.exists()
+    assert not list(tmp_path.glob('.pdf-*'))
+
+
+def text_pdf(path, text):
+    """Synthetic single text operation; expectations are supplied independently."""
+    from pypdf import PdfReader, PdfWriter
+    from pypdf.generic import DecodedStreamObject, NameObject
+    writer = PdfWriter()
+    page = writer.add_page(PdfReader(SYNTHETIC / 'lab-text.pdf').pages[0])
+    stream = DecodedStreamObject()
+    stream.set_data(b'BT /F1 12 Tf 10 10 Td (' + text + b') Tj ET')
+    page[NameObject('/Contents')] = writer._add_object(stream.flate_encode())
+    writer.write(path)
+
+
+@pytest.mark.parametrize('extra', [0, 1])
+def test_default_text_utf8_byte_boundary_not_character_count(tmp_path, extra):
+    extract, limits = adapter()
+    # WinAnsi e-acute maps to two UTF-8 bytes, not one; no slicing is allowed.
+    source = tmp_path / 'text.pdf'
+    text_pdf(source, b'\xe9' * 524288 + b'A' * extra)
+    destination = tmp_path / 'out'
+    if extra:
+        with pytest.raises(ArchiveError) as caught:
+            extract(source, destination, limits)
+        assert caught.value.code == 'TEXT_FIELD_LIMIT'
+        assert not destination.exists()
+    else:
+        result = extract(source, destination, limits)
+        text = json.loads(result.pagesPath.read_bytes())['pages'][0]['text']
+        assert text == 'é' * 524288
+        assert len(text.encode('utf-8')) == 1048576
+    assert not list(tmp_path.glob('.pdf-*'))
+
+
+@pytest.mark.parametrize('extra', [0, 1])
+def test_default_decoded_stream_exact_boundary(tmp_path, extra):
+    extract, limits = adapter()
+    from pypdf import PdfWriter
+    from pypdf.generic import DecodedStreamObject, NameObject
+    writer = PdfWriter(); page = writer.add_blank_page(width=100, height=100)
+    stream = DecodedStreamObject(); stream.set_data(b' ' * (16777216 + extra))
+    page[NameObject('/Contents')] = writer._add_object(stream.flate_encode())
+    source = tmp_path / 'stream.pdf'; writer.write(source)
+    destination = tmp_path / 'out'
+    if extra:
+        with pytest.raises(ArchiveError) as caught:
+            extract(source, destination, limits)
+        assert caught.value.code == 'PDF_STREAM_LIMIT'
+        assert not destination.exists()
+    else:
+        result = extract(source, destination, limits)
+        assert json.loads(result.pagesPath.read_bytes())['pages'] == [
+            {'page': 1, 'rotation': 0, 'text': ''}]
+    assert not list(tmp_path.glob('.pdf-*'))
+
+
+def test_source_bytes_exact_and_default_boundaries(tmp_path):
+    extract, limits = adapter()
+    source = SYNTHETIC / 'lab-text.pdf'
+    assert source.stat().st_size == 1975
+    result = extract(source, tmp_path / 'exact', replace(limits, sourceBytes=1975))
+    assert result.pageCount == 2
+    with pytest.raises(ArchiveError) as caught:
+        extract(source, tmp_path / 'over', replace(limits, sourceBytes=1974))
+    assert caught.value.code == 'SOURCE_TOO_LARGE'
+    assert not (tmp_path / 'over').exists()
+    # Sparse zero-filled files: bounded retention, never parser expansion bombs.
+    for size, expected in [(104857600, 'PDF_INVALID'), (104857601, 'SOURCE_TOO_LARGE')]:
+        source = tmp_path / f'{size}.pdf'
+        with source.open('wb') as stream:
+            stream.truncate(size)
+        with pytest.raises(ArchiveError) as caught:
+            extract(source, tmp_path / 'invalid', limits)
+        assert caught.value.code == expected
+        assert not (tmp_path / 'invalid').exists()
+    assert not list(tmp_path.glob('.pdf-*'))
+
+
+def test_default_wall_timeout_stopped_child_reaped_with_no_final_path(tmp_path, monkeypatch):
+    import os
+    import signal
+    import time
+    extract, limits = adapter()
+    real_popen = subprocess.Popen
+    children = []
+    def stopped(*args, **kwargs):
+        child = real_popen(*args, **kwargs)
+        children.append(child)
+        os.kill(child.pid, signal.SIGSTOP)
+        assert os.WIFSTOPPED(os.waitpid(child.pid, os.WUNTRACED)[1])
+        assert not (tmp_path / 'out').exists()
+        return child
+    monkeypatch.setattr(subprocess, 'Popen', stopped)
+    start = time.monotonic()
+    with pytest.raises(ArchiveError) as caught:
+        extract(SYNTHETIC / 'lab-text.pdf', tmp_path / 'out', limits)
+    assert caught.value.code == 'PDF_RESOURCE_LIMIT'
+    assert time.monotonic() - start >= 15
+    assert children[0].poll() == -signal.SIGKILL
+    with pytest.raises(ChildProcessError):
+        os.waitpid(children[0].pid, os.WNOHANG)
+    assert not list(tmp_path.iterdir())
+
+
+def test_output_envelope_exact_measured_boundary_without_truncation(tmp_path, monkeypatch):
+    import helseark.adapters.pdf as pdf
+    extract, limits = adapter()
+    source = tmp_path / 'bounded.pdf'; text_pdf(source, b'A' * 4096)
+    receipt = extract(source, tmp_path / 'baseline', limits)
+    complete = receipt.pagesPath.read_bytes()
+    # A reduced controller cap exercises real worker output and final encoding.
+    # It does not claim saturation of the fixed 64 MiB child result ceiling.
+    monkeypatch.setattr(pdf, 'ARTIFACT_BYTES', len(complete))
+    exact = extract(source, tmp_path / 'exact', limits)
+    assert exact.pagesPath.read_bytes() == complete
+    monkeypatch.setattr(pdf, 'ARTIFACT_BYTES', len(complete) - 1)
+    with pytest.raises(ArchiveError) as caught:
+        extract(source, tmp_path / 'over', limits)
+    assert caught.value.code == 'PDF_RESOURCE_LIMIT'
+    assert not (tmp_path / 'over').exists()
+    assert not list(tmp_path.glob('.pdf-*'))
+
+
+@pytest.mark.parametrize('name', list(FACTS))
+def test_complete_page_text_against_independent_render_transcription(name, tmp_path):
+    extract, limits = adapter()
+    expected = json.loads((FIXTURES / 'expected/pdf-pages.json').read_text())
+    receipt = extract(SYNTHETIC / name, tmp_path / 'out', limits)
+    assert [p['text'] for p in json.loads(receipt.pagesPath.read_bytes())['pages']] == expected[name]

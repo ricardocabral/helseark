@@ -62,3 +62,9 @@ regeneration of encrypted files across authoring environments.
 | pdf/expansion-limit.pdf | 20937 | 53c0496ccb501b19164fdc3fca1d8547d97ddecf42a99946d68bbcb5184032ae |
 | pdf/failed-page.pdf | 1603 | 13989622475d0188d5f4904aa2cc9e2f988a3b990534e51c5ae87f96cfcda0a3 |
 | pdf/page-limit.pdf | 551 | 7ee34a0b08ffde2a7abf803579db2a37a8dfc3622be7842053ba800358e019ef |
+
+The maintained `tests/fixtures/expected/pdf-pages.json` contains the independent
+2026-11-14 review's complete transcription of the six rendered positive pages
+(five documents). It extends the selected quote expectations without deriving
+expected text from the adapter at test time. Resource and exact-boundary tests
+generate bounded synthetic PDFs at runtime; no health data is used.

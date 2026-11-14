@@ -32,8 +32,39 @@ jobs:
       - name: Install locked dependencies including tests
         run: uv sync --locked --extra pdf --group dev
 
+      - name: Assert exact qualified PDF dependency (absence must fail)
+        run: |
+          uv run --no-sync python -c "import importlib.metadata, pypdf; assert importlib.metadata.version('pypdf') == pypdf.__version__ == '7.0.0'"
+
       - name: Run full test suite
         run: uv run --no-sync pytest
 
       - name: Build source distribution and wheel
         run: uv build --no-sources
+
+  base-optionality:
+    name: Base-only PDF optionality / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: "0.11.2"
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install base only in this fresh job environment
+        run: uv sync --locked --no-default-groups
+
+      - name: Verify absent dependency and base-only behavior
+        run: uv run --no-sync python tests/check_pdf_optionality.py
