@@ -3,7 +3,12 @@
 Select the person explicitly. Export never matches identity from names or source
 text. A full-person folder retains that person's entire immutable chain and its
 sources, with definitions and pinned interpretive support; other people and work
-are excluded.
+are excluded. Both full-person and selected-current export block when doctor
+finds unknown files, including unlisted files in definitions/ or agent-kit/.
+Only explicit pinned support and the verified canonical closure can be copied;
+a directory name does not establish scope. Preserve unknown files and resolve
+ownership outside the export before retrying; see the backup guide's unknown-material
+policy.
 
 ```sh
 helseark --vault ./family export --person UUID --out ../person-export --json
@@ -44,7 +49,10 @@ person/type/id/versionId/fullUrl plus original-reference-to-fullUrl bindings.
 The public portability.fhir_collection(vault, person, resourceRefs, at=Head)
 returns this same collection and mapping for offline validator callers. Task10
 must consume this boundary rather than reimplementing revision resolution.
-Accepted bytes are never rewritten.
+Verification requires exactly the original reference key set and checks every
+binding against its unique mapped target and the derived resource, for exact and
+versionless references alike. Missing, extra, contradictory or dangling bindings
+fail verification even when all file digests match. Accepted bytes are never rewritten.
 
 Only regular folders are supported. All output paths must be absent and outside
 the vault. Verification checks inventory bytes, pinned support, original revision

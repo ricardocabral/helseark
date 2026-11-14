@@ -12,6 +12,7 @@ from uuid import uuid4
 import ctypes
 import errno
 import os
+import re
 import shutil
 import sys
 
@@ -22,7 +23,7 @@ from .contracts import (ArchiveError, Vault, ResourceRef, ExportSelection,
 from .serialization import encode_json, hash_bytes
 from .archive import (_writer_lock, _files, _read, _json, _safe, _write,
                       _sync_tree, _sync_directory, _history, _references,
-                      open_vault, open_definitions, doctor, head)
+                      open_vault, open_definitions, doctor, head, _support_paths, _person_paths)
 from .query import parse_reference
 
 
@@ -160,7 +161,7 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
             omissions = ('original history chain', 'unselected resource revisions', 'original review and evidence envelopes', 'work', 'derived', '.runtime')
             mapping = []
             if selected:
-                support = {p for p in _files(vault.root) if p.startswith(('definitions/','agent-kit/')) or p in ('vault.json','README.md','AGENTS.md','CLAUDE.md')}
+                support = _support_paths(vault)
                 _copy(vault.root,stage/'support',support)
                 bundle,mapping = fhir_collection(vault,person,selection.resourceRefs)
                 _write(stage/'collection.json',encode_json(bundle))
@@ -184,14 +185,13 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                 counts = {'changes':0,'resources':len(mapping),'assets':sum(p.endswith('/blob') for p in asset_paths)}
                 kind = 'selected-current'
             else:
-                paths = set()
-                for relative in _files(vault.root):
-                    parts = Path(relative).parts
-                    if parts[0] in ('.runtime','derived') or ('work' in parts and not includeWork):
-                        continue
-                    if parts[0]=='people' and parts[1] not in people:
-                        continue
-                    paths.add(relative)
+                paths = _support_paths(vault)
+                for p in people:
+                    paths.update(_person_paths(vault, p, _history(vault, p)))
+                if includeWork:
+                    # Work is explicitly unaccepted, opt-in material, never scope authority.
+                    for work in ['work', *(f'people/{p}/work' for p in people)]:
+                        paths.update(f'{work}/{f}' for f in _files(_safe(vault.root, work)))
                 _copy(vault.root,stage/'vault',paths)
                 (stage/'vault/people').mkdir(exist_ok=True)
                 # Empty accepted directories are significant after an interrupted genesis.
@@ -260,9 +260,21 @@ def _verify(bundle):
         raise ArchiveError('INTEGRITY','Selected snapshot must bind exactly one person and Head.')
     if manifest['counts']['changes']!=0 or manifest['counts']['assets']!=sum(p.startswith('sources/') and p.endswith('/blob') for p in actual):
         raise ArchiveError('INTEGRITY','Selected snapshot counts differ from its inventory.')
-    open_definitions(bundle/'support')
+    support_vault = open_definitions(bundle/'support')
     from .agent_context import _vault_kit
-    _vault_kit(open_definitions(bundle/'support'))
+    _vault_kit(support_vault)
+    if {p[8:] for p in actual if p.startswith('support/')} != _support_paths(support_vault):
+        raise ArchiveError('INTEGRITY', 'Snapshot support differs from its pinned closure.')
+    sources = {p for p in actual if p.startswith('sources/')}
+    source_prefix = f"sources/people/{manifest['people'][0]}/assets/sha256/"
+    if any(not p.startswith(source_prefix) or not re.fullmatch(
+            r'[0-9a-f]{64}/(?:blob|source[.]json|extraction[.]json)', p[len(source_prefix):]) for p in sources):
+        raise ArchiveError('INTEGRITY', 'Snapshot source path is outside the selected person asset scope.')
+    allowed = {'export.json', 'README.md', 'collection.json'} | sources
+    allowed.update('support/' + p for p in _support_paths(support_vault))
+    allowed.update(f"resources/{m['versionId']}.json" for m in manifest['referenceMap'])
+    if actual != allowed:
+        raise ArchiveError('INTEGRITY', 'Snapshot contains files outside its declared closure.')
     collection = _json(bundle,'collection.json')
     mapping = manifest['referenceMap']
     if not isinstance(collection,dict) or collection.get('resourceType')!='Bundle' or collection.get('type')!='collection':
@@ -289,6 +301,9 @@ def _verify(bundle):
         if entry['fullUrl'] not in originals or any(ref not in urls for ref in _references(entry['resource'])):
             raise ArchiveError('INTEGRITY','Snapshot has unresolved references.')
         original = deepcopy(originals[entry['fullUrl']])
+        bindings = next(m for m in mapping if m['fullUrl'] == entry['fullUrl'])['references']
+        if set(bindings) != set(_references(original)):
+            raise ArchiveError('INTEGRITY', 'Original reference binding inventory mismatch.')
         # Check derived values while resolving each original Reference through the declared map.
         def rewrite(value):
             if isinstance(value,dict):
@@ -296,8 +311,7 @@ def _verify(bundle):
                     ref = parse_reference(value['reference'])
                     matches = [m for m in mapping if m['resourceType']==ref.resourceType and m['id']==ref.id and
                                (ref.versionId is None or m['versionId']==ref.versionId)]
-                    if ref.versionId is None:
-                        matches = [m for m in matches if m['fullUrl']==next(x for x in mapping if x['fullUrl']==entry['fullUrl'])['references'].get(value['reference'])]
+                    matches = [m for m in matches if m['fullUrl'] == bindings[value['reference']]]
                     if len(matches)!=1:
                         raise ArchiveError('INTEGRITY','Ambiguous or missing original reference mapping.')
                     value['reference']=matches[0]['fullUrl']

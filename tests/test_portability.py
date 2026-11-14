@@ -286,3 +286,100 @@ def test_derived_collection_cannot_change_decimal_scale(tmp_path):
     file.update(sha256=hash_bytes(data),size=len(data))
     (b/'export.json').write_bytes(encode_json(manifest))
     assert verify_export(b).issues
+
+
+@pytest.mark.parametrize('location', ['root', 'person', 'definitions', 'kit'])
+def test_unknown_material_reports_exact_path_and_blocks_all_exports(tmp_path, location):
+    v = init_vault(tmp_path/'v')
+    p = add_person(v, PersonDraft('Selected Synthetic'))
+    add_person(v, PersonDraft('Excluded Synthetic'))
+    relative = {
+        'root': 'other-person-notes.txt',
+        'person': f'people/{p}/scratch.txt',
+        'definitions': 'definitions/private.txt',
+        'kit': f'agent-kit/{v.config.agentKitVersion}/private.txt',
+    }[location]
+    private = v.root/relative
+    private.write_bytes(b'Excluded Synthetic private unreviewed material')
+    report = doctor(v)
+    assert report.checkedChanges == 2 and report.checkedResources == 2
+    assert any(i.code == 'UNKNOWN_PATH' and i.pointer == relative and 'Preserve' in i.message
+               for i in report.issues)
+    for mode in ['backup', 'full-person', 'selected-current']:
+        out = tmp_path/mode
+        with pytest.raises(ArchiveError, match='INTEGRITY'):
+            if mode == 'backup':
+                backup(v, out)
+            else:
+                export_person(v, p, out, ExportSelection(mode, (), mode == 'full-person'))
+        assert not out.exists()
+    assert private.read_bytes() == b'Excluded Synthetic private unreviewed material'
+
+
+def test_doctor_returns_unsafe_staging_path_and_action(tmp_path):
+    v = init_vault(tmp_path/'v')
+    add_person(v, PersonDraft('Synthetic'))
+    target = tmp_path/'outside'; target.mkdir()
+    (target/'keep').write_bytes(b'preserve')
+    (v.root/'.runtime/staging').rmdir()
+    (v.root/'.runtime/staging').symlink_to(target, target_is_directory=True)
+    report = doctor(v)
+    assert report.checkedChanges == 1 and report.checkedResources == 1
+    assert any(i.code == 'UNSAFE_PATH' and i.pointer == '.runtime/staging' and
+               'Preserve' in i.message for i in report.issues)
+    assert (target/'keep').read_bytes() == b'preserve'
+    assert (v.root/'.runtime/staging').is_symlink()
+
+
+@pytest.fixture(scope='module')
+def binding_snapshot(tmp_path_factory):
+    from test_intake import supplied_candidate
+    from test_review import approve
+    from helseark.intake import prepare_candidate
+    from helseark.archive import commit_candidate
+    root = tmp_path_factory.mktemp('binding-snapshot')
+    v, p, _, _, candidate = supplied_candidate(root)
+    proposal = prepare_candidate(v, candidate)
+    commit_candidate(v, proposal, approve(v, proposal))
+    out = export_person(v, p, root/'out', ExportSelection('selected-current', (), False)).path
+    assert not verify_export(out).issues
+    return out
+
+
+@pytest.mark.parametrize('attack', ['missing', 'extra', 'dangling', 'contradictory'])
+@pytest.mark.parametrize('exact', [True, False])
+def test_reference_binding_metadata_is_verified(tmp_path, binding_snapshot, attack, exact):
+    out = tmp_path/'out'
+    shutil.copytree(binding_snapshot, out)
+    original_bytes = {f: f.read_bytes() for f in (out/'resources').iterdir()}
+    manifest = decode_json((out/'export.json').read_bytes())
+    item = next(m for m in manifest['referenceMap'] if any(
+        ('/_history/' in ref) == exact for ref in m['references']))
+    ref = next(ref for ref in item['references'] if ('/_history/' in ref) == exact)
+    if attack == 'missing':
+        del item['references'][ref]
+    elif attack == 'extra':
+        item['references']['Patient/11111111-1111-4111-8111-111111111111'] = item['references'][ref]
+    elif attack == 'dangling':
+        item['references'][ref] = 'urn:uuid:11111111-1111-4111-8111-111111111111'
+    else:
+        item['references'][ref] = next(m['fullUrl'] for m in manifest['referenceMap']
+                                     if m['fullUrl'] != item['references'][ref])
+    (out/'export.json').write_bytes(encode_json(manifest))
+    assert verify_export(out).issues
+    assert all(f.read_bytes() == data for f, data in original_bytes.items())
+
+
+@pytest.mark.parametrize('relative', ['support/definitions/private.txt', 'private.txt',
+    'sources/people/11111111-1111-4111-8111-111111111111/private.txt'])
+def test_selected_verifier_rejects_unlisted_support_even_with_inventory(tmp_path, relative):
+    from helseark.serialization import hash_bytes
+    v = init_vault(tmp_path/'v'); p = add_person(v, PersonDraft('Synthetic'))
+    out = export_person(v, p, tmp_path/'out', ExportSelection('selected-current', (), False)).path
+    (out/relative).parent.mkdir(parents=True, exist_ok=True)
+    (out/relative).write_bytes(b'private unpinned material')
+    manifest = decode_json((out/'export.json').read_bytes())
+    data = (out/relative).read_bytes()
+    manifest['files'].append(dict(path=relative, size=len(data), sha256=hash_bytes(data)))
+    (out/'export.json').write_bytes(encode_json(manifest))
+    assert verify_export(out).issues

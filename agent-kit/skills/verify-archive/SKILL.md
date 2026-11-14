@@ -20,3 +20,5 @@ Use [export](../../docs/how-to/export-records.md) and [backup/doctor](../../docs
 Actual command output and nonzero checked counts are required for a success report.
 
 The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. PDF source scope remains blocked without a reviewed derivative workflow.
+
+Use the actual doctor report: retain successfully checked counts and exact issue paths/actions, including UNKNOWN_PATH and unsafe staging entries. Preserve unknown files and symlinks without following or deleting them; unresolved unknown material blocks backups and both person export modes. Never label unlisted support files accepted or person-scoped.

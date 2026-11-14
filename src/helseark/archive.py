@@ -640,6 +640,38 @@ def _references(value):
             yield from _references(item)
 
 
+def _support_paths(vault: Vault) -> set[str]:
+    """Explicit pinned support inventory, independent of directory contents.
+
+    Callers verify metadata first. Explanatory root files are named format files;
+    files merely placed under definitions/ or agent-kit/ gain no authority.
+    """
+    paths = {'vault.json', 'README.md', 'definitions/lock.json'}
+    lock = _json(vault.root, 'definitions/lock.json')
+    paths.update('definitions/' + f['path'] for a in lock['artifacts'] for f in a['files'])
+    if vault.config.agentKitVersion is not None:
+        prefix = f'agent-kit/{vault.config.agentKitVersion}/'
+        manifest = _json(vault.root, prefix + 'manifest.json')
+        paths.update(prefix + f['path'] for f in manifest['files'])
+        paths.update({prefix + 'manifest.json', 'AGENTS.md', 'CLAUDE.md'})
+    return paths
+
+
+def _person_paths(vault: Vault, person: str, history) -> set[str]:
+    """Return complete verified history and its inventoried asset/receipt closure."""
+    paths = set()
+    for _, directory, change in history:
+        prefix = directory.relative_to(vault.root).as_posix() + '/'
+        # _history verifies this exact closed payload inventory, including inputs.
+        paths.update(prefix + p for p in (*_ENVELOPES, 'change.json'))
+        paths.update(prefix + r['path'] for r in change['resources'])
+        paths.update(f"people/{person}/{a['path']}" for a in change['assets'])
+        proposal = _json(directory, 'proposal.json')
+        paths.update(prefix + i['path'] for i in proposal.get('inputs', []))
+        paths.update(f"people/{person}/{b['path']}" for b in proposal.get('importReview', {}).get('bindings', []))
+    return paths
+
+
 def doctor(vault: Vault) -> IntegrityReport:
     """Audit accepted authority and report recoverable debris without changing it.
 
@@ -649,11 +681,13 @@ def doctor(vault: Vault) -> IntegrityReport:
     issues, orphans, assets = [], [], set()
     changes = resources = 0
     bound_paths = set()
+    canonical = set()
 
     def problem(code, path, action, severity='error'):
         issues.append(Issue(code, severity, path, None, action))
     try:
         _open_vault_metadata(vault.root)
+        canonical.update(_support_paths(vault))
     except ArchiveError as error:
         problem(error.code, error.details.get('path', 'vault.json'),
                 'Restore the affected pinned file from a verified backup; do not repin history.')
@@ -667,6 +701,7 @@ def doctor(vault: Vault) -> IntegrityReport:
         person = directory.name
         try:
             history = _history(vault, person)
+            canonical.update(_person_paths(vault, person, history))
             for at, change_dir, change in history:
                 changes += 1
                 resources += len(change['resources'])
@@ -688,9 +723,35 @@ def doctor(vault: Vault) -> IntegrityReport:
                 problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')
     for path in sorted(orphans):
         problem('ORPHAN_PATH', path, 'Preserve this unreferenced file; inspect intake/work or recover its missing accepted change before manual quarantine.', 'warning')
-    staging = _safe(vault.root, '.runtime/staging')
-    if staging.exists():
-        for path in sorted(staging.iterdir()):
-            problem('INCOMPLETE_STAGING', path.relative_to(vault.root).as_posix(),
-                    'Unpublished staging is not accepted history. Preserve it for inspection; retry from retained input or manually quarantine.', 'warning')
+    # Inspect unknown material without following links or treating directory names
+    # as authority. Work and disposable state are explicitly outside this audit.
+    for parent, dirs, files in os.walk(vault.root, followlinks=False):
+        relative_parent = Path(parent).relative_to(vault.root)
+        if relative_parent == Path('.'):
+            dirs[:] = [d for d in dirs if d not in ('work', 'derived', '.runtime')]
+        elif len(relative_parent.parts) == 2 and relative_parent.parts[0] == 'people':
+            dirs[:] = [d for d in dirs if d != 'work']
+        for name in list(dirs) + files:
+            relative = (relative_parent / name).as_posix()
+            try:
+                path = _safe(vault.root, relative)
+                if not path.is_dir() and not path.is_file():
+                    raise ArchiveError('UNSAFE_PATH', 'Not a regular file or directory.')
+                if path.is_file() and relative not in canonical and relative not in orphans:
+                    problem('UNKNOWN_PATH', relative,
+                            'Preserve this unaccounted file; inspect its ownership and scope before manual quarantine outside the vault. Backup/export is blocked; this is not accepted or pinned authority.')
+            except ArchiveError as error:
+                if name in dirs:
+                    dirs.remove(name)
+                problem(error.code, relative, 'Preserve this unsafe entry; inspect it without following links before manual quarantine.')
+    try:
+        staging = _safe(vault.root, '.runtime/staging')
+        if staging.exists():
+            for path in sorted(staging.iterdir()):
+                problem('INCOMPLETE_STAGING', path.relative_to(vault.root).as_posix(),
+                        'Unpublished staging is not accepted history. Preserve it for inspection; retry from retained input or manually quarantine.', 'warning')
+    except (ArchiveError, OSError) as error:
+        problem(error.code if isinstance(error, ArchiveError) else 'IO_ERROR',
+                error.details.get('path', '.runtime/staging') if isinstance(error, ArchiveError) else '.runtime/staging',
+                'Preserve this unsafe or unreadable staging entry; inspect without following links and manually quarantine before retrying.')
     return IntegrityReport(tuple(issues), changes, resources, len(assets), tuple(sorted(orphans)))

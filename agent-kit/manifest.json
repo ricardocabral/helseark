@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
+    "definitionLockSha256": "56fcc68bf72d2a336cf75a05acaf480c00e8802957984b6f058fd07a31553d51",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,18 +24,18 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
+      "sha256": "56fcc68bf72d2a336cf75a05acaf480c00e8802957984b6f058fd07a31553d51",
       "size": 33345
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
-      "sha256": "03d446245fc4aee6c65b4d5f4078a16589afd1030c25f765ff07b09dc87456cf",
-      "size": 3961
+      "sha256": "a545e39367fb8f448abd012b42a2f02afb4d24b6477a964d70eeaf9f205834ef",
+      "size": 5169
     },
     {
       "path": "docs/how-to/export-records.md",
-      "sha256": "e59f5969459a2fe154c886b6123fa37b58a3ad608a963efde96a26f764d134e7",
-      "size": 2990
+      "sha256": "deffd35b98fdb1b5852449b4f081d7259a1023f227b99ad5cbc05e0c342ec642",
+      "size": 3673
     },
     {
       "path": "docs/how-to/import-report.md",
@@ -174,8 +174,8 @@
     },
     {
       "path": "prompts/prepare-export.md",
-      "sha256": "f4104ddac65f37307e82afdc24c6ed1b7ccfcc3c4232f6e80ca2118fdf5c348a",
-      "size": 2619
+      "sha256": "a67fb3758d125b7972b73a500d6c7e35f2201b5bc680b0031f4e9ce38d4b9331",
+      "size": 2848
     },
     {
       "path": "prompts/propose-correction.md",
@@ -189,8 +189,8 @@
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
-      "size": 2463
+      "sha256": "16fd887dd03b3a20ea4495031cebd7d35012e84175c7591cc8b45cf1875a972a",
+      "size": 2818
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -254,8 +254,8 @@
     },
     {
       "path": "skills/export-records/SKILL.md",
-      "sha256": "dd20b1d934f0ee6ad852587a5fb901dfd59e3de9d5e37e869b3cf154d504d3f7",
-      "size": 1830
+      "sha256": "30f52a8f986f658e577e3ea360dcaf64063596de0600eccae1dc27a59008ad5f",
+      "size": 2135
     },
     {
       "path": "skills/import-records/SKILL.md",
@@ -279,8 +279,8 @@
     },
     {
       "path": "skills/verify-archive/SKILL.md",
-      "sha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
-      "size": 1888
+      "sha256": "f9c8484ddab92462e8e051056587347cb0946b7dcf2fa81d2912ae4c88ee0cb0",
+      "size": 2243
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -632,9 +632,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/prepare-export.md",
-      "sha256": "f4104ddac65f37307e82afdc24c6ed1b7ccfcc3c4232f6e80ca2118fdf5c348a",
+      "sha256": "a67fb3758d125b7972b73a500d6c7e35f2201b5bc680b0031f4e9ce38d4b9331",
       "skillId": "export-records",
-      "skillSha256": "dd20b1d934f0ee6ad852587a5fb901dfd59e3de9d5e37e869b3cf154d504d3f7",
+      "skillSha256": "30f52a8f986f658e577e3ea360dcaf64063596de0600eccae1dc27a59008ad5f",
       "skillVersion": "0.1.0",
       "taskIds": [
         "export"
@@ -699,9 +699,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
+      "sha256": "16fd887dd03b3a20ea4495031cebd7d35012e84175c7591cc8b45cf1875a972a",
       "skillId": "verify-archive",
-      "skillSha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
+      "skillSha256": "f9c8484ddab92462e8e051056587347cb0946b7dcf2fa81d2912ae4c88ee0cb0",
       "skillVersion": "0.1.0",
       "taskIds": [
         "verify"
@@ -1063,7 +1063,9 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "known-material-closure",
+        "exact-reference-bindings"
       ],
       "id": "export",
       "intent": "Prepare export scope context",
@@ -1123,7 +1125,9 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "known-material-closure",
+        "diagnostic-path-actions"
       ],
       "id": "verify",
       "intent": "Prepare integrity inspection context",

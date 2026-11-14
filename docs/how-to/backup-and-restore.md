@@ -31,7 +31,23 @@ Archived pins are copied unchanged. Work is excluded unless `--include-work` is
 explicitly supplied; it may contain sensitive unaccepted records. Derived state
 and `.runtime` are excluded. Deleting all work does not remove accepted review
 verifiability. Unaccounted files and incomplete staging block backup pending
-inspection; they are never silently deleted.
+inspection; they are never silently deleted. This applies to full household
+backups too: unknown material is **not copied or certified** as accepted history
+or person-scoped support. Doctor reports each unknown file's exact relative path
+as UNKNOWN_PATH. Preserve it and inspect ownership and scope; any manual quarantine
+must move it outside the vault without destroying it. An ordinary whole-folder
+safety copy can preserve unknown material, but is not a verified Helseark backup
+and must not be shared as a person export.
+
+The canonical closure is vault.json, the named explanatory README, every verified
+change and retained candidate/review/evidence/validation input, and the asset blobs
+and source/extraction receipts bound by those changes. Support is definitions/lock.json
+plus its listed files, the pinned kit manifest plus its listed files, and the
+named generated AGENTS.md/CLAUDE.md entry points. Unlisted files in definitions/,
+agent-kit/, the vault root or person directories remain unknown even when they
+look like support. Root explanatory files are not clinical facts; inspect their
+text before disclosure. Explicit --include-work retains unaccepted work only in
+work/ and people/UUID/work/; it does not resolve unknown files elsewhere.
 
 Inspect `export.json` with an ordinary JSON reader: `files` records relative
 paths, SHA-256 and byte lengths for every other file. `vault/` is the recoverable
