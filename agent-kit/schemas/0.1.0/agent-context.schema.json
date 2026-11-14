@@ -1,0 +1,750 @@
+{
+  "$defs": {
+    "evidenceSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/entries/items"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "source"
+                  },
+                  "quote": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sourceDocument": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "sourceSha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "target": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "pointers": {
+                        "items": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "type": "array",
+                        "uniqueItems": true
+                      },
+                      "reference": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reference",
+                      "pointers"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "target",
+                  "sourceSha256",
+                  "sourceDocument",
+                  "quote"
+                ],
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "oneOf": [
+                  {
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "resourceRef"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "pointer"
+                          ]
+                        }
+                      ]
+                    },
+                    "required": [
+                      "target"
+                    ]
+                  },
+                  {
+                    "not": {
+                      "required": [
+                        "target"
+                      ]
+                    },
+                    "required": [
+                      "resourceRef",
+                      "pointer"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "generated",
+                      "user-entry"
+                    ]
+                  },
+                  "pointer": {
+                    "type": "string"
+                  },
+                  "resourceRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "target": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "pointers": {
+                        "items": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "type": "array",
+                        "uniqueItems": true
+                      },
+                      "reference": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reference",
+                      "pointers"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
+              }
+            ]
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "entrySelections": {
+          "items": {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "else": {
+                  "not": {
+                    "required": [
+                      "quoteSpan"
+                    ]
+                  }
+                },
+                "if": {
+                  "properties": {
+                    "mode": {
+                      "const": "whole-value"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "quoteSpan"
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "mode": {
+                "enum": [
+                  "metadata-bound",
+                  "whole-value",
+                  "explicit-source"
+                ]
+              },
+              "originalEntrySha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "quoteSpan": {
+                "additionalProperties": false,
+                "properties": {
+                  "end": {
+                    "minimum": 1,
+                    "type": "integer"
+                  },
+                  "start": {
+                    "minimum": 0,
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "mode",
+              "originalEntrySha256"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "original": {
+          "additionalProperties": false,
+          "properties": {
+            "changeSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "entryPointers": {
+              "items": {
+                "pattern": "^/entries/(0|[1-9][0-9]*)$",
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "changeSha256",
+            "sha256",
+            "entryPointers"
+          ],
+          "type": "object"
+        },
+        "personId": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[A-Z][A-Za-z0-9]*/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/_history/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+          "type": "string"
+        },
+        "selectionVersion": {
+          "const": "2"
+        }
+      },
+      "required": [
+        "selectionVersion",
+        "personId",
+        "revision",
+        "original",
+        "entries",
+        "entrySelections"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "urn:helseark:schema:0.1.0:agent-context",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "availability": {
+      "additionalProperties": false,
+      "properties": {
+        "missingCapabilities": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "missingCapabilities"
+      ],
+      "type": "object"
+    },
+    "base": {
+      "additionalProperties": false,
+      "properties": {
+        "changeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "transactionId": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "transactionId",
+        "changeSha256"
+      ],
+      "type": "object"
+    },
+    "continuation": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "base": {
+              "additionalProperties": false,
+              "properties": {
+                "changeSha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "sequence": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "transactionId": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sequence",
+                "transactionId",
+                "changeSha256"
+              ],
+              "type": "object"
+            },
+            "offset": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "personId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "requestSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "taskId": {
+              "enum": [
+                "inspect",
+                "import",
+                "query",
+                "correct",
+                "export",
+                "verify",
+                "migrate"
+              ]
+            }
+          },
+          "required": [
+            "personId",
+            "taskId",
+            "base",
+            "requestSha256",
+            "offset"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contractPaths": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "dataBytes": {
+      "description": "Actual embedded identity, selected record and scoped evidence bytes. Explicit original source references and definition references are excluded.",
+      "minimum": 0,
+      "type": "integer"
+    },
+    "evidencePaths": {
+      "description": "Packet-relative disposable evidence selections, one per returned exact revision. sourcePath points to the selection itself, never the original accepted evidence. See $defs/evidenceSelection.",
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "expectedChecks": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "identity": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sourcePath": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size",
+        "sourcePath"
+      ],
+      "type": "object"
+    },
+    "instructionBytes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "instructionPaths": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "issues": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pointer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "kitManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sourcePath": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size",
+        "sourcePath"
+      ],
+      "type": "object"
+    },
+    "kitVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "manifestSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "maxDataBytes": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maxRecords": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "outputPaths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "permittedOperations": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "personId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": 1
+    },
+    "returnedCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "selectedRecords": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "selectedSources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "taskId": {
+      "enum": [
+        "inspect",
+        "import",
+        "query",
+        "correct",
+        "export",
+        "verify",
+        "migrate"
+      ]
+    },
+    "totalCount": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "availability",
+    "base",
+    "continuation",
+    "contractPaths",
+    "dataBytes",
+    "evidencePaths",
+    "expectedChecks",
+    "identity",
+    "instructionBytes",
+    "instructionPaths",
+    "issues",
+    "kitManifest",
+    "kitVersion",
+    "manifestSha256",
+    "outputPaths",
+    "path",
+    "permittedOperations",
+    "personId",
+    "protocolVersion",
+    "returnedCount",
+    "selectedRecords",
+    "selectedSources",
+    "taskId",
+    "totalCount",
+    "maxRecords",
+    "maxDataBytes"
+  ],
+  "type": "object"
+}

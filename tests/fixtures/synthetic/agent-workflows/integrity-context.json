@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "personId": "11111111-1111-4111-8111-111111111111",
+  "operation": "read selected history",
+  "suppliedFailure": {
+    "code": "INTEGRITY",
+    "message": "Accepted resource digest differs from retained inventory",
+    "path": "people/11111111-1111-4111-8111-111111111111/accepted/synthetic/resources/Observation-33333333-3333-4333-8333-333333333333.json"
+  },
+  "checkedChanges": 1,
+  "checkedResources": 1,
+  "checkedAssets": 0,
+  "complete": false,
+  "note": "Pre-authored failure input, not an executed verifier report"
+}

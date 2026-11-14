@@ -1,5 +1,5 @@
 """Local archive records. Clinical payloads remain FHIR JSON trees."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 from typing import Literal, TypeAlias
@@ -166,6 +166,120 @@ class CommitResult:
     disposition: Literal["committed", "already-accepted"]
     head: Head
     logicalResources: tuple[ResourceRef, ...]
+
+
+AgentTask: TypeAlias = Literal['inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate']
+
+
+@dataclass(frozen=True)
+class ContextContinuation:
+    personId: PersonId
+    taskId: AgentTask
+    base: Head
+    requestSha256: Sha256
+    offset: int
+
+
+@dataclass(frozen=True)
+class ContextRequest:
+    sourceHashes: tuple[Sha256, ...] = ()
+    resourceRefs: tuple[ResourceRef, ...] = ()
+    fromDate: str | None = None
+    toDate: str | None = None
+    maxRecords: int = 100
+    maxDataBytes: int = 262144
+    continuation: ContextContinuation | None = None
+
+    def __post_init__(self):
+        object.__setattr__(self, 'sourceHashes', tuple(self.sourceHashes))
+        object.__setattr__(self, 'resourceRefs', tuple(self.resourceRefs))
+        for digest in self.sourceHashes:
+            sha256_string(digest)
+        if (type(self.maxRecords) is not int or self.maxRecords < 1 or
+                type(self.maxDataBytes) is not int or self.maxDataBytes < 1 or
+                any(not isinstance(ref, ResourceRef) for ref in self.resourceRefs)):
+            raise ArchiveError('INVALID_INPUT', 'Context limits must be positive integers and references typed.')
+
+
+@dataclass(frozen=True)
+class CapabilityAvailability:
+    status: Literal['available', 'unavailable']
+    missingCapabilities: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class AgentTaskDescriptor:
+    id: AgentTask
+    intent: str
+    skillPath: str | None
+    promptIds: tuple[str, ...]
+    requiredInputs: tuple[str, ...]
+    optionalInputs: tuple[str, ...]
+    outputs: tuple[str, ...]
+    permittedOperations: tuple[str, ...]
+    requiredCapabilities: tuple[str, ...]
+    availability: CapabilityAvailability
+    referencePaths: tuple[str, ...]
+    schemaPaths: tuple[str, ...]
+    expectedChecks: tuple[str, ...]
+    scenarioId: str
+
+
+@dataclass(frozen=True)
+class ContextFile:
+    # Instructions/records/evidence are packet-relative; contracts/sources are
+    # absolute retained references. Identity/evidence sourcePath identifies the
+    # disposable projection itself, never a broader original payload.
+    path: str
+    sha256: Sha256
+    size: int
+    sourcePath: str
+
+
+@dataclass(frozen=True)
+class AgentContext:
+    path: Path
+    manifestSha256: Sha256
+    personId: PersonId
+    base: Head
+    taskId: AgentTask
+    kitVersion: str
+    protocolVersion: int
+    instructionPaths: tuple[ContextFile, ...]
+    contractPaths: tuple[ContextFile, ...]
+    selectedSources: tuple[ContextFile, ...]
+    selectedRecords: tuple[ContextFile, ...]
+    returnedCount: int
+    continuation: ContextContinuation | None
+    issues: tuple[Issue, ...]
+    totalCount: int
+    dataBytes: int
+    instructionBytes: int
+    identity: ContextFile
+    availability: CapabilityAvailability
+    permittedOperations: tuple[str, ...]
+    kitManifest: ContextFile
+    # One budgeted evidenceSelection JSON per returned exact revision, in order.
+    evidencePaths: tuple[ContextFile, ...]
+    expectedChecks: tuple[str, ...]
+    outputPaths: tuple[str, ...]
+    # None only for retained pre-renderer context contracts which lack these fields.
+    maxRecords: int | None = None
+    maxDataBytes: int | None = None
+    # Host-only builder receipt. Never serialized into the editable packet.
+    trustedContextSha256: Sha256 | None = field(default=None, repr=False, compare=False)
+
+
+@dataclass(frozen=True)
+class RenderedPrompt:
+    text: str
+    promptId: str
+    promptVersion: str
+    promptSha256: Sha256
+    skillSha256: Sha256
+    kitSha256: Sha256
+    inputContractIds: tuple[str, ...]
+    outputContractIds: tuple[str, ...]
 
 
 @dataclass(frozen=True)

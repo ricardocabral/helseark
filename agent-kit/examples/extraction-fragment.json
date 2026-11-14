@@ -1,0 +1,7 @@
+{
+  "valueQuantity": {"value": 0.05, "comparator": "<", "unit": "mg/L"},
+  "effectiveDateTime": "2026-11",
+  "referenceRange": [
+    {"text": "Women: 0,00–0,50 mg/L; Men: 0,00–0,70 mg/L"}
+  ]
+}

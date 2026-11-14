@@ -134,12 +134,13 @@ for e in bundle['entry']:
             item.update(kind='source',sourceSha256=digest,sourceDocument=document['fullUrl'],
                 quote=source_value[field[1:]],locator={'kind':'json-pointer','pointer':field})
         entries.append(item)
-evidence={'contractVersion':'0.1.0','personId':person,'entries':entries}
+provenance={'provenanceVersion':1,'status':'external-unknown','reason':'Synthetic installed fixture has no recorded instruction kit.'}
+evidence={'contractVersion':'0.1.0','personId':person,'entries':entries,'producerProvenance':provenance}
 candidate=work/'candidate';candidate.mkdir()
 metadata={'contractVersion':'0.1.0','candidateId':str(uuid4()),'personId':person,
     'baseChangeSha256':archive.head(v,person).changeSha256,'fhirVersion':'4.0.1','profileVersion':'0.1.0',
     'sourceSha256':[digest],'bundlePath':'bundle.json','evidencePath':'evidence.json',
-    'producer':{'kind':'external-agent','name':'synthetic-installed-proof'},'unresolved':[]}
+    'producer':{'kind':'external-agent','name':'synthetic-installed-proof'},'producerProvenance':provenance,'unresolved':[]}
 for name,value in [('candidate',metadata),('bundle',bundle),('evidence',evidence)]:
     (candidate/(name+'.json')).write_bytes(encode_json(value))
 args=['--vault',vault,'validate','candidate',candidate,'--person',person,'--json']

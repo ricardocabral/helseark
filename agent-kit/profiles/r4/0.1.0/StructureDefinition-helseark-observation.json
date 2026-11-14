@@ -1,0 +1,230 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-observation",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation",
+  "version": "0.1.0",
+  "name": "HelsearkObservation",
+  "title": "Helseark Observation",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Local patient-scoped Observation for a reviewed offline archive. Structural support does not establish extraction accuracy or medical correctness.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Observation",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Observation",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Observation",
+        "path": "Observation",
+        "constraint": [
+          {
+            "key": "helseark-profile",
+            "severity": "error",
+            "human": "Declare the exact supported profile version.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation"
+          },
+          {
+            "key": "helseark-modifiers",
+            "severity": "error",
+            "human": "Modifier extensions are unsupported at every depth.",
+            "expression": "descendants().modifierExtension.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation"
+          }
+        ]
+      },
+      {
+        "id": "Observation.id",
+        "path": "Observation.id",
+        "min": 1,
+        "comment": "Logical UUID identity; selected-person and revision ownership are checked by the archive runtime."
+      },
+      {
+        "id": "Observation.meta",
+        "path": "Observation.meta",
+        "min": 1
+      },
+      {
+        "id": "Observation.meta.profile",
+        "path": "Observation.meta.profile",
+        "min": 1
+      },
+      {
+        "id": "Observation.implicitRules",
+        "path": "Observation.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Observation.contained",
+        "path": "Observation.contained",
+        "max": "0"
+      },
+      {
+        "id": "Observation.modifierExtension",
+        "path": "Observation.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Observation.subject",
+        "path": "Observation.subject",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ],
+        "min": 1
+      },
+      {
+        "id": "Observation.subject.reference",
+        "path": "Observation.subject.reference",
+        "min": 1
+      },
+      {
+        "id": "Observation.value[x]",
+        "path": "Observation.value[x]",
+        "type": [
+          {
+            "code": "Quantity"
+          },
+          {
+            "code": "CodeableConcept"
+          },
+          {
+            "code": "string"
+          },
+          {
+            "code": "boolean"
+          },
+          {
+            "code": "integer"
+          },
+          {
+            "code": "Range"
+          },
+          {
+            "code": "Ratio"
+          },
+          {
+            "code": "time"
+          },
+          {
+            "code": "dateTime"
+          },
+          {
+            "code": "Period"
+          }
+        ],
+        "comment": "Preserve source values without unit conversion or terminology inference. Sampled waveforms are outside this release."
+      },
+      {
+        "id": "Observation.specimen",
+        "path": "Observation.specimen",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Observation.specimen.reference",
+        "path": "Observation.specimen.reference",
+        "min": 1
+      },
+      {
+        "id": "Observation.hasMember",
+        "path": "Observation.hasMember",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Observation.hasMember.reference",
+        "path": "Observation.hasMember.reference",
+        "min": 1
+      },
+      {
+        "id": "Observation.derivedFrom",
+        "path": "Observation.derivedFrom",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Observation.derivedFrom.reference",
+        "path": "Observation.derivedFrom.reference",
+        "min": 1
+      },
+      {
+        "id": "Observation.component",
+        "path": "Observation.component",
+        "constraint": [
+          {
+            "key": "helseark-component-absence",
+            "severity": "error",
+            "human": "A component cannot carry both a value and dataAbsentReason.",
+            "expression": "dataAbsentReason.empty() or value.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation"
+          }
+        ]
+      },
+      {
+        "id": "Observation.component.value[x]",
+        "path": "Observation.component.value[x]",
+        "type": [
+          {
+            "code": "Quantity"
+          },
+          {
+            "code": "CodeableConcept"
+          },
+          {
+            "code": "string"
+          },
+          {
+            "code": "boolean"
+          },
+          {
+            "code": "integer"
+          },
+          {
+            "code": "Range"
+          },
+          {
+            "code": "Ratio"
+          },
+          {
+            "code": "time"
+          },
+          {
+            "code": "dateTime"
+          },
+          {
+            "code": "Period"
+          }
+        ]
+      }
+    ]
+  }
+}
