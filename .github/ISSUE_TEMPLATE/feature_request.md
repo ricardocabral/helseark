@@ -1,19 +1,28 @@
 ---
 name: Feature request
-about: Propose a focused improvement and its acceptance criteria
-title: ''
-labels: ''
+about: Suggest an idea for Helseark
+title: "[Feature] "
+labels: enhancement
 assignees: ''
 ---
 
-Use invented examples only. Do not share real health data or credentials.
+Use invented data only. Do not attach real records, vaults, PDFs, screenshots or
+logs containing health data or secrets. Removing names is not sufficient. For
+vulnerabilities, follow [SECURITY.md](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md).
 
-**Problem and who encounters it**
 
-**Desired behavior and a synthetic example**
+## Problem
 
-**Acceptance criteria**
+Describe the user problem.
 
-**Compatibility, privacy, offline and review implications**
+## Proposed solution
 
-**Alternatives considered**
+Describe the expected behavior.
+
+## Acceptance criteria
+
+- [ ] ...
+
+## Additional context
+
+Optional links, references, and examples.

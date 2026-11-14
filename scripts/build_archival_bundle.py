@@ -33,7 +33,7 @@ MAX_METADATA = 32 * 1024 * 1024
 CHUNK = 1024 * 1024
 ROOT = Path(__file__).resolve().parents[1]
 PINS = 'definitions/archival-sources.json'
-TOOLS = ('scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md')
+TOOLS = ('LICENSE', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md')
 # Version 1 is a complete, standalone R4 preservation contract. These roles and
 # notices are defined by the verifier, never inferred from untrusted inventory.
 SOURCE_ROLES = dict(core='tar.gz', specification='zip', schema='zip',

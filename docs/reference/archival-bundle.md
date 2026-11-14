@@ -179,9 +179,9 @@ Java runtime, IG packages or transitive validator dependencies are added here.
 This bundle is complete for the named core/specification source archives; it
 is not a self-contained general terminology validation environment. Separate
 licensing and offline qualification are required before adding such dependencies.
-The upstream content retains its own licenses. The project design proposes
-Apache-2.0 for Helseark's own code/docs; this bundle does not grant a new license
-to third-party material or establish project-wide licensing.
+The upstream content retains its own licenses. Helseark's own code/docs use
+the [MIT License](../../LICENSE); this bundle does not grant a new license to
+third-party material. Retained upstream notices remain authoritative for those materials.
 
 Sources reviewed on 2026-11-14: [official R4 downloads](https://hl7.org/fhir/R4/downloads.html),
 [R4 license and legal terms](https://hl7.org/fhir/R4/license.html),

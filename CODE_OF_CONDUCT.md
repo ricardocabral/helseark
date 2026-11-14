@@ -15,7 +15,7 @@ through an available private contact. If a private channel is not available,
 request one with a minimal issue containing no names, allegations or sensitive
 details. Do not post incident evidence publicly. A tested private conduct contact
 and an alternate for concerns involving the owner must be established before
-public launch; see the [release checklist](docs/maintainers/public-release.md).
+public launch; see the [release checklist](docs/maintainers/releasing.md).
 
 Maintainers will review available evidence fairly, limit disclosure to what is
 needed, and may ask for corrections, remove content, restrict participation or

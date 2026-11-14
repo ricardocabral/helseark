@@ -96,6 +96,7 @@ def test_complete_sources_and_reproducible_offline_bundle(inputs, tmp_path, monk
         inventory = json.loads(bundle.read('inventories/specification.json'))
         assert {m['path'] for m in inventory} == {'index.html', 'site\\license.html', 'assets/style.css'}
         assert bundle.read('licenses/specification-license.html') == b'CC0; trademarks; third-party terms'
+        assert bundle.read('LICENSE') == (SCRIPT.parents[1] / 'LICENSE').read_bytes()
         assert 'scripts/build_archival_bundle.py' in bundle.namelist()
 
 
@@ -353,7 +354,7 @@ def rewrite_bundle(original, output, *, omit=(), change_pins=None, replacements=
             archive.writestr(name, data)
 
 
-@pytest.mark.parametrize('missing', ['README.md', 'scripts/build_archival_bundle.py',
+@pytest.mark.parametrize('missing', ['LICENSE', 'README.md', 'scripts/build_archival_bundle.py',
     'docs/reference/archival-bundle.md', 'licenses/cc0.html',
     'licenses/specification-license.html', 'licenses/core-package.json',
     'licenses/hl7-license.html', 'inventories/core.json', 'inventories/specification.json'])
@@ -540,7 +541,7 @@ def test_publication_race_preserves_competing_output(inputs, tmp_path, monkeypat
     assert list(output.parent.iterdir()) == [output]
 
 
-@pytest.mark.parametrize('name', ['README.md', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md'])
+@pytest.mark.parametrize('name', ['LICENSE', 'README.md', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md'])
 def test_verify_rejects_empty_mandatory_support(inputs, tmp_path, name):
     pins, cache = inputs
     good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'

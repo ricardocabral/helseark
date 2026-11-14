@@ -1,29 +1,35 @@
 # Contributing to Helseark
 
-Helseark is under active implementation. Public availability is planned after
-implementation and the [publication checks](docs/maintainers/public-release.md).
-Read the [code of conduct](CODE_OF_CONDUCT.md), [security policy](SECURITY.md),
-and [coding guide](docs/development/coding-guide.md) before contributing.
-Never submit real health records, even with names removed. Use invented fixtures.
+This guide follows [Rikdom's contribution conventions](https://github.com/ricardocabral/rikdom/blob/main/CONTRIBUTING.md),
+adapted to Helseark's archive contracts. Read the [coding guide](docs/development/coding-guide.md),
+[code of conduct](CODE_OF_CONDUCT.md) and [security policy](SECURITY.md).
 
-## Start here
+## Ways to contribute
 
-Search existing [issues](https://github.com/ricardocabral/helseark/issues) and
-[pull requests](https://github.com/ricardocabral/helseark/pulls). Small fixes can
-be submitted directly; discuss changes to archive contracts, clinical semantics,
-dependencies or supported platforms before implementing them. A maintainer
-coordinates scope; a contribution is not a promise of acceptance or a release date.
+Fix bugs, improve documentation and examples, add tests, or propose focused
+features. Check existing [issues](https://github.com/ricardocabral/helseark/issues)
+and [pull requests](https://github.com/ricardocabral/helseark/pulls) first. For
+large changes, open an issue to align on scope and design. Keep changes focused.
 
-The public references and tests describe implemented behavior. Maintainer planning
-and coordination evidence stays in ignored `docs/internal/`; contributors do not
-need access to it. Ask for a self-contained public issue with acceptance criteria
-when context is missing. Do not copy private plans into issues or commits.
+## Choose the right scope
 
-## Set up a checkout
+The core owns durable local records, validation, evidence, explicit human review
+and immutable history. Keep source-specific extraction in adapters and clinical
+meaning in the shared FHIR contracts. Prefer existing Python/CLI contracts over a
+new framework or service. No plugin system is implied by Rikdom's conventions.
 
-Use Python 3.12 and uv (CI currently pins uv 0.11.2). macOS and Linux are the
-qualified targets; do not infer Windows support from Python compatibility.
-Create a branch, or a separate worktree when another session uses the checkout.
+Public references, tests and self-contained issues describe the work. Private
+plans and coordination logs stay in ignored `docs/internal/`; contributors do
+not need them. Ask the coordinator for public acceptance criteria when needed.
+Never publish private plans, real health data or health records with only names
+removed. Use invented fixtures and keep real archives outside the checkout.
+
+## Development setup
+
+Use Python 3.12 and uv (CI pins uv 0.11.2). macOS and Linux are the qualified
+targets. Dependency installation can access registries; normal archive operations
+must remain offline. `pyproject.toml` enforces uv's seven-day dependency freshness
+guard. Do not bypass it for an ordinary update.
 
 ```sh
 git clone https://github.com/ricardocabral/helseark.git
@@ -31,48 +37,76 @@ cd helseark
 git switch -c your-change
 uv sync --locked --extra pdf --group dev
 uv run --no-sync helseark --help
+uv run --no-sync pytest tests/test_cli_journey.py -q
+git diff --check
 ```
 
-Installation can access package registries. Normal archive operations must stay
-offline. Keep demo vaults and output outside the checkout. The README's synthetic
-example is a safe starting point; never point tests at an existing family vault.
+There is no configured linter yet. The [coding guide](docs/development/coding-guide.md)
+defines current review standards; do not claim Rikdom's `make lint` runs here.
 
-## Make and verify a change
+## Development workflow
 
-- Preserve the [coding and data contracts](docs/development/coding-guide.md).
-- Add behavioral regression coverage for changed behavior. Use real temporary
-  filesystem/CLI boundaries for storage and crash behavior, not mocks of the
-  implementation. Documentation-only fixes need link/example checks.
-- Run the smallest relevant checks locally, for example:
+1. Create a branch from main; use a separate worktree when another session uses
+   the checkout. Suggested prefixes: `fix/`, `feat/`, `docs/`, `refactor/`.
+2. Make focused commits with clear messages and tests for behavioral changes.
+3. Run relevant validation and tests locally. Full platform suites run in branch CI.
+4. Open a pull request with context and rationale, then monitor its CI results.
+5. Resolve review comments with code or clear reasons. An independent reviewer
+   checks each implementation before the coordinator integrates it.
 
-  ```sh
-  uv run --no-sync pytest tests/test_cli_journey.py -q
-  python3 -B scripts/vendor_definitions.py --verify
-  git diff --check
-  ```
+Preserve other sessions' work. Do not amend others' commits, rewrite accepted
+history, or merge without authorization. A plan or green tests do not grant agents
+merge authority.
 
-- Let branch CI run the full Linux/macOS suite and package builds. Report which
-  checks ran and their results; an unexecuted test is not passing evidence.
-- Update the relevant references, agent task descriptors/prompts and compatibility
-  records when a supported command or contract changes. Do not casually regenerate
-  pinned artifacts; follow their maintainer guides and review resulting hashes.
+## Pull request guidelines
 
-## Submit for review
+Describe the problem, approach and tradeoffs. Link the issue, provide test commands
+and actual results, and state compatibility/migration effects and limitations.
+Use the [PR template](.github/pull_request_template.md).
 
-Keep each pull request focused. Explain the problem, resulting behavior, relevant
-issue, tests and limitations. Inspect every staged file, including binary assets,
-for health data, secrets, local paths and unrelated edits. Use the PR template.
-Independent review and passing required CI precede integration. Only the
-coordinator integrates and pushes main; agents need explicit merge authorization.
-Do not amend others' commits or discard another session's work.
+- Keep scope self-contained and inspect every staged file, including binaries.
+- Update relevant tests, references, schema/CLI docs and agent descriptors/prompts.
+- Run focused checks locally and confirm full remote CI before claiming it passed.
+- Keep fixtures synthetic, minimal, representative and deterministic; never upload
+  real records, exports, screenshots, context packets or sensitive logs.
+- Preserve offline operation, exact precision, person isolation, immutable history
+  and review bound to final prepared bytes.
 
-Production changes include a `## Plano pós-merge` section: for each signal give
-its source/query, baseline, regression threshold and window, plus rollback steps.
-A docs-only PR may state that no production behavior changes. Never repair a
-release by rewriting accepted patient history.
+For production changes include `## Plano pós-merge`: each signal's source/query,
+baseline, regression threshold/window and rollback. Documentation-only changes
+may state that production behavior is unchanged and identify links/config to check.
 
-By contributing, confirm that you have the right to submit the material and
-identify third-party sources and their terms. See [licensing](docs/maintainers/licensing.md)
-for the current license decision and exclusions. No separate CLA or commit sign-off
-is currently required. Do not submit material whose terms are incompatible with
-the project's chosen license.
+## Coding and testing standards
+
+Follow existing style and module boundaries, prefer small functions and explicit
+types, avoid unrelated refactoring, and comment only where intent is not obvious.
+Keep public behavior deterministic and local-first. Add behavioral regression
+coverage for bug fixes and representative success/edge cases for features. Use
+real temporary filesystem/process boundaries for storage and crash tests. A mock
+of the same implementation or a source-text assertion does not prove behavior.
+
+## Schema and storage changes
+
+Preserve compatibility where feasible. Document incompatibilities and migrations
+when not; update the [archive format](docs/reference/archive-format.md),
+[clinical model](docs/reference/clinical-model.md) and
+[agent protocol](docs/reference/agent-protocol.md) as applicable. Contract, profile,
+serializer and agent-kit versions remain independent. Preserve pinned upstream
+bytes and use [vendoring guidance](definitions/README.md) for reviewed updates.
+
+## Reporting and communication
+
+Use the bug/feature issue templates with synthetic reproduction steps, expected
+and actual behavior. Be respectful, specific and technical; discuss tradeoffs
+with evidence and resolve review feedback. Do not publish vulnerabilities in
+issues; follow [SECURITY.md](SECURITY.md) to request a private channel.
+
+## License
+
+By contributing, you agree that your project-authored contributions are licensed
+under the [MIT License](LICENSE), as in Rikdom. You must have the right to submit
+the material and identify third-party terms. Existing CC0 fixture dedications,
+upstream licenses and retained historical notices remain intact; see
+[licensing](docs/maintainers/licensing.md). No separate CLA or sign-off is required.
+
+Adapted from Rikdom's contribution guide, copyright 2026 rikdom contributors, MIT.

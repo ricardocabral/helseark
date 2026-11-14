@@ -1,23 +1,37 @@
 ---
 name: Bug report
-about: Report a reproducible problem using invented data only
-title: ''
-labels: ''
+about: Report a bug in Helseark
+title: "[Bug] "
+labels: bug
 assignees: ''
 ---
 
-Do not attach real records, vaults, PDFs, screenshots or logs containing health
-data or secrets. Removing names is not sufficient. For vulnerabilities, follow
-[SECURITY.md](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md).
+Use invented data only. Do not attach real records, vaults, PDFs, screenshots or
+logs containing health data or secrets. Removing names is not sufficient. For
+vulnerabilities, follow [SECURITY.md](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md).
 
-**Version/commit, Python, OS and filesystem**
 
-**Expected behavior**
+## Description
 
-**Observed behavior and safe error code**
+What happened?
 
-**Minimal synthetic reproduction**
-Include commands and invented inputs; review their output before posting.
+## Steps to reproduce
 
-**Checks performed and scope/record counts**
-State what was actually read/tested; a failed read is not evidence of absence.
+1. ...
+2. ...
+3. ...
+
+## Expected behavior
+
+What should happen?
+
+## Environment
+
+- OS:
+- Python version:
+- Command used:
+- Input files:
+
+## Logs / output
+
+Paste relevant output.

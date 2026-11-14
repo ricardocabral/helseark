@@ -6,6 +6,9 @@ build-backend = "setuptools.build_meta"
 name = "helseark"
 version = "0.1.0"
 description = "Offline immutable personal health archive"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "licenses/*.txt"]
 requires-python = ">=3.12"
 dependencies = ["jsonschema==4.25.1"]
 
@@ -26,6 +29,7 @@ exclude-newer = "7 days"
 where = ["src"]
 
 [tool.setuptools.data-files]
+"share/helseark" = ["LICENSE"]
 "share/helseark/schemas/0.1.0" = ["schemas/0.1.0/*.json"]
 "share/helseark/definitions" = ["definitions/lock.json", "definitions/upstream-inventory.json"]
 "share/helseark/definitions/fhir-r4-json-schema" = ["definitions/fhir-r4-json-schema/*.json"]

@@ -43,9 +43,9 @@ receive the context you explicitly share with them.
 - [Privacy and agent boundaries](docs/explanation/privacy-and-agent-boundaries.md)
 - [Contributing](CONTRIBUTING.md), [coding guide](docs/development/coding-guide.md), [governance](GOVERNANCE.md), [changelog](CHANGELOG.md)
 - [Security reporting](SECURITY.md), [support](SUPPORT.md), [code of conduct](CODE_OF_CONDUCT.md)
-- [Public release checklist](docs/maintainers/public-release.md) and [licensing status](docs/maintainers/licensing.md)
+- [Release guide](docs/maintainers/releasing.md) and [licensing status](docs/maintainers/licensing.md)
 - [Logo and brand assets](docs/brand/README.md)
 
-Public launch is planned after implementation and publication checks. The owner
-license decision and full distribution notices remain release gates; see the
-licensing guide. User records are not licensed by the toolkit.
+Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
+[MIT License](LICENSE), matching Rikdom. Existing fixture/upstream terms are
+listed in the licensing guide. User records are not licensed by the toolkit.

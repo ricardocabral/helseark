@@ -9,8 +9,10 @@ to its reviewed tag and published artifacts when a release is authorized.
 ### Added
 
 - Contributor, coding, governance, conduct, support and security guidance.
-- Review ownership, issue and pull request templates, and dependency update proposals.
-- Public-launch and licensing checklists, including history/privacy and artifact reviews.
+- Review ownership, issue and pull request templates, and grouped security dependency updates.
+- Release and third-party licensing guidance, including history/privacy and artifact reviews.
+- MIT license and matching package metadata, following Rikdom.
+- Public-repository CodeQL, dependency-review and OpenSSF Scorecard workflows.
 
 ### Changed
 

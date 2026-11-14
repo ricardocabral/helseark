@@ -4,7 +4,7 @@
   "description": "Six constrained FHIR R4 profiles for the Helseark offline archive",
   "canonical": "https://github.com/ricardocabral/helseark/fhir",
   "url": "https://github.com/ricardocabral/helseark",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "type": "fhir.ig",
   "fhirVersions": [
     "4.0.1"

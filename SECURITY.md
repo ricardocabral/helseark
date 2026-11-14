@@ -1,49 +1,54 @@
 # Security policy
 
-## Status and scope
+## Supported versions
 
-Helseark is pre-release software under implementation. No stable release or
-long-term security support window is promised. Reports against current main are
-welcome; maintainers may require reproducing older snapshots on current main.
-Do not use this status as evidence of clinical correctness or production readiness.
+Like Rikdom, security maintenance targets the latest code on main; older snapshots
+have no separate support promise. Helseark is still under implementation and has
+no stable release. This policy makes no claim of clinical correctness or release
+qualification.
 
-Report suspected health-data disclosure, wrong-person access, review bypass,
-accepted-history mutation, unsafe file access, parser resource exhaustion,
-unintended network access and dependency vulnerabilities privately.
+## Reporting a vulnerability
 
-## Reporting
+Do not publish vulnerabilities in public GitHub issues or pull requests.
 
-Use GitHub's [private vulnerability report](https://github.com/ricardocabral/helseark/security/advisories/new)
-when enabled. Enabling and testing that channel is a publication requirement;
-its presence here does not establish that it is active while the repo is private.
-If unavailable, contact the [repository owner](https://github.com/ricardocabral)
-to request a private channel. If no private contact is available, open only a
-minimal issue titled “Private security contact requested”, without technical
-vulnerability details, patient data or attachments. Wait for a private route
-before sending the report. Do not put an exploit in a public issue or PR.
+Use [GitHub private vulnerability reporting](https://github.com/ricardocabral/helseark/security/advisories/new)
+when available. If unavailable, open only a minimal issue requesting a private
+contact channel; include no vulnerability details or attachments. Wait for that
+route before sending evidence. Maintainers must establish a tested private
+fallback before public launch, and enable GitHub reporting when available.
 
-Provide the affected commit/version, OS/filesystem/Python, expected and observed
-behavior, likely impact and a minimal synthetic reproduction. Never send a real
-vault, source PDF, credential, packet, export or patient identifier. Redaction of
-names alone does not make a clinical document safe to share.
+Include affected version/commit, OS/Python/filesystem, expected and actual
+behavior, reproduction steps or proof of concept, likely impact and suggested
+remediation if known. Use synthetic records only. Never send a real vault, source
+PDF, packet, export, credential or patient identifier. Removing names alone does
+not make a health document safe to share.
 
-Maintainers triage privately, agree on safe reproduction, prepare a reviewed fix,
-run focused tests and branch CI, and coordinate an advisory and affected-version
-information when appropriate. There is no guaranteed response or fix deadline,
-bounty program, or authorization to access another person's data or systems.
+Reports may concern disclosure, wrong-person access, review bypass, accepted-history
+mutation, unsafe file access, parser resource exhaustion, unintended network access
+or dependency vulnerabilities. This policy does not authorize access to anyone
+else's systems or data and does not establish a bounty program.
 
-## Limits and safe handling
+## Vulnerability disclosure process
 
-Local files and backups need user-managed OS access controls and protection.
-Hashes detect inconsistency; they are not encryption, an authenticity guarantee,
-or protection against an attacker rewriting every binding. Household folders do
-not enforce per-person secrecy against someone who can read the whole vault.
-Prompts are not a sandbox. A cloud agent receives whatever packet you give it.
-See [privacy and agent boundaries](docs/explanation/privacy-and-agent-boundaries.md).
+Following Rikdom's targets, maintainers aim to acknowledge receipt within seven
+days and provide a status update within fourteen days when possible. These are
+targets, not guaranteed response times. Confirmed vulnerabilities receive a
+reviewed fix and focused tests plus branch CI. Maintainers coordinate disclosure
+with the reporter, targeting public disclosure within ninety days of confirmation
+or after a fix is available unless another timeline is agreed.
 
-If a secret or private record enters GitHub, stop sharing it, notify the owner
-privately and revoke/rotate affected credentials. Preserve restricted incident
-evidence; do not repeat it in logs or issues. Deleting a file from the latest
-commit does not remove history, caches or forks. Any history cleanup requires
-owner coordination and explicit authorization; do not rewrite shared history on
-your own. Making a repository private again cannot recall public copies.
+## Data handling and incidents
+
+Local files/backups need user-managed OS protection. Hashes are not encryption
+or proof of clinical truth. Household folders do not enforce per-person secrecy
+against someone able to read the vault. Prompts are not a sandbox; cloud agents
+receive the packets users share. See [privacy boundaries](docs/explanation/privacy-and-agent-boundaries.md).
+
+If private data or a secret reaches GitHub, stop sharing it, notify the owner
+privately, rotate affected credentials and preserve restricted incident evidence.
+Deleting the latest file does not remove history, caches or forks. Coordinate
+cleanup with the owner; never rewrite shared history without authorization.
+Changing visibility cannot recall public copies.
+
+Adapted from [Rikdom's security policy](https://github.com/ricardocabral/rikdom/blob/main/SECURITY.md),
+copyright 2026 rikdom contributors, MIT.
