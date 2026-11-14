@@ -53,10 +53,9 @@ where = ["src"]
 "share/helseark/agent-kit/skills/migrate-archive" = ["agent-kit/skills/migrate-archive/SKILL.md"]
 
 
-"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md"]
+"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md", "docs/how-to/export-records.md", "docs/how-to/backup-and-restore.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
 
-"share/helseark/agent-kit/docs/how-to" = ["agent-kit/docs/how-to/*.md"]
 "share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]
 
 [tool.pytest.ini_options]

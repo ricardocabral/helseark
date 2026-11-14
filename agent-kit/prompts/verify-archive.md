@@ -28,3 +28,5 @@ Report the supplied evidence and any actual permitted verifier observations sepa
 Output only `output/report.md`, using the common report requirements. This draft produces no accepted changes, export bytes, recovery writes or executable migration plan.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
+
+Implemented host commands and limitations: [portability guide](../docs/how-to/backup-and-restore.md), [export guide](../docs/how-to/export-records.md). Use actual outputs, counts and mapping; never invent a successful drill. PDF disclosure requires SOURCE_SCOPE_REVIEW_REQUIRED handling; source_scope_confirmed alone does not bypass the CLI gate.

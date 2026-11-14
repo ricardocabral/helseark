@@ -321,3 +321,19 @@ the installer-generated console entry point, a copied vault without runtime
 state, pinned resolution, and zero socket attempts under a verified blocking
 audit hook. This qualifies runtime offline operation after dependencies are
 installed; it does not promise installation on an empty offline machine.
+
+## Portability and integrity (Task8)
+
+[Backup and restore](../how-to/backup-and-restore.md) defines the offline folder
+workflow and recovery policy. [Person export](../how-to/export-records.md) defines
+privacy gates and the exact revision-to-fullUrl mapping shared with future
+official-validator execution. export.schema.json describes the strict
+helseark-export-1 inventory. The original vault's pins and accepted bytes remain
+unchanged; selected-current is a distinct exchange snapshot with omissions.
+
+The Python API exposes archive.doctor(Vault), portability.backup,
+export_person, verify_export, restore and fhir_collection. IntegrityReport counts
+verified changes, immutable resource revisions and distinct inventoried blobs.
+Orphan sidecars/blobs and incomplete staging are reported and never discarded.
+Review binding checks use Task6's retained proposal, three candidate inputs,
+validation, review and source/extraction receipts, without work or runtime caches.

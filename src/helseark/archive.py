@@ -17,7 +17,7 @@ from typing import Iterator
 
 from jsonschema import Draft202012Validator
 
-from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, PreparedProposal, ReviewReceipt, CommitResult, uuid_string
+from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, PreparedProposal, ReviewReceipt, CommitResult, IntegrityReport, Issue, uuid_string
 from .serialization import encode_json, decode_canonical_json, hash_bytes
 
 _ENVELOPES = ("proposal.json", "evidence.json", "review.json", "validation.json")
@@ -371,6 +371,7 @@ def _history(vault: Vault, person: str):
     if not accepted.is_dir():
         raise ArchiveError("PERSON_NOT_FOUND", "No accepted history for the selected person.", {"path": f"people/{person}/accepted"})
     result, base, current, revisions = [], None, {}, set()
+    exact_revisions = set()
     for directory in sorted(accepted.iterdir()):
         with _stored_location(vault, directory):
             _safe(vault.root, directory.relative_to(vault.root).as_posix())
@@ -394,6 +395,11 @@ def _history(vault: Vault, person: str):
                     raise ArchiveError("INTEGRITY", "Broken or reused resource revision.", {"path": "change.json"})
                 current[key] = entry["versionId"]
                 revisions.add(entry["versionId"])
+            exact_revisions.update((e['type'],e['id'],e['versionId']) for e in change['resources'])
+            for entry in change['resources']:
+                resource = _json(directory, entry['path'])
+                for reference in _references(resource):
+                    _check_reference(reference,current,exact_revisions,entry['path'])
             if sequence == 1 and ("Patient", person) not in current:
                 raise ArchiveError("INTEGRITY", "Genesis must create its Patient identity.")
             base = Head(sequence, change["transactionId"], hash_bytes(change_data))
@@ -475,6 +481,12 @@ def _publish_locked(vault: Vault, person: str, payloadDirectory: Path, expectedB
         if entry["supersedesVersionId"] != existing.get((entry["type"], entry["id"])) or entry["versionId"] in revisions:
             raise ArchiveError("INTEGRITY", "Invalid revision succession.")
         revisions.add(entry["versionId"])
+    exact_revisions = {(e['type'],e['id'],e['versionId']) for _,_,c in prior for e in c['resources']}
+    exact_revisions.update((e['type'],e['id'],e['versionId']) for e in change['resources'])
+    existing.update({(e['type'],e['id']):e['versionId'] for e in change['resources']})
+    for entry in change['resources']:
+        for reference in _references(_json(stage,entry['path'])):
+            _check_reference(reference,existing,exact_revisions,entry['path'])
     if not current and not any(e["type"] == "Patient" and e["id"] == person for e in change["resources"]):
         raise ArchiveError("INTEGRITY", "Genesis requires its Patient.")
     destination = accepted / f"{sequence:08d}-{proposal['transactionId']}"
@@ -602,3 +614,83 @@ def commit_candidate(vault: Vault, proposal: "PreparedProposal", receipt: "Revie
         # Existing primitive copies and verifies under this same writer lock.
         result=_publish_locked(vault,proposal.personId,proposal.path,proposal.base)
         return CommitResult('committed',result,tuple(ResourceRef(i['type'],i['id'],i['versionId']) for i in value['resources']))
+
+
+def _check_reference(reference, current, exact_revisions, path):
+    parts = reference.split('/') if isinstance(reference,str) else []
+    if len(parts)==2:
+        valid = (parts[0],parts[1]) in current
+    elif len(parts)==4 and parts[2]=='_history':
+        valid = (parts[0],parts[1],parts[3]) in exact_revisions
+    else:
+        valid = False
+    if not valid:
+        raise ArchiveError('UNRESOLVED_REVISION','Accepted resource has an unresolved local reference.',{'path':path})
+
+
+def _references(value):
+    """Yield FHIR Reference strings without interpreting text or attachment URLs."""
+    if isinstance(value, dict):
+        if 'reference' in value:
+            yield value['reference']
+        for item in value.values():
+            yield from _references(item)
+    elif isinstance(value, list):
+        for item in value:
+            yield from _references(item)
+
+
+def doctor(vault: Vault) -> IntegrityReport:
+    """Audit accepted authority and report recoverable debris without changing it.
+
+    Counts include only successfully verified changes, resource revisions and
+    distinct inventoried assets. A damaged person cannot produce a clean verdict.
+    """
+    issues, orphans, assets = [], [], set()
+    changes = resources = 0
+    bound_paths = set()
+
+    def problem(code, path, action, severity='error'):
+        issues.append(Issue(code, severity, path, None, action))
+    try:
+        _open_vault_metadata(vault.root)
+    except ArchiveError as error:
+        problem(error.code, error.details.get('path', 'vault.json'),
+                'Restore the affected pinned file from a verified backup; do not repin history.')
+    try:
+        people = _safe(vault.root, 'people')
+        directories = sorted(people.iterdir())
+    except (ArchiveError, OSError):
+        problem('INTEGRITY','people','Preserve this vault; restore the missing or unsafe people directory from a verified backup.')
+        return IntegrityReport(tuple(issues),0,0,0,())
+    for directory in directories:
+        person = directory.name
+        try:
+            history = _history(vault, person)
+            for at, change_dir, change in history:
+                changes += 1
+                resources += len(change['resources'])
+                proposal = _json(change_dir, 'proposal.json')
+                bound_paths.update(f"people/{person}/{b['path']}" for b in proposal.get('importReview', {}).get('bindings', []))
+                assets.update(f"people/{person}/{a['path']}" for a in change['assets'])
+        except ArchiveError as error:
+            problem(error.code, error.details.get('path', f'people/{person}/accepted'),
+                    'Preserve this directory; restore the complete affected history from a verified backup. Never skip or rewrite a change.')
+        asset_root = directory / 'assets'
+        if asset_root.exists():
+            try:
+                for relative in _files(asset_root):
+                    path = f'people/{person}/assets/{relative}'
+                    # Sidecar receipts are bound inside Task6 proposals as retained artifacts.
+                    if path not in assets and path not in bound_paths:
+                        orphans.append(path)
+            except ArchiveError as error:
+                problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')
+    for path in sorted(orphans):
+        problem('ORPHAN_PATH', path, 'Preserve this unreferenced file; inspect intake/work or recover its missing accepted change before manual quarantine.', 'warning')
+    staging = _safe(vault.root, '.runtime/staging')
+    if staging.exists():
+        for path in sorted(staging.iterdir()):
+            problem('INCOMPLETE_STAGING', path.relative_to(vault.root).as_posix(),
+                    'Unpublished staging is not accepted history. Preserve it for inspection; retry from retained input or manually quarantine.', 'warning')
+    return IntegrityReport(tuple(issues), changes, resources, len(assets), tuple(sorted(orphans)))

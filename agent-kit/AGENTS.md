@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read and clinical-query. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export and integrity-report. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -86,8 +86,7 @@ Implemented command forms (operator-run; placeholders are documentation only):
 - `helseark --vault PATH intake add SOURCE --person UUID --packet ABSENT_PATH --agent-output ABSENT_OUTPUT --confirm-person --json`
 
 Discovery/context/render are documented in START-HERE.md. PDF intake and draft
-extraction are implemented; full import acceptance, structured import,
-correction, export, doctor and migration workflows remain unavailable. Selected-person
+extraction are implemented; reviewed publication, export, backup/restore and doctor are implemented. Structured import, correction and migration remain unavailable. Selected-person
 observations/timeline/record and date-filtered query context are implemented; see
 [query workflow](docs/how-to/query-history.md). Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
@@ -138,3 +137,5 @@ unchanged. See the pinned agent protocol for the closed contract.
 Kit 0.1.1: a confirmed retained PDF may draft while the descriptor still lists
 unavailable structured import and reviewed publication. The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.
+
+Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.
