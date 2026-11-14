@@ -1,0 +1,61 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:evidence",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "entries": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "user-entry",
+              "generated"
+            ]
+          },
+          "pointer": {
+            "type": "string"
+          },
+          "resourceRef": {
+            "type": "string"
+          },
+          "rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "resourceRef",
+          "pointer",
+          "kind",
+          "value",
+          "rule"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "personId",
+    "entries"
+  ],
+  "type": "object"
+}

@@ -1,0 +1,106 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:review",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "acknowledgedIssues": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "resourceRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "resourceRef",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "baseChangeSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "confirmedPerson": {
+      "const": true
+    },
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "decision": {
+      "enum": [
+        "accept",
+        "accept-with-acknowledged-limitations"
+      ]
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    },
+    "proposalSha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "reviewedAt": {
+      "type": "string"
+    },
+    "reviewer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "local-user"
+        },
+        "label": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "label"
+      ],
+      "type": "object"
+    },
+    "validationSha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "decision",
+    "personId",
+    "proposalSha256",
+    "validationSha256",
+    "baseChangeSha256",
+    "reviewer",
+    "reviewedAt",
+    "confirmedPerson",
+    "acknowledgedIssues"
+  ],
+  "type": "object"
+}
