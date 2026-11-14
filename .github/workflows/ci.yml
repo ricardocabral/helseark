@@ -76,7 +76,7 @@ jobs:
   official-validator:
     name: Real pinned offline R4 validator
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -97,11 +97,13 @@ jobs:
           sudo env PYTHONPATH="$PWD/src:$PWD/tests" \
             "$PWD/.venv/bin/python" tests/qualify_official_validator.py \
             --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
-            --output "$RUNNER_TEMP/official-evidence"
+            --output "$RUNNER_TEMP/official-evidence" --timeout-seconds 240
       - name: Retain synthetic qualification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: official-validator-evidence
-          path: ${{ runner.temp }}/official-evidence
+          path: |
+            ${{ runner.temp }}/official-evidence/*.json
+            ${{ runner.temp }}/official-evidence/*.txt
           if-no-files-found: error

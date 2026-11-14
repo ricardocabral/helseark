@@ -31,6 +31,8 @@ def pin():
             *(['docs/how-to/query-history.md'] if task['id']=='query' else [])]))
         if task['id'] in ('export','verify'):
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
+        if task['id']=='verify':
+            task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/run-offline-validator.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
         task['requiredCapabilities']={
             'inspect':['agent-discovery','agent-context','task-instructions'],
@@ -59,7 +61,7 @@ def pin():
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.
-    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
+    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/run-offline-validator.md','definitions/validator-lock.json','definitions/validator-notices.json','NOTICE','docs/how-to/query-history.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas/0.1.0').glob('*.json'))]

@@ -71,7 +71,10 @@ context is required to verify source/person scope and snapshot closure.
 The adapter uses Task 8's shared `fhir_collection` boundary, including proposed
 revisions, pinned historical children and versionless Patient references. Only
 Reference strings in the derived Bundle change. Original resources and source
-assets remain untouched. The report binds the original proposal SHA-256, derived
+assets remain untouched. New Patient genesis records declare the supported
+Patient profile. Older accepted Patients that lack that declaration are never
+rewritten by this adapter and can fail target-profile conformance; keep the
+failed report and use a separately reviewed revision/migration workflow. The report binds the original proposal SHA-256, derived
 Bundle hash, reversible revision/fullUrl mapping, package/profile pins, Java
 launcher hash, exact effective flags, outcome hash, elapsed time and issue counts.
 Reports and review receipts remain noncircular: proposal → validation → review.
@@ -107,6 +110,11 @@ contact containing only gender passed upstream JSON Schema but failed actual
 FHIRPath `pat-1` with 1 error / 1 warning. Its first 55-second run timed out;
 the explicitly configured 120-second retry finished. Preserve that failure:
 startup load varies, and a deadline change must be visible in configuration.
+A later full API qualification also exhausted 120 seconds under machine load;
+its explicitly configured retry and CI use 240 seconds. The example above stays
+at 120 seconds so operators choose and record the bound rather than receiving a
+silent default increase. Machine issue locations are mapped to original revision
+references and JSON Pointers where the official path syntax is unambiguous.
 See the real synthetic corpus qualification in CI for the supported profile
 surface. Process-error fakes make no conformance claim.
 

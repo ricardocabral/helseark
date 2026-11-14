@@ -47,12 +47,13 @@ def _network_command(command):
 def _artifacts(config, home):
     lock = _lock()
     if (config.version != lock['version'] or config.executableSha256 != lock['executableSha256'] or
-            hash_bytes(_bytes(config.executablePath, 256*1024*1024)) != lock['executableSha256']):
+            hash_bytes(jar_data := _bytes(config.executablePath, 256*1024*1024)) != lock['executableSha256']):
         _error('VALIDATOR_DIGEST_MISMATCH', 'Validator version or executable digest does not match the qualified pin.')
     if type(config.timeoutSeconds) is not int or not 1 <= config.timeoutSeconds <= 600 or type(config.requireTerminology) is not bool:
         _error('INVALID_INPUT', 'Validator deadline must be 1–600 seconds and terminology policy boolean.')
     if not Path(config.javaPath).is_file() or not os.access(config.javaPath, os.X_OK):
         _error('VALIDATOR_UNAVAILABLE', 'Explicit local Java executable is unavailable.')
+    (home.parent/'validator.jar').write_bytes(jar_data)
     directory = Path(config.packageDirectory)
     expected = {p['filename'] for p in lock['packages']}
     if directory.is_symlink() or not directory.is_dir() or {p.name for p in directory.iterdir()} != expected:
@@ -115,7 +116,7 @@ def _profiles(vault, config, destination):
     return pins
 
 
-def _outcome(data, returncode):
+def _outcome(data, returncode, mapping=None):
     try:
         outcome = decode_json(data)
         if outcome['resourceType'] != 'OperationOutcome' or not isinstance(outcome['issue'], list) or not outcome['issue']:
@@ -133,15 +134,23 @@ def _outcome(data, returncode):
             # locations as pointers when the tool actually supplies JSON Pointer.
             locations = item.get('expression', item.get('location', []))
             pointer = None
+            resource_ref = None
             for location in locations:
+                if isinstance(location,str):
+                    location = re.sub(r'/\*[A-Za-z]+/[0-9a-f-]+\*/','',location)
                 if isinstance(location, str) and re.fullmatch(r'Bundle(?:[.][A-Za-z][A-Za-z0-9]*(?:\[[0-9]+\])?)+', location):
                     pointer = re.sub(r'\[([0-9]+)\]', r'/\1', location[len('Bundle'):].replace('.', '/'))
                     break
                 if isinstance(location,str) and location.startswith('/') and len(location)<1024:
                     pointer = location
                     break
+            match = re.match(r'^/entry/([0-9]+)/resource(?=/|$)',pointer or '')
+            if match and mapping is not None and int(match[1]) < len(mapping):
+                target = mapping[int(match[1])]
+                resource_ref = f"{target['resourceType']}/{target['id']}/_history/{target['versionId']}"
+                pointer = pointer[match.end():]
             issues.append(Issue('OFFICIAL_FHIR_'+severity.upper()+'_'+str(index), 'error' if severity in ('fatal','error') else 'info' if severity == 'information' else 'warning',
-                                pointer, None, 'Official validator reported '+severity+'; inspect the private OperationOutcome for details.'))
+                                pointer, resource_ref, 'Official validator reported '+severity+'; inspect the private OperationOutcome for details.'))
         if returncode not in (0,1) or (returncode == 0) != (counts['errors'] == 0):
             _error('VALIDATOR_PROCESS_FAILED', 'Validator exit status and machine outcome disagree.')
         return tuple(issues), counts
@@ -168,7 +177,11 @@ def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorCon
                       'Unavailable terminology: -tx n/a; no licensed terminology completeness claim.'))
     if config.requireTerminology:
         issues += (Issue('TERMINOLOGY_UNAVAILABLE','error',None,None,'Required terminology coverage is unavailable in the qualified offline mode.'),)
-    return replace(baseline, coverage=coverage, issues=baseline.issues+issues, officialRun=run)
+    report = replace(baseline, coverage=coverage, issues=baseline.issues+issues, officialRun=run)
+    from .archive import _schema
+    from .agent_context import document
+    _schema(vault,'validation',document(report))
+    return report
 
 
 def _run_bundle(vault, bundle, mapping, config):
@@ -182,7 +195,7 @@ def _run_bundle(vault, bundle, mapping, config):
         source = root/'context.json'; source.write_bytes(encode_json(bundle))
         output = root/'outcome.json'
         command = [str(Path(config.javaPath).absolute()), '-Xmx512m', '-Duser.home='+str(home),
-                   '-jar', str(Path(config.executablePath).absolute()), str(source), '-version','4.0.1',
+                   '-jar', str(root/'validator.jar'), str(source), '-version','4.0.1',
                    '-ig',str(profiles), '-tx','n/a', '-txCache',str(root/'tx'),
                    '-no-http-access','-disable-default-resource-fetcher','-output',str(output)]
         started = time.monotonic()
@@ -194,7 +207,7 @@ def _run_bundle(vault, bundle, mapping, config):
             if not output.is_file():
                 _error('VALIDATOR_PROCESS_FAILED', 'Validator failed before producing its machine outcome (check Java and OS confinement).')
             data = _bytes(output, 8*1024*1024)
-            issues, counts = _outcome(data, result.returncode)
+            issues, counts = _outcome(data, result.returncode, mapping)
         except subprocess.TimeoutExpired:
             _error('VALIDATOR_TIMEOUT', 'Official validator exceeded the explicit configured deadline.')
         except OSError:
@@ -208,6 +221,7 @@ def _run_bundle(vault, bundle, mapping, config):
                'outcomeSha256':hash_bytes(encode_json(decode_json(data))),
                'operationOutcome':decode_json(data), 'counts':counts,
                'networkPolicy':'macOS sandbox deny network*' if sys.platform == 'darwin' else 'Linux isolated network namespace',
+               'command':command, 'javaRelease':_bytes(Path(config.javaPath).parent.parent/'release',16384).decode('utf-8'),
                'arguments':['-version','4.0.1','-ig','<pinned-profiles>','-tx','n/a','-no-http-access','-disable-default-resource-fetcher'],
                'resourceCount':len(bundle['entry']), 'requireTerminology':config.requireTerminology}
     return issues, counts, run
@@ -219,11 +233,16 @@ def verify_recorded_run(vault, proposal):
     run = proposal.validation.officialRun
     if run['bundleSha256'] != hash_bytes(encode_json(bundle)) or run['mapping'] != mapping or run['version'] != _lock()['version'] or run['executableSha256'] != _lock()['executableSha256']:
         _error('REVIEW_MISMATCH', 'Official validation context or pins changed.')
+    from .archive import _read
+    definition_lock = decode_json(_read(vault.root,'definitions/lock.json'))
+    expected_profiles = [{'path':e['path'],'sha256':e['sha256']} for a in definition_lock['artifacts'] for e in a['files'] if e['path'].startswith('profiles/r4/0.1.0/StructureDefinition-')]
+    if run['profiles'] != expected_profiles:
+        _error('REVIEW_MISMATCH', 'Official validation profile pins changed.')
     if run['packages'] != _lock()['packages'] or run['resourceCount'] != len(bundle['entry']):
         _error('REVIEW_MISMATCH', 'Official validation package or resource counts changed.')
     if run['outcomeSha256'] != hash_bytes(encode_json(run['operationOutcome'])):
         _error('REVIEW_MISMATCH', 'Official validation outcome changed.')
-    issues, counts = _outcome(encode_json(run['operationOutcome']), run['exitCode'])
+    issues, counts = _outcome(encode_json(run['operationOutcome']), run['exitCode'], run['mapping'])
     if run['counts'] != counts:
         _error('REVIEW_MISMATCH', 'Official validation outcome counts changed.')
     official = tuple(i for i in proposal.validation.issues if i.code.startswith('OFFICIAL_FHIR_'))

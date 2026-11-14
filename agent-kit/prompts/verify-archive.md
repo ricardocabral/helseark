@@ -30,3 +30,11 @@ Output only `output/report.md`, using the common report requirements. This draft
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
 
 Implemented host commands and limitations: [portability guide](../docs/how-to/backup-and-restore.md), [export guide](../docs/how-to/export-records.md). Use actual outputs, counts and mapping; never invent a successful drill. PDF disclosure requires SOURCE_SCOPE_REVIEW_REQUIRED handling; source_scope_confirmed alone does not bypass the CLI gate.
+
+Optional official R4 validation is an explicit host operation over a prepared
+proposal, using pinned local Java/JAR/packages and OS network confinement.
+Its report states exact resource/error/warning counts and supported-profile
+coverage. It never establishes clinical correctness. Terminology is not checked
+in the qualified `-tx n/a` mode; requiring terminology blocks. Tool absence never
+blocks baseline use, but an explicit required full-check policy does block.
+See [offline validator](../docs/how-to/run-offline-validator.md).

@@ -95,3 +95,15 @@ contracts. Older copied kits/definitions and accepted history remain readable; t
 toolkit does not automatically repin or migrate them. An old schema that cannot
 represent the new review inventory blocks preparation. Schema migration is a later
 workflow; preserve the original vault and its definitions.
+
+## Optional official validation before review
+
+`validate proposal --official-config PATH` replaces only the unreviewed
+`validation.json`. The exact OperationOutcome, count summary, package/profile
+pins and shared revision/fullUrl mapping remain in `officialRun`. The proposal
+never hashes this report; human review hashes both unchanged proposal and report.
+Review/commit recheck baseline/source scope and the derived context binding,
+without rerunning Java or changing elapsed time. Existing reports with no
+`officialRun` preserve their original byte representation. A requested full tool
+that is absent blocks; required terminology blocks in the qualified `-tx n/a`
+mode. See [offline validator](../how-to/run-offline-validator.md).

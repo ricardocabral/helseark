@@ -24,12 +24,13 @@ def main():
     parser.add_argument('--artifacts',type=Path,required=True)
     parser.add_argument('--java',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
+    parser.add_argument('--timeout-seconds',type=int,default=120)
     args=parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=False)
     root=Path(__file__).resolve().parents[1]
     pins=_lock()
     config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
-                           args.artifacts/'packages',root/'profiles/r4/0.1.0',120,False,args.java)
+                           args.artifacts/'packages',root/'profiles/r4/0.1.0',args.timeout_seconds,False,args.java)
     # Witness the enclosing OS confinement, not just Python socket monkeypatches.
     from helseark.fhir_validator import _network_command
     import subprocess,sys
@@ -45,10 +46,18 @@ def main():
     # Fixture parameterization of identity precedes the public mapper; no Bundle converter here.
     raw=encode_json(corpus).replace(original_person.encode(),person.encode())
     corpus=decode_json(raw)
-    resources=tuple(e['resource'] for e in corpus['entry'])
+    from decimal import Decimal
+    amendment=deepcopy(next(e['resource'] for e in corpus['entry'] if 'valueQuantity' in e['resource']))
+    old_version=amendment['meta']['versionId']
+    amendment['meta']['versionId']='00000010-8888-4888-8888-888888888888'
+    amendment['status']='amended'; amendment['valueQuantity']['value']=Decimal('0.0600')
+    resources=tuple(e['resource'] for e in corpus['entry'])+(amendment,)
     original_bytes=encode_json(resources_as_list:=list(resources))
     bundle,mapping=fhir_collection(vault,person,at=initial_head,proposedResources=resources)
     assert len(mapping)==len(resources) and len(mapping)>6
+    assert {m['versionId'] for m in mapping if m['id']==amendment['id']}=={old_version,amendment['meta']['versionId']}
+    report_resource=next(e['resource'] for e in bundle['entry'] if e['resource']['resourceType']=='DiagnosticReport')
+    assert report_resource['result'][0]['reference']=='urn:uuid:'+old_version
     # Reverse only documented Reference rewrites and compare every clinical byte,
     # including exact Decimal scale and array ordering.
     from helseark.validation import _walk
@@ -88,9 +97,16 @@ def main():
     proposal=prepare(v,candidate)
     source_bytes=source.assetPath.read_bytes()
     report=validate_with_official_tool(proposal,config,vault=v)
+    assert b'UNSELECTED SECRET' not in encode_json(report.officialRun)
     (args.output/'prepared-report.json').write_bytes(encode_json(document(report)))
     assert next(c.result for c in report.coverage if c.family=='full-fhir')=='passed'
     assert next(c.result for c in report.coverage if c.family=='terminology')=='not-checked'
+    required=validate_with_official_tool(proposal,replace(config,requireTerminology=True),vault=v)
+    assert next(c.result for c in required.coverage if c.family=='terminology')=='failed'
+    from helseark.review import _blocked
+    try: _blocked(required)
+    except ArchiveError as error: assert error.code=='VALIDATION_BLOCKED'
+    else: raise AssertionError('Required terminology absence did not block')
     (proposal.path/'validation.json').write_bytes(encode_json(document(report)))
     prepared=read_prepared(v,proposal.path)
     receipt=approve(v,prepared)
@@ -99,11 +115,6 @@ def main():
     assert source.assetPath.read_bytes()==source_bytes
     open_vault(v.root)
     assert report.officialRun['counts']['errors']==0
-    required=replace(report,coverage=tuple(replace(c,result='failed') if c.family=='terminology' else c for c in report.coverage))
-    from helseark.review import _blocked
-    try: _blocked(required)
-    except ArchiveError as error: assert error.code=='VALIDATION_BLOCKED'
-    else: raise AssertionError('Required terminology absence did not block')
     # Complete package closure vs isolated unrelated empty cache (actual adapter).
     empty=args.output/'empty-packages';empty.mkdir()
     try: _artifacts(replace(config,packageDirectory=empty),args.output/'empty-home')

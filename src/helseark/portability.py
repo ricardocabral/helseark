@@ -69,7 +69,8 @@ def _blocked(report):
 
 
 def fhir_collection(vault: Vault, person: str, resourceRefs: tuple[ResourceRef, ...] = (), *,
-                    at: Head | None = None) -> tuple[FHIRResource, list[dict[str, JsonValue]]]:
+                    at: Head | None = None,
+                    proposedResources: tuple[FHIRResource, ...] = ()) -> tuple[FHIRResource, list[dict[str, JsonValue]]]:
     """Return (derived collection, explicit revision/fullUrl map) at one Head.
 
     Empty selection means all current resources. Exact historical references
@@ -88,6 +89,15 @@ def fhir_collection(vault: Vault, person: str, resourceRefs: tuple[ResourceRef, 
             key = (entry['type'],entry['id'],entry['versionId'])
             revisions[key] = resource
             current[key[:2]] = resource
+    # Prepared revisions use the same snapshot resolver and rewrite boundary.
+    # Callers validate their source/evidence inventory before supplying them.
+    for resource in proposedResources:
+        key = (resource['resourceType'],resource['id'],resource['meta']['versionId'])
+        if (resource['resourceType'] == 'Patient' and resource['id'] != person) or (key in revisions and encode_json(revisions[key]) != encode_json(resource)):
+            raise ArchiveError('PERSON_MISMATCH','Prepared revisions conflict with the selected immutable snapshot.')
+        uuid_string(resource['id']); uuid_string(resource['meta']['versionId'])
+        revisions[key] = resource
+        current[key[:2]] = resource
     def resolved(ref):
         resource = (revisions.get((ref.resourceType,ref.id,ref.versionId)) if ref.versionId
                     else current.get((ref.resourceType,ref.id)))

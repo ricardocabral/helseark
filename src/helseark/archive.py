@@ -518,7 +518,8 @@ def _patient(details: PersonDraft, person: str, revision: str, now: str):
     if (not isinstance(details.displayName, str) or not details.displayName.strip()
             or len(details.displayName) > 1024 or (details.note is not None and (not isinstance(details.note, str) or len(details.note) > 1048576))):
         raise ArchiveError("INVALID_PERSON", "Person name or note is invalid.")
-    patient = {"resourceType": "Patient", "id": person, "meta": {"versionId": revision, "lastUpdated": now},
+    patient = {"resourceType": "Patient", "id": person, "meta": {"versionId": revision, "lastUpdated": now,
+                   "profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"]},
                "name": [{"text": details.displayName}]}
     if details.birthDate is not None:
         value = details.birthDate

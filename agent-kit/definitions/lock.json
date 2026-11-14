@@ -29,8 +29,8 @@
         },
         {
           "path": "schemas/0.1.0/validation.schema.json",
-          "sha256": "3a96316c75eb9a618053aabfb642a38922f0d55f168734bf4ff1904bb79ee113",
-          "size": 2322
+          "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38",
+          "size": 5779
         },
         {
           "path": "schemas/0.1.0/vault.schema.json",
@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "2fdc834db757b449a12933f275eaaa7bc78865ddc53f56d55325112015b5726c",
-          "size": 6377
+          "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c",
+          "size": 7113
         }
       ],
       "license": "Apache-2.0",
@@ -852,6 +852,58 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-backup-and-restore",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/run-offline-validator.md",
+          "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9",
+          "size": 7174
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-run-offline-validator",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "definitions/validator-lock.json",
+          "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e",
+          "size": 4136
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-validator-lock",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "definitions/validator-notices.json",
+          "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8",
+          "size": 2889
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-validator-notices",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "NOTICE",
+          "sha256": "593e84a1b184f88b66de3992d8666c35563ecd27b6ab6e6cda772f1133b45b0a",
+          "size": 1545
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-NOTICE",
       "version": "0.1.0"
     }
   ],

@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
+    "definitionLockSha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -18,14 +18,29 @@
       "size": 9539
     },
     {
+      "path": "NOTICE",
+      "sha256": "593e84a1b184f88b66de3992d8666c35563ecd27b6ab6e6cda772f1133b45b0a",
+      "size": 1545
+    },
+    {
       "path": "START-HERE.md",
       "sha256": "6cb12303cdceeb4888d7a11acd7ce5199d405c2ed2dd3a985c83eabdfa728014",
       "size": 3232
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
-      "size": 33345
+      "sha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d",
+      "size": 34826
+    },
+    {
+      "path": "definitions/validator-lock.json",
+      "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e",
+      "size": 4136
+    },
+    {
+      "path": "definitions/validator-notices.json",
+      "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8",
+      "size": 2889
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
@@ -46,6 +61,11 @@
       "path": "docs/how-to/query-history.md",
       "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
       "size": 4050
+    },
+    {
+      "path": "docs/how-to/run-offline-validator.md",
+      "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9",
+      "size": 7174
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -74,8 +94,8 @@
     },
     {
       "path": "docs/reference/review.md",
-      "sha256": "2fdc834db757b449a12933f275eaaa7bc78865ddc53f56d55325112015b5726c",
-      "size": 6377
+      "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c",
+      "size": 7113
     },
     {
       "path": "docs/tutorials/first-archive.md",
@@ -189,8 +209,8 @@
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
-      "size": 2463
+      "sha256": "a169e9256a4f291f975bc0c424dfe65ecefc5c30745b78e19d0089b040abb8d7",
+      "size": 2997
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -239,8 +259,8 @@
     },
     {
       "path": "schemas/0.1.0/validation.schema.json",
-      "sha256": "3a96316c75eb9a618053aabfb642a38922f0d55f168734bf4ff1904bb79ee113",
-      "size": 2322
+      "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38",
+      "size": 5779
     },
     {
       "path": "schemas/0.1.0/vault.schema.json",
@@ -279,8 +299,8 @@
     },
     {
       "path": "skills/verify-archive/SKILL.md",
-      "sha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
-      "size": 1888
+      "sha256": "79257da698902e412abc2c12524e3ae440cf5755412c4791010325392570c360",
+      "size": 2425
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -699,9 +719,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
+      "sha256": "a169e9256a4f291f975bc0c424dfe65ecefc5c30745b78e19d0089b040abb8d7",
       "skillId": "verify-archive",
-      "skillSha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
+      "skillSha256": "79257da698902e412abc2c12524e3ae440cf5755412c4791010325392570c360",
       "skillVersion": "0.1.0",
       "taskIds": [
         "verify"
@@ -1147,7 +1167,8 @@
         "docs/reference/clinical-model.md",
         "docs/reference/archive-format.md",
         "docs/how-to/export-records.md",
-        "docs/how-to/backup-and-restore.md"
+        "docs/how-to/backup-and-restore.md",
+        "docs/how-to/run-offline-validator.md"
       ],
       "requiredCapabilities": [
         "agent-context",

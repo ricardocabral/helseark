@@ -20,3 +20,11 @@ Use [export](../../docs/how-to/export-records.md) and [backup/doctor](../../docs
 Actual command output and nonzero checked counts are required for a success report.
 
 The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. PDF source scope remains blocked without a reviewed derivative workflow.
+
+Optional official R4 validation is an explicit host operation over a prepared
+proposal, using pinned local Java/JAR/packages and OS network confinement.
+Its report states exact resource/error/warning counts and supported-profile
+coverage. It never establishes clinical correctness. Terminology is not checked
+in the qualified `-tx n/a` mode; requiring terminology blocks. Tool absence never
+blocks baseline use, but an explicit required full-check policy does block.
+See [offline validator](../../docs/how-to/run-offline-validator.md).

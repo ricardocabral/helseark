@@ -1,8 +1,8 @@
 """Bounded offline admissibility of FHIR R4 graphs and retained source evidence.
 
 The registry hides byte pins, schema dialect dispatch and local resolution. The
-four public operations never fetch URLs or execute FHIRPath, terminology or a
-full validator. A clean report still requires review of the final proposal.
+baseline operations never fetch URLs or execute FHIRPath or terminology.
+Explicit officialConfig opts into the separately qualified offline subprocess. A clean report still requires review of the final proposal.
 """
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from referencing.jsonschema import DRAFT6, DRAFT202012
 from jsonschema.exceptions import SchemaError
 
 from .contracts import (ArchiveError, Candidate, CheckCoverage, Issue,
-                        JsonValue, ResourceRef, ValidationReport, Vault, uuid_string)
+                        JsonValue, ResourceRef, ValidationReport, ValidatorConfig, Vault, uuid_string)
 from .serialization import decode_json, encode_json, hash_bytes
 from .archive import _read, _safe, head, resolve, _versions, _json, _verify_inputs
 
@@ -881,12 +881,19 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
     return checks.report()
 
 
-def validate_proposal(vault: Vault, proposalDirectory: Path) -> ValidationReport:
+def validate_proposal(vault: Vault, proposalDirectory: Path, *,
+                      officialConfig: ValidatorConfig | None = None, requireOfficial: bool = False) -> ValidationReport:
     """Check a prepared inventory and exact resource/evidence/assets before review.
 
     This operation does not read or authorize a review receipt. Its digest binds
     the report to the exact retained proposal bytes, with no circular hashes.
     """
+    if requireOfficial or officialConfig is not None:
+        from .fhir_validator import validate_with_official_tool
+        if officialConfig is None:
+            raise ArchiveError('VALIDATOR_UNAVAILABLE','Required full check has no explicit validator configuration.')
+        from .review import read_prepared
+        return validate_with_official_tool(read_prepared(vault,proposalDirectory),officialConfig,vault=vault)
     registry = load_definition_registry(vault)
     checks = _Checks(vault, registry, None, None, prepared=True)
     digest = None

@@ -3,7 +3,7 @@
 Receipts are local consistency records, not signatures or human identity proof.
 Callers must keep review decision input under approved-user workflow control.
 """
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
@@ -29,7 +29,7 @@ def read_prepared(vault, directory, *, candidate_path=None, base=None):
     value=_json(directory,'proposal.json'); _schema(vault,'proposal',value)
     digest=hash_bytes(_read(directory,'proposal.json'))
     report=_json(directory,'validation.json'); _schema(vault,'validation',report)
-    validation=ValidationReport(report['checkedProposalSha256'],tuple(CheckCoverage(**c) for c in report['coverage']),tuple(Issue(**i) for i in report['issues']))
+    validation=ValidationReport(report['checkedProposalSha256'],tuple(CheckCoverage(**c) for c in report['coverage']),tuple(Issue(**i) for i in report['issues']),report.get('officialRun'))
     if base is None and value['baseChangeSha256'] is not None:
         from .archive import _history
         base=next((h for h,_,_ in _history(vault,value['personId']) if h.changeSha256==value['baseChangeSha256']),None)
@@ -77,7 +77,15 @@ def _verify_prepared(vault, proposal, *, current=True):
     if current:
         report=validate_proposal(vault,proposal.path)
         _blocked(report)
-        if encode_json(document(report))!=raw:
+        compared = proposal.validation
+        if compared.officialRun is not None:
+            from .fhir_validator import verify_recorded_run
+            verify_recorded_run(vault,proposal)
+            compared = replace(compared, officialRun=None,
+                coverage=tuple(c if c.family in ('full-fhir','terminology') else
+                    next((old for old in compared.coverage if old.family==c.family),c) for c in report.coverage),
+                issues=tuple(i for i in compared.issues if not i.code.startswith('OFFICIAL_FHIR_') and i.code != 'TERMINOLOGY_UNAVAILABLE'))
+        if encode_json(document(report))!=encode_json(document(compared)):
             raise ArchiveError('REVIEW_MISMATCH','Fresh validation differs from reviewed report.')
     return value
 
