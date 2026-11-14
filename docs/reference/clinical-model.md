@@ -348,3 +348,9 @@ An explicit no-known-allergies source statement is a nonempty AllergyIntolerance
 Source assertions use `patient` for the selected Patient. Supported native fields: `identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied`. Timeline uses ('occurrenceDateTime', 'occurrenceString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
 
 Preserve occurrenceDateTime precision or occurrenceString for unknown dates. Keep unknown doseNumberString/series as stated; never calculate dates or series from age. A not-done resource is not an administered vaccine.
+
+### Procedure (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode`. Timeline uses ('performedDateTime', 'performedPeriod', 'performedString', 'performedAge', 'performedRange'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve performed choices, source status/reason, body site and outcome. Not-done/stopped does not prove completion, and a missing performed time stays unknown.

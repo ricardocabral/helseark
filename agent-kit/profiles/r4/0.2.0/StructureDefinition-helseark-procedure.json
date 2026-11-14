@@ -1,0 +1,82 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-procedure",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-procedure",
+  "version": "0.2.0",
+  "name": "HelsearkProcedure",
+  "title": "Helseark Procedure",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Procedure",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Procedure",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Procedure",
+        "path": "Procedure",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-procedure|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "Procedure.id",
+        "path": "Procedure.id",
+        "min": 1
+      },
+      {
+        "id": "Procedure.meta",
+        "path": "Procedure.meta",
+        "min": 1
+      },
+      {
+        "id": "Procedure.implicitRules",
+        "path": "Procedure.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Procedure.contained",
+        "path": "Procedure.contained",
+        "max": "0"
+      },
+      {
+        "id": "Procedure.extension",
+        "path": "Procedure.extension",
+        "max": "0"
+      },
+      {
+        "id": "Procedure.modifierExtension",
+        "path": "Procedure.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Procedure.subject",
+        "path": "Procedure.subject",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Procedure.subject.reference",
+        "path": "Procedure.subject.reference",
+        "min": 1
+      }
+    ]
+  }
+}
