@@ -16,6 +16,11 @@ from .archive import (_read, _json, _write, _safe, _history, _writer_lock,
                       head, open_vault, doctor, _bundled_root)
 from .contracts import ArchiveError, ExportSelection, uuid_string
 from .serialization import encode_json, hash_bytes
+from .intake import _regular, _mkdir
+
+# Same explicit allocation ceiling as original source intake: 100 MiB per blob.
+DERIVATIVE_BYTES = 100 * 1024 * 1024
+DISCLOSURE_BYTES = 64 * 1024 * 1024
 
 LIMITATIONS = [
     'No automatic patient recognition, OCR, redaction, clinical correction or source overwrite.',
@@ -28,6 +33,27 @@ DERIVATIVE_LIMITATIONS = [
     'Original resource bytes and source hash references remain unchanged; derivative bytes do not satisfy original evidence references or source quotes.',
     'Original-source evidence verification and full history recovery are unsupported from this derivative snapshot; obtain the originals separately if required.',
 ]
+
+
+def _derivative_objects(entries, code='REVIEW_MISMATCH'):
+    """Keep mappings separate from storage; one path has one byte/media contract."""
+    objects = {}
+    for item in entries:
+        path = item['path']
+        contract = {k:item[k] for k in ('path', 'sha256', 'size', 'mediaType')}
+        if (path != f"derivatives/{item['sha256']}/blob" or
+                item['size'] > DERIVATIVE_BYTES or
+                path in objects and objects[path] != contract):
+            raise ArchiveError(code, 'Derivative path has conflicting digest, size or media contracts.')
+        objects[path] = contract
+    return objects.values()
+
+
+def _derivative_bytes(folder, item, code='REVIEW_MISMATCH'):
+    data = _regular(Path(folder)/item['path'], DERIVATIVE_BYTES)
+    if len(data) != item['size'] or hash_bytes(data) != item['sha256']:
+        raise ArchiveError(code, 'Reviewed derivative bytes changed.')
+    return data
 
 
 def _schema(value):
@@ -77,6 +103,8 @@ def prepare_disclosure(vault, person: str, selection: ExportSelection, destinati
     from .portability import _destination, _publish
     from tempfile import mkdtemp
     import shutil
+    destination = Path(destination)
+    _mkdir(destination.parent)
     destination = _destination(destination, vault.root)
     if not selection.includeSources or derivatives and selection.mode != 'selected-current':
         raise ArchiveError('INVALID_INPUT', 'Derivative delivery requires selected-current; recovery retains exact originals.')
@@ -85,6 +113,7 @@ def prepare_disclosure(vault, person: str, selection: ExportSelection, destinati
         with _writer_lock(vault):
             captured = _capture(vault, person, selection)
             entries = []
+            objects = {}
             if not isinstance(derivatives, (list, tuple)):
                 raise ArchiveError('INVALID_INPUT', 'Expected individually mapped derivative files.')
             for supplied in derivatives:
@@ -93,15 +122,19 @@ def prepare_disclosure(vault, person: str, selection: ExportSelection, destinati
                 if supplied['sourceSha256'] not in {s['sha256'] for s in captured['originalSources']}:
                     raise ArchiveError('REVIEW_MISMATCH', 'Derivative is unrelated to selected original sources.')
                 path = Path(supplied['path']).absolute()
-                data = _read(path.parent, path.name)
+                data = _regular(path, DERIVATIVE_BYTES)
                 digest = hash_bytes(data)
                 if digest in {s['sha256'] for s in captured['originalSources']}:
                     raise ArchiveError('INVALID_INPUT', 'Unchanged original bytes require the original-inclusion route.')
                 relative = f'derivatives/{digest}/blob'
-                target = stage/relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                _write(target, data)
-                entries.append({k:v for k,v in supplied.items() if k!='path'} | dict(path=relative, sha256=digest, size=len(data)))
+                entry = {k:v for k,v in supplied.items() if k!='path'} | dict(path=relative, sha256=digest, size=len(data))
+                _derivative_objects([objects[relative], entry] if relative in objects else [entry])
+                if relative not in objects:
+                    target = stage/relative
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    _write(target, data)
+                    objects[relative] = entry
+                entries.append(entry)
             if entries and {s['sha256'] for s in captured['originalSources'] if s['mediaType']=='application/pdf'} - {e['sourceSha256'] for e in entries}:
                 raise ArchiveError('INVALID_INPUT', 'Map every original PDF explicitly or use original inclusion.')
             plan = dict(format='helseark-source-plan-1', planId=str(uuid4()), **captured,
@@ -121,14 +154,15 @@ def prepare_disclosure(vault, person: str, selection: ExportSelection, destinati
 
 
 def _verified_plan(vault, folder, person=None, selection=None):
-    plan = _json(folder, 'plan.json'); _schema(plan)
+    raw = _regular(Path(folder)/'plan.json', DISCLOSURE_BYTES)
+    plan = _json(folder, 'plan.json', data=raw); _schema(plan)
     if plan['format'] != 'helseark-source-plan-1':
         raise ArchiveError('REVIEW_MISMATCH', 'Expected source disclosure plan.')
     control = _safe(vault.root, f".runtime/source-disclosures/{plan['planId']}.json")
     if not control.exists():
         raise ArchiveError('REVIEW_MISMATCH', 'Original host disclosure control is missing; prepare and review again.')
     pin = _json(control.parent, control.name)
-    if hash_bytes(_read(folder, 'plan.json')) != pin.get('planSha256'):
+    if hash_bytes(raw) != pin.get('planSha256'):
         raise ArchiveError('REVIEW_MISMATCH', 'Disclosure plan changed after capture.')
     if selection is None:
         from .contracts import ResourceRef
@@ -137,10 +171,8 @@ def _verified_plan(vault, folder, person=None, selection=None):
     current = _capture(vault, person or plan['personId'], selection)
     if encode_json(current) != encode_json({k:plan[k] for k in current}):
         raise ArchiveError('REVIEW_MISMATCH', 'Disclosure person, Head, selection or source bytes changed; prepare and review again.')
-    for item in plan['derivatives']:
-        data = _read(folder, item['path'])
-        if len(data)!=item['size'] or hash_bytes(data)!=item['sha256']:
-            raise ArchiveError('REVIEW_MISMATCH', 'Reviewed derivative bytes changed.')
+    for item in _derivative_objects(plan['derivatives']):
+        _derivative_bytes(folder, item)
     review_control = control.with_suffix('.review.json')
     if review_control.exists():
         pin['receiptSha256'] = _json(review_control.parent,review_control.name).get('receiptSha256')
@@ -170,9 +202,10 @@ def reviewed_disclosure(vault, person, selection, folder):
     """Called under the export writer lock; no packet or standalone receipt grants authority."""
     folder = Path(folder)
     plan, _, pin = _verified_plan(vault, folder, person, selection)
-    if not pin.get('receiptSha256') or hash_bytes(_read(folder,'review.json'))!=pin['receiptSha256']:
+    raw = _regular(folder/'review.json', DISCLOSURE_BYTES) if pin.get('receiptSha256') else b''
+    if not pin.get('receiptSha256') or hash_bytes(raw)!=pin['receiptSha256']:
         raise ArchiveError('REVIEW_MISMATCH', 'No unchanged host-recorded human disclosure decision.')
-    receipt = _json(folder, 'review.json'); _schema(receipt)
+    receipt = _json(folder, 'review.json', data=raw); _schema(receipt)
     if receipt['format']!='helseark-source-review-1' or receipt['planId']!=plan['planId'] or receipt['decision']['planSha256']!=pin['planSha256']:
         raise ArchiveError('REVIEW_MISMATCH', 'Disclosure receipt does not bind this plan.')
     return {'plan':plan, 'review':receipt}
@@ -215,6 +248,8 @@ def verify_disclosure(bundle, manifest):
     if manifest['kind']=='selected-current' and {p for p in actual if p.startswith('sources/')}!=expected:reject()
     derivative_paths = set()
     originals = {s['sha256'] for s in plan['originalSources']}
+    for item in _derivative_objects(derivatives, 'INTEGRITY'):
+        _derivative_bytes(bundle, item, 'INTEGRITY')
     for item in derivatives:
         if item['sourceSha256'] not in originals or item['sha256'] in originals or item['path']!=f"derivatives/{item['sha256']}/blob":reject()
         derivative_paths.add(item['path'])

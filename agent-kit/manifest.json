@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "cc57f88bd566bab828b94bf5dcffc45565d62e52f2837687d73d8792b94f978d",
+    "definitionLockSha256": "120479b4963d250dd3ad24afdf5161ebacece10954e806a306f1fa78674bd403",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "cc57f88bd566bab828b94bf5dcffc45565d62e52f2837687d73d8792b94f978d",
+      "sha256": "120479b4963d250dd3ad24afdf5161ebacece10954e806a306f1fa78674bd403",
       "size": 34121
     },
     {
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/how-to/export-records.md",
-      "sha256": "fda72007e719fa337c99aa3e6f7a640101ce95368ade4663305a31ca9066562b",
-      "size": 8198
+      "sha256": "ee2a8d4f1a964e595898c5c2681800f6ee9e7b3feacac6a325d953c43d830672",
+      "size": 8991
     },
     {
       "path": "docs/how-to/import-report.md",

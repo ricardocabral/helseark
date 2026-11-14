@@ -188,10 +188,9 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
                 else:
                     omissions += ('all source assets and review/evidence envelopes',)
                 if disclosure and disclosure['plan']['derivatives']:
-                    for item in disclosure['plan']['derivatives']:
-                        data = _read(Path(review),item['path'])
-                        if len(data)!=item['size'] or hash_bytes(data)!=item['sha256']:
-                            raise ArchiveError('REVIEW_MISMATCH','Derivative changed while copying.')
+                    from .source_disclosure import _derivative_objects, _derivative_bytes
+                    for item in _derivative_objects(disclosure['plan']['derivatives']):
+                        data = _derivative_bytes(review, item)
                         path = stage/item['path']; path.parent.mkdir(parents=True,exist_ok=True); _write(path,data)
                     omissions += tuple(disclosure['plan']['limitations'])
                 derivative_count = len({d['path'] for d in disclosure['plan']['derivatives']}) if disclosure else 0

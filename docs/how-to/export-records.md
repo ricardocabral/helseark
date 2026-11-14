@@ -6,8 +6,8 @@ sources, with definitions and pinned interpretive support; other people and work
 are excluded.
 
 ```sh
-helseark --vault ./family export --person UUID --out ../person-export --json
-helseark backup verify ../person-export --json
+helseark --vault ./family export --person UUID --out ./person-export --json
+helseark backup verify ./person-export --json
 ```
 
 A person's intake assignment does not establish disclosure authority for every
@@ -22,8 +22,8 @@ For a source-free exchange, explicitly choose a new selected snapshot:
 ```sh
 helseark --vault ./family export --person UUID --mode selected-current \
   --resource Observation/UUID/_history/REVISION_UUID --no-sources \
-  --out ../selected-snapshot --json
-helseark backup verify ../selected-snapshot --json
+  --out ./selected-snapshot --json
+helseark backup verify ./selected-snapshot --json
 ```
 
 Omitting --resource selects all current records. Exact historical references stay
@@ -62,13 +62,13 @@ retained artifacts listed there, then supply a decision over the returned digest
 
 ```sh
 helseark --vault ./family export-plan --person UUID --mode full-person \
-  --out ../disclosure-plan --json
+  --out ./disclosure-plan --json
 # Human inspects plan.json and exact source bytes; writes decision.json below.
-helseark --vault ./family export-review --plan ../disclosure-plan \
-  --decision ../decision.json --json
+helseark --vault ./family export-review --plan ./disclosure-plan \
+  --decision ./decision.json --json
 helseark --vault ./family export --person UUID --mode full-person \
-  --review ../disclosure-plan --out ../reviewed-export --json
-helseark backup verify ../reviewed-export --json
+  --review ./disclosure-plan --out ./reviewed-export --json
+helseark backup verify ./reviewed-export --json
 ```
 
 The human-authored decision has exactly these fields. Replace the digest with
@@ -114,7 +114,7 @@ snapshot, with a JSON list such as:
 ```json
 [{
   "sourceSha256": "EXACT_ORIGINAL_SOURCE_SHA256",
-  "path": "../manually-prepared-derivative.pdf",
+  "path": "./manually-prepared-derivative.pdf",
   "mediaType": "application/pdf",
   "mapping": "YOUR ORIGINAL PAGE/REGION TO DERIVATIVE PAGE MAPPING",
   "omissions": "YOUR EXPLICIT REMOVED CONTENT AND REMAINING LIMITATIONS"
@@ -122,19 +122,29 @@ snapshot, with a JSON list such as:
 ```
 
 Paths resolve from the command working directory. Only those individual regular
-files are read; directories and symlinks fail. Map every original PDF explicitly.
+files are read, up to 100 MiB per file. Directories, symlinks (including any
+ancestor), and `..` traversal fail with `UNSAFE_PATH`; use a path without symlink
+aliases or traversal. The same boundary applies to the plan directory and captured
+derivative rereads. Oversized files fail with `SOURCE_TOO_LARGE`; files changed
+during a read fail with `SOURCE_CHANGED`. No failed capture publishes a plan.
+Map every original PDF explicitly. Multiple originals may map to one combined
+derivative, and one original may have multiple mappings. Every mapping and omission
+is retained; identical bytes are stored once in both the plan and export. Entries
+sharing a blob must agree on its SHA-256, size and declared media type, otherwise
+`REVIEW_MISMATCH` blocks capture/export (`INTEGRITY` during portable verification).
+Media type and clinical equivalence remain declarations, not content recognition.
 Other original source artifacts are omitted and remain inventoried by hash/size.
 
 ```sh
 helseark --vault ./family export-plan --person UUID --mode selected-current \
   --resource Observation/UUID/_history/REVISION_UUID \
-  --derivatives ../derivatives.json --out ../derivative-plan --json
+  --derivatives ./derivatives.json --out ./derivative-plan --json
 # Human reviews this plan and the captured derivative bytes, then writes a decision.
-helseark --vault ./family export-review --plan ../derivative-plan \
-  --decision ../derivative-decision.json --json
+helseark --vault ./family export-review --plan ./derivative-plan \
+  --decision ./derivative-decision.json --json
 helseark --vault ./family export --person UUID --mode selected-current \
   --resource Observation/UUID/_history/REVISION_UUID \
-  --review ../derivative-plan --out ../derivative-exchange --json
+  --review ./derivative-plan --out ./derivative-exchange --json
 ```
 
 Repeat the **same selection** at export. A changed person, Head, selection,

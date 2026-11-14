@@ -832,8 +832,8 @@
       "files": [
         {
           "path": "docs/how-to/export-records.md",
-          "sha256": "fda72007e719fa337c99aa3e6f7a640101ce95368ade4663305a31ca9066562b",
-          "size": 8198
+          "sha256": "ee2a8d4f1a964e595898c5c2681800f6ee9e7b3feacac6a325d953c43d830672",
+          "size": 8991
         }
       ],
       "license": "Apache-2.0",
