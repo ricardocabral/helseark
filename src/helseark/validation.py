@@ -271,7 +271,7 @@ class _Checks:
             self.failed.add(self.family)
 
     def source_issues(self, issues):
-        blocking = {'PERSON_MISMATCH','IDENTITY_UNRESOLVED','SOURCE_IDENTITY_UNRESOLVED','SOURCE_IDENTITY_MISMATCH'}
+        blocking = {'MULTIPLE_PERSON_CUES','PERSON_MISMATCH','IDENTITY_UNRESOLVED','SOURCE_IDENTITY_UNRESOLVED','SOURCE_IDENTITY_MISMATCH'}
         for issue in issues:
             if issue.code in blocking:
                 issue = Issue(issue.code, 'error', issue.pointer, issue.resourceRef, issue.message)

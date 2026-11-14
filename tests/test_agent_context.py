@@ -137,7 +137,7 @@ def test_context_uses_vault_pins_not_latest_installed_kit(tmp_path):
     context = build(vault, person, 'inspect', Request(), tmp_path / 'packet')
     assert (context.path / context.instructionPaths[0].path).read_bytes() == b'Historical offline kit\n'
     assert context.manifestSha256 == vault.config.agentKitLockSha256
-    assert context.kitVersion == '0.1.0'
+    assert context.kitVersion == vault.config.agentKitVersion
     assert archive.open_vault(vault.root).config == vault.config
 
 

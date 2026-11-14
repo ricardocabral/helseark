@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "72abf8239876922b6af6c7c380dd760a02a0561e8793a898755a03e24f763dff",
-          "size": 22700
+          "sha256": "4fa642d930c8c7880a845cae948fc53b1110b0ba476f41eaa8ba3ec4532b4139",
+          "size": 23403
         }
       ],
       "license": "Apache-2.0",
@@ -735,6 +735,32 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-agent-evidence-selection.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/intake.md",
+          "sha256": "a7e5c6c77c9164604ba37af2028801c7169eda5ce8249823fd843270684f2efa",
+          "size": 6801
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-intake",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/pdf-extraction.md",
+          "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
+          "size": 16349
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-pdf-extraction",
       "version": "0.1.0"
     }
   ],

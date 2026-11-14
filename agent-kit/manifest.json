@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "c6c702302d726533dbd3d07be27b31c691805d955c4acf3f546415be9ceb61b8",
+    "definitionLockSha256": "6654ef0a520936540a1e6d00534c7a27bf0d1d47ffca33f5a3147776944d3958",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,8 +14,8 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "a670007c828edf17a019a9172b0067d0dfd182d73f97ffe6ae410a0249d6e912",
-      "size": 8502
+      "sha256": "cf53f0bc7a539d41a380d7700713e808ce117033ac3dd079c00fa7a245ae5ee6",
+      "size": 9041
     },
     {
       "path": "START-HERE.md",
@@ -24,13 +24,13 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "c6c702302d726533dbd3d07be27b31c691805d955c4acf3f546415be9ceb61b8",
-      "size": 30012
+      "sha256": "6654ef0a520936540a1e6d00534c7a27bf0d1d47ffca33f5a3147776944d3958",
+      "size": 30747
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "72abf8239876922b6af6c7c380dd760a02a0561e8793a898755a03e24f763dff",
-      "size": 22700
+      "sha256": "4fa642d930c8c7880a845cae948fc53b1110b0ba476f41eaa8ba3ec4532b4139",
+      "size": 23403
     },
     {
       "path": "docs/reference/archive-format.md",
@@ -43,9 +43,19 @@
       "size": 16947
     },
     {
+      "path": "docs/reference/intake.md",
+      "sha256": "a7e5c6c77c9164604ba37af2028801c7169eda5ce8249823fd843270684f2efa",
+      "size": 6801
+    },
+    {
+      "path": "docs/reference/pdf-extraction.md",
+      "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
+      "size": 16349
+    },
+    {
       "path": "examples/README.md",
-      "sha256": "75f123b6f13b5eeb2ee1653e65fc7b81982a62aeff8d1cfd9aaeb59364b83914",
-      "size": 2457
+      "sha256": "6e55b14b483bcf13d0474a1edf53785e34f2db2e52a759dfee4dbb3fb3289155",
+      "size": 2779
     },
     {
       "path": "examples/extraction-fragment.json",
@@ -56,6 +66,26 @@
       "path": "examples/query-answer-excerpt.md",
       "sha256": "9175d90fe3a497f63a8a5446522d84fa4316ece32c28659f945c45ce93ee7cdc",
       "size": 1410
+    },
+    {
+      "path": "examples/task5-bundle.json",
+      "sha256": "dcdccf5be78e537f1195a5fc84b9643169bbaba087565f3013487940732ec8be",
+      "size": 2354
+    },
+    {
+      "path": "examples/task5-complete.pdf",
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442",
+      "size": 1756
+    },
+    {
+      "path": "examples/task5-evidence.json",
+      "sha256": "10a1b0702a051dc6a545b376dffe0fd2e43c9315641ec7a891fc4e239cfb2fab",
+      "size": 16472
+    },
+    {
+      "path": "examples/task5-example.py",
+      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a",
+      "size": 2097
     },
     {
       "path": "profiles/r4/0.1.0/README.md",
@@ -99,8 +129,8 @@
     },
     {
       "path": "prompts/extract-report.md",
-      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
-      "size": 3934
+      "sha256": "ae5d206925eeda2bc03e5dd5d3feadb80b4dcc355a52faa5b6ebc4320185601d",
+      "size": 4341
     },
     {
       "path": "prompts/map-structured-export.md",
@@ -194,8 +224,8 @@
     },
     {
       "path": "skills/import-records/SKILL.md",
-      "sha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "size": 2061
+      "sha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
+      "size": 3533
     },
     {
       "path": "skills/inspect-archive/SKILL.md",
@@ -228,7 +258,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.0",
+  "kitVersion": "0.1.1",
   "prompts": [
     {
       "id": "extract-report",
@@ -248,10 +278,10 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/extract-report.md",
-      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
+      "sha256": "ae5d206925eeda2bc03e5dd5d3feadb80b4dcc355a52faa5b6ebc4320185601d",
       "skillId": "import-records",
-      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "skillVersion": "0.1.0",
+      "skillSha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
+      "skillVersion": "0.1.1",
       "taskIds": [
         "import"
       ],
@@ -314,7 +344,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "id": "map-structured-export",
@@ -336,8 +366,8 @@
       "path": "prompts/map-structured-export.md",
       "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
       "skillId": "import-records",
-      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
-      "skillVersion": "0.1.0",
+      "skillSha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
+      "skillVersion": "0.1.1",
       "taskIds": [
         "import"
       ],
@@ -803,7 +833,6 @@
     {
       "availability": {
         "missingCapabilities": [
-          "pdf-intake",
           "structured-import",
           "reviewed-publication"
         ],

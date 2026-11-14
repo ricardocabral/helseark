@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-All seven prompts have version `0.1.0`. Each declares task-specific slots below
+The extraction prompt/import skill have version `0.1.1`; other prompts retain `0.1.0`. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection and task-instructions. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake and candidate-read. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -83,7 +83,10 @@ Implemented command forms (operator-run; placeholders are documentation only):
 - `helseark --vault PATH validate candidate CANDIDATE_PATH --person UUID --json`
 - `helseark --vault PATH validate proposal PROPOSAL_PATH --person UUID --json`
 
-Discovery/context/render are documented in START-HERE.md. Intake, clinical query,
+- `helseark --vault PATH intake add SOURCE --person UUID --packet ABSENT_PATH --agent-output ABSENT_OUTPUT --confirm-person --json`
+
+Discovery/context/render are documented in START-HERE.md. PDF intake and draft
+extraction are implemented; full import acceptance, structured import, clinical query,
 correction, export, doctor and migration workflows remain unavailable. Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
 
@@ -129,3 +132,7 @@ separate from the immutable packet. New candidates and evidence copy the rendere
 producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
+
+Kit 0.1.1: a confirmed retained PDF may draft while the descriptor still lists
+unavailable structured import and reviewed publication. The renderer reports both
+draft disposition and whole-workflow availability. No acceptance permission follows.

@@ -163,7 +163,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
     lock_bytes = _read(bundle, "definitions/lock.json")
     if config is None:
         config = VaultConfig(1, "0.1.0", "0.1.0", "4.0.1", "helseark-json-1",
-                             hash_bytes(lock_bytes), "0.1.0", hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
+                             hash_bytes(lock_bytes), _json(bundle / "agent-kit", "manifest.json")["kitVersion"], hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
     if config.definitionLockSha256 != hash_bytes(lock_bytes):
         raise ArchiveError("DEFINITION_MISMATCH", "Requested definitions are not bundled.")
     stage = root.parent / f".helseark-init-{uuid4()}"

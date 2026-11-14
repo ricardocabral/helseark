@@ -23,7 +23,7 @@ from .validation import DefinitionRegistry, load_definition_registry, _pointer, 
 
 _TASKS = frozenset(('inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate'))
 _CAPABILITIES = frozenset(('agent-discovery', 'agent-context', 'schema-export',
-    'baseline-validation', 'person-identity', 'raw-record-selection'))
+    'baseline-validation', 'person-identity', 'raw-record-selection', 'pdf-intake', 'candidate-read'))
 _INSTRUCTION_BUDGET = 32768
 
 
@@ -661,6 +661,11 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
         'promptSha256':prompt['sha256'],'skillSha256':hash_bytes(files[task.skillPath]),'skillId':prompt['skillId'],'skillVersion':prompt['skillVersion'],
         'kitVersion':context.kitVersion,'kitSha256':context.manifestSha256}
     blocked = list(context.availability.missingCapabilities)
+    # A PDF draft does not need the structured adapter or future acceptance.
+    # Keep whole-workflow availability visible; never expose publication commands.
+    if promptId == 'extract-report' and 'pdf-intake' in _CAPABILITIES:
+        blocked = [c for c in blocked if c not in ('structured-import', 'reviewed-publication')]
+
     for name in ('identity_confirmed','correspondence_confirmed','source_scope_confirmed'):
         if name in values and values[name] is not True:
             blocked.append('SOURCE_SCOPE_REVIEW_REQUIRED' if name=='source_scope_confirmed' else name.upper()+'_REQUIRED')
@@ -676,6 +681,7 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
             'contextDataBytes':context.dataBytes,'inlineDataBytes':inline_data_bytes,
             'handoffDataBytes':context.dataBytes+inline_data_bytes,
             'disposition':'blocked' if blocked else 'draft','stopReasons':blocked,
+            'workflowAvailability':document(context.availability),
             'permittedWrites':['output/report.md'] if blocked else prompt['outputArtifacts'],
             'producerProvenance':provenance}).decode()+'\n'+text)
     # Recheck immediately before handing off text. No writes or model invocation.

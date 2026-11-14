@@ -1,4 +1,4 @@
-# extract-report — prompt 0.1.0
+# extract-report — prompt 0.1.1
 
 Fixed task ID: `import`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
@@ -45,3 +45,9 @@ coverage. Existing `validate candidate` checks untrusted bytes only; unavailable
 preparation/review/publication remain gates.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
+
+Copy every retained intake Issue into unresolved without downgrading severity.
+MULTIPLE_PERSON_CUES blocks ordinary acceptance and requires a report-only handoff.
+OCR_REQUIRED means retain unreadable pages and emit no invented results. Explicit
+trusted assignment is separate from source assertions. Always require uncertainty
+review: finite patient-label checks do not solve arbitrary person recognition.

@@ -331,3 +331,14 @@ continuation. Identity/evidence routes identify only disposable projections.
 These budgets measure packet payloads and selected instruction files; rendered
 text additionally includes routing metadata and separately bounded typed slots.
 The renderer neither embeds original evidence nor grants filesystem authority.
+
+## Task5 retained intake handoff (kit 0.1.1)
+
+The [intake contract 1](intake.md) defines source/extraction receipts and the real
+CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
+this protocol's existing v2 selector and renderer, never a competing prompt or
+projection owner. Its PDF draft can be available while structured import and
+reviewed publication remain unavailable. The runtime handoff discloses whole-workflow
+availability separately. Source-specific packets request exactly one user-selected
+source and minimal identity; source assertions cannot grant broader authorization.
+Old copied compatible kits/definitions remain unchanged; no automatic vault repin.
