@@ -661,11 +661,23 @@ def test_exact_revision_evidence_is_disposable_scoped_and_budgeted(clinical_cand
 @pytest.mark.parametrize('token', ['1e128', '1.0e-128', '9'*128+'e128', '1.'+'2'*127+'e-128'])
 def test_evidence_multiple_revisions_generations_and_exact_numbers(clinical_candidate, tmp_path, token):
     from helseark.serialization import decode_canonical_json
-    from test_validation import EXTRACTION
+    from test_validation import EXTRACTION, asset, DOC
     _, build, Request = api()
     vault, candidate = clinical_candidate
     value = decode_json(token.encode())
     candidate.bundle['entry'][0]['resource']['valueQuantity']['value'] = value
+    numeric_quote = '<' + encode_json(value).strip().decode().replace('.', ',') + ' mg/L'
+    old_digest = next(e['sourceSha256'] for e in candidate.evidence['entries'] if e['kind'] == 'source')
+    source = decode_json((vault.root / f'people/{candidate.personId}/assets/sha256/{old_digest}/blob').read_bytes())
+    source.update(result=numeric_quote, numericToken=token)
+    digest = asset(vault, candidate.personId, encode_json(source))
+    document = next(e['resource'] for e in candidate.bundle['entry'] if e['resource']['id'] == DOC)
+    document['content'][0]['attachment']['url'] = f'assets/sha256/{digest}/blob'
+    for evidence in candidate.evidence['entries']:
+        if evidence['kind'] == 'source':
+            evidence['sourceSha256'] = digest
+            if evidence['target']['reference'] == 'urn:uuid:' + OBS and evidence['target']['pointers'][0].startswith('/valueQuantity/'):
+                evidence['quote'] = numeric_quote
     # A single accepted entry covers multiple fields, copied without splitting quotes.
     quantities = [e for e in candidate.evidence['entries'] if e['target']['reference'] == 'urn:uuid:' + OBS
                   and e['target']['pointers'][0].startswith('/valueQuantity/')]
@@ -703,7 +715,7 @@ def test_evidence_multiple_revisions_generations_and_exact_numbers(clinical_cand
         originals.add(evidence['original']['sha256'])
         selected = next(e for e in evidence['entries'] if 'extraction' in e)
         assert selected['target']['pointers'] == quantities[0]['target']['pointers']
-        assert selected['quote'] == '<0,050 mg/L'
+        assert selected['quote'] == numeric_quote
         assert encode_json(selected['extraction']['preprocessing'][0]['parameters']['exact']) == encode_json(value)
         assert page.dataBytes == sum(f.size for f in (page.identity, *page.selectedRecords, *page.evidencePaths))
     assert len(versions) == len(originals) == 2
