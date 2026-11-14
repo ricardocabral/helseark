@@ -139,3 +139,8 @@ unavailable structured import and reviewed publication. The renderer reports bot
 draft disposition and whole-workflow availability. No acceptance permission follows.
 
 Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.
+
+Migration host commands: [plan/apply](docs/how-to/migrate-archive.md),
+[compatibility](docs/reference/compatibility.md). A selected-person packet is not
+whole-vault authority. Agents emit assessments only; humans explicitly review
+host-generated plan digests. No in-place rewrite, implicit upgrade or FHIR conversion.
