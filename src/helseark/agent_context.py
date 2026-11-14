@@ -5,6 +5,7 @@ participates in routing. Packets are disposable read snapshots, not authority,
 permission grants or agent execution. Task4 owns prompt rendering.
 """
 from dataclasses import asdict, is_dataclass
+from collections.abc import Mapping
 import hashlib
 from pathlib import Path
 import re
@@ -16,7 +17,7 @@ from jsonschema import Draft202012Validator
 from .archive import _bundled_root, _safe, _read, _history, head, resolve
 from .contracts import (ArchiveError, Vault, ResourceRef, AgentTask, ContextRequest,
     AgentTaskDescriptor, CapabilityAvailability, ContextFile, ContextContinuation,
-    AgentContext, Issue, Head, FHIRResource, JsonValue, uuid_string, sha256_string)
+    AgentContext, RenderedPrompt, Issue, Head, FHIRResource, JsonValue, uuid_string, sha256_string)
 from .serialization import decode_json, decode_canonical_json, encode_json, hash_bytes
 from .validation import DefinitionRegistry, load_definition_registry, _pointer, _walk
 
@@ -28,6 +29,12 @@ _INSTRUCTION_BUDGET = 32768
 
 def document(value):
     """JSON representation shared by disk packets and CLI (no float coercion)."""
+    if isinstance(value, AgentContext):
+        fields = asdict(value)
+        for name in ('maxRecords','maxDataBytes'):
+            if fields[name] is None:
+                del fields[name]
+        return document(fields)
     if is_dataclass(value):
         return document(asdict(value))
     if isinstance(value, Path):
@@ -73,6 +80,10 @@ def _load_kit(kit: Path, expected_digest=None, registry=None):
         content = _read(kit, entry['path'])
         if len(content) != entry['size'] or hash_bytes(content) != entry['sha256']:
             raise ArchiveError('KIT_MISMATCH', 'Manifest-listed kit asset differs.')
+        if registry is not None and entry['path'] in registry.files and content != registry.files[entry['path']]:
+            raise ArchiveError('KIT_MISMATCH', 'Kit reference copy differs from retained definition bytes.')
+        if entry['path']=='definitions/lock.json' and hash_bytes(content)!=value['compatibility']['definitionLockSha256']:
+            raise ArchiveError('KIT_MISMATCH', 'Kit definition-lock copy differs from compatible pin.')
         files[entry['path']] = content
     prompts = {p['id']: p for p in value['prompts']}
     if len(prompts) != len(value['prompts']):
@@ -90,6 +101,13 @@ def _load_kit(kit: Path, expected_digest=None, registry=None):
         selected.append(prompt['path'])
         if prompt['path'] not in files or hash_bytes(files[prompt['path']]) != prompt['sha256']:
             raise ArchiveError('KIT_MISMATCH', 'Prompt digest differs from asset inventory.')
+    for prompt in value['prompts']:
+        for task in value['tasks']:
+            if task['id'] in prompt['taskIds']:
+                skill = task['skillPath']
+                if (not skill or skill not in files or Path(skill).parent.name != prompt.get('skillId') or
+                        hash_bytes(files[skill]) != prompt.get('skillSha256')):
+                    raise ArchiveError('KIT_MISMATCH', 'Prompt skill identity/digest differs from task route.')
     if any(p not in files for p in selected) or 'START-HERE.md' not in value['baseInstructionPaths']:
         raise ArchiveError('MISSING_KIT', 'Required instruction asset is absent from manifest closure.')
     return kit, value, files, hash_bytes(data)
@@ -241,11 +259,15 @@ def select_revision_evidence(person: str, entry: dict, data: bytes, original: He
                 _pointer(resource, pointer)
         except (ValueError, TypeError, KeyError, IndexError):
             raise ArchiveError('INTEGRITY', 'Selected evidence pointer does not resolve in its revision.') from None
-        binding = {'originalEntrySha256': hash_bytes(encode_json(item)), 'mode': 'archive-entry'}
-        selected = item
+        binding = {'originalEntrySha256': hash_bytes(encode_json(item)), 'mode': 'metadata-bound'}
+        # Rule/value prose in generated and user-entry evidence is not a closed
+        # vocabulary. Preserve its binding and exact target, not a second free
+        # text channel (including legacy identity notes targeting the root).
+        selected = {k:item[k] for k in ('kind', 'target', 'resourceRef', 'pointer') if k in item}
         if item['kind'] == 'source':
             if item['sourceSha256'] in source_hashes:
                 binding['mode'] = 'explicit-source'
+                selected = item
             else:
                 safe = _whole_value_quote(item, resource, identity, person)
                 if safe is None:
@@ -254,7 +276,8 @@ def select_revision_evidence(person: str, entry: dict, data: bytes, original: He
                         'Requesting its sourceSha256 exposes the whole source, which may include unrelated records '
                         'or people; obtain explicit approval of that exposure first, or select other records.',
                         {'revision': revision, 'entryPointer': f'/entries/{index}',
-                         'sourceSha256': item['sourceSha256']})
+                         'sourceSha256': item['sourceSha256'],
+                         'mechanicalReason': 'unsupported-transformation' if item.get('transformation', {}).get('rule') not in (None, 'decimal-comma-v1') else 'whole-value-or-complete-quantity-required'})
                 quote, span = safe
                 binding.update(mode='whole-value', quoteSpan=span)
                 # Free-text locator/extraction/transform metadata can also contain
@@ -408,10 +431,11 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     instructions = tuple(ContextFile('instructions/' + p, hash_bytes(files[p]), len(files[p]), str(kit / p)) for p in instruction_names)
     identity_file = ContextFile('identity.json', hash_bytes(identity_bytes), len(identity_bytes),
         str(destination / 'identity.json'))
+    has_limits = 'maxRecords' in registry.resolve('urn:helseark:schema:0.1.0:agent-context')['properties']
     context = AgentContext(destination, manifest_digest, person, base, task, manifest['kitVersion'], 1,
         instructions, tuple(contracts), sources, tuple(records), len(records), continuation, issues,
         len(selected), data_bytes, instruction_bytes, identity_file, descriptor.availability, descriptor.permittedOperations,
-        _reference(kit / 'manifest.json', _read(kit, 'manifest.json')), tuple(evidence_paths), descriptor.expectedChecks, descriptor.outputs)
+        _reference(kit / 'manifest.json', _read(kit, 'manifest.json')), tuple(evidence_paths), descriptor.expectedChecks, descriptor.outputs, request.maxRecords if has_limits else None, request.maxDataBytes if has_limits else None)
     value = document(context)
     if not registry.validate('urn:helseark:schema:0.1.0:agent-context', value):
         raise ArchiveError('INVALID_ENVELOPE', 'Generated context violates pinned context contract.')
@@ -436,3 +460,235 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         if stage.exists():
             shutil.rmtree(stage)
     return context
+
+
+def read_agent_context(path: Path) -> AgentContext:
+    """Decode a packet; rendering independently verifies its paths and bytes."""
+    from .contracts import Head
+    try:
+        value = decode_json(_read(Path(path), 'context.json'))
+        value['path'] = Path(value['path'])
+        value['base'] = Head(**value['base'])
+        for name in ('instructionPaths', 'contractPaths', 'selectedSources', 'selectedRecords', 'evidencePaths'):
+            value[name] = tuple(ContextFile(**f) for f in value[name])
+        for name in ('identity', 'kitManifest'):
+            value[name] = ContextFile(**value[name])
+        value['availability'] = CapabilityAvailability(value['availability']['status'], tuple(value['availability']['missingCapabilities']))
+        value['issues'] = tuple(Issue(**i) for i in value['issues'])
+        if value['continuation']:
+            token = value['continuation']
+            value['continuation'] = ContextContinuation(token['personId'], token['taskId'], Head(**token['base']), token['requestSha256'], token['offset'])
+        for name in ('permittedOperations', 'expectedChecks', 'outputPaths'):
+            value[name] = tuple(value[name])
+        context = AgentContext(**value)
+        if context.path != Path(path).absolute():
+            raise ValueError
+        return context
+    except (KeyError, TypeError, ValueError):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Malformed or relocated context packet.') from None
+
+
+def _verified_context(context):
+    """Verify against retained authorities, never paths asserted by source data."""
+    from .archive import _open_vault_metadata
+    if not isinstance(context, AgentContext):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Expected a context packet.')
+    if decode_json(_read(context.path, 'context.json')) != document(context):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Context metadata differs from supplied packet.')
+    # This structural root is checked again against the vault-pinned manifest.
+    root = Path(context.kitManifest.path).parent.parent.parent
+    vault = _open_vault_metadata(root)
+    registry = load_definition_registry(vault)
+    kit, manifest, files, digest = _vault_kit(vault, registry)
+    if (context.kitManifest != _reference(kit/'manifest.json', _read(kit, 'manifest.json')) or
+            context.manifestSha256 != digest or context.kitVersion != manifest['kitVersion'] or
+            not registry.validate('urn:helseark:schema:0.1.0:agent-context', document(context))):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Context differs from retained kit or contract.')
+    if head(vault, context.personId) != context.base:
+        raise ArchiveError('STALE_BASE', 'Context base differs from selected person head; rebuild.')
+    descriptor = _descriptor(next(t for t in manifest['tasks'] if t['id'] == context.taskId), manifest)
+    if (context.availability != descriptor.availability or context.permittedOperations != descriptor.permittedOperations or
+            context.expectedChecks != descriptor.expectedChecks or context.outputPaths != descriptor.outputs):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Context authority differs from runtime descriptor.')
+    expected_names = list(dict.fromkeys([*manifest['baseInstructionPaths'], descriptor.skillPath,
+        *(p['path'] for p in manifest['prompts'] if p['id'] in descriptor.promptIds)]))
+    expected_names = [p for p in expected_names if p]
+    expected = tuple(ContextFile('instructions/'+p, hash_bytes(files[p]),len(files[p]),str(kit/p)) for p in expected_names)
+    if context.instructionPaths != expected:
+        raise ArchiveError('CONTEXT_MISMATCH', 'Instruction selection differs from task.')
+    for f in context.instructionPaths:
+        data = _read(context.path, f.path)
+        if hash_bytes(data) != f.sha256 or len(data) != f.size:
+            raise ArchiveError('CONTEXT_MISMATCH', 'Packet instruction bytes differ.')
+    contracts = tuple(_reference(_safe(root/'definitions', p),registry.files[p]) for p in
+        dict.fromkeys((*descriptor.schemaPaths, *descriptor.referencePaths))) + (
+            _reference(root/'definitions/lock.json', _read(root,'definitions/lock.json')),)
+    if context.contractPaths != contracts:
+        raise ArchiveError('CONTEXT_MISMATCH', 'Contract selection differs from pinned registry.')
+    history = _history(vault, context.personId)
+    allowed, evidences, originals = {}, {}, {}
+    for original, directory, change in history:
+        for entry in change['resources']:
+            name = f"records/{entry['type']}-{entry['id']}-{entry['versionId']}.json"
+            allowed[name] = ContextFile(name,entry['sha256'],len(_read(directory,entry['path'])),str(directory/entry['path']))
+            originals[name] = (original, directory, change, entry)
+    patient = resolve(vault, context.personId, ResourceRef('Patient',context.personId),at=context.base)
+    identity = encode_json({k:patient[k] for k in ('resourceType','id','name','birthDate') if k in patient})
+    if context.identity != ContextFile('identity.json',hash_bytes(identity),len(identity),str(context.path/'identity.json')) or _read(context.path,'identity.json') != identity:
+        raise ArchiveError('CONTEXT_MISMATCH', 'Selected person identity differs.')
+    for source in context.selectedSources:
+        if _source(vault,context.personId,source.sha256) != source:
+            raise ArchiveError('CONTEXT_MISMATCH', 'Source differs from selected person retained asset.')
+    if len({f.path for f in context.selectedRecords}) != len(context.selectedRecords):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Selected revisions must be unique.')
+    for f in context.selectedRecords:
+        if allowed.get(f.path) != f or hash_bytes(_read(context.path,f.path)) != f.sha256:
+            raise ArchiveError('CONTEXT_MISMATCH', 'Record is outside selected person or differs from accepted bytes.')
+        original, directory, change, entry = originals[f.path]
+        data = select_revision_evidence(context.personId, entry, _read(directory,'evidence.json'),
+            original, change, decode_canonical_json(_read(directory,entry['path'])), registry,
+            identity=decode_json(identity), source_hashes=tuple(s.sha256 for s in context.selectedSources))
+        relative = f.path.replace('records/', 'evidence/', 1)
+        evidence = ContextFile(relative,hash_bytes(data),len(data),str(context.path/relative))
+        if _read(context.path,relative) != data:
+            raise ArchiveError('CONTEXT_MISMATCH','Selected evidence bytes differ from accepted original.')
+        evidences[evidence.path] = evidence
+    if tuple(evidences.values()) != context.evidencePaths:
+        raise ArchiveError('CONTEXT_MISMATCH', 'Evidence differs from selected accepted revisions.')
+    if (context.returnedCount != len(context.selectedRecords) or
+            context.dataBytes != len(identity)+sum(f.size for f in (*context.selectedRecords,*context.evidencePaths)) or
+            context.instructionBytes != sum(f.size for f in expected) or
+            (context.maxDataBytes is not None and context.dataBytes > context.maxDataBytes) or
+            (context.maxRecords is not None and context.returnedCount > context.maxRecords) or
+            context.instructionBytes > _INSTRUCTION_BUDGET):
+        raise ArchiveError('CONTEXT_MISMATCH', 'Packet counts or budgets differ.')
+    return vault, manifest, files, descriptor
+
+
+def _output_directory(value, context, vault):
+    if not isinstance(value,str) or any(ord(c)<32 for c in value) or not Path(value).is_absolute() or '..' in Path(value).parts:
+        raise ArchiveError('UNSAFE_PATH', 'Output directory must be an explicit absolute fresh path.')
+    path = Path(value)
+    if any(p.is_symlink() for p in (path,*path.parents)):
+        raise ArchiveError('UNSAFE_PATH', 'Output directory cannot traverse symlinks.')
+    if path.exists():
+        raise ArchiveError('DESTINATION_EXISTS', 'Output directory must be absent.')
+    packet = context.path.resolve()
+    work = vault.root/'people'/context.personId/'work'
+    if (path == packet or packet in path.parents or path in packet.parents or
+            ((path == vault.root or vault.root in path.parents) and work not in path.parents)):
+        raise ArchiveError('UNSAFE_PATH', 'Output must be separate from packet and canonical vault paths.')
+    return value
+
+
+def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[str, JsonValue]) -> RenderedPrompt:
+    """Render one declared template as data, after verifying a fresh snapshot.
+
+    The caller is the authority for explicit human decisions and the fresh output
+    directory. Neither a context nor this text grants filesystem/tool permission.
+    Unavailable workflows render a blocked assessment, never executable commands.
+    """
+    vault, manifest, files, task = _verified_context(context)
+    prompt = next((p for p in manifest['prompts'] if p['id'] == promptId),None)
+    if prompt is None or promptId not in task.promptIds or context.taskId not in prompt['taskIds']:
+        raise ArchiveError('INCOMPATIBLE_PROMPT', 'Prompt is not declared for selected task.')
+    if context.maxRecords is None or context.maxDataBytes is None:
+        raise ArchiveError('UNSUPPORTED_VERSION','Retained context contract predates typed rendering limits.')
+    if not isinstance(variables,Mapping) or set(variables)-set(prompt['variables']):
+        raise ArchiveError('INVALID_VARIABLE', 'Unknown prompt variable.')
+    # These values come exclusively from verified context. Optional repeats must
+    # agree, so caller data cannot impersonate a toolkit selection.
+    refs = []
+    for f in context.selectedRecords:
+        r = decode_canonical_json(_read(context.path,f.path))
+        refs.append(f"{r['resourceType']}/{r['id']}/_history/{r['meta']['versionId']}")
+    capabilities = sorted(_CAPABILITIES | {'task-instructions'})
+    trusted = {'person_id':context.personId,'base_change_sha256':context.base.changeSha256,
+        'capabilities':capabilities,'scope':{'resourceRefs':refs,
+            'sourceSha256':[f.sha256 for f in context.selectedSources],
+            'maxRecords':context.maxRecords,'maxDataBytes':context.maxDataBytes}}
+    if 'source_hashes' in prompt['variables']:
+        trusted['source_hashes'] = trusted['scope']['sourceSha256']
+    values = dict(variables)
+    for name,value in trusted.items():
+        if name in values and values[name] != value:
+            raise ArchiveError('INVALID_VARIABLE', 'Selector differs from verified context.')
+        values[name] = value
+    for name,spec in prompt['variables'].items():
+        if name not in values:
+            if 'default' in spec:
+                values[name] = spec['default']
+            elif spec['required']:
+                raise ArchiveError('INVALID_VARIABLE', 'Required prompt variable is missing.')
+            elif spec.get('nullable'):
+                values[name] = None
+            else:
+                raise ArchiveError('INVALID_VARIABLE', 'Optional variable needs an explicit default or nullability.')
+        value = values[name]
+        types = {'string':str,'object':dict,'array':list,'integer':int,'boolean':bool}
+        valid = value is None and spec.get('nullable',False)
+        if value is not None:
+            valid = spec['type']=='json' or type(value) is types.get(spec['type'])
+        if not valid:
+            raise ArchiveError('INVALID_VARIABLE', 'Prompt variable has the wrong type or nullability.')
+        try:
+            encoded = encode_json(value)
+        except ArchiveError:
+            raise ArchiveError('INVALID_VARIABLE','Prompt value is not bounded exact JSON.') from None
+        if (len(value.encode()) if isinstance(value,str) else len(encoded)) > spec.get('maxBytes',262144):
+            raise ArchiveError('INVALID_VARIABLE', 'Prompt variable exceeds its byte budget.')
+        if value is not None and spec.get('pattern') and not re.fullmatch(spec['pattern'],value):
+            raise ArchiveError('INVALID_VARIABLE','Prompt variable violates its declared identity constraint.')
+        if isinstance(value,list) and (len(value)<spec.get('minItems',0) or
+                (spec.get('uniqueItems') and len({encode_json(v) for v in value})!=len(value))):
+            raise ArchiveError('INVALID_VARIABLE','Prompt array violates declared bounds.')
+    _output_directory(values['output_directory'],context,vault)
+    template = files[prompt['path']].decode('utf-8')
+    marker = re.compile(r'{{\s*([a-z][a-z0-9_]*)\s*}}')
+    if set(marker.findall(template)) != set(prompt['variables']) or '{{' in marker.sub('',template) or '}}' in marker.sub('',template):
+        raise ArchiveError('INVALID_KIT','Template has undeclared or unresolved placeholders.')
+    def substitution(match):
+        return encode_json(values[match[1]]).decode().rstrip('\n').replace('&',r'\u0026').replace('<',r'\u003c').replace('>',r'\u003e')
+    text = marker.sub(substitution,template)
+    provenance = {'provenanceVersion':1,'status':'known','promptId':promptId,'promptVersion':prompt['version'],
+        'promptSha256':prompt['sha256'],'skillSha256':hash_bytes(files[task.skillPath]),'skillId':prompt['skillId'],'skillVersion':prompt['skillVersion'],
+        'kitVersion':context.kitVersion,'kitSha256':context.manifestSha256}
+    blocked = list(context.availability.missingCapabilities)
+    for name in ('identity_confirmed','correspondence_confirmed','source_scope_confirmed'):
+        if name in values and values[name] is not True:
+            blocked.append('SOURCE_SCOPE_REVIEW_REQUIRED' if name=='source_scope_confirmed' else name.upper()+'_REQUIRED')
+    text = ('Verified runtime handoff (host restrictions remain required; blocked means report only and stop):\n'+
+        encode_json({'personId':context.personId,'base':document(context.base),
+            'contextPath':str(context.path/'context.json'),
+            'readableFiles':document((context.identity,*context.selectedRecords,*context.evidencePaths,
+                *context.instructionPaths,*context.contractPaths,context.kitManifest,*context.selectedSources)),
+            'dataBytes':context.dataBytes,'instructionBytes':context.instructionBytes,
+            'maxRecords':context.maxRecords,'maxDataBytes':context.maxDataBytes,
+            'returnedCount':context.returnedCount,
+            'totalCount':context.totalCount,'continuation':document(context.continuation),
+            'disposition':'blocked' if blocked else 'draft','stopReasons':blocked,
+            'permittedWrites':['output/report.md'] if blocked else prompt['outputArtifacts'],
+            'producerProvenance':provenance}).decode()+'\n'+text)
+    # Recheck immediately before handing off text. No writes or model invocation.
+    if head(vault,context.personId) != context.base:
+        raise ArchiveError('STALE_BASE','Accepted head advanced during rendering; rebuild.')
+    return RenderedPrompt(text,promptId,prompt['version'],prompt['sha256'],provenance['skillSha256'],
+        context.manifestSha256,tuple(prompt['inputContractIds']),tuple(prompt['outputContractIds']))
+
+
+def _verify_producer(vault, provenance, registry):
+    """Validate genuine candidate-producing instruction pins, retaining legacy absence."""
+    if provenance is None or provenance.get('status') == 'external-unknown':
+        return
+    version = provenance.get('kitVersion')
+    if not isinstance(version,str) or not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+',version):
+        raise ArchiveError('PRODUCER_MISMATCH','Invalid producer kit version.')
+    _, manifest, files, _ = _load_kit(_safe(vault.root,'agent-kit/'+version),provenance.get('kitSha256'),registry)
+    prompt = next((p for p in manifest['prompts'] if p['id']==provenance.get('promptId')),None)
+    task = next((t for t in manifest['tasks'] if t['id'] in ('import','correct') and prompt and prompt['id'] in t['promptIds']),None)
+    if (manifest['kitVersion'] != version or prompt is None or task is None or
+            prompt['skillId'] != provenance.get('skillId') or prompt['skillVersion'] != provenance.get('skillVersion') or
+            prompt['version'] != provenance.get('promptVersion') or prompt['sha256'] != provenance.get('promptSha256') or
+            hash_bytes(files[task['skillPath']]) != provenance.get('skillSha256') or
+            any(getattr(vault.config,k)!=v for k,v in manifest['compatibility'].items())):
+        raise ArchiveError('PRODUCER_MISMATCH','Producer instruction pins differ from a compatible retained candidate route.')

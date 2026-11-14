@@ -1,0 +1,477 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:agent-context",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "availability": {
+      "additionalProperties": false,
+      "properties": {
+        "missingCapabilities": {
+          "items": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        }
+      },
+      "required": [
+        "status",
+        "missingCapabilities"
+      ],
+      "type": "object"
+    },
+    "base": {
+      "additionalProperties": false,
+      "properties": {
+        "changeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "sequence": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "transactionId": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "sequence",
+        "transactionId",
+        "changeSha256"
+      ],
+      "type": "object"
+    },
+    "continuation": {
+      "anyOf": [
+        {
+          "additionalProperties": false,
+          "properties": {
+            "base": {
+              "additionalProperties": false,
+              "properties": {
+                "changeSha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "sequence": {
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "transactionId": {
+                  "minLength": 1,
+                  "type": "string"
+                }
+              },
+              "required": [
+                "sequence",
+                "transactionId",
+                "changeSha256"
+              ],
+              "type": "object"
+            },
+            "offset": {
+              "minimum": 1,
+              "type": "integer"
+            },
+            "personId": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "requestSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "taskId": {
+              "enum": [
+                "inspect",
+                "import",
+                "query",
+                "correct",
+                "export",
+                "verify",
+                "migrate"
+              ]
+            }
+          },
+          "required": [
+            "personId",
+            "taskId",
+            "base",
+            "requestSha256",
+            "offset"
+          ],
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "contractPaths": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "dataBytes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "evidencePaths": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "expectedChecks": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "identity": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sourcePath": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size",
+        "sourcePath"
+      ],
+      "type": "object"
+    },
+    "instructionBytes": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "instructionPaths": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "issues": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pointer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "kitManifest": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "size": {
+          "minimum": 0,
+          "type": "integer"
+        },
+        "sourcePath": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size",
+        "sourcePath"
+      ],
+      "type": "object"
+    },
+    "kitVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "manifestSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "outputPaths": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "path": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "permittedOperations": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "personId": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "protocolVersion": {
+      "const": 1
+    },
+    "returnedCount": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "selectedRecords": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "selectedSources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "sourcePath": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size",
+          "sourcePath"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "taskId": {
+      "enum": [
+        "inspect",
+        "import",
+        "query",
+        "correct",
+        "export",
+        "verify",
+        "migrate"
+      ]
+    },
+    "totalCount": {
+      "minimum": 0,
+      "type": "integer"
+    }
+  },
+  "required": [
+    "availability",
+    "base",
+    "continuation",
+    "contractPaths",
+    "dataBytes",
+    "evidencePaths",
+    "expectedChecks",
+    "identity",
+    "instructionBytes",
+    "instructionPaths",
+    "issues",
+    "kitManifest",
+    "kitVersion",
+    "manifestSha256",
+    "outputPaths",
+    "path",
+    "permittedOperations",
+    "personId",
+    "protocolVersion",
+    "returnedCount",
+    "selectedRecords",
+    "selectedSources",
+    "taskId",
+    "totalCount"
+  ],
+  "type": "object"
+}

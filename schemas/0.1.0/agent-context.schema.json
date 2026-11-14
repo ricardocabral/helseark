@@ -60,6 +60,83 @@
                   "quote"
                 ],
                 "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "oneOf": [
+                  {
+                    "not": {
+                      "anyOf": [
+                        {
+                          "required": [
+                            "resourceRef"
+                          ]
+                        },
+                        {
+                          "required": [
+                            "pointer"
+                          ]
+                        }
+                      ]
+                    },
+                    "required": [
+                      "target"
+                    ]
+                  },
+                  {
+                    "not": {
+                      "required": [
+                        "target"
+                      ]
+                    },
+                    "required": [
+                      "resourceRef",
+                      "pointer"
+                    ]
+                  }
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "generated",
+                      "user-entry"
+                    ]
+                  },
+                  "pointer": {
+                    "type": "string"
+                  },
+                  "resourceRef": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "target": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "pointers": {
+                        "items": {
+                          "minLength": 1,
+                          "type": "string"
+                        },
+                        "minItems": 1,
+                        "type": "array",
+                        "uniqueItems": true
+                      },
+                      "reference": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "reference",
+                      "pointers"
+                    ],
+                    "type": "object"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "type": "object"
               }
             ]
           },
@@ -95,7 +172,7 @@
             "properties": {
               "mode": {
                 "enum": [
-                  "archive-entry",
+                  "metadata-bound",
                   "whole-value",
                   "explicit-source"
                 ]
@@ -522,6 +599,14 @@
       "pattern": "^[0-9a-f]{64}$",
       "type": "string"
     },
+    "maxDataBytes": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "maxRecords": {
+      "minimum": 1,
+      "type": "integer"
+    },
     "outputPaths": {
       "items": {
         "minLength": 1,
@@ -657,7 +742,9 @@
     "selectedRecords",
     "selectedSources",
     "taskId",
-    "totalCount"
+    "totalCount",
+    "maxRecords",
+    "maxDataBytes"
   ],
   "type": "object"
 }

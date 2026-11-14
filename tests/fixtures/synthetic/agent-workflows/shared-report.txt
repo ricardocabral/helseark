@@ -1,0 +1,3 @@
+SYNTHETIC ONLY
+Person A: synthetic result A
+Person B: synthetic result B

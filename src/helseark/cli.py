@@ -9,10 +9,11 @@ from tempfile import TemporaryDirectory
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, Candidate, Issue, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .serialization import encode_json, decode_json
-from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document
+from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
     "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
     "PERSON_NOT_FOUND": 2, "RESOURCE_NOT_FOUND": 2, "SOURCE_MISSING": 2,
@@ -75,6 +76,12 @@ def main(argv=None):
     context.add_argument("--max-data-bytes", type=int, default=262144)
     context.add_argument("--continuation", type=Path, help="Prior context.json; repeats the same selection at its bound head.")
     context.add_argument("--json", action="store_true")
+    render = agents.add_parser('render', help='Verify a packet and render declared JSON slots; no agent execution.')
+    render.add_argument('--context', type=Path, required=True)
+    render.add_argument('--person', required=True)
+    render.add_argument('--prompt', required=True)
+    render.add_argument('--variables', type=Path, required=True)
+    render.add_argument('--json', action='store_true')
     try:
         args = parser.parse_args(argv)
         exit_code = 0
@@ -83,6 +90,14 @@ def main(argv=None):
             if args.agent_command == "tasks":
                 kit_path = _vault_kit(_open_vault_metadata(Path(path)))[0] if path else _bundled_root() / 'agent-kit'
                 output = [document(t) for t in list_agent_tasks(kit_path)]
+            elif args.agent_command == 'render':
+                if not path:
+                    raise ArchiveError('INVALID_INPUT', 'Provide --vault PATH or HELSEARK_VAULT.')
+                packet = read_agent_context(args.context)
+                expected = Path(path).resolve() / 'agent-kit' / packet.kitVersion / 'manifest.json'
+                if packet.personId != args.person or Path(packet.kitManifest.path) != expected:
+                    raise ArchiveError('CONTEXT_MISMATCH', 'Packet differs from selected vault/person.')
+                output = document(render_task_prompt(packet, args.prompt, decode_json(args.variables.read_bytes())))
             else:
                 if not path:
                     raise ArchiveError('INVALID_INPUT', 'Provide --vault PATH or HELSEARK_VAULT.')
@@ -172,6 +187,8 @@ def main(argv=None):
             elif args.command == 'agent' and args.agent_command == 'tasks':
                 for task in output:
                     print(task['id'] + ': ' + task['availability']['status'])
+            elif args.command == 'agent' and args.agent_command == 'render':
+                print(output['text'])
             else:
                 print(output.get("personId", output.get("path")))
         return exit_code

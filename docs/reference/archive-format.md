@@ -1,9 +1,9 @@
 # Archive format 1
 
-This reference describes the implemented storage boundary. Supported-profile
-validation, source-document evidence and pinned agent
-discovery/context are implemented. Intake and interactive import review remain
-later tasks. Person creation accepts a narrow self-reported identity only.
+This reference describes the implemented storage boundary. Offline baseline
+clinical validation, evidence contracts and pinned agent discovery/context/rendering
+are implemented; intake and reviewed import publication remain later tasks.
+Person creation accepts a narrow self-reported identity only.
 Validation is not a claim of medical correctness or full FHIR conformance.
 
 ## Commands
@@ -314,7 +314,7 @@ Absolute root paths and record values are never needed in these diagnostics.
 For distribution qualification, build with the declared `setuptools==80.9.0`,
 then rebuild the sdist outside the checkout. Install its wheel and locked runtime
 dependencies into a fresh virtual environment. Copy
-[`tests/qualify_installed.py`](../../tests/qualify_installed.py) outside the
+the repository maintainer script `tests/qualify_installed.py` outside the
 checkout and run it with that environment's Python, passing a fresh work path
 and the checkout path. It checks the installed module and bundled definitions,
 the installer-generated console entry point, a copied vault without runtime

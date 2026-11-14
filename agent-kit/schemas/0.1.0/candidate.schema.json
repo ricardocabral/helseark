@@ -1,0 +1,213 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:candidate",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "baseChangeSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "bundlePath": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "candidateId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "evidencePath": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "fhirVersion": {
+      "const": "4.0.1"
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "type": "string"
+    },
+    "producer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "external-agent",
+            "local-user",
+            "adapter"
+          ]
+        },
+        "name": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name"
+      ],
+      "type": "object"
+    },
+    "profileVersion": {
+      "const": "0.1.0"
+    },
+    "sourceSha256": {
+      "items": {
+        "pattern": "^[0-9a-f]{64}$",
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "unresolved": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pointer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "producerProvenance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provenanceVersion": {
+              "const": 1
+            },
+            "status": {
+              "const": "known"
+            },
+            "promptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "promptVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "promptSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "skillSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "kitVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kitSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "skillId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "skillVersion": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "provenanceVersion",
+            "status",
+            "promptId",
+            "promptVersion",
+            "promptSha256",
+            "skillSha256",
+            "kitVersion",
+            "kitSha256",
+            "skillId",
+            "skillVersion"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provenanceVersion": {
+              "const": 1
+            },
+            "status": {
+              "const": "external-unknown"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "provenanceVersion",
+            "status",
+            "reason"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "contractVersion",
+    "candidateId",
+    "personId",
+    "baseChangeSha256",
+    "fhirVersion",
+    "profileVersion",
+    "sourceSha256",
+    "bundlePath",
+    "evidencePath",
+    "producer",
+    "unresolved",
+    "producerProvenance"
+  ],
+  "type": "object"
+}

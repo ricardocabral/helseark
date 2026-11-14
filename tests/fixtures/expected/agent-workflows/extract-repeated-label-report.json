@@ -1,0 +1,204 @@
+{
+  "scenarioId": "extract-repeated-label-report",
+  "synthetic": true,
+  "oracleKind": "independent hand-authored expected facts, not model output",
+  "inputs": [
+    "repeated-label-report.txt"
+  ],
+  "sourceSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+  "expected": {
+    "rows": [
+      {
+        "row": "A",
+        "rowSpan": {
+          "start": 75,
+          "end": 207
+        },
+        "quantity": {
+          "valueLexeme": "0.05",
+          "comparator": "<",
+          "unit": "mg/L"
+        },
+        "effectiveDateTime": "2026-10",
+        "method": "Synthetic assay M0",
+        "referenceText": "0,00–0,40 mg/L",
+        "requiredEvidence": [
+          {
+            "targetPointers": [
+              "/code/text"
+            ],
+            "quote": "Synthetic CRP",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 92,
+              "end": 105
+            }
+          },
+          {
+            "targetPointers": [
+              "/valueQuantity/value",
+              "/valueQuantity/comparator",
+              "/valueQuantity/unit"
+            ],
+            "quote": "<0,05 mg/L",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 116,
+              "end": 126
+            }
+          },
+          {
+            "targetPointers": [
+              "/effectiveDateTime"
+            ],
+            "quote": "2026-10",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 147,
+              "end": 154
+            }
+          },
+          {
+            "targetPointers": [
+              "/method/text"
+            ],
+            "quote": "Synthetic assay M0",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 165,
+              "end": 183
+            }
+          },
+          {
+            "targetPointers": [
+              "/referenceRange/0/text"
+            ],
+            "quote": "0,00–0,40 mg/L",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 193,
+              "end": 207
+            }
+          }
+        ]
+      },
+      {
+        "row": "B",
+        "rowSpan": {
+          "start": 208,
+          "end": 340
+        },
+        "quantity": {
+          "valueLexeme": "0.05",
+          "comparator": "<",
+          "unit": "mg/L"
+        },
+        "effectiveDateTime": "2026-11",
+        "method": "Synthetic assay M1",
+        "referenceText": "0,00–0,50 mg/L",
+        "requiredEvidence": [
+          {
+            "targetPointers": [
+              "/code/text"
+            ],
+            "quote": "Synthetic CRP",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 225,
+              "end": 238
+            }
+          },
+          {
+            "targetPointers": [
+              "/valueQuantity/value",
+              "/valueQuantity/comparator",
+              "/valueQuantity/unit"
+            ],
+            "quote": "<0,05 mg/L",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 249,
+              "end": 259
+            }
+          },
+          {
+            "targetPointers": [
+              "/effectiveDateTime"
+            ],
+            "quote": "2026-11",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 280,
+              "end": 287
+            }
+          },
+          {
+            "targetPointers": [
+              "/method/text"
+            ],
+            "quote": "Synthetic assay M1",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 298,
+              "end": 316
+            }
+          },
+          {
+            "targetPointers": [
+              "/referenceRange/0/text"
+            ],
+            "quote": "0,00–0,50 mg/L",
+            "locator": {
+              "kind": "text-span",
+              "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+              "start": 326,
+              "end": 340
+            }
+          }
+        ]
+      }
+    ],
+    "wrongRowCounterexample": {
+      "targetRow": "B",
+      "targetPointers": [
+        "/valueQuantity/value",
+        "/valueQuantity/comparator",
+        "/valueQuantity/unit"
+      ],
+      "incorrectLocator": {
+        "kind": "text-span",
+        "extractionSha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+        "start": 116,
+        "end": 126
+      },
+      "quote": "<0,05 mg/L",
+      "oracleVerdict": "reject: Row A result cannot evidence Row B even though label and quote match",
+      "runtimeLimit": "Quote/token checks may pass; only exact independent row/field association rejects this counterexample. This is not a model run."
+    },
+    "wholeReportSpan": "reject: does not bind the field to its row",
+    "evidenceScoring": "Score omitted rows, context fields and incorrect row evidence separately from schema success."
+  },
+  "permittedWrites": [
+    "output/candidate/candidate.json",
+    "output/candidate/bundle.json",
+    "output/candidate/evidence.json",
+    "output/report.md"
+  ],
+  "forbiddenWrites": [
+    "accepted/",
+    "sources",
+    "definitions",
+    "other people"
+  ],
+  "humanReviewRequired": true,
+  "actualModelEvaluation": "unverified"
+}

@@ -4,8 +4,8 @@
       "files": [
         {
           "path": "schemas/0.1.0/candidate.schema.json",
-          "sha256": "52b902028c381f06fb479097a96a67f9ef3cb82049e024d41adca02a9185b7f7",
-          "size": 2665
+          "sha256": "421a5bc518da9cdf7609e312fafb28fbde877923ad92266a829e3219a3856be4",
+          "size": 4692
         },
         {
           "path": "schemas/0.1.0/change.schema.json",
@@ -14,8 +14,8 @@
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "b16429d7b7930461ae4132f31aee1714a71198cd11aff3f1c60e9cf95f46de48",
-          "size": 15172
+          "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
+          "size": 17173
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
@@ -39,13 +39,13 @@
         },
         {
           "path": "schemas/0.1.0/agent-kit.schema.json",
-          "sha256": "3378bc9efb5cc5a73ff99500c52584cb86c53d22ccf7605bd0bc27c62be3dfe7",
-          "size": 8686
+          "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977",
+          "size": 9639
         },
         {
           "path": "schemas/0.1.0/agent-context.schema.json",
-          "sha256": "228a8cd192d5111220c74301f38ffee578dcb6cd9157e0b1df61e2f7d5660d19",
-          "size": 15732
+          "sha256": "fa1b7c6d2ba743ec887cf95111366e0ea1022e8359432041d30bc4f3c0db294a",
+          "size": 18252
         }
       ],
       "license": "Apache-2.0",
@@ -702,13 +702,39 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "c7c3ea378375c2c03ce83f5c511ccc936f182f5292fa12e2c9a81262be964c92",
-          "size": 16417
+          "sha256": "1cffebc603130e9597bd5c25dcca679a2988b1f2d8968b82f6caca041f3ba8c1",
+          "size": 22352
         }
       ],
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-agent-reference",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/archive-format.md",
+          "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
+          "size": 18703
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-archive-format",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/agent-evidence-selection.schema.json",
+          "sha256": "af761ed18a8b5ab502727f462ce0af20d7caa9ea1ea38cc0c2f13587288d996d",
+          "size": 205
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-agent-evidence-selection.schema",
       "version": "0.1.0"
     }
   ],

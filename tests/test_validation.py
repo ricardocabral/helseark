@@ -47,6 +47,8 @@ def asset(vault, person, data):
 
 
 def persist(candidate):
+    candidate.evidence.setdefault('producerProvenance',{'provenanceVersion':1,'status':'external-unknown',
+        'reason':'Synthetic fixture producer instruction versions were not recorded.'})
     (candidate.path / 'bundle.json').write_bytes(encode_json(candidate.bundle))
     (candidate.path / 'evidence.json').write_bytes(encode_json(candidate.evidence))
     metadata = {'contractVersion': '0.1.0', 'candidateId': candidate.candidateId,
@@ -55,6 +57,7 @@ def persist(candidate):
                 'sourceSha256': sorted({e['sourceSha256'] for e in candidate.evidence['entries'] if 'sourceSha256' in e}),
                 'bundlePath': 'bundle.json', 'evidencePath': 'evidence.json',
                 'producer': {'kind': 'external-agent', 'name': 'synthetic'},
+                'producerProvenance': candidate.evidence['producerProvenance'],
                 'unresolved': [asdict(i) for i in candidate.unresolved]}
     (candidate.path / 'candidate.json').write_bytes(encode_json(metadata))
     return candidate

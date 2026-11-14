@@ -1,0 +1,345 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:agent-kit",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "baseInstructionPaths": {
+      "items": {
+        "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+        "type": "string"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "compatibility": {
+      "additionalProperties": false,
+      "properties": {
+        "archiveFormatVersion": {
+          "const": 1
+        },
+        "contractVersion": {
+          "const": "0.1.0"
+        },
+        "definitionLockSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "fhirVersion": {
+          "const": "4.0.1"
+        },
+        "profileVersion": {
+          "const": "0.1.0"
+        },
+        "serializationVersion": {
+          "const": "helseark-json-1"
+        }
+      },
+      "required": [
+        "archiveFormatVersion",
+        "contractVersion",
+        "profileVersion",
+        "fhirVersion",
+        "serializationVersion",
+        "definitionLockSha256"
+      ],
+      "type": "object"
+    },
+    "files": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "kitVersion": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "prompts": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "inputContractIds": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputArtifacts": {
+            "items": {
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputContractIds": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "path": {
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "taskIds": {
+            "items": {
+              "enum": [
+                "inspect",
+                "import",
+                "query",
+                "correct",
+                "export",
+                "verify",
+                "migrate"
+              ]
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "variables": {
+            "additionalProperties": {
+              "additionalProperties": false,
+              "properties": {
+                "required": {
+                  "type": "boolean"
+                },
+                "type": {
+                  "enum": [
+                    "string",
+                    "json",
+                    "integer",
+                    "boolean"
+                  ]
+                }
+              },
+              "required": [
+                "type",
+                "required"
+              ],
+              "type": "object"
+            },
+            "type": "object"
+          },
+          "version": {
+            "minLength": 1,
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "path",
+          "sha256",
+          "taskIds",
+          "variables",
+          "inputContractIds",
+          "outputContractIds",
+          "outputArtifacts"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "protocolVersion": {
+      "const": 1
+    },
+    "tasks": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "additionalProperties": false,
+            "properties": {
+              "missingCapabilities": {
+                "items": {
+                  "minLength": 1,
+                  "type": "string"
+                },
+                "type": "array",
+                "uniqueItems": true
+              },
+              "status": {
+                "enum": [
+                  "available",
+                  "unavailable"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "missingCapabilities"
+            ],
+            "type": "object"
+          },
+          "expectedChecks": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "id": {
+            "enum": [
+              "inspect",
+              "import",
+              "query",
+              "correct",
+              "export",
+              "verify",
+              "migrate"
+            ]
+          },
+          "intent": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "optionalInputs": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "outputs": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "permittedOperations": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "promptIds": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "referencePaths": {
+            "items": {
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "requiredCapabilities": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "requiredInputs": {
+            "items": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "scenarioId": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "schemaPaths": {
+            "items": {
+              "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": true
+          },
+          "skillPath": {
+            "anyOf": [
+              {
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)(?!.*\\\\)(?!.*://)[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "intent",
+          "skillPath",
+          "promptIds",
+          "requiredInputs",
+          "optionalInputs",
+          "outputs",
+          "permittedOperations",
+          "requiredCapabilities",
+          "expectedChecks",
+          "availability",
+          "referencePaths",
+          "schemaPaths",
+          "scenarioId"
+        ],
+        "type": "object"
+      },
+      "maxItems": 7,
+      "minItems": 7,
+      "type": "array"
+    }
+  },
+  "required": [
+    "kitVersion",
+    "protocolVersion",
+    "compatibility",
+    "baseInstructionPaths",
+    "files",
+    "prompts",
+    "tasks"
+  ],
+  "type": "object"
+}

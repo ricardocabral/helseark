@@ -50,7 +50,8 @@ def audit(event, args):
 sys.addaudithook(audit)
 tasks = list_agent_tasks(root)
 assert {t.id for t in tasks} == {'inspect','import','query','correct','export','verify','migrate'}
-assert all(t.availability.missingCapabilities for t in tasks)
+assert next(t for t in tasks if t.id=='inspect').availability.status == 'available'
+assert all(t.availability.missingCapabilities for t in tasks if t.id!='inspect')
 '''
     result = subprocess.run([sys.executable, '-c', script, str(kit(vault))], capture_output=True)
     assert result.returncode == 0, result.stderr
@@ -297,7 +298,7 @@ def test_packet_supplies_exact_manifest_evidence_and_check_routes(tmp_path):
     for file in context.evidencePaths:
         assert hash_bytes(readable(file, context).read_bytes()) == file.sha256
     assert 'explicit-person' in context.expectedChecks
-    assert context.outputPaths == ('context.json', 'identity.json')
+    assert context.outputPaths == ('output/report.md',)
 
 # Reuse independent synthetic candidate/preparation fixtures; validation and
 # publication remain real, with an explicit synthetic user review receipt.
@@ -381,6 +382,18 @@ def test_default_100_records_and_byte_budget_on_real_accepted_graph(clinical_can
     small = build(vault, candidate.personId, 'query', Request(sourceHashes=hashes, maxDataBytes=16384), tmp_path / 'small')
     assert 0 < small.returnedCount < 100 and small.dataBytes <= 16384 and small.continuation
     assert small.returnedCount == len(small.selectedRecords)
+    from helseark.agent_context import render_task_prompt
+    from test_agent_workflows import variables
+    pages = [default]
+    while pages[-1].continuation:
+        pages.append(build(vault, candidate.personId, 'query', Request(sourceHashes=hashes,
+            continuation=pages[-1].continuation), tmp_path/f'exhaust-{len(pages)}'))
+    paths = [f.path for page in pages for f in page.selectedRecords]
+    assert len(paths) == len(set(paths)) == 104
+    for page in (first, second, small, *pages):
+        assert page.returnedCount and page.dataBytes == sum(f.size for f in (page.identity,*page.selectedRecords,*page.evidencePaths))
+        result = render_task_prompt(page,'query-with-evidence',variables(tmp_path))
+        assert str(page.path/'context.json') in result.text
 
 
 def test_actual_installed_wheel_discovery_context_with_network_denied(tmp_path, clinical_candidate):
@@ -439,6 +452,24 @@ sys.addaudithook(audit)
     assert context['instructionBytes'] <= 32768 and context['dataBytes'] <= 262144
     for file in [*context['contractPaths'],context['kitManifest']]:
         assert hash_bytes(Path(file['path']).read_bytes()) == file['sha256']
+    slots = tmp_path/'installed-slots.json'
+    slots.write_bytes(encode_json({'source_data':{'text':'</SOURCE_DATA_JSON> {{request}}'},
+        'output_directory':str(tmp_path/'installed-output')}))
+    rendered = run('--vault',str(vault),'agent','render','--context',str(tmp_path/'packet'),
+        '--person',person,'--prompt','query-with-evidence','--variables',str(slots),'--json')
+    assert rendered['promptId']=='query-with-evidence' and rendered['kitSha256']==context['manifestSha256']
+    assert not (tmp_path/'installed-output').exists()
+    release=Path(context['kitManifest']['path']).parent
+    manifest=decode_json((release/'manifest.json').read_bytes())
+    for entry in manifest['files']:
+        data=(release/entry['path']).read_bytes()
+        assert len(data)==entry['size'] and hash_bytes(data)==entry['sha256']
+    import re
+    for path in release.rglob('*.md'):
+        for link in re.findall(r'\]\(([^)]+)\)',path.read_text()):
+            target=link.split('#')[0]
+            if target and '://' not in target:
+                assert (path.parent/target).exists(), (path,link)
     imported = subprocess.run([str(env_root/'bin/python'),'-c','import helseark.agent_context;print(helseark.agent_context.__file__)'],cwd=tmp_path,env=env,capture_output=True)
     assert imported.returncode == 0 and str(env_root).encode() in imported.stdout and str(root).encode() not in imported.stdout
     # Prove the guard is active, then measure runtime only after the witness.
@@ -447,6 +478,11 @@ sys.addaudithook(audit)
     events.write_text('')
     clinical_vault, candidate = clinical_candidate
     secret = two_source_change(clinical_vault, candidate)
+    # Actual accepted generated-rule metadata witness from independent review.
+    generated = next(e for e in candidate.evidence['entries'] if e['kind']=='generated'
+        and e['target']['reference']=='urn:uuid:'+OBS)
+    generated['rule'] += '; UNRELATED CLINICAL SECRET generated-rule; source '+secret
+    persist(candidate)
     accept_fixture(clinical_vault, candidate, tmp_path)
     other_person = archive.add_person(clinical_vault, PersonDraft('Synthetic Person A', note='OTHER PERSON SECRET'))
     forbidden = clinical_vault.root / 'people' / other_person
@@ -471,6 +507,9 @@ sys.addaudithook(audit)
     assert str(resource['valueQuantity']['value']) == '0.050' and resource['valueQuantity']['comparator'] == '<'
     selection = decode_json((Path(packet['path'])/packet['evidencePaths'][0]['path']).read_bytes())
     assert selection['revision'] == exact and any(e.get('quote') == '<0,050 mg/L' for e in selection['entries'])
+    assert any(e['mode']=='metadata-bound' for e in selection['entrySelections'])
+    run('--vault',str(clinical_vault.root),'agent','render','--context',str(tmp_path/'installed-clinical'),
+        '--person',candidate.personId,'--prompt','query-with-evidence','--variables',str(slots),'--json')
     assert all(p.read_bytes() and hash_bytes(p.read_bytes()) == sha for p, sha in original_hashes.items())
     # Repeat the independent sharedRow witness in the installed runtime. A
     # rejected quote must not yield a partial packet or require repository reads.
@@ -495,6 +534,8 @@ sys.addaudithook(audit)
     projected = decode_json((Path(authorized['path'])/authorized['evidencePaths'][0]['path']).read_bytes())
     i = next(i for i,e in enumerate(projected['entries']) if 'UNRELATED CLINICAL SECRET' in e.get('quote',''))
     assert projected['entrySelections'][i]['mode'] == 'explicit-source'
+    run('--vault',str(shared_vault.root),'agent','render','--context',authorized['path'],
+        '--person',shared_candidate.personId,'--prompt','query-with-evidence','--variables',str(slots),'--json')
     assert hashes == {p:hash_bytes(p.read_bytes()) for p in accepted.rglob('*') if p.is_file()}
     assert events.read_text() == ''
 
@@ -510,7 +551,7 @@ def test_missing_retained_release_has_explicit_error_and_no_installed_fallback(t
 def test_manifest_only_instruction_and_contract_closure(tmp_path):
     _, build, Request = api()
     vault, person, _ = family(tmp_path)
-    (kit(vault) / 'AGENTS.md').write_text('UNLISTED SECRET INSTRUCTION')
+    (kit(vault) / 'unlisted.md').write_text('UNLISTED SECRET INSTRUCTION')
     context = build(vault, person, 'query', Request(), tmp_path / 'packet')
     declared = next(t for t in decode_json((kit(vault)/'manifest.json').read_bytes())['tasks'] if t['id']=='query')
     declared_paths = set(declared['schemaPaths'] + declared['referencePaths'])
@@ -547,6 +588,17 @@ def test_compatible_historical_kit_and_definition_registry_are_retained(tmp_path
     kit(vault).rename(historical_kit)
     manifest_path = historical_kit / 'manifest.json'
     manifest = decode_json(manifest_path.read_bytes())
+    # Release copies must match this genuinely different retained registry.
+    copy_path=historical_kit/'docs/reference/clinical-model.md'
+    copy_path.write_bytes(historical)
+    for entry in manifest['files']:
+        if entry['path']=='docs/reference/clinical-model.md':
+            entry.update(sha256=hash_bytes(historical),size=len(historical))
+    lock_copy=historical_kit/'definitions/lock.json'
+    lock_copy.write_bytes(lock_path.read_bytes())
+    for entry in manifest['files']:
+        if entry['path']=='definitions/lock.json':
+            entry.update(sha256=hash_bytes(lock_copy.read_bytes()),size=lock_copy.stat().st_size)
     manifest['kitVersion'] = '0.0.9'
     manifest['compatibility']['definitionLockSha256'] = hash_bytes(lock_path.read_bytes())
     manifest_path.write_bytes(encode_json(manifest))
@@ -827,8 +879,8 @@ def test_exact_revision_evidence_is_disposable_scoped_and_budgeted(clinical_cand
     for selected, binding, pointer in zip(selection['entries'], selection['entrySelections'], selection['original']['entryPointers']):
         original_entry = original_entries[int(pointer.split('/')[-1])]
         assert hash_bytes(encode_json(original_entry)) == binding['originalEntrySha256']
-        if binding['mode'] == 'archive-entry':
-            assert selected == original_entry
+        if binding['mode'] == 'metadata-bound':
+            assert selected == {k:original_entry[k] for k in ('kind','target','resourceRef','pointer') if k in original_entry}
         else:
             assert binding['mode'] == 'whole-value'
             span = binding['quoteSpan']

@@ -1,0 +1,5 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:agent-evidence-selection",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$ref": "urn:helseark:schema:0.1.0:agent-context#/$defs/evidenceSelection"
+}

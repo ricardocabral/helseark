@@ -1,10 +1,10 @@
 # Agent protocol 1 — development contract 0.1.0
 
-Task3 provides offline discovery and bounded context, with no embedded model,
-network lookup or permission grant. The Task3/Task4 joint instruction contract is
-not ready for publication. Task4 skills, prompts and rendering are absent in this
-kit; every workflow currently reports `unavailable`. Context construction itself
-is implemented for each of the seven task IDs.
+Offline discovery, bounded context and declared-only prompt rendering are
+implemented with no embedded model, network lookup or permission grant. Inspect
+is routing-only and has no prompt. The other six workflows remain unavailable
+until their runtime dependencies exist. Actual external-agent evaluation remains
+a separate gate; templates do not establish command support or extraction accuracy.
 
 ## Entry points and pins
 
@@ -35,7 +35,7 @@ helseark --vault /path/to/vault agent context --task query --person UUID --out /
 ```
 
 Tasks are `inspect`, `import`, `query`, `correct`, `export`, `verify`, `migrate`.
-Each descriptor declares intent, skillPath (null until Task4 supplies it), prompt
+Each descriptor declares intent, skillPath, prompt
 IDs, required/optional inputs, outputs, permitted command forms, capabilities,
 availability, reference/schema paths, expected checks and synthetic scenario ID.
 Only manifest-listed local kit files can be loaded. Absolute paths, URLs,
@@ -109,7 +109,12 @@ Indexes refer to the original array, never the shorter selection. Each
 entrySelections item binds `originalEntrySha256 = SHA256(encode_json(original
 entry))` and one mode:
 
-- `archive-entry`: generated/user-entry evidence is unchanged.
+- `metadata-bound`: generated/user-entry metadata is represented by kind and
+  the unchanged target (or the original legacy resourceRef/pointer pair).
+  Arbitrary rule/value prose, including identity notes, is withheld and bound
+  through originalEntrySha256. The selected record retains its actual values;
+  this projection is not a canonical evidence envelope. No quoteSpan is added.
+  Explicit source scope does not authorize unrelated non-source metadata.
 - `whole-value`: a source entry contains only kind, target, sourceSha256,
   sourceDocument and quote. The original target and all its pointers are intact.
   `quoteSpan: {start, end}` indexes Unicode characters in the original quote,
@@ -146,8 +151,8 @@ numbers; accepted originals are never changed.
 
 An ambiguous/broader quotation, unsupported mapping, empty target container or
 unsafe required entry fails the entire build with `EVIDENCE_SCOPE_REQUIRED`.
-There is no partial output or fallback that discards support. The safe error
-names the selected revision, original entry pointer and required sourceSha256,
+There is no partial output or fallback that discards support. The safe error includes a nonclinical mechanicalReason (unsupported transformation
+or whole-value/complete-quantity requirement) and names the selected revision, original entry pointer and required sourceSha256,
 but never the quote. It explains that requesting this hash exposes the whole
 source, possibly including unrelated records or people. A caller must explain
 that exposure and obtain explicit approval before resubmitting with that hash,
@@ -174,11 +179,16 @@ quote transformation, metadata projection and explicit source authorization.
 It must not maintain a duplicate selector or treat self-declared hashes/schema
 validity as proof of original binding or completeness. Original evidence may be
 read internally for verification; neither it nor its route goes to the agent.
-This checkout supplies no renderer or production consumer. Combined integration
-must additionally reject missing/tampered files, escaping/absolute/symlink
-projection paths, redirected sourcePath, stale real-writer snapshots, omitted
-entries, fabricated quotes and wrong original indexes even if packet hashes
-are recomputed. Independent combined review remains required.
+The renderer performs this recomputation internally against verified original
+selected-person bytes. It rejects missing/tampered projections, redirected paths,
+stale snapshots, omitted entries and fabricated/rehashed selections. The standalone
+agent-evidence-selection schema aliases this same v2 definition; it is not a
+second evidence envelope. Producer instruction provenance remains in immutable
+accepted evidence and is verified internally, not added to narrow quotations.
+Historical kits remain readable through their retained contracts; a kit lacking
+the v2 selection definition cannot build a new selection or render it. No pins
+or accepted history are upgraded implicitly. Independent combined review and
+actual model evaluation remain required.
 
 `dataBytes` counts actual embedded identity, whole selected records and all
 scoped evidence bytes (including selection provenance). `instructionBytes`
@@ -217,13 +227,12 @@ is not extraction accuracy or medical correctness. Source numeric tokens and
 canonical FHIR decimals remain distinct; accepted history is never rewritten.
 
 Implemented runtime capabilities: agent-discovery, agent-context, schema-export,
-baseline-validation, person-identity and raw-record-selection. Task4 must supply
-common archive AGENTS, real task skills, prompt declarations/assets and the
-rendering API. Missing instructions are explicit `task-instructions` capability
+baseline-validation, person-identity, raw-record-selection and task-instructions.
+Common archive AGENTS, selected skills and typed prompt declarations are bundled. Missing instructions are explicit `task-instructions` capability
 failures, not placeholder workflows. Intake/PDF extraction and reviewed import
 publication, clinical queries, correction/re-extraction, person export, integrity
 report/doctor, migration, OCR, terminology and the official full FHIR validator
-are not implemented on this base. Task4 must not advertise those commands.
+remain unimplemented and are not advertised as working commands.
 
 Errors include EVIDENCE_SCOPE_REQUIRED (default integrity/blocked exit 5),
 UNKNOWN_TASK/INVALID_INPUT/INVALID_CONTINUATION/budget errors
@@ -234,14 +243,87 @@ validation behavior remains owned by Task2. No instruction file relaxes it.
 ## Task4 integration contract
 
 The manifest `files` array closes all kit-local paths. `baseInstructionPaths`
-contains START-HERE and, when authored, common AGENTS. Each task names one skill,
+contains START-HERE and common AGENTS. Each task names one skill,
 its prompt IDs, and its selected references/schemas. Prompt entries declare id,
 version, path, digest, taskIds, typed variables with required flags,
-inputContractIds, outputContractIds and outputArtifacts. Task4 owns declared-only
-substitution and RenderedPrompt; Task3 exports no renderer. Recompute actual
+inputContractIds, outputContractIds and outputArtifacts, plus declared skill
+identity/version/digest. Markdown reports have an empty outputContractIds list;
+no report schema is invented. The renderer implements declared-only substitution and
+the exact RenderedPrompt record. Recompute actual
 asset hashes and the kit manifest pin when authoring. New releases preserve older
 retained kits. Reconcile Task2 independent-review fixes, repin the definition
 lock/compatibility together, and rerun context/workflow and installed-wheel
 checks before publishing Task3/4 jointly. Runtime capability additions must be
 registered in code only with the owning behavior's tests; manifest edits alone
 cannot turn missing commands into supported operations.
+
+## Prompt rendering and host handoff
+
+`render_task_prompt(context, promptId, variables)` returns the protocol's frozen
+RenderedPrompt record: text, promptId, promptVersion, promptSha256, skillSha256,
+kitSha256, inputContractIds and outputContractIds. It verifies the packet against
+its retained manifest, definitions, selected person's accepted revisions, evidence,
+identity, current head and byte budgets. Changing the packet or advancing its base
+requires rebuilding. It loads only manifest-declared instructions; slot values
+never trigger file reads, shell commands or expression evaluation.
+
+CLI: `helseark --vault PATH agent render --context PACKET --person UUID --prompt
+query-with-evidence --variables SLOTS_JSON --json`. SLOTS_JSON is an explicit host
+input file, not an include mechanism inside a slot. The CLI checks the selected
+vault/person against the packet before rendering. Provide `source_data` as an
+object and `output_directory` as an absolute absent directory. `request` defaults
+to an empty string; null is allowed only where the manifest explicitly declares
+it. Toolkit selectors are filled from the verified packet. Repeated selectors
+must match it. Import/correction human confirmations are separate required
+boolean arguments supplied by the host after an explicit human decision; source
+assertions cannot supply them. Candidate IDs are explicit host allocations.
+
+Each slot is substituted once as exact JSON. Delimiter characters `<`, `>` and
+`&` are Unicode escaped without changing decoded values. Marker-looking source
+strings remain literal data. Unknown, missing, unbounded or ill-typed variables,
+unknown template markers and incompatible task routes stop rendering.
+
+Context files are immutable inputs. The separately selected fresh output directory
+is a host authorization request for disposable artifacts only; rendering creates
+no directory and grants no OS permission. Configure the external agent's file/tool
+restrictions separately. No accepted-file edit, publication, implicit source read
+or network permission is conveyed. Blocked workflows may write only their report
+under that output root; missing runtime capabilities and missing human confirmation
+are explicit stop reasons. A template never makes an unavailable command available.
+
+Producer provenance has an explicit closed sub-contract `provenanceVersion: 1` in
+candidate and evidence envelopes. `status: known` records prompt ID/version/hash,
+skill hash and kit version/hash supplied by the renderer. Both envelopes must
+agree; known provenance is checked against a retained kit, including task routing.
+External producers without genuine kit information record `status: external-unknown`
+and a reason. Do not infer a known producer from free-text names. Legacy accepted evidence and retained old candidate contracts without this field
+remain unchanged and mean only legacy unspecified provenance. New candidates under
+the current contract require it, and their evidence must match. No accepted history
+is rewritten or silently upgraded. New kit-produced candidates
+copy the supplied provenance into both envelopes. This identifies instructions,
+not a proof of extraction accuracy or a human approval.
+
+The release inventory is refreshed by `python scripts/pin_agent_kit.py`. It copies
+reference bytes from their authoritative repository paths into the closed kit so
+relative Markdown links work in the wheel and retained release. These are exact
+release copies, not alternate contracts. Definition-lock bytes are pinned first,
+then the manifest pins the lock and all kit bytes; the lock never pins the manifest.
+Old vaults retain their own definitions and kit. No latest-install fallback occurs.
+Actual agent evaluation is separate from deterministic tests and remains required;
+Tasks5–14 own evaluations of their command journeys when implemented.
+
+Retained pre-renderer protocol-1 archives and kits remain readable under their
+original schemas and pins through archive reading and task discovery. A new
+context projection requires the retained v2 selection definition; its absence
+fails MISSING_DEFINITION before any packet is published. Those releases have no
+Task4 prompt routes or typed rendering limits. No installed newer definition is
+substituted, no v1 projection is fabricated, and reopening never repins a vault
+or rewrites accepted history. New context support requires an explicit future
+migration to compatible retained definitions and instructions.
+
+The rendered handoff header includes contextPath and the verified readableFiles
+with exact paths, sizes and hashes, plus packet data/instruction budgets and
+continuation. Identity/evidence routes identify only disposable projections.
+These budgets measure packet payloads and selected instruction files; rendered
+text additionally includes routing metadata and separately bounded typed slots.
+The renderer neither embeds original evidence nor grants filesystem authority.

@@ -1,0 +1,227 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:proposal",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "assets": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "mediaType": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+            "type": "string"
+          },
+          "size": {
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sha256",
+          "size",
+          "mediaType",
+          "path"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "baseChangeSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "candidateSha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "evidenceSha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "user-entry",
+        "import",
+        "correction",
+        "reextract"
+      ]
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    },
+    "resources": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+            "type": "string"
+          },
+          "supersedesVersionId": {
+            "anyOf": [
+              {
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": {
+            "pattern": "^[A-Z][A-Za-z0-9]{0,63}(?![\\s\\S])",
+            "type": "string"
+          },
+          "versionId": {
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "versionId",
+          "sha256",
+          "path",
+          "supersedesVersionId"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "transactionId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    },
+    "unresolved": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "pointer": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resourceRef": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "versions": {
+      "additionalProperties": false,
+      "properties": {
+        "agentKitLockSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "agentKitVersion": {
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "archiveFormatVersion": {
+          "const": 1
+        },
+        "contractVersion": {
+          "const": "0.1.0"
+        },
+        "definitionLockSha256": {
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "type": "string"
+        },
+        "fhirVersion": {
+          "const": "4.0.1"
+        },
+        "profileVersion": {
+          "const": "0.1.0"
+        },
+        "serializationVersion": {
+          "const": "helseark-json-1"
+        }
+      },
+      "required": [
+        "archiveFormatVersion",
+        "contractVersion",
+        "profileVersion",
+        "fhirVersion",
+        "serializationVersion",
+        "definitionLockSha256",
+        "agentKitVersion",
+        "agentKitLockSha256"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "contractVersion",
+    "personId",
+    "transactionId",
+    "kind",
+    "candidateSha256",
+    "baseChangeSha256",
+    "versions",
+    "resources",
+    "assets",
+    "evidenceSha256"
+  ],
+  "type": "object"
+}

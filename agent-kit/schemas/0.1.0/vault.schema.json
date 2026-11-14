@@ -1,0 +1,56 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:vault",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "agentKitLockSha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "agentKitVersion": {
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "archiveFormatVersion": {
+      "const": 1
+    },
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "definitionLockSha256": {
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+      "type": "string"
+    },
+    "fhirVersion": {
+      "const": "4.0.1"
+    },
+    "profileVersion": {
+      "const": "0.1.0"
+    },
+    "serializationVersion": {
+      "const": "helseark-json-1"
+    },
+    "vaultId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    }
+  },
+  "required": [
+    "archiveFormatVersion",
+    "contractVersion",
+    "profileVersion",
+    "fhirVersion",
+    "serializationVersion",
+    "definitionLockSha256",
+    "agentKitVersion",
+    "agentKitLockSha256",
+    "vaultId"
+  ],
+  "type": "object"
+}

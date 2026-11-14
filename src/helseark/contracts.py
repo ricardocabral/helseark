@@ -263,3 +263,18 @@ class AgentContext:
     evidencePaths: tuple[ContextFile, ...]
     expectedChecks: tuple[str, ...]
     outputPaths: tuple[str, ...]
+    # None only for retained pre-renderer context contracts which lack these fields.
+    maxRecords: int | None = None
+    maxDataBytes: int | None = None
+
+
+@dataclass(frozen=True)
+class RenderedPrompt:
+    text: str
+    promptId: str
+    promptVersion: str
+    promptSha256: Sha256
+    skillSha256: Sha256
+    kitSha256: Sha256
+    inputContractIds: tuple[str, ...]
+    outputContractIds: tuple[str, ...]
