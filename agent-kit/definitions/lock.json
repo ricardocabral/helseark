@@ -14,8 +14,8 @@
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
-          "size": 17173
+          "sha256": "8f5c758213c548ef22fe0df63c1ad715af7681315512075d4ec07499dba111a3",
+          "size": 17556
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "ed786e03f9cf799d353971799f4cea45aea379361248b5e96edb189d8330cc52",
-          "size": 20737
+          "sha256": "9c2bc2a6808b92b621d34f8fe9a5f40ec351a5b755d6bd7867bc0bdb8816c2ce",
+          "size": 21062
         }
       ],
       "license": "Apache-2.0",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "fa53d2876e46deae4fefaaf43cbddf13d5f97754bd71c26966b098d20daf2430",
-          "size": 27855
+          "sha256": "d9bcecf59163969040b380df626e49926ce8337de7e6082271cf3838bf0b86cb",
+          "size": 28134
         }
       ],
       "license": "Apache-2.0",
@@ -819,8 +819,8 @@
       "files": [
         {
           "path": "docs/how-to/import-structured-data.md",
-          "sha256": "d27de6f7c32c3d16f2ccde81f7f73bd79a9af323ae71708b947a6a6575ae4780",
-          "size": 2902
+          "sha256": "59a2c8dd70352c2d4f16d8a9ff41d640c807aa3d32094231b09695c83c8b10a0",
+          "size": 7104
         }
       ],
       "license": "Apache-2.0",

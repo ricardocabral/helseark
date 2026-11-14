@@ -303,3 +303,8 @@ no filter failure falls back to an unfiltered or all-person scan.
 provider mapping through candidates and the production review boundary. Source-native
 identities never become local logical/revision IDs. Unsupported data remains in original
 bytes and blocks silent loss; accepted history is never rewritten by an adapter.
+
+Mapped numeric CSV rows use the same FHIR Observation profile and review boundary.
+Every row stays distinct, status is explicitly unknown, coding is source text or a
+locally declared source namespace, and evidence links to the exact original CSV cell.
+Unknown or ambiguous time/identity/mapping never authorizes acceptance.

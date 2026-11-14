@@ -371,6 +371,19 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
                             entry['locator'].get('extractionSha256') != extraction['pagesSha256'] or
                             'bbox' in entry['locator']):
                         raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained page-only extraction.')
+    # Deterministic structured output is bound to the original trusted host
+    # mapping. Editable candidates cannot remove errors or substitute mappings.
+    # The toolkit-owned structured directory, not an editable candidate ID,
+    # selects the original host receipt even with explicit legacy source flags.
+    control_id = directory.name if directory.parent == vault.root/f'people/{person}/work/candidates' else metadata['candidateId']
+    control = _safe(vault.root, f".runtime/intake/{control_id}.json")
+    if control.exists():
+        authority = _bounded_json(control, limits)
+        if isinstance(authority, dict) and 'structuredCandidateSha256' in authority:
+            if (_candidate_inputs(directory)[1] != authority['structuredCandidateSha256'] or
+                    hash_bytes(_regular(directory/'coverage.json', CANDIDATE_FILE_BYTES)) !=
+                    authority.get('structuredCoverageSha256')):
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured candidate or coverage differs from original host mapping; rebuild with explicit local configuration.')
     candidate = Candidate(directory, metadata['candidateId'], person, base, bundle, evidence,
         tuple(Issue(**i) for i in metadata['unresolved']))
     # Preserve exact envelope binding: mandatory intake issues must be present,
@@ -605,6 +618,13 @@ def _structured_candidate(vault, source, family, mapping, resources, evidence, i
     coverage_data = {'family':family, 'sourceSha256':source.sourceSha256,
                      'mapping':document(mapping), 'items':coverage}
     coverage_bytes = encode_json(coverage_data)
+    # The production compiler retains evidence, while work sidecars are disposable.
+    # Keep the actual trusted mapping with every source transformation for replay.
+    mapping_note = 'Trusted local mapping JSON: ' + encode_json(document(mapping)).decode().strip()
+    for entry in evidence:
+        if entry.get('kind') == 'source':
+            transformation = entry.setdefault('transformation', {'rule':'explicit-host-mapping-1'})
+            transformation['description'] = transformation.get('description','') + '\n' + mapping_note
     issues = tuple(issues) + (Issue('STRUCTURED_COVERAGE','review',None,None,
         f'Review explicit assignment, source inventory and mapping; coverage SHA-256 {hash_bytes(coverage_bytes)}.'),)
     metadata = {'contractVersion':'0.1.0', 'candidateId':cid,'personId':source.personId,
@@ -626,5 +646,7 @@ def _structured_candidate(vault, source, family, mapping, resources, evidence, i
         _write(path/'coverage.json',coverage_bytes)
         control = _safe(vault.root,f'.runtime/intake/{cid}.json'); _mkdir(control.parent)
         _write(control,encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
-                                  'identityConfirmed':True}))
+                                  'identityConfirmed':True,
+                                  'structuredCandidateSha256':_candidate_inputs(path)[1],
+                                  'structuredCoverageSha256':hash_bytes(coverage_bytes)}))
     return read_candidate(vault,path,person=source.personId)

@@ -33,6 +33,7 @@ _EXIT = {
     "SOURCE_AUTHORITY_REQUIRED": 3, "SOURCE_SCOPE_MISMATCH": 2, "IDENTITY_UNCONFIRMED": 3, "REEXTRACTION_REQUIRED": 3, "RECONCILIATION_REQUIRED": 3, "CANDIDATE_MISMATCH": 5, "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
     "UNSAFE_PATH": 2, "SOURCE_TOO_LARGE": 2, "PAGE_LIMIT": 2,
     "TEXT_FIELD_LIMIT": 2, "RESOURCE_LIMIT": 2, "INTAKE_ISSUES_MISSING": 2,
+    "CSV_MAPPING_REQUIRED": 2, "CSV_INPUT_INVALID": 2,
     "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2,
     "IDENTITY_MAPPING_REQUIRED": 2, "AMBIGUOUS_REFERENCE": 2,
     "INVALID_ENVELOPE": 2, "PERSON_MISMATCH": 2, "UNSUPPORTED_RESOURCE": 6,
@@ -73,6 +74,11 @@ def main(argv=None):
     structured.add_argument('--person', required=True)
     structured.add_argument('--mapping', type=Path, required=True, help='Trusted local IdentityMapping JSON, never export prose.')
     structured.add_argument('--json', action='store_true')
+    metrics = intakes.add_parser('metrics-csv', help='Map CSV rows using explicit trusted column/date/decimal configuration.')
+    metrics.add_argument('source', type=Path)
+    metrics.add_argument('--person', required=True)
+    metrics.add_argument('--mapping', type=Path, required=True, help='Trusted local CsvMetricMapping JSON, never source prose.')
+    metrics.add_argument('--json', action='store_true')
     schema = commands.add_parser("schema", help="Export pinned offline contracts and definitions.")
     schemas = schema.add_subparsers(dest="schema_command", required=True)
     export = schemas.add_parser("export")
@@ -221,6 +227,14 @@ def main(argv=None):
                     if not isinstance(raw,dict) or set(raw) != {'patientReference','localPersonId','assignmentReason','provider'}:
                         raise ArchiveError('IDENTITY_MAPPING_REQUIRED','Expected trusted local IdentityMapping JSON.')
                     output = document(import_fhir_r4(source,args.person,IdentityMapping(**raw)))
+                elif args.intake_command == 'metrics-csv':
+                    from .adapters.csv_metrics import import_metrics_csv, CsvMetricMapping
+                    raw = decode_json(args.mapping.read_bytes())
+                    required = {'delimiter','encoding','dateColumn','valueColumn','unitColumn','codeColumn',
+                                'dateFormat','decimalSeparator','localPersonId','assignmentReason'}
+                    if not isinstance(raw,dict) or not required.issubset(raw) or set(raw)-required-{'timezone','codeSystem'}:
+                        raise ArchiveError('CSV_MAPPING_REQUIRED','Expected trusted local CsvMetricMapping JSON.')
+                    output = document(import_metrics_csv(source,args.person,CsvMetricMapping(**raw)))
                 else:
                     built = build_packet(vault, source, args.packet,
                         identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)

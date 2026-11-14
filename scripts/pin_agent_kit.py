@@ -31,13 +31,13 @@ def pin():
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
         task['requiredCapabilities']={
             'inspect':['agent-discovery','agent-context','task-instructions'],
-            'import':['agent-context','schema-export','baseline-validation','task-instructions','pdf-intake','fhir-r4-import','reviewed-publication'],
+            'import':['agent-context','schema-export','baseline-validation','task-instructions','pdf-intake','fhir-r4-import','csv-metrics-import','reviewed-publication'],
             'query':['agent-context','task-instructions','clinical-query'],
             'correct':['agent-context','baseline-validation','task-instructions','correction','reviewed-publication'],
             'export':['agent-context','task-instructions','person-export'],
             'verify':['agent-context','task-instructions','integrity-report'],
             'migrate':['agent-context','task-instructions','migration']}[task['id']]
-        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','reviewed-publication','clinical-query','fhir-r4-import']]
+        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','reviewed-publication','clinical-query','fhir-r4-import','csv-metrics-import']]
         task['availability']={'status':'unavailable' if missing else 'available','missingCapabilities':missing}
         for name in task['promptIds']:
             path=f'prompts/{name}.md'; data=(kit/path).read_bytes()
@@ -50,8 +50,8 @@ def pin():
                 if slot in ('candidate_id','person_id'): spec['pattern']='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
                 if slot=='source_hashes': spec.update(minItems=1,uniqueItems=True)
                 specs[slot]=spec
-            prompts.append({'id':name,'version':'0.1.1' if name in ('extract-report','map-structured-export') else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
-                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.3' if task['id']=='import' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
+            prompts.append({'id':name,'version':'0.1.2' if name=='map-structured-export' else '0.1.1' if name=='extract-report' else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
+                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.4' if task['id']=='import' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
                 'outputContractIds':['urn:helseark:schema:0.1.0:candidate','urn:helseark:schema:0.1.0:evidence'] if task['id'] in ('import','correct') else [],
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts

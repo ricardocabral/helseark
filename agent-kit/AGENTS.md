@@ -44,7 +44,7 @@ unit conversions, diagnoses, timezone or clinical reconciliation. Unknowns and
 contradictions stay explicit. Generated evidence covers bookkeeping only.
 Every clinical leaf requires source evidence, including explicit subject mapping.
 Unsupported incoming content stays in retained source bytes and is itemized with
-locations/reasons as not structured in the report and candidate unresolved issues.
+locations/reasons as not structured in the report and candidate unresolved errors. Unsupported structured content blocks preparation.
 A faithful supported subset may be drafted, with explicit coverage and omissions;
 it cannot claim complete mapping/import. Unsupported resources or fields emitted
 inside the structured Bundle still fail validation. Review issues or later human
@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt/import skill have version `0.1.1`; other prompts retain `0.1.0`. Each declares task-specific slots below
+The extraction prompt is `0.1.1`, the structured mapping prompt is `0.1.2`, and the import skill is `0.1.4`; other prompt versions are pinned in the manifest. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read and clinical-query. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, fhir-r4-import and csv-metrics-import. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -85,9 +85,10 @@ Implemented command forms (operator-run; placeholders are documentation only):
 
 - `helseark --vault PATH intake add SOURCE --person UUID --packet ABSENT_PATH --agent-output ABSENT_OUTPUT --confirm-person --json`
 
+See [structured mapping](docs/how-to/import-structured-data.md) for `intake fhir-r4` and `intake metrics-csv`, mandatory local mapping configs, coverage and blocking cases.
+
 Discovery/context/render are documented in START-HERE.md. PDF intake and draft
-extraction are implemented; full import acceptance, structured import,
-correction, export, doctor and migration workflows remain unavailable. Selected-person
+extraction, human-controlled reviewed publication, bounded FHIR R4 import and mapped numeric CSV import are implemented. Correction, export, doctor and migration workflows remain unavailable. Selected-person
 observations/timeline/record and date-filtered query context are implemented; see
 [query workflow](docs/how-to/query-history.md). Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
@@ -135,6 +136,6 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.1: a confirmed retained PDF may draft while the descriptor still lists
-unavailable structured import and reviewed publication. The renderer reports both
+Historical kit 0.1.1 allowed confirmed retained PDF drafts while its descriptor listed
+unavailable structured import and reviewed publication. Current kit 0.1.4 exposes the two bounded structured families; The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.

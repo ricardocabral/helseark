@@ -44,7 +44,7 @@ def test_real_manifest_routes_and_once_only_exact_json_render(tmp_path):
     assert other not in result.text and not (tmp_path/'fresh-output').exists()
     tasks = agents.list_agent_tasks(Path(context.kitManifest.path).parent)
     assert next(t for t in tasks if t.id == 'inspect').availability.status == 'available'
-    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query'))
+    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query','import'))
 
 
 @pytest.mark.parametrize('change', [ {'unknown': 1}, {'request': None}, {'request': 1},
@@ -234,7 +234,8 @@ def test_import_source_assertions_do_not_supply_human_confirmation(tmp_path):
     assert handoff['permittedWrites']==['output/report.md']
     assert 'pdf-intake' not in handoff['stopReasons']
     assert 'reviewed-publication' not in handoff['workflowAvailability']['missingCapabilities']
-    assert 'structured-import' in handoff['workflowAvailability']['missingCapabilities']
+    assert handoff['workflowAvailability']['status']=='available'
+    assert not handoff['workflowAvailability']['missingCapabilities']
     with pytest.raises(ArchiveError,match='INVALID_VARIABLE'):
         render(context,{**values,'identity_confirmed':None},'extract-report')
 

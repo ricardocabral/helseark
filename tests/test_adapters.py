@@ -136,3 +136,179 @@ def test_fhir_public_cli_creates_only_candidate(tmp_path):
     assert result.returncode==0,result.stderr
     candidate=read_candidate(v,Path(decode_json(result.stdout)['path']),person=p)
     assert candidate.bundle['entry'] and head(v,p)==before
+
+
+def csv_mapping(p, **kw):
+    from helseark.adapters.csv_metrics import CsvMetricMapping
+    return CsvMetricMapping(';','utf-8-sig','date','value','unit','code','%d/%m/%Y',',',p,
+                            'Synthetic explicit assignment',**kw)
+
+
+def test_csv_full_production_journey_duplicates_and_inert_labels(tmp_path):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    from helseark.archive import _history
+    from helseark.validation import _pointer
+    import csv,io
+    v,p,other=setup(tmp_path);s=add_source(v,p,FIXTURES/'metrics.csv')
+    c=import_metrics_csv(s,p,csv_mapping(p));publish(v,c)
+    rows=list(observations(v,p,ObservationFilter()))
+    assert len(rows)==3 and len({r.resourceRef.id for r in rows})==3
+    assert [str(r.value['value']) for r in rows].count('0.0500')==2
+    assert all(r.status=='unknown' for r in rows)
+    assert any(r.code['text']=='=HYPERLINK("https://invalid.example")' for r in rows)
+    assert list(observations(v,other,ObservationFilter()))==[]
+    assert s.assetPath.read_bytes()==(FIXTURES/'metrics.csv').read_bytes()
+    _,directory,_=_history(v,p)[-1]
+    evidence=decode_json((directory/'evidence.json').read_bytes())
+    source_rows=list(csv.DictReader(io.StringIO(s.assetPath.read_bytes().decode('utf-8-sig')),delimiter=';'))
+    for e in evidence['entries']:
+        parts=e['target']['reference'].split('/')
+        r=resolve(v,p,ResourceRef(parts[0],parts[1],parts[3]))
+        for pointer in e['target']['pointers']:_pointer(r,pointer)
+        if e['kind']!='source':continue
+        loc=e['locator'];assert loc['kind']=='csv-cell'
+        assert e['quote']==source_rows[loc['row']-1][loc['column']]
+        assert e['extraction']['method']=='csv-cell' and e['extraction']['tool']=='python.csv'
+        parts=e['sourceDocument'].split('/')
+        doc=resolve(v,p,ResourceRef(parts[0],parts[1],parts[3]))
+        assert doc['content'][0]['attachment']['url']==f'assets/sha256/{s.sourceSha256}/blob'
+
+
+@pytest.mark.parametrize('case',['missing-column','extra-column','duplicate-header','ragged','decimal','encoding','no-mapping','wrong-person'])
+def test_csv_unknown_mapping_and_unsupported_data_block(tmp_path,case):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    v,p,other=setup(tmp_path);mapping=csv_mapping(p)
+    data=b'date;value;unit;code\n01/02/2026;1,200;mg/L;Q\n'
+    if case=='missing-column':mapping=replace(mapping,valueColumn='missing')
+    if case=='extra-column':data=b'date;value;unit;code;unknown\n01/02/2026;1,200;mg/L;Q;retained\n'
+    if case=='duplicate-header':data=b'date;value;unit;code;code\n01/02/2026;1,200;mg/L;Q;other\n'
+    if case=='ragged':data+=b'01/02/2026;2,0;mg/L;Q;extra\n'
+    if case=='decimal':data=data.replace(b'1,200',b'1.200')
+    if case=='encoding':mapping=replace(mapping,encoding='utf-16')
+    if case=='no-mapping':mapping=None
+    if case=='wrong-person':mapping=replace(mapping,localPersonId=other)
+    path=tmp_path/'metrics.csv';path.write_bytes(data);s=add_source(v,p,path);before=head(v,p)
+    try:c=import_metrics_csv(s,p,mapping)
+    except ArchiveError as e:
+        assert e.code in ('CSV_MAPPING_REQUIRED','CSV_INPUT_INVALID','PERSON_MISMATCH');return
+    assert any(i.severity=='error' for i in c.unresolved)
+    assert decode_json((c.path/'coverage.json').read_bytes())['items']
+    with pytest.raises(ArchiveError):prepare_candidate(v,c)
+    assert head(v,p)==before and s.assetPath.read_bytes()==data
+
+
+@pytest.mark.parametrize('stamp,zone,code',[
+ ('01/11/2026 01:30:00','America/New_York','CSV_TIME_AMBIGUOUS'),
+ ('08/03/2026 02:30:00','America/New_York','CSV_TIME_NONEXISTENT'),
+ ('02/02/2026 12:30:00',None,'CSV_TIMEZONE_REQUIRED'),
+])
+def test_csv_uncertain_local_clocks_block(tmp_path,stamp,zone,code):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    v,p,_=setup(tmp_path);path=tmp_path/'clock.csv';path.write_text('date;value;unit;code\n'+stamp+';1,200;mg/L;Q\n')
+    mapping=replace(csv_mapping(p,timezone=zone),dateFormat='%d/%m/%Y %H:%M:%S')
+    c=import_metrics_csv(add_source(v,p,path),p,mapping)
+    assert code in {i.code for i in c.unresolved if i.severity=='error'}
+    with pytest.raises(ArchiveError):prepare_candidate(v,c)
+
+
+def test_csv_declared_timezone_and_utf16(tmp_path):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    v,p,_=setup(tmp_path);path=tmp_path/'utf16.csv'
+    path.write_bytes('date;value;unit;code\n02/02/2026 12:30:00;-0,0000;µg/L;Q\n'.encode('utf-16'))
+    mapping=replace(csv_mapping(p,timezone='UTC'),encoding='utf-16',dateFormat='%d/%m/%Y %H:%M:%S')
+    c=import_metrics_csv(add_source(v,p,path),p,mapping);publish(v,c)
+    row=list(observations(v,p,ObservationFilter()))[0]
+    assert row.effective=='2026-02-02T12:30:00+00:00' and str(row.value['value'])=='-0.0000' and row.unit=='µg/L'
+
+
+def test_csv_public_cli_and_real_human_confirmation_required(tmp_path):
+    import subprocess,sys
+    from helseark.agent_context import document
+    v,p,_=setup(tmp_path);before=head(v,p)
+    mapping=tmp_path/'mapping.json';mapping.write_bytes(encode_json(document(csv_mapping(p))))
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'intake','metrics-csv',str(FIXTURES/'metrics.csv'),'--person',p,'--mapping',str(mapping),'--json'],capture_output=True)
+    assert result.returncode==0,result.stderr
+    candidate=read_candidate(v,Path(decode_json(result.stdout)['path']),person=p)
+    assert head(v,p)==before
+    proposal=prepare_candidate(v,candidate)
+    with pytest.raises(ArchiveError,match='REVIEW_REQUIRED'):
+        record_review(v,proposal,ReviewDecision(False,'accept',(),'not-confirmed'))
+    with pytest.raises(ArchiveError):commit_candidate(v,proposal,None)
+    assert head(v,p)==before
+
+
+@pytest.mark.parametrize('text,fmt,expected', [('2026','%Y','2026'),('2026-02','%Y-%m','2026-02'),('2026-02-01T10:00:00-0300','%Y-%m-%dT%H:%M:%S%z','2026-02-01T10:00:00-03:00')])
+def test_csv_explicit_time_precision(tmp_path,text,fmt,expected):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    v,p,_=setup(tmp_path);path=tmp_path/'partial.csv';path.write_text('date;value;unit;code\n'+text+';1,200;mg/L;Q\n')
+    c=import_metrics_csv(add_source(v,p,path),p,replace(csv_mapping(p),dateFormat=fmt))
+    assert not [i for i in c.unresolved if i.severity=='error']
+    r=next(e['resource'] for e in c.bundle['entry'] if e['resource']['resourceType']=='Observation')
+    assert r['effectiveDateTime']==expected
+
+
+def test_fhir_native_metadata_must_be_valid_r4_before_remapping(tmp_path):
+    from helseark.adapters.fhir_r4 import import_fhir_r4,IdentityMapping
+    v,p,_=setup(tmp_path);raw=decode_json((FIXTURES/'r4.json').read_bytes())
+    raw['entry'][1]['resource']['meta']['lastUpdated']='not-an-instant'
+    path=tmp_path/'invalid-native.json';path.write_bytes(encode_json(raw))
+    c=import_fhir_r4(add_source(v,p,path),p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://provider.example/fhir'))
+    assert any(i.severity=='error' for i in c.unresolved)
+    with pytest.raises(ArchiveError):prepare_candidate(v,c)
+
+
+def test_fhir_identical_bytes_cross_provider_explicit_new_assertions(tmp_path):
+    v,p,_=setup(tmp_path);s,c=fhir(v,p);publish(v,c)
+    _,second=fhir(v,p,provider='https://provider-b.example/fhir')
+    with pytest.raises(ArchiveError,match='REEXTRACTION_REQUIRED'):prepare_candidate(v,second)
+    # Byte identity is the existing Task6 source boundary. The human host must
+    # explicitly declare these new provider assertions, including their document.
+    proposal=prepare_candidate(v,second,reextract=True,
+        reconciliation={e['fullUrl']:None for e in second.bundle['entry']})
+    commit_candidate(v,proposal,decision(v,proposal))
+    rows=list(observations(v,p,ObservationFilter()))
+    assert len(rows)==2 and len({r.resourceRef.id for r in rows})==2
+
+
+@pytest.mark.parametrize('family',['fhir','csv'])
+@pytest.mark.parametrize('change_id',[False,True])
+def test_adapter_errors_cannot_be_removed_from_untrusted_candidate(tmp_path,family,change_id):
+    v,p,_=setup(tmp_path)
+    if family=='fhir':
+        from helseark.adapters.fhir_r4 import import_fhir_r4,IdentityMapping
+        raw=decode_json((FIXTURES/'r4.json').read_bytes())
+        raw['entry'].append({'resource':{'resourceType':'Medication','id':'m1','status':'active'}})
+        path=tmp_path/'unsupported.json';path.write_bytes(encode_json(raw))
+        c=import_fhir_r4(add_source(v,p,path),p,IdentityMapping('Patient/p1',p,'Synthetic assignment','https://provider.example/fhir'))
+    else:
+        from helseark.adapters.csv_metrics import import_metrics_csv
+        path=tmp_path/'unsupported.csv';path.write_text('date;value;unit;code;unmapped\n01/02/2026;1,200;mg/L;Q;retained\n')
+        c=import_metrics_csv(add_source(v,p,path),p,csv_mapping(p))
+    assert any(i.severity=='error' for i in c.unresolved)
+    metadata=decode_json((c.path/'candidate.json').read_bytes());metadata['unresolved']=[]
+    if change_id:
+        from uuid import uuid4
+        metadata['candidateId']=str(uuid4())
+    (c.path/'candidate.json').write_bytes(encode_json(metadata))
+    before=head(v,p)
+    with pytest.raises(ArchiveError,match='CANDIDATE_MISMATCH'):
+        edited=read_candidate(v,c.path,person=p)
+        prepare_candidate(v,edited,authorized_sources=tuple(metadata['sourceSha256']))
+    assert head(v,p)==before
+
+
+def test_csv_host_mapping_remains_in_accepted_evidence_after_cleanup(tmp_path):
+    from helseark.adapters.csv_metrics import import_metrics_csv
+    from helseark.archive import _history
+    from helseark.agent_context import document
+    import shutil
+    v,p,_=setup(tmp_path);mapping=csv_mapping(p)
+    c=import_metrics_csv(add_source(v,p,FIXTURES/'metrics.csv'),p,mapping);publish(v,c)
+    for path in (v.root/'people'/p/'work',v.root/'work',v.root/'.runtime'):
+        if path.exists():shutil.rmtree(path)
+    _,directory,_=_history(v,p)[-1]
+    entries=decode_json((directory/'evidence.json').read_bytes())['entries']
+    descriptions=[e.get('transformation',{}).get('description','') for e in entries if e['kind']=='source']
+    assert descriptions and all('Trusted local mapping JSON: ' in text for text in descriptions)
+    for text in descriptions:
+        assert decode_json(text.split('Trusted local mapping JSON: ',1)[1].encode())==document(mapping)

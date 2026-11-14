@@ -51,7 +51,9 @@ sys.addaudithook(audit)
 tasks = list_agent_tasks(root)
 assert {t.id for t in tasks} == {'inspect','import','query','correct','export','verify','migrate'}
 assert next(t for t in tasks if t.id=='inspect').availability.status == 'available'
-assert all(t.availability.missingCapabilities for t in tasks if t.id not in ('inspect','query'))
+assert next(t for t in tasks if t.id=='import').availability.status == 'available'
+assert {'fhir-r4-import','csv-metrics-import'}.issubset(next(t for t in tasks if t.id=='import').requiredCapabilities)
+assert all(t.availability.missingCapabilities for t in tasks if t.id not in ('inspect','query','import'))
 '''
     result = subprocess.run([sys.executable, '-c', script, str(kit(vault))], capture_output=True)
     assert result.returncode == 0, result.stderr
@@ -599,7 +601,7 @@ sys.addaudithook(audit)
         for p in intake_path.rglob('*') if p.is_file())
     prompt=(intake_path/'prompt.txt').read_text()
     header=json.JSONDecoder().raw_decode(prompt.split('\n',1)[1])[0]
-    assert header['disposition']=='draft' and header['workflowAvailability']['status']=='unavailable'
+    assert header['disposition']=='draft' and header['workflowAvailability']['status']=='available'
     source_data=decode_json(prompt.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0].encode())
     slots.write_bytes(encode_json({'source_data':source_data,'identity_confirmed':True,
         'candidate_id':intake['importId'],'output_directory':str(tmp_path/'intake-output')}))

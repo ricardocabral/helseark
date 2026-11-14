@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "1f19772af66fbf2c66fae27bd402e8ab93deb07728320c2132a1ade5e2619a57",
+    "definitionLockSha256": "94f4dbc37c3c50c3e97db6c9ec32f67469e7750b729433febdc07b31960c5077",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,17 +14,17 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "64e82d412c934a54c3b9e58557cba9ff647909973198f3b37ddd7d93df2b7d16",
-      "size": 9187
+      "sha256": "f02bb248d4031b9164b266f9e6f72423a3ac8bcc2bd7afb655e9ff79c9f4463c",
+      "size": 9663
     },
     {
       "path": "START-HERE.md",
-      "sha256": "b56605d5bdeb18e2e6eb65f25650d135e1d010e327edd4e217e505f87e19ca20",
-      "size": 3123
+      "sha256": "facfa8e252743e030cb36f8ff1937cbd08c03cc3334404a121e2d7cadf766e6b",
+      "size": 3220
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "1f19772af66fbf2c66fae27bd402e8ab93deb07728320c2132a1ade5e2619a57",
+      "sha256": "94f4dbc37c3c50c3e97db6c9ec32f67469e7750b729433febdc07b31960c5077",
       "size": 32607
     },
     {
@@ -34,8 +34,8 @@
     },
     {
       "path": "docs/how-to/import-structured-data.md",
-      "sha256": "d27de6f7c32c3d16f2ccde81f7f73bd79a9af323ae71708b947a6a6575ae4780",
-      "size": 2902
+      "sha256": "59a2c8dd70352c2d4f16d8a9ff41d640c807aa3d32094231b09695c83c8b10a0",
+      "size": 7104
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "fa53d2876e46deae4fefaaf43cbddf13d5f97754bd71c26966b098d20daf2430",
-      "size": 27855
+      "sha256": "d9bcecf59163969040b380df626e49926ce8337de7e6082271cf3838bf0b86cb",
+      "size": 28134
     },
     {
       "path": "docs/reference/archive-format.md",
@@ -54,8 +54,8 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "ed786e03f9cf799d353971799f4cea45aea379361248b5e96edb189d8330cc52",
-      "size": 20737
+      "sha256": "9c2bc2a6808b92b621d34f8fe9a5f40ec351a5b755d6bd7867bc0bdb8816c2ce",
+      "size": 21062
     },
     {
       "path": "docs/reference/intake.md",
@@ -159,8 +159,8 @@
     },
     {
       "path": "prompts/map-structured-export.md",
-      "sha256": "8b80e772a41942e6360e2bab9fa6c705ca39dd6b24115661bf44347a6535a4c9",
-      "size": 4321
+      "sha256": "d6ae35fa2d9399823b4a540805d457e6d9137728101bee316196e385cbfbad4b",
+      "size": 4812
     },
     {
       "path": "prompts/plan-migration.md",
@@ -214,8 +214,8 @@
     },
     {
       "path": "schemas/0.1.0/evidence.schema.json",
-      "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
-      "size": 17173
+      "sha256": "8f5c758213c548ef22fe0df63c1ad715af7681315512075d4ec07499dba111a3",
+      "size": 17556
     },
     {
       "path": "schemas/0.1.0/proposal.schema.json",
@@ -249,8 +249,8 @@
     },
     {
       "path": "skills/import-records/SKILL.md",
-      "sha256": "cf2ae9865acc4c09b8a7163d9ab8471b418ca88aaf490ee97f9399f4351f42de",
-      "size": 4319
+      "sha256": "c300c3bdc54c6a7365f45320464f27373aee963a2007ce0fc1b54d452afa39fa",
+      "size": 4836
     },
     {
       "path": "skills/inspect-archive/SKILL.md",
@@ -283,7 +283,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.3",
+  "kitVersion": "0.1.4",
   "prompts": [
     {
       "id": "extract-report",
@@ -305,8 +305,8 @@
       "path": "prompts/extract-report.md",
       "sha256": "ae5d206925eeda2bc03e5dd5d3feadb80b4dcc355a52faa5b6ebc4320185601d",
       "skillId": "import-records",
-      "skillSha256": "cf2ae9865acc4c09b8a7163d9ab8471b418ca88aaf490ee97f9399f4351f42de",
-      "skillVersion": "0.1.3",
+      "skillSha256": "c300c3bdc54c6a7365f45320464f27373aee963a2007ce0fc1b54d452afa39fa",
+      "skillVersion": "0.1.4",
       "taskIds": [
         "import"
       ],
@@ -389,10 +389,10 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/map-structured-export.md",
-      "sha256": "8b80e772a41942e6360e2bab9fa6c705ca39dd6b24115661bf44347a6535a4c9",
+      "sha256": "d6ae35fa2d9399823b4a540805d457e6d9137728101bee316196e385cbfbad4b",
       "skillId": "import-records",
-      "skillSha256": "cf2ae9865acc4c09b8a7163d9ab8471b418ca88aaf490ee97f9399f4351f42de",
-      "skillVersion": "0.1.3",
+      "skillSha256": "c300c3bdc54c6a7365f45320464f27373aee963a2007ce0fc1b54d452afa39fa",
+      "skillVersion": "0.1.4",
       "taskIds": [
         "import"
       ],
@@ -455,7 +455,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     {
       "id": "query-with-evidence",
@@ -896,6 +896,7 @@
         "task-instructions",
         "pdf-intake",
         "fhir-r4-import",
+        "csv-metrics-import",
         "reviewed-publication"
       ],
       "requiredInputs": [

@@ -79,6 +79,9 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
         elif isinstance(value,list) and 'items' in definition:
             for n,v in enumerate(value):unknown_fields(v,definition['items'],pointer+'/'+str(n))
     issues=[]; coverage=[]; aliases={}; items=[]; selected=[]
+    if not registry.validate('definitions/fhir-r4-json-schema/fhir.schema.json',incoming):
+        issues.append(Issue('FHIR_SOURCE_SCHEMA_INVALID','error','',None,'Incoming export violates pinned R4 schema before local remapping; original bytes retained.'))
+        coverage.append({'pointer':'','disposition':'invalid-native-r4'})
     def unsupported(pointer, disposition='unsupported-content'):
         coverage.append({'pointer':pointer,'disposition':disposition})
         issues.append(Issue('FHIR_UNHANDLED','error',pointer,None,'Unhandled source content retained; resolve mapping/support before preparation.'))
@@ -86,7 +89,7 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
     for k in incoming:
         coverage.append({'pointer':'/'+k,'disposition':'retained-export-envelope'})
         if k not in {'resourceType','type','entry','id','meta','identifier','timestamp','total','link'}:unsupported('/'+k)
-    if incoming.get('type') not in {'collection','document','searchset','history'}:unsupported('/type')
+    if not isinstance(incoming.get('type'),str) or incoming.get('type') not in {'collection','document','searchset','history'}:unsupported('/type')
     for n,entry in enumerate(incoming['entry']):
         ptr=f'/entry/{n}'; r=entry.get('resource') if isinstance(entry,dict) else None
         if not isinstance(r,dict) or not isinstance(r.get('resourceType'),str) or r.get('resourceType') not in _SLUGS:
@@ -137,7 +140,7 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
         if not isinstance(profiles,list):
             raise ArchiveError('INVALID_INPUT','Expected a list of source profile identifiers.')
         for profile in profiles:
-            if profile not in {'http://hl7.org/fhir/StructureDefinition/'+kind,
+            if not isinstance(profile,str) or profile not in {'http://hl7.org/fhir/StructureDefinition/'+kind,
                     'http://hl7.org/fhir/StructureDefinition/'+kind+'|4.0.1',*_profile(kind)['profile']}:
                 unsupported(ptr+'/meta/profile','unhandled-source-profile')
         for k in original.get('meta',{}):
