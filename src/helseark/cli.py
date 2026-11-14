@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-from .archive import init_vault, open_vault, open_definitions, add_person, _json, _open_vault_metadata, _bundled_root
+from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .query import observations, timeline, parse_reference
 from .archive import resolve
@@ -23,6 +23,7 @@ from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, do
 from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "CONTEXT_AUTHORITY_REQUIRED": 2,
     "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
@@ -36,6 +37,9 @@ _EXIT = {
     "SOURCE_AUTHORITY_REQUIRED": 3, "SOURCE_SCOPE_MISMATCH": 2, "IDENTITY_UNCONFIRMED": 3, "REEXTRACTION_REQUIRED": 3, "RECONCILIATION_REQUIRED": 3, "CANDIDATE_MISMATCH": 5, "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
     "UNSAFE_PATH": 2, "SOURCE_TOO_LARGE": 2, "PAGE_LIMIT": 2,
     "TEXT_FIELD_LIMIT": 2, "RESOURCE_LIMIT": 2, "INTAKE_ISSUES_MISSING": 2,
+    "CSV_MAPPING_REQUIRED": 2, "CSV_INPUT_INVALID": 2,
+    "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2,
+    "IDENTITY_MAPPING_REQUIRED": 2, "AMBIGUOUS_REFERENCE": 2,
     "INVALID_ENVELOPE": 2, "PERSON_MISMATCH": 2, "UNSUPPORTED_RESOURCE": 6,
     "MISSING_DEFINITION": 6, "UNSUPPORTED_DIALECT": 6, "REVIEW_REQUIRED": 3,
 }
@@ -69,6 +73,16 @@ def main(argv=None):
     ingest.add_argument('--agent-output', type=Path, help='Fresh permitted external-agent output root.')
     ingest.add_argument('--confirm-person', action='store_true', help='Explicit human assignment; source text cannot supply this.')
     ingest.add_argument('--json', action='store_true')
+    structured = intakes.add_parser('fhir-r4', help='Map a retained R4 export using explicit local Patient/provider configuration.')
+    structured.add_argument('source', type=Path)
+    structured.add_argument('--person', required=True)
+    structured.add_argument('--mapping', type=Path, required=True, help='Trusted local IdentityMapping JSON, never export prose.')
+    structured.add_argument('--json', action='store_true')
+    metrics = intakes.add_parser('metrics-csv', help='Map CSV rows using explicit trusted column/date/decimal configuration.')
+    metrics.add_argument('source', type=Path)
+    metrics.add_argument('--person', required=True)
+    metrics.add_argument('--mapping', type=Path, required=True, help='Trusted local CsvMetricMapping JSON, never source prose.')
+    metrics.add_argument('--json', action='store_true')
     schema = commands.add_parser("schema", help="Export pinned offline contracts and definitions.")
     schemas = schema.add_subparsers(dest="schema_command", required=True)
     export = schemas.add_parser("export")
@@ -275,9 +289,24 @@ def main(argv=None):
                     output = resolve(vault,args.person,parse_reference(args.resource),at=at)
             elif args.command == 'intake':
                 source = add_source(vault, args.person, args.source)
-                built = build_packet(vault, source, args.packet,
-                    identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
-                output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
+                if args.intake_command == 'fhir-r4':
+                    from .adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+                    raw = decode_json(args.mapping.read_bytes())
+                    if not isinstance(raw,dict) or set(raw) != {'patientReference','localPersonId','assignmentReason','provider'}:
+                        raise ArchiveError('IDENTITY_MAPPING_REQUIRED','Expected trusted local IdentityMapping JSON.')
+                    output = document(import_fhir_r4(source,args.person,IdentityMapping(**raw)))
+                elif args.intake_command == 'metrics-csv':
+                    from .adapters.csv_metrics import import_metrics_csv, CsvMetricMapping
+                    raw = decode_json(args.mapping.read_bytes())
+                    required = {'delimiter','encoding','dateColumn','valueColumn','unitColumn','codeColumn',
+                                'dateFormat','decimalSeparator','localPersonId','assignmentReason'}
+                    if not isinstance(raw,dict) or not required.issubset(raw) or set(raw)-required-{'timezone','codeSystem'}:
+                        raise ArchiveError('CSV_MAPPING_REQUIRED','Expected trusted local CsvMetricMapping JSON.')
+                    output = document(import_metrics_csv(source,args.person,CsvMetricMapping(**raw)))
+                else:
+                    built = build_packet(vault, source, args.packet,
+                        identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
+                    output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
             elif args.command == 'candidate':
                 if args.candidate_command=='prepare':
                     candidate=read_candidate(vault,args.path,person=args.person)
@@ -344,7 +373,8 @@ def main(argv=None):
                 print(encode_json(output).decode(),end='')
             elif args.command == 'intake':
                 print(output['path'])
-                print('Host-retained context SHA-256: '+output['trustedContextSha256'])
+                if 'trustedContextSha256' in output:
+                    print('Host-retained context SHA-256: '+output['trustedContextSha256'])
             elif args.command == 'agent' and args.agent_command == 'tasks':
                 for task in output:
                     print(task['id'] + ': ' + task['availability']['status'])

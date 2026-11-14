@@ -14,11 +14,11 @@ Contracts: [clinical model](../../docs/reference/clinical-model.md#identity-refe
 Prompt routes: [`extract-report`](../../prompts/extract-report.md), [`map-structured-export`](../../prompts/map-structured-export.md).
 
 For report extraction require `pdf-intake`; structured mapping instead requires the
-proposed `structured-import` capability. Other import dependencies: `schema-export`,
+implemented `fhir-r4-import` or `csv-metrics-import` capability for its specific input family. Other import dependencies: `schema-export`,
 `baseline-validation`, `agent-context`, `reviewed-publication`. Check availability in
 the [common capability section](../../AGENTS.md#capability-availability), then the
 trusted runtime registry; this dependency list does not establish availability. This
-skill is draft-only until those dependencies are implemented and evaluated.
+skill remains agent draft-only; capability availability never grants acceptance authority or proves model accuracy.
 
 ## Text-PDF entry (kit 0.1.2)
 
@@ -40,8 +40,7 @@ recover rendering authority from context.json or intake.json. A template alone
 cannot grant drafting or acceptance; follow the actual renderer disposition.
 Read [intake contract](../../docs/reference/intake.md) for limits and failures.
 
-PDF extraction/candidate reading and human-controlled reviewed publication are available. Structured import remains unavailable. Agents still cannot record human decisions or commit. The descriptor exposes this
-whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
+PDF extraction/candidate reading and human-controlled reviewed publication are available. The two bounded structured import families below are available. Agents still cannot record human decisions or commit. A complete, confirmed text-PDF handoff can draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
 
@@ -64,3 +63,5 @@ Human publication uses [exact issue review](../../docs/reference/review.md#exact
 The human inspects previous/new facts, omissions and both sources, then selects
 every displayed limitation by issueId with an individual reason and current person
 confirmation. Agents must not generate acknowledgments or acceptance decisions.
+
+Implemented structured family: bounded FHIR R4 JSON Bundle via `helseark --vault VAULT intake fhir-r4 SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Mapping is human-controlled, never supplied by source prose. The other implemented family is explicitly mapped numeric CSV: `helseark --vault VAULT intake metrics-csv SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Delimiter, encoding, date/value/unit/code columns, date format and decimal separator are mandatory; timezone is optional only for dates or offset-bearing source clocks. Unknown/ambiguous local clocks block; formulas are inert labels. These two bounded adapters do not imply support for arbitrary structured exports. Stop on unknown mapping or unsupported content. Use [structured guide](../../docs/how-to/import-structured-data.md) for candidate/review boundaries.

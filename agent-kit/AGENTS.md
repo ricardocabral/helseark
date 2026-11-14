@@ -44,7 +44,7 @@ unit conversions, diagnoses, timezone or clinical reconciliation. Unknowns and
 contradictions stay explicit. Generated evidence covers bookkeeping only.
 Every clinical leaf requires source evidence, including explicit subject mapping.
 Unsupported incoming content stays in retained source bytes and is itemized with
-locations/reasons as not structured in the report and candidate unresolved issues.
+locations/reasons as not structured in the report and candidate unresolved errors. Unsupported structured content blocks preparation.
 A faithful supported subset may be drafted, with explicit coverage and omissions;
 it cannot claim complete mapping/import. Unsupported resources or fields emitted
 inside the structured Bundle still fail validation. Review issues or later human

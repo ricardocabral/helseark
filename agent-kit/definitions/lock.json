@@ -14,8 +14,8 @@
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
-          "size": 17173
+          "sha256": "8f5c758213c548ef22fe0df63c1ad715af7681315512075d4ec07499dba111a3",
+          "size": 17556
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",

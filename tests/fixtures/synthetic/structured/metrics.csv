@@ -1,0 +1,4 @@
+﻿date;value;unit;code
+01/02/2026;<0,0500;mg/L;Q
+01/02/2026;<0,0500;mg/L;Q
+02/02/2026;1,200;mg/L;"=HYPERLINK(""https://invalid.example"")"

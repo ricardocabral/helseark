@@ -755,7 +755,7 @@ class _Checks:
                         located = _pointer(decode_json(data), locator['pointer'])
                         text = located if isinstance(located, str) else encode_json(located).decode().strip()
                     elif kind == 'csv-cell':
-                        reader = csv.DictReader(io.StringIO(data.decode('utf-8')), delimiter=locator['delimiter'])
+                        reader = csv.DictReader(io.StringIO(data.decode(locator.get('encoding','utf-8')),newline=''), delimiter=locator['delimiter'],strict=True)
                         rows = list(reader)
                         text = rows[locator['row']-1][locator['column']]
                     elif kind in {'text-span','pdf-page'}:

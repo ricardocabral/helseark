@@ -163,3 +163,17 @@ required status/identity cannot be invented to force a resource. Notes/omissions
 remain reviewable and must be disclosed. Behavioral qualification of these shapes
 is not evidence that a model follows the instructions; fresh actual trials remain
 a separate coordinator gate.
+
+
+## Structured host issuance — kit 0.1.5
+
+Toolkit-retained non-PDF source receipts require original structured issuance when
+reading a candidate. The source-local `structured/<candidate-input-digest>.json`
+receipt binds the exact serialized candidate artifacts, coverage digest, person,
+source hash, family and local mapping. Candidate path/ID/producer claims and explicit
+source flags do not select or waive this authority. Missing/mismatched issuance
+fails `CANDIDATE_MISMATCH`; rebuild old unaccepted drafts through an explicit adapter
+mapping. Never infer new authority from editable work bytes. PDF and genuine legacy
+non-intake source preparation retain their own existing authority contracts.
+These protected receipts may outlive `.runtime`; accepted readers still require no
+runtime or work tree. Host protection of original/source-side receipts remains required.

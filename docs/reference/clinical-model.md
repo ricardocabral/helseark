@@ -296,3 +296,22 @@ precision, bucket and relation for each returned record. Unknown dates remain
 selected. Continuations bind the person, task, source/reference selection, date
 bounds, kit digest and Head. Counts and record/evidence budgets apply per page;
 no filter failure falls back to an unfiltered or all-person scan.
+
+## Structured R4 import
+
+[Structured import](../how-to/import-structured-data.md) uses explicit incoming Patient and
+provider mapping through candidates and the production review boundary. Source-native
+identities never become local logical/revision IDs. Unsupported data remains in original
+bytes and blocks silent loss; accepted history is never rewritten by an adapter.
+
+Mapped numeric CSV rows use the same FHIR Observation profile and review boundary.
+Every row stays distinct, status is explicitly unknown, coding is source text or a
+locally declared source namespace, and evidence links to the exact original CSV cell.
+Unknown or ambiguous time/identity/mapping never authorizes acceptance.
+
+
+Structured R4 import inventories unsupported content throughout the export envelope
+and all entries, including nested meta/link/search extensions, primitive companions,
+modifiers and escaped unknown fields. Each has a blocking source pointer; original
+byte retention alone is not a supported disposition. Exact source-local host issuance
+binds mapped candidates and coverage independently of their editable IDs or paths.

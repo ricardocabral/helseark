@@ -48,6 +48,16 @@
       "size": 4483
     },
     {
+      "path": "docs/how-to/import-structured-data.md",
+      "sha256": "f2545becb68aacf295897d89f3ffcc610f762cb978615382f3fbf8b242f8b643",
+      "size": 8476
+    },
+    {
+      "path": "docs/how-to/query-history.md",
+      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+      "size": 4050
+    },
+    {
       "path": "docs/reference/agent-protocol.md",
       "sha256": "3056a130dda8abd9c21fac0f37cb7a6f594c4ab06ef64f969bbb34b77faa1042",
       "size": 29406
@@ -164,8 +174,8 @@
     },
     {
       "path": "prompts/map-structured-export.md",
-      "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
-      "size": 3902
+      "sha256": "60c202ddec848b9657e6b8dce704342628da6e44711a2078aa4b6a6e77c4006c",
+      "size": 5149
     },
     {
       "path": "prompts/plan-migration.md",
@@ -219,8 +229,8 @@
     },
     {
       "path": "schemas/0.1.0/evidence.schema.json",
-      "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
-      "size": 17173
+      "sha256": "8f5c758213c548ef22fe0df63c1ad715af7681315512075d4ec07499dba111a3",
+      "size": 17556
     },
     {
       "path": "schemas/0.1.0/export-2.schema.json",
@@ -414,7 +424,7 @@
         "urn:helseark:schema:0.1.0:evidence"
       ],
       "path": "prompts/map-structured-export.md",
-      "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
+      "sha256": "60c202ddec848b9657e6b8dce704342628da6e44711a2078aa4b6a6e77c4006c",
       "skillId": "import-records",
       "skillSha256": "6e41b8b68b9a9f38f333b261f07b56f2c67e5c9a022f0b394cfe19a5b9ed3237",
       "skillVersion": "0.1.4",
@@ -480,7 +490,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.3"
     },
     {
       "id": "query-with-evidence",
@@ -882,10 +892,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "structured-import"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -913,7 +921,8 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/import-structured-data.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -921,7 +930,8 @@
         "baseline-validation",
         "task-instructions",
         "pdf-intake",
-        "structured-import",
+        "fhir-r4-import",
+        "csv-metrics-import",
         "reviewed-publication"
       ],
       "requiredInputs": [
