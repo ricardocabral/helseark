@@ -1,0 +1,110 @@
+{
+  "authority": "https://hl7.org/fhir/R4/downloads.html",
+  "bundleVersion": 1,
+  "fhirVersion": "4.0.1",
+  "licenseReview": "2026-11-14: core package/package.json declares CC0-1.0; R4 license.html covers fhir-spec.zip with trademark and third-party IP caveats; exact license pages and CC0 legal text retained",
+  "release": "FHIR Release 4 Technical Correction #1; specification generated 2019-11-01 09:37+1100",
+  "retain": [
+    {
+      "path": "licenses/hl7-license.html",
+      "source": "hl7-license"
+    },
+    {
+      "path": "licenses/cc0.html",
+      "source": "cc0"
+    },
+    {
+      "member": "package/package.json",
+      "path": "licenses/core-package.json",
+      "source": "core"
+    },
+    {
+      "member": "site\\license.html",
+      "path": "licenses/specification-license.html",
+      "source": "specification"
+    }
+  ],
+  "scope": "Complete original core/specification/schema archives; no added terminology distributions or Java validator dependencies; no runtime integration",
+  "sources": [
+    {
+      "acquiredAt": "2026-11-14T16:38:31.984927+00:00",
+      "filename": "hl7.fhir.r4.core.tgz",
+      "format": "tar.gz",
+      "httpLastModified": "Fri, 21 Mar 2025 18:57:03 GMT",
+      "id": "core",
+      "license": "CC0-1.0; HL7 trademarks and third-party IP exclusions apply",
+      "membership": {
+        "count": 4742,
+        "expandedSize": 37636928,
+        "files": 4739,
+        "sha256": "dac614b7b3b55f9fa3b3d50502c8fe091831574ab3d1eab9906e98b2ab62021b"
+      },
+      "sha256": "b090bf929e1f665cf2c91583720849695bc38d2892a7c5037c56cb00817fb091",
+      "size": 4531911,
+      "url": "https://hl7.org/fhir/R4/hl7.fhir.r4.core.tgz"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:39:46.479661+00:00",
+      "filename": "fhir-spec.zip",
+      "format": "zip",
+      "httpLastModified": "Fri, 21 Mar 2025 18:57:02 GMT",
+      "id": "specification",
+      "license": "CC0-1.0; HL7 trademarks and third-party IP exclusions apply",
+      "membership": {
+        "count": 35698,
+        "expandedSize": 1795754302,
+        "files": 35698,
+        "sha256": "dfaeda71c7cece9c6925c4f22d21ecc264c294db32c734c8e831b3805f5cda72"
+      },
+      "sha256": "be88dd7dd80e00289731b21ab5365b694f1f90aa076ac3088dbd0fc62cdb72bb",
+      "size": 210374564,
+      "url": "https://hl7.org/fhir/R4/fhir-spec.zip"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:38:50.817310+00:00",
+      "filename": "fhir.schema.json.zip",
+      "format": "zip",
+      "id": "schema",
+      "license": "CC0-1.0; HL7 trademarks and third-party IP exclusions apply",
+      "membership": {
+        "count": 1,
+        "expandedSize": 3386892,
+        "files": 1,
+        "sha256": "28713f5e11cf511b21888401dccd326310030bc06e33e8f5e87bbcbccb1a95f8"
+      },
+      "sha256": "75e5560da3cf503895a44c8ca7af17a83b4cca6c2cb5ba1883d2aec0d1cb5ac6",
+      "size": 287789,
+      "url": "https://hl7.org/fhir/R4/fhir.schema.json.zip"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:38:47.995108+00:00",
+      "filename": "downloads.html",
+      "format": "raw",
+      "id": "downloads",
+      "license": "CC0-1.0; HL7 trademarks and third-party IP exclusions apply",
+      "sha256": "e42cc57b4934bd8018d6d4bb46dff9ec1749fcdaf429c9d6c5d75bce2fbfedc0",
+      "size": 19967,
+      "url": "https://hl7.org/fhir/R4/downloads.html"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:38:48.983126+00:00",
+      "filename": "license.html",
+      "format": "raw",
+      "id": "hl7-license",
+      "license": "CC0-1.0; HL7 trademarks and third-party IP exclusions apply",
+      "sha256": "b2aeb02247ca2aa855ed1fce29f62600aeeb8dcc8257ec1e0b40ceaf4fd60a15",
+      "size": 22009,
+      "url": "https://hl7.org/fhir/R4/license.html"
+    },
+    {
+      "acquiredAt": "2026-11-14T16:38:49.187592+00:00",
+      "filename": "cc0-1.0.html",
+      "format": "raw",
+      "id": "cc0",
+      "license": "CC0-1.0",
+      "sha256": "b43732f4c1463b087cf10d4daf8d8766514b2bf8f21bc5ef50905f95be227726",
+      "size": 32223,
+      "url": "https://creativecommons.org/publicdomain/zero/1.0/legalcode.en"
+    }
+  ]
+}
