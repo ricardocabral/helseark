@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-          "size": 16947
+          "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
+          "size": 20363
         }
       ],
       "license": "Apache-2.0",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "fa53d2876e46deae4fefaaf43cbddf13d5f97754bd71c26966b098d20daf2430",
-          "size": 27855
+          "sha256": "3fba31c103ebef8fc9edc1fc0993f7e613a3372449cccecf631991d4bd358006",
+          "size": 28184
         }
       ],
       "license": "Apache-2.0",
@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
-          "size": 18703
+          "sha256": "112ac8a082b2a7e5b7299660ae731f60b72cdd8663c7155eb56f1d1219968dd6",
+          "size": 19675
         }
       ],
       "license": "Apache-2.0",
@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "57242db995db9e58634317c2fd1da6615e6499526c6256b271e7777f81d2ffce",
-          "size": 8487
+          "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a",
+          "size": 9254
         }
       ],
       "license": "Apache-2.0",
@@ -793,13 +793,65 @@
       "files": [
         {
           "path": "docs/tutorials/first-archive.md",
-          "sha256": "a88da7b33d458b96651ee8378786f4bbb9d910134acc44db4c9fe1b0146cdb1a",
-          "size": 4004
+          "sha256": "4391521cc435127a537d18c2830fb88737db9ecbe2c7d9bc384129920a2ceecb",
+          "size": 4569
         }
       ],
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-first-archive",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/query-history.md",
+          "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+          "size": 4050
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-query-history",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/export.schema.json",
+          "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb",
+          "size": 4012
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-export.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/export-records.md",
+          "sha256": "e59f5969459a2fe154c886b6123fa37b58a3ad608a963efde96a26f764d134e7",
+          "size": 2990
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-export-records",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/backup-and-restore.md",
+          "sha256": "03d446245fc4aee6c65b4d5f4078a16589afd1030c25f765ff07b09dc87456cf",
+          "size": 3961
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-backup-and-restore",
       "version": "0.1.0"
     }
   ],

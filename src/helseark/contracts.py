@@ -406,3 +406,35 @@ class ValidatorConfig:
     timeoutSeconds: int
     requireTerminology: bool
     javaPath: Path
+
+
+@dataclass(frozen=True)
+class IntegrityReport:
+    issues: tuple[Issue, ...]
+    checkedChanges: int
+    checkedResources: int
+    checkedAssets: int
+    orphanPaths: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ExportSelection:
+    mode: Literal['full-person', 'selected-current']
+    resourceRefs: tuple[ResourceRef, ...] = ()
+    includeSources: bool = True
+
+    def __post_init__(self):
+        if self.mode not in ('full-person', 'selected-current') or type(self.includeSources) is not bool:
+            raise ArchiveError('INVALID_INPUT', 'Invalid export selection.')
+        if self.mode == 'full-person' and (self.resourceRefs or not self.includeSources):
+            raise ArchiveError('INVALID_INPUT', 'Full-person retains all history and sources; use selected-current for omissions.')
+
+
+@dataclass(frozen=True)
+class ExportReceipt:
+    path: Path
+    manifestSha256: Sha256
+    peopleCount: int
+    resourceCount: int
+    assetCount: int
+    omissions: tuple[str, ...]

@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "0c4de8a0305a2f0ceaa0609f7dc8ff7ba2d3df3c31fcdf37dddfdea4710057d9",
+    "definitionLockSha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,18 +14,28 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "cf53f0bc7a539d41a380d7700713e808ce117033ac3dd079c00fa7a245ae5ee6",
-      "size": 9041
+      "sha256": "ba137139e53014d04d85fb9e308f73d397c4fe2716eeca452c8bb500c69f233b",
+      "size": 9539
     },
     {
       "path": "START-HERE.md",
-      "sha256": "d6dede43a743bafd2fec775123ab7da5f3415be326dc9e5276298816e1299a29",
-      "size": 2677
+      "sha256": "6cb12303cdceeb4888d7a11acd7ce5199d405c2ed2dd3a985c83eabdfa728014",
+      "size": 3232
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "0c4de8a0305a2f0ceaa0609f7dc8ff7ba2d3df3c31fcdf37dddfdea4710057d9",
-      "size": 31849
+      "sha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
+      "size": 33345
+    },
+    {
+      "path": "docs/how-to/backup-and-restore.md",
+      "sha256": "03d446245fc4aee6c65b4d5f4078a16589afd1030c25f765ff07b09dc87456cf",
+      "size": 3961
+    },
+    {
+      "path": "docs/how-to/export-records.md",
+      "sha256": "e59f5969459a2fe154c886b6123fa37b58a3ad608a963efde96a26f764d134e7",
+      "size": 2990
     },
     {
       "path": "docs/how-to/import-report.md",
@@ -33,24 +43,29 @@
       "size": 7122
     },
     {
+      "path": "docs/how-to/query-history.md",
+      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+      "size": 4050
+    },
+    {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "fa53d2876e46deae4fefaaf43cbddf13d5f97754bd71c26966b098d20daf2430",
-      "size": 27855
+      "sha256": "3fba31c103ebef8fc9edc1fc0993f7e613a3372449cccecf631991d4bd358006",
+      "size": 28184
     },
     {
       "path": "docs/reference/archive-format.md",
-      "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
-      "size": 18703
+      "sha256": "112ac8a082b2a7e5b7299660ae731f60b72cdd8663c7155eb56f1d1219968dd6",
+      "size": 19675
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-      "size": 16947
+      "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
+      "size": 20363
     },
     {
       "path": "docs/reference/intake.md",
-      "sha256": "57242db995db9e58634317c2fd1da6615e6499526c6256b271e7777f81d2ffce",
-      "size": 8487
+      "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a",
+      "size": 9254
     },
     {
       "path": "docs/reference/pdf-extraction.md",
@@ -64,8 +79,8 @@
     },
     {
       "path": "docs/tutorials/first-archive.md",
-      "sha256": "a88da7b33d458b96651ee8378786f4bbb9d910134acc44db4c9fe1b0146cdb1a",
-      "size": 4004
+      "sha256": "4391521cc435127a537d18c2830fb88737db9ecbe2c7d9bc384129920a2ceecb",
+      "size": 4569
     },
     {
       "path": "examples/README.md",
@@ -159,8 +174,8 @@
     },
     {
       "path": "prompts/prepare-export.md",
-      "sha256": "7b7aa945ec12f47433c21b890669297f470c4e46fc4c34a2e2917ab5929fddcc",
-      "size": 2271
+      "sha256": "f4104ddac65f37307e82afdc24c6ed1b7ccfcc3c4232f6e80ca2118fdf5c348a",
+      "size": 2619
     },
     {
       "path": "prompts/propose-correction.md",
@@ -169,13 +184,13 @@
     },
     {
       "path": "prompts/query-with-evidence.md",
-      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
-      "size": 2469
+      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
+      "size": 3592
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "c6d4fb628d2eb1ebc5516f2a09150d1f64ed9deb4fd86ee77e5f866296d5290b",
-      "size": 2115
+      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
+      "size": 2463
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -208,6 +223,11 @@
       "size": 17173
     },
     {
+      "path": "schemas/0.1.0/export.schema.json",
+      "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb",
+      "size": 4012
+    },
+    {
       "path": "schemas/0.1.0/proposal.schema.json",
       "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
       "size": 7165
@@ -234,8 +254,8 @@
     },
     {
       "path": "skills/export-records/SKILL.md",
-      "sha256": "1aa80f1de0682b87bb47280498d2b70a9572102515c32ba3a3413ca4d0a53f0c",
-      "size": 1380
+      "sha256": "dd20b1d934f0ee6ad852587a5fb901dfd59e3de9d5e37e869b3cf154d504d3f7",
+      "size": 1830
     },
     {
       "path": "skills/import-records/SKILL.md",
@@ -254,13 +274,13 @@
     },
     {
       "path": "skills/query-history/SKILL.md",
-      "sha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
-      "size": 1469
+      "sha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
+      "size": 3140
     },
     {
       "path": "skills/verify-archive/SKILL.md",
-      "sha256": "52bf0d0b405e4fcb6d1eb229ec2d2fe7171a7d4e73b3d9cee9d634e96ab481e5",
-      "size": 1438
+      "sha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
+      "size": 1888
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -273,7 +293,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.2",
+  "kitVersion": "0.1.3",
   "prompts": [
     {
       "id": "extract-report",
@@ -459,9 +479,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/query-with-evidence.md",
-      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
+      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
       "skillId": "query-history",
-      "skillSha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
+      "skillSha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
       "skillVersion": "0.1.0",
       "taskIds": [
         "query"
@@ -612,9 +632,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/prepare-export.md",
-      "sha256": "7b7aa945ec12f47433c21b890669297f470c4e46fc4c34a2e2917ab5929fddcc",
+      "sha256": "f4104ddac65f37307e82afdc24c6ed1b7ccfcc3c4232f6e80ca2118fdf5c348a",
       "skillId": "export-records",
-      "skillSha256": "1aa80f1de0682b87bb47280498d2b70a9572102515c32ba3a3413ca4d0a53f0c",
+      "skillSha256": "dd20b1d934f0ee6ad852587a5fb901dfd59e3de9d5e37e869b3cf154d504d3f7",
       "skillVersion": "0.1.0",
       "taskIds": [
         "export"
@@ -679,9 +699,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "c6d4fb628d2eb1ebc5516f2a09150d1f64ed9deb4fd86ee77e5f866296d5290b",
+      "sha256": "3db84da7532f63d767a55c1da66d24409449cbf76836d0ef727e85cf3630903b",
       "skillId": "verify-archive",
-      "skillSha256": "52bf0d0b405e4fcb6d1eb229ec2d2fe7171a7d4e73b3d9cee9d634e96ab481e5",
+      "skillSha256": "ae5efc69ec0e09d48255924d758c3343a7ff5cc9c5d30fcc4851a6a0bdc1b16c",
       "skillVersion": "0.1.0",
       "taskIds": [
         "verify"
@@ -912,10 +932,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "clinical-query"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -943,7 +961,8 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/query-history.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -1037,10 +1056,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "person-export"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -1068,7 +1085,9 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/export-records.md",
+        "docs/how-to/backup-and-restore.md"
       ],
       "requiredCapabilities": [
         "agent-context",
@@ -1097,10 +1116,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "integrity-report"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -1128,7 +1145,9 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/export-records.md",
+        "docs/how-to/backup-and-restore.md"
       ],
       "requiredCapabilities": [
         "agent-context",

@@ -44,7 +44,7 @@ def test_real_manifest_routes_and_once_only_exact_json_render(tmp_path):
     assert other not in result.text and not (tmp_path/'fresh-output').exists()
     tasks = agents.list_agent_tasks(Path(context.kitManifest.path).parent)
     assert next(t for t in tasks if t.id == 'inspect').availability.status == 'available'
-    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query'))
+    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query','export','verify'))
 
 
 @pytest.mark.parametrize('change', [ {'unknown': 1}, {'request': None}, {'request': 1},
@@ -285,7 +285,7 @@ def test_shared_source_needs_explicit_human_scope_decision(tmp_path):
     result=render(context,{**values,'source_scope_confirmed':False},'prepare-export')
     handoff=decode_json(result.text.split('\n',1)[1].split('\n# prepare-export',1)[0].encode())
     assert 'SOURCE_SCOPE_REVIEW_REQUIRED' in handoff['stopReasons']
-    assert 'person-export' in handoff['stopReasons']
+    assert 'person-export' not in handoff['stopReasons']
     assert handoff['permittedWrites']==['output/report.md']
 
 
