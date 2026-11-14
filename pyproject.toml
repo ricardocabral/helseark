@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "helseark"
-version = "0.1.0"
+version = "0.1.2"
 description = "Offline immutable personal health archive"
 readme = "README.md"
 license = "MIT"
@@ -36,13 +36,14 @@ where = ["src"]
 [tool.setuptools.data-files]
 "share/helseark" = ["LICENSE"]
 "share/helseark/schemas/0.1.0" = ["schemas/0.1.0/*.json"]
+"share/helseark/schemas/0.1.1" = ["schemas/0.1.1/*.json"]
 "share/helseark/definitions" = ["definitions/lock.json", "definitions/upstream-inventory.json"]
 "share/helseark/definitions/fhir-r4-json-schema" = ["definitions/fhir-r4-json-schema/*.json"]
 "share/helseark/definitions/runtime-core/4.0.1" = ["definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz"]
 "share/helseark/definitions/hl7.fhir.r4.core/4.0.1/package" = ["definitions/hl7.fhir.r4.core/4.0.1/package/*.json"]
 "share/helseark/definitions/docs/r4" = ["definitions/docs/r4/*.html"]
 "share/helseark/profiles/r4/0.1.0" = ["profiles/r4/0.1.0/*.json", "profiles/r4/0.1.0/README.md"]
-"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md", "docs/reference/pdf-extraction.md", "docs/reference/intake.md"]
+"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md", "docs/reference/pdf-extraction.md", "docs/reference/intake.md", "docs/reference/review.md"]
 "share/helseark/agent-kit" = ["agent-kit/START-HERE.md", "agent-kit/manifest.json", "agent-kit/AGENTS.md"]
 "share/helseark/agent-kit/templates" = ["agent-kit/templates/*.md"]
 
@@ -52,6 +53,7 @@ where = ["src"]
 "share/helseark/agent-kit/examples" = ["agent-kit/examples/*"]
 "share/helseark/agent-kit/docs/reference" = ["agent-kit/docs/reference/*.md"]
 "share/helseark/agent-kit/schemas/0.1.0" = ["agent-kit/schemas/0.1.0/*.json"]
+"share/helseark/agent-kit/schemas/0.1.1" = ["agent-kit/schemas/0.1.1/*.json"]
 "share/helseark/agent-kit/skills/inspect-archive" = ["agent-kit/skills/inspect-archive/SKILL.md"]
 "share/helseark/agent-kit/skills/import-records" = ["agent-kit/skills/import-records/SKILL.md"]
 "share/helseark/agent-kit/skills/query-history" = ["agent-kit/skills/query-history/SKILL.md"]
@@ -61,8 +63,11 @@ where = ["src"]
 "share/helseark/agent-kit/skills/migrate-archive" = ["agent-kit/skills/migrate-archive/SKILL.md"]
 
 
-"share/helseark/docs/how-to" = ["docs/how-to/import-report.md"]
+"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
+
+"share/helseark/agent-kit/docs/how-to" = ["agent-kit/docs/how-to/*.md"]
+"share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

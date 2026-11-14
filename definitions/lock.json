@@ -4,13 +4,13 @@
       "files": [
         {
           "path": "schemas/0.1.0/candidate.schema.json",
-          "sha256": "421a5bc518da9cdf7609e312fafb28fbde877923ad92266a829e3219a3856be4",
-          "size": 4692
+          "sha256": "96b1e10c70c645cd6dd41d27c18574edf4fbae1f9bcbee92198dd9f24e82b160",
+          "size": 4879
         },
         {
           "path": "schemas/0.1.0/change.schema.json",
-          "sha256": "cb4f582de9d47719f99f0039d77859d4734b05445fca564345a7df27f34614ff",
-          "size": 4876
+          "sha256": "475ca00b35a9f24b4393dd5a22b39b266e8743e62b36328e4f0a2c012b4d50e5",
+          "size": 5027
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
@@ -19,8 +19,8 @@
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
-          "sha256": "9c29c90e155804325dae1bf7b4cf9b4d04adc16b6391613cc566c9886914c2bb",
-          "size": 5216
+          "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
+          "size": 7165
         },
         {
           "path": "schemas/0.1.0/review.schema.json",
@@ -29,8 +29,8 @@
         },
         {
           "path": "schemas/0.1.0/validation.schema.json",
-          "sha256": "095af4e8ad250cb885f056f8a275d287fbee8fc35a605ec00e323fbc44bce4ed",
-          "size": 2157
+          "sha256": "3a96316c75eb9a618053aabfb642a38922f0d55f168734bf4ff1904bb79ee113",
+          "size": 2322
         },
         {
           "path": "schemas/0.1.0/vault.schema.json",
@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-          "size": 16947
+          "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
+          "size": 20363
         }
       ],
       "license": "MIT",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "359876b5eb68b8a88d9477d6003825a3f3ce5eaea5576d498c9236be7432d4bf",
-          "size": 27987
+          "sha256": "5e53e98010ac284dc5cea19036cadd97b12d56235b931fea0f65657a6b8defe0",
+          "size": 29077
         }
       ],
       "license": "MIT",
@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "db3def03f22db4c122dddf26636963616cd36ca5424e9f36830ea9a147308ae5",
-          "size": 18703
+          "sha256": "f019a392d6493508606814278924a9072cc3491b09e85ecd0ad6a10511349324",
+          "size": 19098
         }
       ],
       "license": "MIT",
@@ -761,6 +761,71 @@
       "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-pdf-extraction",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/review.md",
+          "sha256": "0945e9c29e2d76eae2e3bf6877812b8929c52886de52da2b81b675d63a3c0f5f",
+          "size": 10193
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-review",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/import-report.md",
+          "sha256": "8f787a12394a12701e10955a077beb457bbea919850dfb018d9aaaeb305b5cc5",
+          "size": 7284
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-import-report",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/tutorials/first-archive.md",
+          "sha256": "0a1f5841587d1137756e79c677a3ce5fb79d42f04fc572159969cf39f021aab3",
+          "size": 4599
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-first-archive",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/review.schema.json",
+          "sha256": "572e145e4bea2958f44114ff467233fa65fcf1ee3b9f5fc01f7e53fb1bda1124",
+          "size": 2322
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-review.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/query-history.md",
+          "sha256": "7222673da1edb0767ebcb63a6f1e00d817bee439ac336f828f316ab0b1f04954",
+          "size": 4483
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-query-history",
       "version": "0.1.0"
     },
     {

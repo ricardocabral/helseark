@@ -145,6 +145,8 @@ class PreparedProposal:
     proposalSha256: Sha256
     base: Head | None
     validation: ValidationReport
+    # Host control, never derived from untrusted packet authority.
+    candidatePath: Path | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -161,6 +163,22 @@ class ReviewReceipt:
     proposalSha256: Sha256
     validationSha256: Sha256
     base: Head | None
+    receiptSha256: Sha256 | None = None
+
+
+@dataclass(frozen=True)
+class ReviewView:
+    identitySummary: dict
+    resourcesAdded: tuple[dict, ...]
+    revisionsChanged: tuple[dict, ...]
+    omissions: tuple[str, ...]
+    duplicateCandidates: tuple[str, ...]
+    sourceLinks: tuple[dict, ...]
+    issues: tuple[dict, ...]
+    validationCoverage: tuple[dict, ...]
+    # Disposable comparisons resolved at the proposal's exact selected-person base.
+    comparisons: tuple[dict, ...] = ()
+    omittedResources: tuple[dict, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -310,4 +328,74 @@ class ExtractionArtifact:
     pagesPath: Path
     pagesSha256: Sha256
     pageCount: int
+    issues: tuple[Issue, ...]
+
+
+@dataclass(frozen=True)
+class ObservationFilter:
+    codeSystem: str | None = None
+    code: str | None = None
+    exactSourceLabel: str | None = None
+    fromDate: str | None = None
+    toDate: str | None = None
+    includeInvalidated: bool = False
+
+    def __post_init__(self):
+        for value in (self.codeSystem, self.code, self.exactSourceLabel):
+            if value is not None and (not isinstance(value, str) or not value.strip()):
+                raise ArchiveError('INVALID_FILTER', 'Code selectors and labels must be nonempty strings.')
+        if type(self.includeInvalidated) is not bool:
+            raise ArchiveError('INVALID_FILTER', 'includeInvalidated must be boolean.')
+        # Query owns all calendar/interval rules, including context filters.
+        from .query import _date_window
+        _date_window(self.fromDate, self.toDate)
+
+
+@dataclass(frozen=True)
+class EvidenceRef:
+    """Exact accepted entry binding; does not project free text from whole evidence."""
+    evidencePath: str
+    evidenceSha256: Sha256
+    entryPointer: str
+    sourceSha256: Sha256 | None
+    sourceDocument: str | None
+
+
+@dataclass(frozen=True)
+class ObservationRow:
+    resourceRef: ResourceRef
+    effective: JsonValue
+    timePrecision: str
+    timeFilterRelation: Literal['contained', 'overlap', 'unknown']
+    code: JsonValue
+    value: JsonValue
+    unit: str | None
+    comparator: str | None
+    referenceRanges: JsonValue
+    method: JsonValue
+    specimenRef: JsonValue
+    status: str | None
+    sourceRefs: tuple[EvidenceRef, ...]
+    issues: tuple[Issue, ...]
+    valueType: str | None
+    effectiveType: str | None
+    timeBucket: Literal['dated', 'unknown']
+    component: JsonValue
+    dataAbsentReason: JsonValue
+    note: JsonValue
+    interpretation: JsonValue
+    hasMember: JsonValue
+    derivedFrom: JsonValue
+
+
+@dataclass(frozen=True)
+class TimelineRow:
+    resourceRef: ResourceRef
+    status: str | None
+    effective: JsonValue
+    timePrecision: str
+    timeBucket: Literal['dated', 'unknown']
+    effectiveType: str | None
+    resultRefs: tuple[ResourceRef, ...]
+    sourceRefs: tuple[EvidenceRef, ...]
     issues: tuple[Issue, ...]

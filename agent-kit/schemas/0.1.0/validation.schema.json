@@ -104,5 +104,6 @@
     "coverage",
     "issues"
   ],
-  "type": "object"
+  "type": "object",
+  "description": "Coverage and issues for exactly checkedProposalSha256; report digest is bound by human review. Errors or failed coverage cannot be acknowledged."
 }

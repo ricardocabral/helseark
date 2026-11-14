@@ -84,3 +84,164 @@ def test_unsupported_genesis_envelope_versions_are_exit6(tmp_path, filename, pin
     result = run('--vault', vault.root, 'person', 'add', '--name', 'PRIVATE NAME', '--json')
     assert result.returncode == 6, result.stderr
     assert result.stdout == b'' and b'PRIVATE' not in result.stderr
+
+
+def test_candidate_prepare_human_review_commit_cli(tmp_path):
+    from test_intake import supplied_candidate
+    from helseark.serialization import decode_json, encode_json
+    from helseark.archive import head
+    vault,person,_,_,candidate=supplied_candidate(tmp_path)
+    prepared=run('--vault',vault.root,'candidate','prepare',candidate.path,'--person',person,'--json')
+    assert prepared.returncode==0,prepared.stderr
+    path=json.loads(prepared.stdout)['path']
+    accepted=vault.root/'people'/person/'accepted'
+    original={p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}
+    base=head(vault,person)
+    unreviewed=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+    assert unreviewed.returncode==3,unreviewed.stderr
+    assert unreviewed.stdout==b''
+    assert json.loads(unreviewed.stderr)=={
+        'code':'REVIEW_REQUIRED',
+        'message':'No review decision recorded. Run candidate review with --person and --decision before candidate commit.',
+        'details':{}}
+    assert head(vault,person)==base
+    assert {p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}==original
+    view=run('--vault',vault.root,'candidate','review',path,'--person',person,'--json')
+    assert view.returncode==0,view.stderr
+    issues=json.loads(view.stdout)['issues']
+    decision=tmp_path/'human-decision.json'
+    decision.write_bytes(encode_json({'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations',
+        'reviewerLabel':'synthetic human','acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'issueId':i['issueId'],'reason':'Checked original synthetic report'} for i in issues if i['severity'] in ('review','warning')]}))
+    approved=run('--vault',vault.root,'candidate','review',path,'--person',person,'--decision',decision,'--json')
+    assert approved.returncode==0,approved.stderr
+    from pathlib import Path
+    receipt_path=Path(path)/'review.json'; original_receipt=receipt_path.read_bytes()
+    receipt_path.write_bytes(original_receipt+b' ')
+    altered=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+    assert altered.returncode==3,altered.stderr
+    receipt_path.write_bytes(original_receipt)
+    wrong=run('--vault',vault.root,'candidate','commit',path,'--person','00000000-0000-4000-8000-000000000001','--json')
+    assert wrong.returncode==2 and head(vault,person).sequence==1
+    for expected in ('committed','already-accepted'):
+        committed=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+        assert committed.returncode==0,committed.stderr
+        assert json.loads(committed.stdout)['disposition']==expected
+    retry=run('--vault',vault.root,'candidate','prepare',candidate.path,'--person',person,'--json')
+    assert retry.returncode==0,retry.stderr
+    assert json.loads(retry.stdout)['disposition']=='already-accepted'
+    import shutil
+    retained=json.loads(retry.stdout)['path']
+    original={p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}
+    shutil.rmtree(vault.root/'work'); shutil.rmtree(vault.root/'.runtime')
+    shutil.rmtree(candidate.path)
+    retry=run('--vault',vault.root,'candidate','commit',retained,'--person',person,'--json')
+    assert retry.returncode==0,retry.stderr
+    assert json.loads(retry.stdout)['disposition']=='already-accepted'
+    assert {p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}==original
+
+
+@pytest.mark.parametrize('mutation,exit_code,code',[
+    ('forged',3,'REVIEW_MISMATCH'),
+    ('malformed-receipt',5,'INTEGRITY'),
+    ('symlink-receipt',2,'UNSAFE_PATH'),
+    ('missing-receipt',5,'INTEGRITY'),
+    ('missing-control',3,'REVIEW_MISMATCH'),
+    ('malformed-control',5,'INTEGRITY'),
+    ('changed-control',3,'REVIEW_MISMATCH'),
+    ('symlink-control',2,'UNSAFE_PATH'),
+    ('accepted-missing-receipt',5,'INTEGRITY'),
+])
+def test_candidate_commit_rejects_damaged_review_authority(tmp_path,mutation,exit_code,code):
+    from helseark.archive import head
+    from test_intake import supplied_candidate
+    from test_review import prepare, approve
+    vault,person,_,_,candidate=supplied_candidate(tmp_path)
+    proposal=prepare(vault,candidate)
+    receipt=approve(vault,proposal)
+    control=vault.root/'.runtime/reviews'/f'{proposal.proposalSha256}.json'
+    path=proposal.path
+    if mutation=='accepted-missing-receipt':
+        committed=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+        assert committed.returncode==0,committed.stderr
+        result=json.loads(committed.stdout)['head']
+        path=vault.root/'people'/person/'accepted'/f"{result['sequence']:08d}-{result['transactionId']}"
+    accepted=vault.root/'people'/person/'accepted'
+    base=head(vault,person)
+    if mutation in ('missing-receipt','accepted-missing-receipt'):
+        (path/'review.json').unlink()
+        if mutation=='accepted-missing-receipt':
+            import shutil
+            shutil.rmtree(vault.root/'work'); shutil.rmtree(vault.root/'.runtime')
+    elif mutation=='forged':
+        # Even a schema-valid receipt cannot authorize itself without host control.
+        value=json.loads(receipt.path.read_bytes())
+        value['reviewer']['label']='forged synthetic reviewer'
+        receipt.path.write_text(json.dumps(value))
+        control.unlink()
+    elif mutation=='malformed-receipt':
+        receipt.path.write_bytes(b'{')
+    elif mutation in ('missing-control','malformed-control','changed-control'):
+        if mutation=='missing-control': control.unlink()
+        else: control.write_bytes(b'{' if mutation=='malformed-control' else b'{"receiptSha256":"forged"}')
+    else:
+        target=receipt.path if mutation=='symlink-receipt' else control
+        saved=tmp_path/'saved.json'; saved.write_bytes(target.read_bytes())
+        target.unlink(); target.symlink_to(saved)
+    original={p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}
+    result=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+    assert result.returncode==exit_code,result.stderr
+    assert result.stdout==b'' and json.loads(result.stderr)['code']==code
+    assert {p.relative_to(accepted):p.read_bytes() for p in accepted.rglob('*') if p.is_file()}==original
+    if mutation!='accepted-missing-receipt': assert head(vault,person)==base
+
+
+@pytest.mark.parametrize('verb,filename',[('prepare','candidate.json'),('review','proposal.json'),('commit','proposal.json')])
+def test_candidate_commands_fail_closed_on_non_object(tmp_path,verb,filename):
+    from helseark.archive import init_vault, add_person
+    from helseark.contracts import PersonDraft
+    vault=init_vault(tmp_path/'vault');person=add_person(vault,PersonDraft('Synthetic'))
+    path=tmp_path/'invalid';path.mkdir();(path/filename).write_text('[]\n')
+    result=run('--vault',vault.root,'candidate',verb,path,'--person',person,'--json')
+    assert result.returncode==2,result.stderr
+    assert b'Traceback' not in result.stderr and not result.stdout
+
+from test_query import corpus
+from test_validation import good as clinical_candidate
+
+
+def test_observations_timeline_record_cli_explicit_scope(corpus,tmp_path):
+    from dataclasses import asdict
+    from helseark.serialization import decode_json, encode_json
+    v,c,ids,base,_=corpus
+    result=run('--vault',v.root,'observations','--person',c.personId,'--label','Proteína C reativa — ultrassensível','--json')
+    assert result.returncode==0,result.stderr
+    rows=decode_json(result.stdout)
+    assert len(rows)==7
+    month=next(r for r in rows if r['resourceRef']['id']==ids['month'])
+    assert b'0.050' in result.stdout and month['comparator']=='<' and month['timePrecision']=='month'
+    assert month['sourceRefs']
+    for command in ('observations','timeline','record'):
+        missing=run('--vault',v.root,command,'--json')
+        assert missing.returncode==2 and decode_json(missing.stderr)['code']=='INVALID_INPUT'
+    timeline=run('--vault',v.root,'timeline','--person',c.personId,'--json')
+    assert timeline.returncode==0,timeline.stderr
+    assert any(r['status']=='entered-in-error' for r in decode_json(timeline.stdout))
+    pin=tmp_path/'head.json';pin.write_bytes(encode_json(asdict(base)))
+    ref=month['resourceRef'];reference=f"Observation/{ref['id']}/_history/{ref['versionId']}"
+    record=run('--vault',v.root,'record','--person',c.personId,'--resource',reference,'--at-head',pin,'--json')
+    assert record.returncode==0,record.stderr
+    assert decode_json(record.stdout)['valueQuantity']['value'].as_tuple()==month['value']['value'].as_tuple()
+    invalid=run('--vault',v.root,'observations','--person',c.personId,'--from-date','2026-02-30','--json')
+    assert invalid.returncode==2 and decode_json(invalid.stderr)['code']=='INVALID_FILTER'
+
+
+
+def test_query_cli_rejects_offset_normalization(corpus):
+    from helseark.serialization import decode_json
+    v, c, _, _, _ = corpus
+    for offset in ('+00:60', '+01:99', '+02:60', '-00:60', '-02:60', '+14:01', '-14:01'):
+        result = run('--vault', v.root, 'observations', '--person', c.personId,
+                     '--from-date', '2024-02-29T00:00:00.00000001'+offset, '--json')
+        assert result.returncode == 2
+        assert decode_json(result.stderr)['code'] == 'INVALID_FILTER'
+        assert not result.stdout

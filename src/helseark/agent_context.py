@@ -23,7 +23,7 @@ from .validation import DefinitionRegistry, load_definition_registry, _pointer, 
 
 _TASKS = frozenset(('inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate'))
 _CAPABILITIES = frozenset(('agent-discovery', 'agent-context', 'schema-export',
-    'baseline-validation', 'person-identity', 'raw-record-selection', 'pdf-intake', 'candidate-read'))
+    'baseline-validation', 'person-identity', 'raw-record-selection', 'pdf-intake', 'candidate-read', 'reviewed-publication', 'clinical-query'))
 _INSTRUCTION_BUDGET = 32768
 
 
@@ -316,8 +316,12 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         raise ArchiveError('INVALID_INPUT', 'Context request must be a ContextRequest.')
     if request.includeSourceExtractions and task != 'import':
         raise ArchiveError('INVALID_INPUT', 'Extraction reads require an explicit import source selection.')
-    if request.fromDate is not None or request.toDate is not None:
-        raise ArchiveError('CAPABILITY_UNAVAILABLE', 'Date-filtered query contexts require the Task7 query API.')
+    from .query import matches_dates, date_selection
+    from .contracts import ObservationFilter
+    date_filter = ObservationFilter(fromDate=request.fromDate, toDate=request.toDate, includeInvalidated=True)
+    filtered = request.fromDate is not None or request.toDate is not None
+    if filtered and task != 'query':
+        raise ArchiveError('INVALID_FILTER', 'Date bounds apply only to the query task.')
     if task == 'import' and (not request.sourceHashes or request.resourceRefs or request.continuation):
         raise ArchiveError('INVALID_INPUT', 'Import requires explicit source hashes and excludes historical record selection.')
     if request.continuation is not None and (request.continuation.personId != person or request.continuation.taskId != task):
@@ -400,9 +404,13 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         selected = [current[k] for k in sorted(current)]
     else:
         selected = []
+    if filtered:
+        selected = [(directory, entry) for directory, entry in selected
+                    if matches_dates(decode_canonical_json(_read(directory, entry['path'])), date_filter)]
     scope_digest = hash_bytes(encode_json({'personId': person, 'taskId': task,
         'kitSha256': manifest_digest, 'sourceHashes': sorted(set(request.sourceHashes)),
-        'resourceRefs': [document(r) for r in request.resourceRefs]}))
+        'resourceRefs': [document(r) for r in request.resourceRefs],
+        **({'fromDate': request.fromDate, 'toDate': request.toDate} if filtered else {})}))
     offset = 0
     if request.continuation is not None:
         token = request.continuation
@@ -442,6 +450,11 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     continuation = ContextContinuation(person, task, base, scope_digest, next_offset) if next_offset < len(selected) else None
     issues = (Issue('WORKFLOW_UNAVAILABLE', 'info', None, None,
         'Missing workflow capabilities: ' + ', '.join(descriptor.availability.missingCapabilities) + '.'),) if descriptor.availability.status == 'unavailable' else ()
+    if filtered:
+        issues += tuple(Issue('QUERY_TIME_SELECTION', 'info', None,
+            f"{entry['type']}/{entry['id']}/_history/{entry['versionId']}",
+            'Date selection: ' + encode_json(date_selection(decode_canonical_json(data), date_filter)).decode().strip())
+            for (_, entry), data in zip(selected[offset:offset+len(records)], record_bytes))
     instructions = tuple(ContextFile('instructions/' + p, hash_bytes(files[p]), len(files[p]), str(kit / p)) for p in instruction_names)
     identity_file = ContextFile('identity.json', hash_bytes(identity_bytes), len(identity_bytes),
         str(destination / 'identity.json'))

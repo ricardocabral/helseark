@@ -5,6 +5,9 @@ Source/extraction bytes are content addressed; existing objects are verified, ne
 repaired. Local single-writer trees and external host/tool isolation are required.
 """
 import os
+from datetime import datetime
+from typing import Callable
+from uuid import UUID
 from pathlib import Path
 import re
 import shutil
@@ -16,7 +19,7 @@ from .archive import _safe, _writer_lock, _write, head
 from .agent_context import build_agent_context, render_task_prompt, document, _verify_producer
 from .adapters.pdf import extract_pdf, _directory, _publish_directory, ARTIFACT_BYTES
 from .contracts import (ArchiveError, Vault, SourceReceipt, ImportPacket, Candidate,
-                        ContextRequest, IntakeLimits, Issue, uuid_string, sha256_string)
+                        PreparedProposal, ContextRequest, IntakeLimits, Issue, uuid_string, sha256_string)
 from .serialization import decode_json, encode_json, hash_bytes
 from .validation import load_definition_registry
 
@@ -114,7 +117,7 @@ def _person(vault, person):
 
 def _source_record(vault, source):
     # Durable receipts stay relocatable; live SourceReceipt paths are explicit.
-    return {'receiptVersion': 1, **document(source),
+    return {'receiptVersion': 1, **document(source), 'existingImport':None,
             'assetPath': source.assetPath.relative_to(vault.root).as_posix()}
 
 
@@ -133,14 +136,18 @@ def add_source(vault: Vault, person: str, source: Path) -> SourceReceipt:
                 raise ArchiveError('INTEGRITY', 'Retained source receipt differs from real bytes.')
         else:
             _write(stored, encode_json(value))
-    return receipt
+    from dataclasses import replace
+    from .archive import _history
+    existing = next((h.transactionId for h,d,_ in reversed(_history(vault,person))
+        if receipt.sourceSha256 in _bounded_json(d/'proposal.json',LIMITS).get('importReview',{}).get('sourceHashes',[])),None)
+    return replace(receipt,existingImport=existing)
 
 
 def _source_bytes(vault, source):
     _person(vault, source.personId)
     sha256_string(source.sourceSha256)
     path = _safe(vault.root, f'people/{source.personId}/assets/sha256/{source.sourceSha256}/blob')
-    if source.assetPath != path or source.existingImport is not None:
+    if source.assetPath != path:
         raise ArchiveError('SOURCE_RECEIPT_MISMATCH', 'Source receipt path or disposition is unsupported.')
     data = _regular(path, LIMITS.sourceBytes)
     media = 'application/pdf' if data.startswith(b'%PDF-') else 'application/octet-stream'
@@ -295,7 +302,12 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
             'personId': source.personId, 'source': document(source), 'extraction': receipt,
             'issues': document(issues), 'identityConfirmed': identityConfirmed,
             'outputDirectory': str(output), 'renderedPrompt': document(rendered)}))
-        _write(destination / 'ENTRY.md', b'# Import handoff\n\nRead prompt.txt and context/context.json. Read only their selected routes.\nWrite only to the explicit output directory. Host filesystem/tool isolation is required.\nCandidate validation is not acceptance; Task6 review/publication is unavailable.\n')
+        # Retain original host workflow selection outside mutable agent packets.
+        control = _safe(vault.root, f'.runtime/intake/{candidate_id}.json')
+        _mkdir(control.parent)
+        _write(control, encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
+            'identityConfirmed':confirmed,'trustedContextSha256':context.trustedContextSha256}))
+        _write(destination / 'ENTRY.md', b'# Import handoff\n\nRead prompt.txt and context/context.json. Read only their selected routes.\nWrite only to the explicit output directory. Host filesystem/tool isolation is required.\nCandidate validation is not acceptance; a human controls preparation/review/publication.\n')
     except BaseException:
         shutil.rmtree(destination)
         raise
@@ -340,7 +352,16 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
     _person(vault, person)
     base = head(vault, person)
     if metadata['baseChangeSha256'] != base.changeSha256:
-        raise ArchiveError('STALE_BASE', 'Candidate differs from current selected-person head.')
+        # Historical reload is permitted only for byte-identical accepted inputs.
+        from .archive import _history
+        _, digest = _candidate_inputs(directory)
+        history = _history(vault, person)
+        matches = [n for n, (_, path, _) in enumerate(history)
+                   if _bounded_json(path/'proposal.json', limits).get('candidateSha256') == digest
+                   and 'importReview' in _bounded_json(path/'proposal.json', limits)]
+        if not matches:
+            raise ArchiveError('STALE_BASE', 'Candidate differs from current selected-person head.')
+        base = history[matches[0]-1][0] if matches[0] else None
     if metadata['bundlePath'] == metadata['evidencePath'] or 'candidate.json' in (metadata['bundlePath'], metadata['evidencePath']):
         raise ArchiveError('INVALID_ENVELOPE', 'Candidate artifact paths must be distinct.')
     bundle = _bounded_json(_safe(directory, metadata['bundlePath']), limits)
@@ -385,3 +406,218 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
     if any(code not in supplied or supplied[code].severity != issue.severity for code, issue in required.items()):
         raise ArchiveError('INTAKE_ISSUES_MISSING', 'Candidate omitted or downgraded retained intake issues.')
     return candidate
+
+
+def _candidate_inputs(directory):
+    """Digest original serialized candidate artifacts, including exact decimal tokens."""
+    metadata = _bounded_json(directory / 'candidate.json', LIMITS)
+    paths = ('candidate.json', metadata['bundlePath'], metadata['evidencePath'])
+    data = [_regular(_safe(directory, p), CANDIDATE_FILE_BYTES) for p in paths]
+    return data, hash_bytes(encode_json([{'path':p,'sha256':hash_bytes(b)} for p,b in zip(paths,data)]))
+
+
+def _resource_references(value, aliases):
+    """Map native Reference.reference fields in a validated FHIR resource.
+
+    The supported native schemas reserve this field for References, including
+    nested References. Literals, identifiers, codes and attachment URLs are data.
+    Root resource IDs are handled separately by the caller.
+    """
+    if isinstance(value, list):
+        return [_resource_references(v, aliases) for v in value]
+    if isinstance(value, dict):
+        return {k: aliases.get(v, v) if k == 'reference' and isinstance(v, str)
+                else _resource_references(v, aliases) for k,v in value.items()}
+    return value
+
+
+def _evidence_references(evidence, aliases):
+    """Map only the envelope's declared resource links; preserve source prose."""
+    from copy import deepcopy
+    result = deepcopy(evidence)
+    for entry in result['entries']:
+        for field in ('resourceRef', 'sourceDocument'):
+            if field in entry:
+                entry[field] = aliases.get(entry[field], entry[field])
+        if 'target' in entry:
+            ref = entry['target']['reference']
+            entry['target']['reference'] = aliases.get(ref, ref)
+    return result
+
+
+def _extraction_identity(candidate):
+    """Source-local anchors are evidence coordinates, never medical equivalence."""
+    aliases = {}
+    anchors = {}
+    for entry in candidate.bundle['entry']:
+        r = entry['resource']; ref = entry['fullUrl']
+        evidence = [e for e in candidate.evidence['entries'] if e.get('target',{}).get('reference',e.get('resourceRef')) in (ref, r['resourceType']+'/'+r['id']) and e['kind']=='source']
+        coordinates = [{'source':e['sourceSha256'],'locator':e['locator'],'quote':e['quote'],
+                        'pointers':e.get('target',{}).get('pointers',[e.get('pointer')])} for e in evidence]
+        anchor = hash_bytes(encode_json({'type':r['resourceType'], 'evidence':sorted(coordinates,key=encode_json)}))
+        if anchor in anchors.values():
+            raise ArchiveError('RECONCILIATION_REQUIRED','Source-local anchors must distinguish each emitted resource.')
+        anchors[ref] = anchor
+        aliases[ref] = aliases[r['resourceType']+'/'+r['id']] = anchor
+    normalized_resources = []
+    for entry in candidate.bundle['entry']:
+        resource = _resource_references(entry['resource'], aliases)
+        resource['id'] = anchors[entry['fullUrl']]
+        normalized_resources.append(resource)
+    normalized_resources.sort(key=encode_json)
+    normalized_evidence = sorted(_evidence_references(candidate.evidence, aliases)['entries'],key=encode_json)
+    return anchors, hash_bytes(encode_json({'resources':normalized_resources,'evidence':normalized_evidence,
+        'unresolved':[document(i) for i in candidate.unresolved]}))
+
+
+def _accepted_proposal(vault, person, directory, base):
+    from .review import read_prepared
+    return read_prepared(vault, directory, candidate_path=None, base=base)
+
+
+def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[], datetime] | None = None,
+                      uuid_factory: Callable[[], UUID] | None = None, reextract=False, reconciliation=None,
+                      authorized_sources: tuple[str, ...] | None = None) -> PreparedProposal:
+    """Compile once for human review. Re-extraction intent/mappings are host inputs.
+
+    Unknown changed anchors require an explicit old ResourceRef or None (new fact).
+    Missing old facts are retained and listed; nothing here deletes accepted history.
+    """
+    from copy import deepcopy
+    from datetime import datetime, timezone
+    from .archive import _history, _versions, resolve
+    from .contracts import PreparedProposal, ResourceRef
+    from .validation import validate_candidate, validate_proposal
+    from .review import _blocked, read_prepared
+    raw, candidate_digest = _candidate_inputs(candidate.path)
+    history = _history(vault,candidate.personId)
+    for index, (_, directory, _) in enumerate(history):
+        old = decode_json(_regular(directory/'proposal.json',CANDIDATE_FILE_BYTES))
+        if old['candidateSha256']==candidate_digest and 'importReview' in old:
+            return _accepted_proposal(vault,candidate.personId,directory,history[index-1][0] if index else None)
+    fresh = read_candidate(vault,candidate.path,person=candidate.personId)
+    if fresh != candidate:
+        raise ArchiveError('CANDIDATE_MISMATCH','Candidate differs from strict read-time content.')
+    selected = decode_json(raw[0])['sourceSha256']
+    if authorized_sources is None:
+        control = _safe(vault.root,f'.runtime/intake/{fresh.candidateId}.json')
+        if not control.exists():
+            raise ArchiveError('SOURCE_AUTHORITY_REQUIRED','Original host source selection or explicit authorized_sources required.')
+        authority = _bounded_json(control,LIMITS)
+        if authority.get('personId') != fresh.personId or authority.get('sourceHashes') != selected:
+            raise ArchiveError('SOURCE_SCOPE_MISMATCH','Candidate differs from original host source selection.')
+        if authority.get('identityConfirmed') is not True:
+            raise ArchiveError('IDENTITY_UNCONFIRMED','Original host assignment is unconfirmed; rebuild under explicit human control.')
+    elif (not isinstance(authorized_sources,tuple) or set(authorized_sources) != set(selected) or len(authorized_sources)!=len(selected)):
+        raise ArchiveError('SOURCE_SCOPE_MISMATCH','Explicit host sources must exactly match candidate sources.')
+    _blocked(validate_candidate(vault,fresh))
+    anchors, fingerprint = _extraction_identity(fresh)
+    metadata=decode_json(raw[0]); sources=metadata['sourceSha256']
+    prior = []
+    for index,(_,directory,_) in enumerate(history):
+        old=decode_json(_regular(directory/'proposal.json',CANDIDATE_FILE_BYTES))
+        info=old.get('importReview')
+        if info and set(info['sourceHashes']) & set(sources):
+            if info['fingerprint']==fingerprint and set(info['sourceHashes'])==set(sources):
+                return _accepted_proposal(vault,candidate.personId,directory,history[index-1][0] if index else None)
+            prior.append(old)
+    if prior and not reextract:
+        raise ArchiveError('REEXTRACTION_REQUIRED','Existing source has a changed extraction; explicit human workflow intent required.')
+    reconciliation = reconciliation or {}
+    if set(reconciliation)-set(anchors):
+        raise ArchiveError('INVALID_INPUT','Reconciliation contains unknown candidate references.')
+    old_anchors={a:ref for p in prior for a,ref in p['importReview']['anchors'].items()}
+    old_refs={ref for p in prior for ref in p['importReview']['anchors'].values()}
+    factory=uuid_factory or uuid4
+    def new_id(): return uuid_string(str(factory()))
+    instant=(clock or (lambda:datetime.now(timezone.utc)))()
+    if instant.tzinfo is None or instant.utcoffset() is None:
+        raise ArchiveError('INVALID_INPUT','Preparation clock requires a timezone.')
+    now=instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z')
+    transaction=new_id(); aliases={}; inventory=[]; resources=[]; used=set(); duplicates=[]
+    for entry in fresh.bundle['entry']:
+        r=deepcopy(entry['resource']); ref=entry['fullUrl']; anchor=anchors[ref]
+        previous=None
+        selected=reconciliation.get(ref,old_anchors.get(anchor))
+        if prior and anchor not in old_anchors and ref not in reconciliation:
+            raise ArchiveError('RECONCILIATION_REQUIRED','Changed evidence anchors require explicit mapping or new-fact decision.')
+        if selected is not None:
+            if isinstance(selected,ResourceRef):
+                selected=f'{selected.resourceType}/{selected.id}'
+            if selected not in old_refs or not selected.startswith(r['resourceType']+'/'):
+                raise ArchiveError('INVALID_REFERENCE','Reconciliation must name an existing same-source resource of the same type.')
+            old=resolve(vault,fresh.personId,ResourceRef(*selected.split('/')),at=fresh.base)
+            rid=old['id']; previous=old['meta']['versionId']; duplicates.append(selected)
+        else: rid=new_id()
+        if rid in used: raise ArchiveError('DUPLICATE_RESOURCE','Multiple candidate resources map to one identity.')
+        used.add(rid); version=new_id(); final=f"{r['resourceType']}/{rid}/_history/{version}"
+        aliases[ref]=aliases[r['resourceType']+'/'+r['id']]=final
+        r['id']=rid; r['meta'].update(versionId=version,lastUpdated=now)
+        resources.append(r)
+        inventory.append({'type':r['resourceType'],'id':rid,'versionId':version,'path':f"resources/{r['resourceType']}-{rid}.json",'sha256':'','supersedesVersionId':previous})
+    resources=[_resource_references(r,aliases) for r in resources]
+    evidence=_evidence_references(fresh.evidence,aliases)
+    for final in dict.fromkeys(aliases.values()):
+        evidence['entries'].append({'target':{'reference':final,'pointers':['/meta/versionId','/meta/lastUpdated']},'kind':'generated','rule':'prepare-revisions-1'})
+    # Native FHIR Provenance records local compilation, never a clinical approver.
+    provenance_id=new_id(); provenance_version=new_id(); provenance_ref=f'Provenance/{provenance_id}/_history/{provenance_version}'
+    documents=[v for k,v in aliases.items() if k.startswith('DocumentReference/')]
+    if not documents: raise ArchiveError('VALIDATION_BLOCKED','Imports require an evidenced source DocumentReference.')
+    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0'],'versionId':provenance_version,'lastUpdated':now},
+        'target':[{'reference':v} for v in dict.fromkeys(aliases.values())], 'recorded':now,
+        'agent':[{'who':{'identifier':{'system':'urn:helseark:local-actor','value':'proposal-compiler'}}}],
+        'entity':[{'role':'source','what':{'reference':v}} for v in documents] +
+                 [{'role':'revision','what':{'reference':f"{i['type']}/{i['id']}/_history/{i['supersedesVersionId']}"}} for i in inventory if i['supersedesVersionId']]}
+    resources.append(provenance)
+    inventory.append({'type':'Provenance','id':provenance_id,'versionId':provenance_version,'path':f'resources/Provenance-{provenance_id}.json','sha256':'','supersedesVersionId':None})
+    evidence['entries'].append({'target':{'reference':provenance_ref,'pointers':['/'+k for k in provenance]},'kind':'generated','rule':'prepare-provenance-1'})
+    path=_safe(vault.root,f'work/proposals/{transaction}'); _new_directory(path)
+    _mkdir(path/'resources'); _mkdir(path/'inputs')
+    for item,r in zip(inventory,resources):
+        data=encode_json(r); item['sha256']=hash_bytes(data); _write(path/item['path'],data)
+    inputs=[]
+    for name,data in zip(('candidate','bundle','evidence'),raw):
+        relative=f'inputs/{name}.json'; _write(path/relative,data); inputs.append({'path':relative,'sha256':hash_bytes(data)})
+    assets=[]; bindings=[]
+    digests=set(sources)
+    for e in evidence['entries']:
+        digest=e.get('locator',{}).get('extractionSha256')
+        if digest: digests.add(digest)
+    for digest in sorted(digests):
+        relative=f'assets/sha256/{digest}/blob'; data=_regular(_safe(vault.root,f'people/{fresh.personId}/{relative}'),LIMITS.sourceBytes)
+        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':'application/pdf' if data.startswith(b'%PDF-') else 'application/json'})
+        for name in ('source.json','extraction.json'):
+            receipt=_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/{name}')
+            if receipt.exists(): bindings.append({'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),'sha256':hash_bytes(_regular(receipt,65536))})
+    _write(path/'evidence.json',encode_json(evidence))
+    retained={f"{i['type']}/{i['id']}" for i in inventory}
+    omissions=sorted(old_refs-retained)
+    # These are review suggestions only. Independent sources retain distinct IDs.
+    from .archive import iter_current
+    possible = []
+    for old in iter_current(vault, fresh.personId, at=fresh.base):
+        for resource in resources:
+            if (resource['resourceType'] == old['resourceType'] == 'Observation' and
+                    resource.get('code') == old.get('code') and
+                    resource.get('effectiveDateTime') == old.get('effectiveDateTime') and
+                    f"Observation/{old['id']}" not in retained):
+                possible.append(f"Observation/{old['id']}")
+    duplicates.extend(sorted(set(possible)))
+    unresolved=[document(i) for i in fresh.unresolved]
+    if possible:
+        unresolved.append(document(Issue('POSSIBLE_DUPLICATE_OR_CONTRADICTION','review',None,None,'Independent source assertions remain separate; compare values and source evidence.')))
+    if prior:
+        unresolved.append(document(Issue('REEXTRACTION_RECONCILIATION','review',None,None,'Review changed extraction, identity mappings and preserved omissions.')))
+    proposal={'contractVersion':'0.1.0','personId':fresh.personId,'transactionId':transaction,'kind':'reextract' if prior else 'import',
+        'candidateSha256':candidate_digest,'baseChangeSha256':fresh.base.changeSha256,'versions':_versions(vault),
+        'resources':inventory,'assets':assets,'evidenceSha256':hash_bytes(encode_json(evidence)),'unresolved':unresolved,'inputs':inputs,
+        'importReview':{'fingerprint':fingerprint,'sourceHashes':sources,'anchors':{anchors[k]:aliases[k].split('/_history/')[0] for k in anchors},
+        'omissions':omissions,'duplicateCandidates':duplicates,'bindings':bindings}}
+    _write(path/'proposal.json',encode_json(proposal))
+    report=validate_proposal(vault,path); _blocked(report)
+    _write(path/'validation.json',encode_json(document(report)))
+    result=PreparedProposal(path,fresh.personId,candidate_digest,hash_bytes(encode_json(proposal)),fresh.base,report,fresh.path)
+    # Host workflow control lives outside editable packet/proposal trees.
+    control=_safe(vault.root,f'.runtime/prepared/{result.proposalSha256}.json'); _mkdir(control.parent)
+    _write(control,encode_json({'candidatePath':str(fresh.path)}))
+    return result

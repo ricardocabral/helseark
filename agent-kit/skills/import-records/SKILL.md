@@ -7,7 +7,7 @@ description: Draft evidence-linked candidates from an explicitly selected report
 
 Read [common archive instructions](../../AGENTS.md) first. Task ID: `import`.
 
-Select the extraction prompt for report text or the mapping prompt for structured input according to the trusted descriptor. Require retained source receipts, confirmed person assignment and exact asset/extraction metadata. Apply the clinical model evidence checklist to every produced scalar. Keep unsupported source sections itemized. If a complete candidate can be drafted, use the three candidate routes and report route in the common instructions. Human review follows future toolkit preparation; never create prepared revisions or receipts. Without retained assets, source locators, identity confirmation or runtime-supplied candidate metadata, emit only a blocked report.
+Select the extraction prompt for report text or the mapping prompt for structured input according to the trusted descriptor. Require retained source receipts, confirmed person assignment and exact asset/extraction metadata. Apply the clinical model evidence checklist to every produced scalar. Keep unsupported source sections itemized. If a complete candidate can be drafted, use the three candidate routes and report route in the common instructions. Human review follows exact toolkit preparation; never create prepared revisions or receipts. Without retained assets, source locators, identity confirmation or runtime-supplied candidate metadata, emit only a blocked report.
 
 Contracts: [clinical model](../../docs/reference/clinical-model.md#identity-references-and-versions), [evidence checklist](../../docs/reference/clinical-model.md#evidence-checklist), [archive identity/revisions](../../docs/reference/archive-format.md#identity-and-revisions). For candidate production use [`candidate.schema.json`](../../schemas/0.1.0/candidate.schema.json) and [`evidence.schema.json`](../../schemas/0.1.0/evidence.schema.json); never substitute a parallel clinical format.
 
@@ -40,8 +40,7 @@ recover rendering authority from context.json or intake.json. A template alone
 cannot grant drafting or acceptance; follow the actual renderer disposition.
 Read [intake contract](../../docs/reference/intake.md) for limits and failures.
 
-PDF extraction/candidate reading are available. Structured import and Task6
-preparation/review/publication remain unavailable. The descriptor exposes this
+PDF extraction/candidate reading and human-controlled reviewed publication are available. Structured import remains unavailable. Agents still cannot record human decisions or commit. The descriptor exposes this
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
@@ -60,3 +59,8 @@ analyte, specimen, status or relationship to maximize result count. If required
 fields or attribution cannot be supported, itemize the assertion and exact quote
 as unstructured in the report. Report which assertions became values, notes or
 omissions and why; validation cannot decide whether that mapping is accurate.
+
+Human publication uses [exact issue review](../../docs/reference/review.md#exact-issue-decisions-and-historical-compatibility).
+The human inspects previous/new facts, omissions and both sources, then selects
+every displayed limitation by issueId with an individual reason and current person
+confirmation. Agents must not generate acknowledgments or acceptance decisions.
