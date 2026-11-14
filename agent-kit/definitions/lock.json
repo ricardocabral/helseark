@@ -853,6 +853,32 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-backup-and-restore",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/correct-record.md",
+          "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
+          "size": 2198
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-correct-record",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/manage-family.md",
+          "sha256": "589e1e96593414df91553d5e0ff8c07bc804a2040b77d2a93688c3266cd0c27d",
+          "size": 2278
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-manage-family",
+      "version": "0.1.0"
     }
   ],
   "contractVersion": "0.1.0",

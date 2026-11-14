@@ -126,6 +126,7 @@ def add_source(vault: Vault, person: str, source: Path) -> SourceReceipt:
     _person(vault, person)
     data = _regular(source, LIMITS.sourceBytes)
     with _writer_lock(vault):
+        _person(vault, person)
         path = _asset(vault, person, data)
         media = 'application/pdf' if data.startswith(b'%PDF-') else 'application/octet-stream'
         receipt = SourceReceipt(person, hash_bytes(data), len(data), media, path)
@@ -136,6 +137,9 @@ def add_source(vault: Vault, person: str, source: Path) -> SourceReceipt:
                 raise ArchiveError('INTEGRITY', 'Retained source receipt differs from real bytes.')
         else:
             _write(stored, encode_json(value))
+        from .portability import _remember_external
+        if not Path(source).absolute().is_relative_to(vault.root):
+            _remember_external(vault,[person],Path(source).absolute())
     from dataclasses import replace
     from .archive import _history
     existing = next((h.transactionId for h,d,_ in reversed(_history(vault,person))
@@ -276,11 +280,13 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
             'personId': source.personId, 'source': document(source), 'extraction': receipt,
             'issues': document(issues), 'identityConfirmed': identityConfirmed,
             'outputDirectory': str(output), 'renderedPrompt': document(rendered)}))
-        # Retain original host workflow selection outside mutable agent packets.
-        control = _safe(vault.root, f'.runtime/intake/{candidate_id}.json')
-        _mkdir(control.parent)
-        _write(control, encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
-            'identityConfirmed':confirmed,'trustedContextSha256':context.trustedContextSha256}))
+        with _writer_lock(vault):
+            _person(vault, source.personId)
+            # Retain original host workflow selection outside mutable agent packets.
+            control = _safe(vault.root, f'.runtime/intake/{candidate_id}.json')
+            _mkdir(control.parent)
+            _write(control, encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
+                'identityConfirmed':confirmed,'packetPath':str(destination),'outputDirectory':str(output),'trustedContextSha256':context.trustedContextSha256}))
         _write(destination / 'ENTRY.md', b'# Import handoff\n\nRead prompt.txt and context/context.json. Read only their selected routes.\nWrite only to the explicit output directory. Host filesystem/tool isolation is required.\nCandidate validation is not acceptance; a human controls preparation/review/publication.\n')
     except BaseException:
         shutil.rmtree(destination)
@@ -423,7 +429,19 @@ def _accepted_proposal(vault, person, directory, base):
 
 def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[], datetime] | None = None,
                       uuid_factory: Callable[[], UUID] | None = None, reextract=False, reconciliation=None,
-                      authorized_sources: tuple[str, ...] | None = None) -> PreparedProposal:
+                      authorized_sources: tuple[str, ...] | None = None,
+                      amendment_target=None, amendment_reason: str | None = None) -> PreparedProposal:
+    """Prepare under the writer lock so person removal cannot race draft writes."""
+    with _writer_lock(vault):
+        return _prepare_candidate_locked(vault,candidate,clock=clock,uuid_factory=uuid_factory,
+            reextract=reextract,reconciliation=reconciliation,authorized_sources=authorized_sources,
+            amendment_target=amendment_target,amendment_reason=amendment_reason)
+
+
+def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Callable[[], datetime] | None = None,
+                      uuid_factory: Callable[[], UUID] | None = None, reextract=False, reconciliation=None,
+                      authorized_sources: tuple[str, ...] | None = None,
+                      amendment_target=None, amendment_reason: str | None = None) -> PreparedProposal:
     """Compile once for human review. Re-extraction intent/mappings are host inputs.
 
     Unknown changed anchors require an explicit old ResourceRef or None (new fact).
@@ -459,17 +477,40 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     _blocked(validate_candidate(vault,fresh))
     anchors, fingerprint = _extraction_identity(fresh)
     metadata=decode_json(raw[0]); sources=metadata['sourceSha256']
+    correction = None
+    control = _safe(vault.root, f'.runtime/corrections/{fresh.candidateId}.json')
+    if control.exists():
+        correction = _bounded_json(control, LIMITS)
+        if correction['personId'] != fresh.personId or correction['base'] != fresh.base.changeSha256 or correction['sources'] != sources:
+            raise ArchiveError('STALE_BASE', 'Correction control differs from current candidate scope.')
+        reextract = True
+    if amendment_target is not None:
+        if correction or not isinstance(amendment_reason,str) or not amendment_reason.strip() or authorized_sources is None:
+            raise ArchiveError('INVALID_INPUT', 'Laboratory amendment requires explicit new sources, target and reason.')
+        old = resolve(vault,fresh.personId,amendment_target,at=fresh.base)
+        if old['meta']['versionId'] != resolve(vault,fresh.personId,ResourceRef(old['resourceType'],old['id']),at=fresh.base)['meta']['versionId']:
+            raise ArchiveError('STALE_BASE','Laboratory amendment target is no longer current.')
+        matches = [e for e in fresh.bundle['entry'] if e['resource']['resourceType']==amendment_target.resourceType]
+        if len(matches)!=1 or matches[0]['resource'].get('status') not in ('amended','corrected'):
+            raise ArchiveError('CORRECTION_STATUS', 'Laboratory amendment requires one amended/corrected target.')
+        old_sources = {a['sha256'] for _,_,c in history for a in c['assets']}
+        if not set(sources)-old_sources:
+            raise ArchiveError('INVALID_INPUT', 'Laboratory amendment requires a newly retained source.')
+        correction = {'mode':'laboratory-amendment','reason':amendment_reason,
+            'mapping':{matches[0]['fullUrl']:f"{old['resourceType']}/{old['id']}"}}
     prior = []
     for index,(_,directory,_) in enumerate(history):
         old=decode_json(_regular(directory/'proposal.json',CANDIDATE_FILE_BYTES))
         info=old.get('importReview')
         if info and set(info['sourceHashes']) & set(sources):
-            if info['fingerprint']==fingerprint and set(info['sourceHashes'])==set(sources):
+            if not correction and info['fingerprint']==fingerprint and set(info['sourceHashes'])==set(sources):
                 return _accepted_proposal(vault,candidate.personId,directory,history[index-1][0] if index else None)
             prior.append(old)
     if prior and not reextract:
         raise ArchiveError('REEXTRACTION_REQUIRED','Existing source has a changed extraction; explicit human workflow intent required.')
-    reconciliation = reconciliation or {}
+    reconciliation = correction['mapping'] if correction else (reconciliation or {})
+    if correction and correction['mode']!='laboratory-amendment' and set(reconciliation)!=set(anchors):
+        raise ArchiveError('INVALID_INPUT','Local correction scope must match its original draft.')
     if set(reconciliation)-set(anchors):
         raise ArchiveError('INVALID_INPUT','Reconciliation contains unknown candidate references.')
     old_anchors={a:ref for p in prior for a,ref in p['importReview']['anchors'].items()}
@@ -490,9 +531,15 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         if selected is not None:
             if isinstance(selected,ResourceRef):
                 selected=f'{selected.resourceType}/{selected.id}'
-            if selected not in old_refs or not selected.startswith(r['resourceType']+'/'):
+            if (not correction and selected not in old_refs) or not selected.startswith(r['resourceType']+'/'):
                 raise ArchiveError('INVALID_REFERENCE','Reconciliation must name an existing same-source resource of the same type.')
             old=resolve(vault,fresh.personId,ResourceRef(*selected.split('/')),at=fresh.base)
+            if correction:
+                mode = correction['mode']
+                expected = ({'entered-in-error':'entered-in-error','cancellation':'cancelled'}.get(mode,old.get('status'))
+                    if selected == correction.get('target') else old.get('status'))
+                if mode != 'laboratory-amendment' and r.get('status') != expected:
+                    raise ArchiveError('CORRECTION_STATUS','Local correction must preserve source status or explicitly invalidate the selected record.')
             rid=old['id']; previous=old['meta']['versionId']; duplicates.append(selected)
         else: rid=new_id()
         if rid in used: raise ArchiveError('DUPLICATE_RESOURCE','Multiple candidate resources map to one identity.')
@@ -554,11 +601,20 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
                 possible.append(f"Observation/{old['id']}")
     duplicates.extend(sorted(set(possible)))
     unresolved=[document(i) for i in fresh.unresolved]
+    replaced = {f"{i['type']}/{i['id']}/_history/{i['supersedesVersionId']}" for i in inventory if i['supersedesVersionId']}
+    for parent in iter_current(vault,fresh.personId,at=fresh.base):
+        if parent['resourceType']=='DiagnosticReport' and f"DiagnosticReport/{parent['id']}" not in retained and any(r['reference'] in replaced for r in parent.get('result',[])):
+            unresolved.append(document(Issue('REPORT_RESULT_REVISION_MISMATCH','warning','/result',
+                f"DiagnosticReport/{parent['id']}/_history/{parent['meta']['versionId']}",
+                'Current report will retain its exact older child; explicitly review whether the parent needs a separate revision.')))
     if possible:
         unresolved.append(document(Issue('POSSIBLE_DUPLICATE_OR_CONTRADICTION','review',None,None,'Independent source assertions remain separate; compare values and source evidence.')))
+    if correction:
+        unresolved.append(document(Issue('EXPLICIT_CORRECTION','review',None,None,
+            correction['mode']+': '+correction['reason'])))
     if prior:
         unresolved.append(document(Issue('REEXTRACTION_RECONCILIATION','review',None,None,'Review changed extraction, identity mappings and preserved omissions.')))
-    proposal={'contractVersion':'0.1.0','personId':fresh.personId,'transactionId':transaction,'kind':'reextract' if prior else 'import',
+    proposal={'contractVersion':'0.1.0','personId':fresh.personId,'transactionId':transaction,'kind':'correction' if correction else 'reextract' if prior else 'import',
         'candidateSha256':candidate_digest,'baseChangeSha256':fresh.base.changeSha256,'versions':_versions(vault),
         'resources':inventory,'assets':assets,'evidenceSha256':hash_bytes(encode_json(evidence)),'unresolved':unresolved,'inputs':inputs,
         'importReview':{'fingerprint':fingerprint,'sourceHashes':sources,'anchors':{anchors[k]:aliases[k].split('/_history/')[0] for k in anchors},
@@ -569,5 +625,61 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     result=PreparedProposal(path,fresh.personId,candidate_digest,hash_bytes(encode_json(proposal)),fresh.base,report,fresh.path)
     # Host workflow control lives outside editable packet/proposal trees.
     control=_safe(vault.root,f'.runtime/prepared/{result.proposalSha256}.json'); _mkdir(control.parent)
-    _write(control,encode_json({'candidatePath':str(fresh.path)}))
+    _write(control,encode_json({'candidatePath':str(fresh.path),'personId':fresh.personId}))
     return result
+
+
+def start_correction(vault: Vault, person: str, target, reason: str) -> Candidate:
+    """Draft one current revision and its source document; no acceptance authority.
+
+    Prefix reason with transcription:, entered-in-error: or cancellation:.
+    Laboratory amendments use a new intake and explicit prepare-time mapping.
+    """
+    from copy import deepcopy
+    from .archive import _history, resolve
+    from .contracts import ResourceRef
+    mode = reason.split(':', 1)[0] if isinstance(reason, str) else ''
+    if mode not in ('transcription', 'entered-in-error', 'cancellation') or not reason.partition(':')[2].strip():
+        raise ArchiveError('INVALID_INPUT', 'Use transcription:, entered-in-error: or cancellation: followed by a reason.')
+    if target.resourceType not in ('Observation', 'DiagnosticReport'):
+        raise ArchiveError('INVALID_REFERENCE', 'Corrections currently support observations and reports.')
+    with _writer_lock(vault):
+        current = resolve(vault, person, ResourceRef(target.resourceType, target.id))
+        if target.versionId and target.versionId != current['meta']['versionId']:
+            raise ArchiveError('STALE_BASE', 'Correction target is no longer current.')
+        for _, directory, change in reversed(_history(vault, person)):
+            if any(i['type']==target.resourceType and i['id']==target.id and i['versionId']==current['meta']['versionId'] for i in change['resources']):
+                break
+        proposal = _bounded_json(directory/'proposal.json', LIMITS)
+        if 'importReview' not in proposal:
+            raise ArchiveError('INVALID_INPUT', 'Target has no supported reviewed source.')
+        resources = [current] + [_bounded_json(directory/i['path'], LIMITS) for i in change['resources'] if i['type']=='DocumentReference']
+        if len(resources)==1:
+            raise ArchiveError('INVALID_INPUT', 'Target requires its retained source document.')
+        evidence = deepcopy(_bounded_json(directory/'evidence.json', LIMITS))
+        refs = {f"{r['resourceType']}/{r['id']}/_history/{r['meta']['versionId']}":'urn:uuid:'+r['id'] for r in resources}
+        evidence['entries'] = [e for e in evidence['entries'] if e.get('target',{}).get('reference') in refs]
+        for e in evidence['entries']:
+            e['target']['reference'] = refs[e['target']['reference']]
+        for r in resources:
+            r['meta'].pop('versionId',None); r['meta'].pop('lastUpdated',None)
+        for e in evidence['entries']:
+            e['target']['pointers'] = [p for p in e['target']['pointers'] if p not in ('/meta/versionId','/meta/lastUpdated')]
+        evidence['entries'] = [e for e in evidence['entries'] if e['target']['pointers']]
+        identifier = str(uuid4()); path = _safe(vault.root, f'work/corrections/{identifier}')
+        _new_directory(path)
+        metadata = {'contractVersion':'0.1.0','candidateId':identifier,'personId':person,
+            'baseChangeSha256':head(vault,person).changeSha256,'fhirVersion':vault.config.fhirVersion,
+            'profileVersion':vault.config.profileVersion,'sourceSha256':proposal['importReview']['sourceHashes'],
+            'bundlePath':'bundle.json','evidencePath':'evidence.json','producer':{'kind':'local-user','name':'explicit local correction'},
+            'producerProvenance':evidence['producerProvenance'],'unresolved':[i for i in proposal['unresolved']
+                if i['code'] not in {'EXPLICIT_CORRECTION','REEXTRACTION_RECONCILIATION','POSSIBLE_DUPLICATE_OR_CONTRADICTION','REPORT_RESULT_REVISION_MISMATCH'}]}
+        bundle = {'resourceType':'Bundle','type':'collection','entry':[{'fullUrl':'urn:uuid:'+r['id'],'resource':r} for r in resources]}
+        for name,value in [('candidate',metadata),('bundle',bundle),('evidence',evidence)]:
+            _write(path/(name+'.json'),encode_json(value))
+        control = _safe(vault.root, f'.runtime/corrections/{identifier}.json'); _mkdir(control.parent)
+        _write(control,encode_json({'personId':person,'base':metadata['baseChangeSha256'],'reason':reason,'mode':mode,'target':f'{target.resourceType}/{target.id}',
+            'mapping':{'urn:uuid:'+r['id']:f"{r['resourceType']}/{r['id']}" for r in resources},'sources':metadata['sourceSha256']}))
+        authority = _safe(vault.root, f'.runtime/intake/{identifier}.json'); _mkdir(authority.parent)
+        _write(authority,encode_json({'personId':person,'sourceHashes':metadata['sourceSha256'],'identityConfirmed':True}))
+    return read_candidate(vault,path,person=person)

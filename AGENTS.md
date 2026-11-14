@@ -15,3 +15,15 @@
 - Save required handoff reports, exit status, and terminal/transcript evidence under ignored `docs/internal` before closing completed tabs. Closing a tab must not delete branches, worktrees, files, or pending review evidence.
 - Launch worker/evaluation commands without `--keep-open` by default, redirecting their output to retained task logs. Use `--keep-open` only when a concrete inspection or handoff requires it, and close that tab immediately after the need ends.
 - Workers finish by writing their handoff and exiting; the coordinator owns cleanup. Remove empty task-created coordination shells and retire completed waves after confirming no active or needed panes remain. Include tab cleanup in each wave's completion check.
+
+## Synthetic corpus and correction/removal evidence
+
+- Inventory every original clinical fixture/example in `tests/fixture-manifest.json`
+  with its synthetic declaration, provenance, license, hash and size; run
+  `python3 scripts/check_fixture_manifest.py`. Preserve independent per-case facts
+  and validation coverage. Supplied candidates never establish model accuracy.
+- Corrections use prepare/review/commit and native revision Provenance. Keep local
+  transcription status separate from laboratory-issued amendment status/source.
+- Person removal requires a digest/head-bound explicit plan under the writer lock,
+  recoverable quarantine and honest external-copy/secure-deletion limits. Never
+  add automatic purge or mutate another person's accepted bytes.

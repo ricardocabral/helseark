@@ -324,3 +324,13 @@ def test_generated_provenance_does_not_authorize_clinical_reason(tmp_path):
     (p.path/'proposal.json').write_bytes(encode_json(inventory))
     report=validate_proposal(vault,p.path)
     assert any(i.code=='GENERATED_CLINICAL_EVIDENCE' and i.severity=='error' for i in report.issues)
+
+
+def test_missing_unaccepted_review_is_explicitly_review_needed(tmp_path):
+    from helseark.intake import prepare_candidate
+    from test_cli_journey import run
+    v,p,_,_,c=supplied_candidate(tmp_path)
+    proposal=prepare_candidate(v,c)
+    child=run('--vault',v.root,'candidate','commit',proposal.path,'--person',p,'--json')
+    assert child.returncode==3 and b'REVIEW_REQUIRED' in child.stderr
+    assert head(v,p).sequence==1

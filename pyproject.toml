@@ -6,8 +6,13 @@ build-backend = "setuptools.build_meta"
 name = "helseark"
 version = "0.1.0"
 description = "Offline immutable personal health archive"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.12"
 dependencies = ["jsonschema==4.25.1"]
+
+[project.urls]
+Repository = "https://github.com/ricardocabral/helseark"
 
 [project.optional-dependencies]
 pdf = ["pypdf==7.0.0"]
@@ -53,10 +58,13 @@ where = ["src"]
 "share/helseark/agent-kit/skills/migrate-archive" = ["agent-kit/skills/migrate-archive/SKILL.md"]
 
 
-"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md", "docs/how-to/export-records.md", "docs/how-to/backup-and-restore.md"]
+"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md", "docs/how-to/export-records.md", "docs/how-to/backup-and-restore.md", "docs/how-to/correct-record.md", "docs/how-to/manage-family.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
 
 "share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]
+
+"share/helseark/docs" = ["docs/index.md"]
+"share/helseark/examples/synthetic-family" = ["examples/synthetic-family/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -210,6 +210,7 @@ def _export(vault, destination, *, person=None, selection=None, includeWork=Fals
             _blocked(verify_export(stage))
             _sync_tree(stage)
             _publish(stage,destination)
+            _remember_external(vault,people,destination)
         return ExportReceipt(destination,hash_bytes(encode_json(manifest)),len(people),
                              counts['resources'],counts['assets'],tuple(omissions))
     finally:
@@ -350,3 +351,240 @@ def restore(bundle: Path, destination: Path) -> Vault:
         return open_vault(destination)
     finally:
         if stage.exists():shutil.rmtree(stage)
+
+
+_ERASURE_LIMITS = (
+    'Quarantine is a recoverable copy, not secure deletion.',
+    'Unknown external copies, agent packets, shared exports, snapshots, SSD remnants and backups may remain.',
+    'No automated purge; OS permissions and cooperating single-writer locking are required.',
+)
+
+
+def _erasure_scope(vault, person):
+    """Select complete person-owned work trees; never delete a shared cache."""
+    from .serialization import decode_json
+    canonical = (f'people/{person}',) if (vault.root/f'people/{person}').exists() else ()
+    work, derived = set(), set()
+    files = _files(vault.root)
+    for path in sorted(files):
+        if not path.startswith(('work/', 'derived/', '.runtime/')) or path.startswith('.runtime/erasures/'):
+            continue
+        if not path.endswith('.json'):
+            continue
+        try:
+            value = decode_json(_read(vault.root,path))
+        except ArchiveError:
+            # Unknown disposable content must be inspected, never silently erased.
+            if person.encode() in _read(vault.root,path):
+                raise ArchiveError('ERASURE_SCOPE_UNKNOWN','Person-linked malformed disposable file needs manual isolation.',{'path':path})
+            continue
+        if not isinstance(value,dict):
+            continue
+        if value.get('personId') == person:
+            parts = path.split('/')
+            # Work metadata owns its draft directory; runtime records own only themselves.
+            root = '/'.join(parts[:-1]) if (path.startswith('work/') and len(parts)>2) or path.startswith('.runtime/staging/') else path
+            (derived if path.startswith('derived/') else work).add(root)
+        elif path.startswith('.runtime/prepared/') and isinstance(value.get('candidatePath'),str):
+            candidate = Path(value['candidatePath'])/'candidate.json'
+            if candidate.exists():
+                from .intake import _bounded_json, LIMITS
+                meta = _bounded_json(candidate,LIMITS)
+                if isinstance(meta,dict) and meta.get('personId')==person:
+                    work.add(path)
+    for path in tuple(work):
+        if path.startswith('.runtime/prepared/'):
+            review = path.replace('.runtime/prepared/','.runtime/reviews/')
+            if review in files:work.add(review)
+    for prefix, selected in [('derived',derived),('work',work)]:
+        owned = f'{prefix}/{person}'
+        if (vault.root/owned).exists(): selected.add(owned)
+    # Refuse ambiguous copies rather than claim their removal or touch another person.
+    for path in sorted(files):
+        if path.startswith(('work/','derived/','.runtime/staging/')) and person.encode() in _read(vault.root,path):
+            if not any(path==r or path.startswith(r+'/') for r in (*work,*derived)):
+                raise ArchiveError('ERASURE_SCOPE_UNKNOWN','Unclassified person-linked work/derived data needs manual isolation.',{'path':path})
+    other_people = [p.name.encode() for p in (vault.root/'people').iterdir() if p.name != person]
+    for path in sorted(files):
+        if any(path==r or path.startswith(r+'/') for r in (*work,*derived)) and path.startswith(('work/','derived/','.runtime/staging/')):
+            if any(other in _read(vault.root,path) for other in other_people):
+                raise ArchiveError('ERASURE_SCOPE_UNKNOWN','Selected disposable tree also identifies another person; isolate it manually.',{'path':path})
+    def minimal(paths):
+        return tuple(p for p in sorted(paths) if not any(p.startswith(q+'/') for q in paths if p!=q))
+    return canonical, minimal(work), minimal(derived)
+
+
+def _erasure_value(plan):
+    from .agent_context import document
+    value = document(plan)
+    value.pop('digest')
+    return value
+
+
+def read_erasure_plan(path: Path):
+    """Strict local plan reload; approval is a separately supplied digest."""
+    from .contracts import ErasurePlan
+    from .serialization import decode_json
+    try:
+        raw = decode_json(_read(Path(path).parent,Path(path).name))
+        raw['baseHeads'] = {p:Head(**h) if h else None for p,h in raw['baseHeads'].items()}
+        for key in ('canonicalPaths','workPaths','derivedPaths','knownExternalCopies','limitations'):
+            raw[key] = tuple(raw[key])
+        raw['quarantineDestination'] = Path(raw['quarantineDestination'])
+        return ErasurePlan(**raw)
+    except (KeyError,TypeError,ValueError,AttributeError):
+        raise ArchiveError('INVALID_INPUT','Expected a complete erasure plan.') from None
+
+
+def _heads(vault):
+    return {p.name:head(vault,p.name) for p in sorted((vault.root/'people').iterdir())}
+
+
+def plan_person_erasure(vault: Vault, person: str, quarantineDestination: Path):
+    """Capture heads and every selected byte under lock; does not remove data."""
+    from dataclasses import replace
+    from .contracts import ErasurePlan
+    uuid_string(person)
+    destination = Path(quarantineDestination).absolute()
+    if destination.exists() or destination.is_symlink() or destination.resolve().is_relative_to(vault.root.resolve()):
+        raise ArchiveError('INVALID_INPUT','Quarantine must be an absent destination outside the active vault.')
+    from .intake import _directory
+    fd = _directory(destination.parent); os.close(fd)
+    if destination.parent.stat().st_dev != vault.root.stat().st_dev:
+        raise ArchiveError('INVALID_INPUT','Recoverable atomic removal requires quarantine on the same filesystem.')
+    with _writer_lock(vault):
+        if head(vault,person) is None:
+            raise ArchiveError('PERSON_NOT_FOUND','Selected person has no accepted history.')
+        canonical, work, derived = _erasure_scope(vault,person)
+        roots = (*canonical,*work,*derived)
+        inventory = {p:hash_bytes(_read(vault.root,p)) for p in sorted(_files(vault.root))
+                     if any(p==r or p.startswith(r+'/') for r in roots)}
+        external = []
+        for path in sorted(_files(vault.root)):
+            if path.startswith('.runtime/external-copies/'):
+                record = _json(vault.root,path)
+                if record.get('personId')==person:
+                    external.extend(record['destinations'])
+        for path in work:
+            if path.startswith('.runtime/') and path in inventory:
+                record = _json(vault.root,path)
+                external.extend(record[k] for k in ('packetPath','outputDirectory','candidatePath') if isinstance(record.get(k),str) and not Path(record[k]).is_relative_to(vault.root))
+        plan = ErasurePlan('',person,_heads(vault),canonical,work,derived,destination,
+            tuple(sorted(set(external))),_ERASURE_LIMITS,vault.config.vaultId,inventory)
+        return replace(plan,digest=hash_bytes(encode_json(_erasure_value(plan))))
+
+
+def _erasure_check(vault, plan, approvedDigest, *, resuming=False):
+    if approvedDigest != plan.digest or hash_bytes(encode_json(_erasure_value(plan))) != approvedDigest or plan.vaultId!=vault.config.vaultId:
+        raise ArchiveError('APPROVAL_REQUIRED','Explicit approval must match the exact plan digest and vault.')
+    uuid_string(plan.personId)
+    current = _heads(vault)
+    expected = dict(plan.baseHeads)
+    if resuming and plan.personId not in current:
+        expected.pop(plan.personId,None)
+    if current != expected:
+        raise ArchiveError('STALE_BASE','Vault heads or roster changed after removal planning.')
+    roots = (*plan.canonicalPaths,*plan.workPaths,*plan.derivedPaths)
+    if plan.canonicalPaths != (f'people/{plan.personId}',):
+        raise ArchiveError('INVALID_INPUT','Plan canonical scope is invalid.')
+    for root in roots:
+        _safe(vault.root,root)
+        if not root.startswith((f'people/{plan.personId}', 'work/', 'derived/', '.runtime/')):
+            raise ArchiveError('INVALID_INPUT','Plan path outside supported removal scope.')
+    return roots
+
+
+def _erasure_inventory(vault, plan, quarantine):
+    """Every captured byte must occur exactly once, active or quarantined."""
+    roots = (*plan.canonicalPaths,*plan.workPaths,*plan.derivedPaths)
+    found = {}
+    for location in (vault.root,quarantine/'files'):
+        if not location.exists(): continue
+        paths = _files(location)
+        selected = {p for p in paths if location!=vault.root or any(p==r or p.startswith(r+'/') for r in roots)}
+        for path in selected:
+            if path in found or path not in plan.inventory or hash_bytes(_read(location,path))!=plan.inventory[path]:
+                raise ArchiveError('INTEGRITY','Removal inventory changed; preserve active and quarantine trees.',{'path':path})
+            found[path] = True
+    if set(found)!=set(plan.inventory):
+        raise ArchiveError('INTEGRITY','Removal inventory is incomplete; preserve both trees.')
+
+
+def apply_person_erasure(vault: Vault, plan, approvedDigest: str):
+    """Move only approved paths. An interrupted operation can resume or restore.
+
+    plan.json is written and synced before the first rename. No copy/delete
+    fallback across devices and no automatic quarantine purge are permitted.
+    """
+    from .contracts import ErasureReceipt
+    from .agent_context import document
+    quarantine = plan.quarantineDestination
+    with _writer_lock(vault):
+        resuming = quarantine.exists()
+        roots = _erasure_check(vault,plan,approvedDigest,resuming=resuming)
+        if resuming:
+            if read_erasure_plan(quarantine/'plan.json') != plan:
+                raise ArchiveError('INTEGRITY','Quarantine belongs to a different plan.')
+        else:
+            # Re-evaluate ownership, including newly created work after planning.
+            if _erasure_scope(vault,plan.personId) != (plan.canonicalPaths,plan.workPaths,plan.derivedPaths):
+                raise ArchiveError('STALE_BASE','Disposable person scope changed after planning.')
+            from .intake import _new_directory
+            _destination(quarantine,vault.root)
+            _new_directory(quarantine)
+            _write(quarantine/'plan.json',encode_json(document(plan)))
+            _sync_tree(quarantine)
+        active_scope = _erasure_scope(vault,plan.personId)
+        if any(r not in roots for group in active_scope for r in group):
+            raise ArchiveError('STALE_BASE','New person-owned work appeared during interrupted removal.')
+        _erasure_inventory(vault,plan,quarantine)
+        _sync_directory(quarantine.parent)
+        for relative in roots:
+            source = _safe(vault.root,relative)
+            if not source.exists(): continue
+            target = _safe(quarantine/'files',relative)
+            target.parent.mkdir(parents=True,exist_ok=True)
+            source_parent = source.parent
+            _publish(source,target)
+            _sync_directory(source_parent)
+            from .archive import _publication_boundary
+            _publication_boundary('erasure-after-move')
+        _erasure_inventory(vault,plan,quarantine)
+        receipt = ErasureReceipt(quarantine,roots,(str(quarantine),*plan.knownExternalCopies,*plan.limitations))
+        receipt_path = quarantine/'receipt.json'
+        if not receipt_path.exists(): _write(receipt_path,encode_json(document(receipt)))
+        _sync_tree(quarantine)
+        return receipt
+
+
+def restore_person_erasure(vault: Vault, quarantine: Path, approvedDigest: str):
+    """Restore exact quarantined paths to their original absent active locations.
+
+    Also recovers interrupted removal/restore; refuses changed selected-person
+    heads and any collision rather than overwriting active work.
+    """
+    quarantine = Path(quarantine).absolute()
+    plan = read_erasure_plan(quarantine/'plan.json')
+    if quarantine != plan.quarantineDestination:
+        raise ArchiveError('INVALID_INPUT','Quarantine location differs from its plan.')
+    with _writer_lock(vault):
+        roots = _erasure_check(vault,plan,approvedDigest,resuming=True)
+        _erasure_inventory(vault,plan,quarantine)
+        for relative in reversed(roots):
+            source = _safe(quarantine/'files',relative)
+            if not source.exists(): continue
+            target = _safe(vault.root,relative)
+            target.parent.mkdir(parents=True,exist_ok=True)
+            source_parent = source.parent
+            _publish(source,target)
+            _sync_directory(source_parent)
+        _erasure_inventory(vault,plan,quarantine)
+        return head(vault,plan.personId)
+
+
+def _remember_external(vault, people, destination):
+    """Retain known successful copy destinations under the export writer lock."""
+    for person in people:
+        directory = _safe(vault.root,'.runtime/external-copies')
+        directory.mkdir(exist_ok=True)
+        _write(directory/(str(uuid4())+'.json'),encode_json({'personId':person,'destinations':[str(destination)]}))

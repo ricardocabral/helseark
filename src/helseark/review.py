@@ -117,31 +117,35 @@ def _decision(report, decision):
 
 
 def record_review(vault: Vault, proposal: PreparedProposal, decision: ReviewDecision, *, clock: Callable[[], datetime] | None = None) -> ReviewReceipt:
-    from .archive import _write
-    _verify_prepared(vault,proposal)
-    _decision(proposal.validation,decision)
-    instant=(clock or (lambda:datetime.now(timezone.utc)))()
-    if instant.tzinfo is None or instant.utcoffset() is None:
-        raise ArchiveError('INVALID_INPUT','Review clock requires timezone.')
-    validation_digest=hash_bytes(_read(proposal.path,'validation.json'))
-    value={'contractVersion':'0.1.0','personId':proposal.personId,'proposalSha256':proposal.proposalSha256,
-        'validationSha256':validation_digest,'baseChangeSha256':proposal.base.changeSha256 if proposal.base else None,
-        'decision':decision.decision,'reviewer':{'kind':'local-user','label':decision.reviewerLabel},
-        'reviewedAt':instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z'),
-        'confirmedPerson':decision.confirmedPerson,'acknowledgedIssues':list(decision.acknowledgedIssues)}
-    _schema(vault,'review',value)
-    path=proposal.path/'review.json'; data=encode_json(value)
-    _write(path,data)
-    from .intake import _mkdir
-    control=_safe(vault.root,f'.runtime/reviews/{proposal.proposalSha256}.json')
-    _mkdir(control.parent)
-    _write(control,encode_json({'receiptSha256':hash_bytes(data)}))
-    return ReviewReceipt(path,proposal.proposalSha256,validation_digest,proposal.base,hash_bytes(data))
+    from .archive import _writer_lock
+    with _writer_lock(vault):
+        from .archive import _write
+        _verify_prepared(vault,proposal)
+        _decision(proposal.validation,decision)
+        instant=(clock or (lambda:datetime.now(timezone.utc)))()
+        if instant.tzinfo is None or instant.utcoffset() is None:
+            raise ArchiveError('INVALID_INPUT','Review clock requires timezone.')
+        validation_digest=hash_bytes(_read(proposal.path,'validation.json'))
+        value={'contractVersion':'0.1.0','personId':proposal.personId,'proposalSha256':proposal.proposalSha256,
+            'validationSha256':validation_digest,'baseChangeSha256':proposal.base.changeSha256 if proposal.base else None,
+            'decision':decision.decision,'reviewer':{'kind':'local-user','label':decision.reviewerLabel},
+            'reviewedAt':instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z'),
+            'confirmedPerson':decision.confirmedPerson,'acknowledgedIssues':list(decision.acknowledgedIssues)}
+        _schema(vault,'review',value)
+        path=proposal.path/'review.json'; data=encode_json(value)
+        _write(path,data)
+        from .intake import _mkdir
+        control=_safe(vault.root,f'.runtime/reviews/{proposal.proposalSha256}.json')
+        _mkdir(control.parent)
+        _write(control,encode_json({'receiptSha256':hash_bytes(data),'personId':proposal.personId}))
+        return ReviewReceipt(path,proposal.proposalSha256,validation_digest,proposal.base,hash_bytes(data))
 
 
 def read_receipt(vault: Vault, proposal: PreparedProposal) -> ReviewReceipt:
     """Reload the recorded human decision using original host/accepted authority."""
     from .archive import _history
+    if not (proposal.path/'review.json').exists() and not (proposal.path/'change.json').exists():
+        raise ArchiveError('REVIEW_REQUIRED','An explicit human review receipt is required before commit.')
     value=_json(proposal.path,'review.json'); _schema(vault,'review',value)
     accepted=next((change for _,_,change in _history(vault,proposal.personId)
                    if change['preparedContentSha256']==proposal.proposalSha256),None)

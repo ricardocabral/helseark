@@ -16,5 +16,10 @@ Prompt routes: [`propose-correction`](../../prompts/propose-correction.md).
 Capability dependencies: `agent-context`, `correction`, `baseline-validation`,
 `reviewed-publication`. Check availability in the [common capability
 section](../../AGENTS.md#capability-availability), then the trusted runtime registry;
-this dependency list does not establish availability. This skill is draft-only until
-those dependencies are implemented and evaluated.
+this dependency list does not establish availability. The route produces untrusted drafts; human review/commit is separate. No model
+accuracy qualification is implied by capability availability.
+
+Follow the [implemented correction commands](../../docs/how-to/correct-record.md).
+Report stale parent children and explicit cancellation dispositions. Never erase
+a person as part of a correction; [removal](../../docs/how-to/manage-family.md)
+has its own digest-bound approval and recoverable quarantine.

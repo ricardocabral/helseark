@@ -11,17 +11,19 @@ from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, Cont
 from .query import observations, timeline, parse_reference
 from .archive import resolve
 from .contracts import ObservationFilter
-from .intake import add_source, build_packet, read_candidate, prepare_candidate
+from .intake import add_source, build_packet, read_candidate, prepare_candidate, start_correction
 from .review import read_prepared, render_review, record_review, read_receipt
 from .contracts import ReviewDecision
 from .archive import commit_candidate, doctor
-from .portability import backup, verify_export, restore, export_person
+from .portability import (backup, verify_export, restore, export_person, plan_person_erasure,
+                          apply_person_erasure, restore_person_erasure, read_erasure_plan)
 from .contracts import ExportSelection
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
 from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "CORRECTION_STATUS": 2, "APPROVAL_REQUIRED": 3, "ERASURE_SCOPE_UNKNOWN": 3,
     "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
@@ -104,10 +106,31 @@ def main(argv=None):
         action.add_argument('--json',action='store_true')
         if verb=='prepare':
             action.add_argument('--source',action='append',help='Explicit user-authorized source hash for legacy/unbound candidates; repeat for each source.')
+            action.add_argument('--amendment-target',help='Explicit Type/UUID matched to a laboratory-issued amendment from a new source.')
+            action.add_argument('--amendment-reason')
             action.add_argument('--reextract',action='store_true',help='Explicit user workflow intent for an existing source.')
             action.add_argument('--reconciliation',type=Path,help='User-controlled JSON map: candidate urn to Type/UUID or null (new fact).')
         if verb=='review':
             action.add_argument('--decision',type=Path,help='User-controlled ReviewDecision JSON; omit to inspect only.')
+    correction = commands.add_parser('correct', help='Start an editable local correction; explicit review is still required.')
+    correction.add_argument('--person',required=True)
+    correction.add_argument('--resource',required=True)
+    correction.add_argument('--reason',required=True,help='transcription:, entered-in-error: or cancellation: and explanation.')
+    correction.add_argument('--json',action='store_true')
+    erasures = commands.add_parser('erase',help='Digest-approved recoverable removal; never purges.').add_subparsers(dest='erase_command',required=True)
+    action = erasures.add_parser('plan')
+    action.add_argument('--person',required=True)
+    action.add_argument('--quarantine',type=Path,required=True)
+    action.add_argument('--out',type=Path,required=True)
+    action.add_argument('--json',action='store_true')
+    action = erasures.add_parser('apply')
+    action.add_argument('plan',type=Path)
+    action.add_argument('--approve',required=True,help='Exact digest from the inspected plan.')
+    action.add_argument('--json',action='store_true')
+    action = erasures.add_parser('restore')
+    action.add_argument('quarantine',type=Path)
+    action.add_argument('--approve',required=True)
+    action.add_argument('--json',action='store_true')
     diagnose = commands.add_parser('doctor', help='Audit accepted history and report recovery paths without deleting anything.')
     diagnose.add_argument('--json', action='store_true')
     backups = commands.add_parser('backup').add_subparsers(dest='backup_command', required=True)
@@ -225,7 +248,19 @@ def main(argv=None):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
-            if args.command == 'doctor':
+            if args.command == 'correct':
+                output = document(start_correction(vault,args.person,parse_reference(args.resource),args.reason))
+            elif args.command == 'erase':
+                if args.erase_command == 'plan':
+                    plan = plan_person_erasure(vault,args.person,args.quarantine)
+                    from .archive import _write
+                    _write(args.out,encode_json(document(plan)))
+                    output = document(plan)
+                elif args.erase_command == 'apply':
+                    output = document(apply_person_erasure(vault,read_erasure_plan(args.plan),args.approve))
+                else:
+                    output = document(restore_person_erasure(vault,args.quarantine,args.approve))
+            elif args.command == 'doctor':
                 report = doctor(vault)
                 output = document(report)
                 exit_code = 5 if any(i.severity=='error' for i in report.issues) else 3 if report.issues else 0
@@ -267,7 +302,8 @@ def main(argv=None):
                     reconciliation=decode_json(args.reconciliation.read_bytes()) if args.reconciliation else None
                     if reconciliation is not None and (not isinstance(reconciliation,dict) or any(v is not None and not isinstance(v,str) for v in reconciliation.values())):
                         raise ArchiveError('INVALID_INPUT','Reconciliation must map references to strings or null.')
-                    proposal=prepare_candidate(vault,candidate,reextract=args.reextract,reconciliation=reconciliation,authorized_sources=tuple(args.source) if args.source else None)
+                    proposal=prepare_candidate(vault,candidate,reextract=args.reextract,reconciliation=reconciliation,authorized_sources=tuple(args.source) if args.source else None,
+                        amendment_target=parse_reference(args.amendment_target) if args.amendment_target else None,amendment_reason=args.amendment_reason)
                     output={**document(proposal),'disposition':'already-accepted' if (proposal.path/'change.json').exists() else 'prepared'}
                 else:
                     envelope=_json(args.path,'proposal.json')

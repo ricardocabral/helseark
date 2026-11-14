@@ -44,7 +44,7 @@ def test_real_manifest_routes_and_once_only_exact_json_render(tmp_path):
     assert other not in result.text and not (tmp_path/'fresh-output').exists()
     tasks = agents.list_agent_tasks(Path(context.kitManifest.path).parent)
     assert next(t for t in tasks if t.id == 'inspect').availability.status == 'available'
-    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query','export','verify'))
+    assert all(t.availability.status == 'unavailable' for t in tasks if t.id not in ('inspect','query','correct','export','verify'))
 
 
 @pytest.mark.parametrize('change', [ {'unknown': 1}, {'request': None}, {'request': 1},

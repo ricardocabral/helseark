@@ -1,0 +1,15 @@
+Helseark
+Canonical repository: https://github.com/ricardocabral/helseark
+FHIR profile namespace: https://github.com/ricardocabral/helseark/fhir
+
+Toolkit code and documentation: Apache License, Version 2.0.
+Original invented clinical fixture data: CC0-1.0, as declared by its manifests.
+
+This distribution includes HL7 FHIR R4 4.0.1 definitions/schema and documentation
+extracts. HL7 and FHIR are trademarks of Health Level Seven International.
+No endorsement, affiliation, clinical certification or terminology license beyond
+the upstream grant is implied. Preserve definitions/lock.json license/origin
+records and the vendored upstream notices. Third-party terminology and trademarks
+remain subject to their respective terms; no new terminology rights are granted.
+Runtime dependency licenses remain with their distributions: jsonschema and its
+MIT dependencies, optional pypdf (BSD-3-Clause), typing-extensions (PSF-2.0).

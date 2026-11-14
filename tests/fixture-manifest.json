@@ -1,0 +1,534 @@
+{
+  "syntheticOnly": true,
+  "accuracyClaim": "none; predetermined candidates are not model evaluations",
+  "files": [
+    {
+      "path": "tests/fixtures/README.md",
+      "sha256": "dbe0262396a72710ddbe6666a819e79b82248db9704e510da729f6e59e214193",
+      "size": 1738,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/extract-repeated-label-report.json",
+      "sha256": "595552b7afb99c851ba360970ba5c3d0b3a0f28debb9b5a38be8e48e97af922d",
+      "size": 6211,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/extract-report.json",
+      "sha256": "82e762c5f0521c12776d7e9c208eaa41037f0de02c3e47d85aa74253f49d4aaf",
+      "size": 4427,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/map-structured-export.json",
+      "sha256": "9dd22c72f540b6814bd92c260aca602671cfddd48389105a72a576931fd91f85",
+      "size": 3063,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/plan-migration.json",
+      "sha256": "bace2665fea120781e74a9048e1a43e5500e4b45b482927926599e6172e80f68",
+      "size": 801,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/prepare-export.json",
+      "sha256": "4120fbb4d821e8adf0b76f2029b55175773ee992696951b18f1e66ccc8827967",
+      "size": 814,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/propose-correction.json",
+      "sha256": "6d36ce9cc2229ae8303563cf2648d5c9713de50ca7634986730d303693dc646a",
+      "size": 1066,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/query-with-evidence.json",
+      "sha256": "528a849e8aaaa2301e1497bd96bcb41ef1e0ea8cd27b95b57d4f99003fe6f48c",
+      "size": 1573,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/agent-workflows/verify-archive.json",
+      "sha256": "be59b290ff7acd20b4fd30b8dd2743d5b643f4fa08093ee862b069a4f601f8ac",
+      "size": 757,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/intake-facts.json",
+      "sha256": "7f61742346683de0257c1dad92594a95b852ac9ec26a386c90d6b3777f22f94e",
+      "size": 592,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/pdf-facts.json",
+      "sha256": "9f4f0f0b77bdd4ae1d08d914fc9323aa0e9501b3c777bfe149a2ff8ebc4ac012",
+      "size": 777,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/pdf-pages.json",
+      "sha256": "79eab1f9b7fb5f1de10cb989b301ad8ce1e54c9607741ac7ddba54dcb695b041",
+      "size": 659,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/expected/validation-facts.json",
+      "sha256": "3fbe6e11b1d8c7d0bde12dd199ed1ca249b5e3f01c70aeb6b8b304d9be5e4f7b",
+      "size": 471,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/.gitattributes",
+      "sha256": "5100418f7ebcc08117afe05b8d12b952229e14e74d8852c9ee28e7f52189b0a6",
+      "size": 113,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/README.md",
+      "sha256": "ffe66c8665827d458aa00e2ff57f236dcc902bdc3daed7f8b73d266d950b47a0",
+      "size": 2863,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/assertions.json",
+      "sha256": "0eb01ebd1d0c40bdc38367e1d9a2770957a88a80a1629a1463390f1aff38ea0a",
+      "size": 129,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/correction-context.json",
+      "sha256": "59dbefcf2648c8121d1c4fdbf25db0513cd06157a7d01aa6a2662c4eb3580432",
+      "size": 861,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/export-context.json",
+      "sha256": "f24a91b2dce78497d1a3ca5ac99c4b81273dbed1f926221cff25783766c0c011",
+      "size": 603,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/README.md",
+      "sha256": "2bd74bca47816744392585e9935dbed03ef18fd6a0a9525960b05e573ddb7b58",
+      "size": 577,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/START-HERE.md",
+      "sha256": "d88801326399e2f9c3721e4e73a8bf3858511be07de7f8527c7c32c175df96bf",
+      "size": 1772,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/agent-context.schema.json",
+      "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
+      "size": 10084,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/agent-kit.schema.json",
+      "sha256": "3378bc9efb5cc5a73ff99500c52584cb86c53d22ccf7605bd0bc27c62be3dfe7",
+      "size": 8686,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/manifest.json",
+      "sha256": "bb987143ec174e2bb74826b8bb8df6ac771ed8be4bbdbf2c91953b9debe35c41",
+      "size": 13956,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/historical-protocol1/provenance.json",
+      "sha256": "7b8d9fe67c6008e9f803f8c5cf77b9da8a65502473fa367456fdc44e14ee944b",
+      "size": 921,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/integrity-context.json",
+      "sha256": "71dc770abde98de8371e2fae5a3541f6cb4fa1f05d42692027e9063a57103bd3",
+      "size": 551,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/mapping-draft/bundle.json",
+      "sha256": "e373bda24d12eb676c3d71f3891eed6ad149ce6a166ee7c363dbb8084e8c406e",
+      "size": 1747,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/mapping-draft/evidence.json",
+      "sha256": "6c6734d726d200323e033344eb25c14e5eda9d342f1d0e3716e0b63914891264",
+      "size": 7361,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/mapping-draft/unresolved.json",
+      "sha256": "592991d3dbe03fe383249d98d611ea059ad1e4e4b89025b716b4f9be269bb50a",
+      "size": 620,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/migration-context.json",
+      "sha256": "05ca429697155c3e0456199b2351c12afc855e77fccd34e7dbd22c2275b8ddbb",
+      "size": 382,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/query-context.json",
+      "sha256": "1cc3d5b4cf1a45b9f56fc2a398186a8cb65a9182c8b1ecb06b7919eee0d59ba3",
+      "size": 1614,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/repeated-label-report.txt",
+      "sha256": "df4bc24c64781730fc487dde907fea241d36369df8c6576b99e0df0b4898ba80",
+      "size": 347,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/report.txt",
+      "sha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+      "size": 625,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/shared-report.txt",
+      "sha256": "dc35fde75226b81cdc86b58b7a0aca24822d9a979447ae9b79074aac5c7e4f96",
+      "size": 73,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/agent-workflows/structured-export.json",
+      "sha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+      "size": 589,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/lab-injection.pdf",
+      "sha256": "2df346d7932553a4ed3a7a33804002904db175e2596978fee9f36c7e14af8cfc",
+      "size": 1465,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/lab-rotated.pdf",
+      "sha256": "16bbf2dc91cb3f683febba2c7624db034a367c36d310ab92043c9c4560ff0594",
+      "size": 1024,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/lab-scan.pdf",
+      "sha256": "f9ef79ab7fde6da9eb1336355aae65da4e10bc853f76950a05b141b9f7df6f8b",
+      "size": 13045,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/lab-text.pdf",
+      "sha256": "09b6d736d5b3c102b30497f929742ad86a052c84c29aefa17266318fc3ee6df0",
+      "size": 1975,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/lab-two-people.pdf",
+      "sha256": "fdb29f7821a89cad875ee04871429dc9342cdf072319aff1f316a661b2b999ce",
+      "size": 1461,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/README.md",
+      "sha256": "8b2846eb0929151c3fa91846cb501ef724c9190dc66ba10d1dd718d5489647b1",
+      "size": 4724,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/corrupt.pdf",
+      "sha256": "f7ab8c910d83932391deb5d6f72c58ccf7a8d4fc79557b913711717c9398091a",
+      "size": 32,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/create_fixtures.py",
+      "sha256": "909fad634c1c5c89d07963c75a85668aac7a9e06fd607285b8121a16280c722c",
+      "size": 3659,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/create_task5_fixture.py",
+      "sha256": "f35ffc28955831aba5f342439a8cad86573b117c786371864954018ade0a6b97",
+      "size": 854,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/encrypted.pdf",
+      "sha256": "8978f12a5890c1dd26180fb73c4db327330bcd1d8a4b2ff603c2db3937c987b5",
+      "size": 1941,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/expansion-limit.pdf",
+      "sha256": "53c0496ccb501b19164fdc3fca1d8547d97ddecf42a99946d68bbcb5184032ae",
+      "size": 20937,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/failed-page.pdf",
+      "sha256": "13989622475d0188d5f4904aa2cc9e2f988a3b990534e51c5ae87f96cfcda0a3",
+      "size": 1603,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/pdf/page-limit.pdf",
+      "sha256": "7ee34a0b08ffde2a7abf803579db2a37a8dfc3622be7842053ba800358e019ef",
+      "size": 551,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/profiles/README.md",
+      "sha256": "08c49706cc4b3233f16fa838ba2f5415c115d33e20627fd1e70d768f09dcf63e",
+      "size": 4613,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/profiles/collection.json",
+      "sha256": "f8dd0c4f6a495311f8c765741ae10d65654a51f4f9d90e80daeeffdcf29424d9",
+      "size": 22156,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/profiles/expected-facts.json",
+      "sha256": "394d37e07f23d5e3d046364eb0bb7788ade274125b306efa5a8b1d031212a751",
+      "size": 1800,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/profiles/semantic-cases.json",
+      "sha256": "f961ca92a25ae2585fbf1fa83fbdeea01db3d84e07d1c72270025a12030e9194",
+      "size": 36789,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/task5-complete.pdf",
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442",
+      "size": 1756,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/task6-report.json",
+      "sha256": "27b7f425015f359dfb2d8a8243a45d9965ed078302f559e48657819870de65f8",
+      "size": 523,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/validation/README.md",
+      "sha256": "a7225b0ade3c09eb97ee093f09343960d20c877982cfe6133003720743f34845",
+      "size": 807,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/validation/candidate-bundle.json",
+      "sha256": "59f630db35f240c2c35afc76e2b13782593fda13f29ee7c0729e98dc218a4524",
+      "size": 1852,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/validation/corpus-source.txt",
+      "sha256": "a950e09bf9c21766feea04fe291c6b65f028be30dca4b5e5d1f8db6a40cc7d82",
+      "size": 1556,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "tests/fixtures/synthetic/validation/source.json",
+      "sha256": "7a8b8a456998a82a2afbf80c496e9ef3bd2bd5f27de1c36477549f9937d96895",
+      "size": 451,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/README.md",
+      "sha256": "6e55b14b483bcf13d0474a1edf53785e34f2db2e52a759dfee4dbb3fb3289155",
+      "size": 2779,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/extraction-fragment.json",
+      "sha256": "8ba937a24c8e764f207d5ebb7af5e762d3f30cb39769b889922bcd245d5d8939",
+      "size": 198,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/query-answer-excerpt.md",
+      "sha256": "9175d90fe3a497f63a8a5446522d84fa4316ece32c28659f945c45ce93ee7cdc",
+      "size": 1410,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/task5-bundle.json",
+      "sha256": "dcdccf5be78e537f1195a5fc84b9643169bbaba087565f3013487940732ec8be",
+      "size": 2354,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/task5-complete.pdf",
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442",
+      "size": 1756,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/task5-evidence.json",
+      "sha256": "10a1b0702a051dc6a545b376dffe0fd2e43c9315641ec7a891fc4e239cfb2fab",
+      "size": 16472,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "agent-kit/examples/task5-example.py",
+      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a",
+      "size": 2097,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "examples/synthetic-family/README.md",
+      "sha256": "30c303886de05b1846b8cb41cdfa026adef6f550b0c19b621e0fe3ce0bd771c7",
+      "size": 1088,
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "examples/synthetic-family/expected-facts.json",
+      "sha256": "a8d08d3e4dca11bce27c51c3ad543ac0ccf3a8b69da5f6d681f811bdfb0af2d3",
+      "size": 1039,
+      "synthetic": true,
+      "license": "CC0-1.0",
+      "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    }
+  ]
+}
