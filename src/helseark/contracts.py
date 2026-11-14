@@ -191,13 +191,15 @@ class ContextRequest:
     maxRecords: int = 100
     maxDataBytes: int = 262144
     continuation: ContextContinuation | None = None
+    includeSourceExtractions: bool = False
 
     def __post_init__(self):
         object.__setattr__(self, 'sourceHashes', tuple(self.sourceHashes))
         object.__setattr__(self, 'resourceRefs', tuple(self.resourceRefs))
         for digest in self.sourceHashes:
             sha256_string(digest)
-        if (type(self.maxRecords) is not int or self.maxRecords < 1 or
+        if (type(self.includeSourceExtractions) is not bool or
+                type(self.maxRecords) is not int or self.maxRecords < 1 or
                 type(self.maxDataBytes) is not int or self.maxDataBytes < 1 or
                 any(not isinstance(ref, ResourceRef) for ref in self.resourceRefs)):
             raise ArchiveError('INVALID_INPUT', 'Context limits must be positive integers and references typed.')
@@ -268,6 +270,8 @@ class AgentContext:
     # None only for retained pre-renderer context contracts which lack these fields.
     maxRecords: int | None = None
     maxDataBytes: int | None = None
+    # Optional exact retained extraction reads, bound by original host authority.
+    selectedExtractions: tuple[ContextFile, ...] = ()
     # Host-only builder receipt. Never serialized into the editable packet.
     trustedContextSha256: Sha256 | None = field(default=None, repr=False, compare=False)
 

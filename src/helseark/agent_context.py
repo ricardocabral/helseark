@@ -32,6 +32,8 @@ def document(value):
     if isinstance(value, (AgentContext, ImportPacket)):
         fields = asdict(value)
         del fields['trustedContextSha256']
+        if isinstance(value, AgentContext) and not fields['selectedExtractions']:
+            del fields['selectedExtractions']
         for name in (('maxRecords','maxDataBytes') if isinstance(value, AgentContext) else ()):
             if fields[name] is None:
                 del fields[name]
@@ -312,6 +314,8 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         raise ArchiveError('UNKNOWN_TASK', 'Select a manifest task ID.')
     if not isinstance(request, ContextRequest):
         raise ArchiveError('INVALID_INPUT', 'Context request must be a ContextRequest.')
+    if request.includeSourceExtractions and task != 'import':
+        raise ArchiveError('INVALID_INPUT', 'Extraction reads require an explicit import source selection.')
     if request.fromDate is not None or request.toDate is not None:
         raise ArchiveError('CAPABILITY_UNAVAILABLE', 'Date-filtered query contexts require the Task7 query API.')
     if task == 'import' and (not request.sourceHashes or request.resourceRefs or request.continuation):
@@ -364,6 +368,15 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     if len(identity_bytes) > request.maxDataBytes:
         raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'Person identity exceeds data budget; explicitly increase maxDataBytes.')
     sources = tuple(_source(vault, person, d) for d in dict.fromkeys(request.sourceHashes))
+    extractions = ()
+    if request.includeSourceExtractions:
+        if 'selectedExtractions' not in registry.resolve('urn:helseark:schema:0.1.0:agent-context')['properties']:
+            raise ArchiveError('UNSUPPORTED_VERSION', 'Retained context contract lacks extraction read receipts.')
+        from .intake import _extraction_files
+        extractions = _extraction_files(vault, person, sources)
+    supplied_bytes = len(identity_bytes) + sum(f.size for f in extractions)
+    if supplied_bytes > request.maxDataBytes:
+        raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'Identity and retained extraction exceed data budget.')
     current, revisions = {}, {}
     evidence_origins = {directory: (original, change) for original, directory, change in history}
     for _, directory, change in history:
@@ -400,7 +413,7 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         if type(token.offset) is not int or not 0 < token.offset < len(selected):
             raise ArchiveError('INVALID_CONTINUATION', 'Continuation offset is outside selected inventory.')
         offset = token.offset
-    data_bytes, records, record_bytes = len(identity_bytes), [], []
+    data_bytes, records, record_bytes = supplied_bytes, [], []
     evidence_paths, evidence_bytes = [], []
     for directory, entry in selected[offset:]:
         if len(records) >= request.maxRecords:
@@ -436,7 +449,7 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     context = AgentContext(destination, manifest_digest, person, base, task, manifest['kitVersion'], 1,
         instructions, tuple(contracts), sources, tuple(records), len(records), continuation, issues,
         len(selected), data_bytes, instruction_bytes, identity_file, descriptor.availability, descriptor.permittedOperations,
-        _reference(kit / 'manifest.json', _read(kit, 'manifest.json')), tuple(evidence_paths), descriptor.expectedChecks, descriptor.outputs, request.maxRecords if has_limits else None, request.maxDataBytes if has_limits else None)
+        _reference(kit / 'manifest.json', _read(kit, 'manifest.json')), tuple(evidence_paths), descriptor.expectedChecks, descriptor.outputs, request.maxRecords if has_limits else None, request.maxDataBytes if has_limits else None, selectedExtractions=extractions)
     value = document(context)
     if not registry.validate('urn:helseark:schema:0.1.0:agent-context', value):
         raise ArchiveError('INVALID_ENVELOPE', 'Generated context violates pinned context contract.')
@@ -478,6 +491,7 @@ def read_agent_context(path: Path) -> AgentContext:
         value['base'] = Head(**value['base'])
         for name in ('instructionPaths', 'contractPaths', 'selectedSources', 'selectedRecords', 'evidencePaths'):
             value[name] = tuple(ContextFile(**f) for f in value[name])
+        value['selectedExtractions'] = tuple(ContextFile(**f) for f in value.get('selectedExtractions', ()))
         for name in ('identity', 'kitManifest'):
             value[name] = ContextFile(**value[name])
         value['availability'] = CapabilityAvailability(value['availability']['status'], tuple(value['availability']['missingCapabilities']))
@@ -553,6 +567,10 @@ def _verified_context(context, trusted_context_sha256):
     for source in context.selectedSources:
         if _source(vault,context.personId,source.sha256) != source:
             raise ArchiveError('CONTEXT_MISMATCH', 'Source differs from selected person retained asset.')
+    if context.selectedExtractions:
+        from .intake import _extraction_files
+        if context.taskId != 'import' or _extraction_files(vault, context.personId, context.selectedSources) != context.selectedExtractions:
+            raise ArchiveError('CONTEXT_MISMATCH', 'Extraction reads differ from selected originals.')
     if len({f.path for f in context.selectedRecords}) != len(context.selectedRecords):
         raise ArchiveError('CONTEXT_MISMATCH', 'Selected revisions must be unique.')
     for f in context.selectedRecords:
@@ -570,7 +588,7 @@ def _verified_context(context, trusted_context_sha256):
     if tuple(evidences.values()) != context.evidencePaths:
         raise ArchiveError('CONTEXT_MISMATCH', 'Evidence differs from selected accepted revisions.')
     if (context.returnedCount != len(context.selectedRecords) or
-            context.dataBytes != len(identity)+sum(f.size for f in (*context.selectedRecords,*context.evidencePaths)) or
+            context.dataBytes != len(identity)+sum(f.size for f in (*context.selectedRecords,*context.evidencePaths,*context.selectedExtractions)) or
             context.instructionBytes != sum(f.size for f in expected) or
             (context.maxDataBytes is not None and context.dataBytes > context.maxDataBytes) or
             (context.maxRecords is not None and context.returnedCount > context.maxRecords) or
@@ -659,6 +677,9 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
                 (spec.get('uniqueItems') and len({encode_json(v) for v in value})!=len(value))):
             raise ArchiveError('INVALID_VARIABLE','Prompt array violates declared bounds.')
         serialized[name] = encoded.decode().rstrip('\n').replace('&',r'\u0026').replace('<',r'\u003c').replace('>',r'\u003e')
+    if context.selectedExtractions and 'extractionPath' in values.get('source_data', {}):
+        if values['source_data']['extractionPath'] not in {f.path for f in context.selectedExtractions}:
+            raise ArchiveError('CONTEXT_MISMATCH', 'Source data extraction path is outside selected extraction reads.')
     host_metadata = {'output_directory','candidate_id','identity_confirmed','correspondence_confirmed','source_scope_confirmed'}
     template = files[prompt['path']].decode('utf-8')
     marker = re.compile(r'{{\s*([a-z][a-z0-9_]*)\s*}}')
@@ -690,7 +711,7 @@ def render_task_prompt(context: AgentContext, promptId: str, variables: Mapping[
         encode_json({'personId':context.personId,'base':document(context.base),
             'contextPath':str(context.path/'context.json'),
             'readableFiles':document((context.identity,*context.selectedRecords,*context.evidencePaths,
-                *context.instructionPaths,*context.contractPaths,context.kitManifest,*context.selectedSources)),
+                *context.instructionPaths,*context.contractPaths,context.kitManifest,*context.selectedSources,*context.selectedExtractions)),
             'dataBytes':context.dataBytes,'instructionBytes':context.instructionBytes,
             'maxRecords':context.maxRecords,'maxDataBytes':context.maxDataBytes,
             'returnedCount':context.returnedCount,

@@ -20,7 +20,7 @@ the [common capability section](../../AGENTS.md#capability-availability), then t
 trusted runtime registry; this dependency list does not establish availability. This
 skill is draft-only until those dependencies are implemented and evaluated.
 
-## Text-PDF entry (kit 0.1.1)
+## Text-PDF entry (kit 0.1.2)
 
 Use `helseark --vault VAULT intake add SOURCE --person PERSON --packet PACKET`
 with an explicit new `--agent-output OUTPUT`. `--confirm-person` records the human
@@ -45,3 +45,18 @@ preparation/review/publication remain unavailable. The descriptor exposes this
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
+
+## Qualitative assertions
+
+Inventory each independently labeled result before drafting. Preserve a qualitative
+assertion as a supported Observation value (for example valueString with the exact
+wording) when its printed label and result establish a distinct assertion. A local
+label in code.text needs no invented terminology code or inferred test identity.
+Do not bury an independent result only in a numeric result's note. Bind label,
+value and any shared date/status to their own source spans and explicit context.
+If a generic heading might instead qualify a neighboring measurement, record the
+competing attribution and an unresolved review issue. Do not invent a separate
+analyte, specimen, status or relationship to maximize result count. If required
+fields or attribution cannot be supported, itemize the assertion and exact quote
+as unstructured in the report. Report which assertions became values, notes or
+omissions and why; validation cannot decide whether that mapping is accurate.

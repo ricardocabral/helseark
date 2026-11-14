@@ -125,3 +125,41 @@ operator-declared installed commit, actual wheel digest/interpreter/package path
 and original CLI construction digest, with modelResult null until a real run.
 Install the named wheel first; the preparation script does not verify a Git
 checkout or turn an operator declaration into an installation attestation.
+
+## Selected extraction read receipts (kit 0.1.2)
+
+New intake contexts request `ContextRequest.includeSourceExtractions=True` for
+explicit import sources. Intake resolves each source's immutable extraction
+receipt and exact CAS blob with bounded no-follow reads; it never follows a path
+from source_data or regenerates missing retained pages during context verification.
+The optional `AgentContext.selectedExtractions` holds exact ContextFile receipts,
+bound by the original host construction digest and rechecked before rendering.
+Only these receipts enter readableFiles. An extractionPath assertion differing
+from this selection fails CONTEXT_MISMATCH. Editing the context or substituting a
+genuine unselected extraction cannot enlarge the original host authorization.
+This does not grant access to other sources, people, tasks or receipt sidecars.
+
+Every selected extraction's full byte size counts in context.dataBytes, even when
+referenced rather than copied. Inline artifact/receipt/path text is additionally
+charged at each actual escaped template occurrence, preserving the common renderer
+budget. Exceeding either construction or rendered budget fails without truncation.
+Original PDF and definition references retain their existing reference accounting.
+An independent reader must read/hash the retained bytes from the verified receipt;
+a decoded/re-encoded inline object is not a byte-identical artifact receipt.
+
+Empty selectedExtractions is omitted from serialization. Existing contexts and
+historical pinned definitions/kits retain their bytes/digests and render without
+implicit extraction reads. New intake on a retained context schema lacking this
+optional field uses that legacy route; it does not repin a vault. An explicit new
+includeSourceExtractions request on such a registry fails UNSUPPORTED_VERSION.
+Missing receipts/changed blobs fail closed; no parser is invoked by a reread.
+Host single-writer/immutable retained assets remain required; this is consistency
+and scope binding, not cryptographic attestation of a compromised host.
+
+For qualitative results use the versioned import skill's assertion inventory:
+independently labeled assertions can use code.text and exact valueString without
+invented codes. A qualifier with ambiguous attribution stays explicitly uncertain;
+required status/identity cannot be invented to force a resource. Notes/omissions
+remain reviewable and must be disclosed. Behavioral qualification of these shapes
+is not evidence that a model follows the instructions; fresh actual trials remain
+a separate coordinator gate.

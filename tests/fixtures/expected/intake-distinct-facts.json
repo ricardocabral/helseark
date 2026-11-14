@@ -1,0 +1,9 @@
+{
+  "fixture": "task5-distinct-results.pdf",
+  "evaluation": "Supplementary explicit attribution scenario, hand-authored. Does not replace task5-complete.pdf or its original missed qualitative assertion.",
+  "observationCount": 2,
+  "quantity": {"label": "Signal Z", "valueToken": "2.700", "comparator": ">", "unit": "mg/L"},
+  "qualitative": {"label": "Screening assay", "value": "reactive"},
+  "date": "2026-01",
+  "status": "final"
+}

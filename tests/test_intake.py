@@ -386,7 +386,7 @@ def test_real_intake_repeated_escaped_slots_exact_boundary(tmp_path):
     assert prompt.count(content)==2
     source_data=decode_json(content.encode())
     source_data['escaping']='é<>& {{request}}'
-    context=build_agent_context(vault,person,'import',ContextRequest(sourceHashes=(source.sourceSha256,),maxDataBytes=12000),tmp_path/'bounded')
+    context=build_agent_context(vault,person,'import',ContextRequest(sourceHashes=(source.sourceSha256,),includeSourceExtractions=True,maxDataBytes=12000),tmp_path/'bounded')
     values={'source_data':source_data,'identity_confirmed':True,'candidate_id':packet.importId,
         'output_directory':str(tmp_path/'new-output')}
     result=render_task_prompt(context,'extract-report',values)

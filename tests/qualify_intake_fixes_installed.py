@@ -68,6 +68,35 @@ os.environ['DENY_PERSON'] = other
 denied(lambda: other_change.read_bytes())
 packet = cli('--vault', v.root, 'intake', 'add', work / 'source.pdf', '--person', person,
     '--packet', work / 'packet', '--confirm-person', '--json')
+# Independently read exact extraction bytes through the installed handoff receipt.
+import json
+from helseark.agent_context import read_agent_context, render_task_prompt
+prompt = (work / 'packet/prompt.txt').read_text()
+header = json.JSONDecoder().raw_decode(prompt.split('\n',1)[1])[0]
+source_data = decode_json(prompt.split('<SOURCE_DATA_JSON>\n')[1].split('\n</SOURCE_DATA_JSON>')[0].encode())
+selected = [f for f in header['readableFiles'] if f['path']==source_data['extractionPath']]
+assert len(selected)==1
+raw = Path(selected[0]['path']).read_bytes()
+assert hash_bytes(raw)==selected[0]['sha256']==source_data['extractionReceipt']['pagesSha256']
+assert len(raw)==selected[0]['size']
+context = read_agent_context(work / 'packet/context')
+assert context.dataBytes==context.identity.size+len(raw)
+assert header['handoffDataBytes']==header['contextDataBytes']+header['inlineDataBytes']<=header['maxDataBytes']
+values = {'source_data':source_data,'identity_confirmed':True,'candidate_id':packet['importId'],
+          'output_directory':str(work / 'fresh-output')}
+try:
+    render_task_prompt(context,'extract-report',values)
+    raise AssertionError('Reload restored authority')
+except ArchiveError as error:
+    assert error.code=='CONTEXT_AUTHORITY_REQUIRED'
+render_task_prompt(context,'extract-report',values,trusted_context_sha256=packet['trustedContextSha256'])
+source_data['extractionPath']=str(work / 'unselected')
+try:
+    render_task_prompt(context,'extract-report',values,trusted_context_sha256=packet['trustedContextSha256'])
+    raise AssertionError('Source path expanded scope')
+except ArchiveError as error:
+    assert error.code=='CONTEXT_MISMATCH'
+print('PASS installed exact extraction read/hash/budget; reload requires original authority; source path rejected')
 kit = v.root / 'agent-kit' / v.config.agentKitVersion
 r = subprocess.run([sys.executable, str(kit / 'examples/task5-example.py'),
     str(work / 'packet'), str(work / 'candidate')], env=env, capture_output=True)

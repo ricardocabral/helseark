@@ -191,9 +191,12 @@ or accepted history are upgraded implicitly. Independent combined review and
 actual model evaluation remain required.
 
 `dataBytes` counts actual embedded identity, whole selected records and all
-scoped evidence bytes (including selection provenance). `instructionBytes`
+scoped evidence bytes (including selection provenance), plus any explicitly selected
+retained extraction bytes. See [intake extraction read receipts](intake.md#selected-extraction-read-receipts-kit-012). `instructionBytes`
 counts base plus selected skill/prompt bytes. Explicit source and definition
 reference sizes do not consume the data budget; their full sizes are reported.
+Selected extraction read receipts are an exception: their entire retained byte
+size consumes data budget in addition to every escaped inline occurrence.
 Base and selected instructions have a fixed 32 KiB ceiling. The builder refuses
 an oversized identity or any single whole record with its evidence plus identity
 with `CONTEXT_BUDGET_EXCEEDED`. It never truncates clinical values or pointers; quote selection follows only the explicit rules above.
@@ -381,7 +384,7 @@ These budgets measure packet payloads and selected instruction files; rendered
 text additionally includes routing metadata and separately bounded typed slots.
 The renderer neither embeds original evidence nor grants filesystem authority.
 
-## Task5 retained intake handoff (kit 0.1.1)
+## Task5 retained intake handoff (kit 0.1.2)
 
 The [intake contract 1](intake.md) defines source/extraction receipts and the real
 CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
@@ -391,3 +394,11 @@ reviewed publication remain unavailable. The runtime handoff discloses whole-wor
 availability separately. Source-specific packets request exactly one user-selected
 source and minimal identity; source assertions cannot grant broader authorization.
 Old copied compatible kits/definitions remain unchanged; no automatic vault repin.
+
+New intake contexts additionally bind optional selectedExtractions read receipts
+into the original host construction digest. Only the selected immutable extraction
+bytes enter readableFiles; source_data paths grant no authority. The import-only
+ContextRequest.includeSourceExtractions defaults false for existing context callers.
+Historical packets omit this field and receive no implicit read expansion. See the
+[intake contract](intake.md#selected-extraction-read-receipts-kit-012) for budget,
+no-follow verification, retained-schema compatibility and qualitative attribution.

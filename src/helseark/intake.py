@@ -164,7 +164,7 @@ def _cue_issues(pages):
     return issues
 
 
-def _extraction(vault, source, limits):
+def _extraction(vault, source, limits, *, retained_only=False):
     """Immutable source-local receipt binds the exact derived CAS object."""
     receipt_path = source.assetPath.parent / 'extraction.json'
     if receipt_path.exists() or receipt_path.is_symlink():
@@ -181,6 +181,8 @@ def _extraction(vault, source, limits):
             raise ArchiveError('INTEGRITY', 'Retained extraction bytes differ.')
         pages = decode_json(data)
     else:
+        if retained_only:
+            raise ArchiveError('INTEGRITY', 'Selected source lacks retained extraction.')
         with TemporaryDirectory(prefix='helseark-intake-', dir=source.assetPath.parent) as temp:
             artifact = extract_pdf(source.assetPath, Path(temp) / 'extracted', limits)
             data = _regular(artifact.pagesPath, ARTIFACT_BYTES)
@@ -222,6 +224,28 @@ def _extraction(vault, source, limits):
     return receipt, pages, path, tuple(dict.fromkeys(issues))
 
 
+def _extraction_files(vault, person, sources):
+    """Resolve exact retained pages from selected originals, never supplied paths.
+
+    Context owns selection/budget/host authority; intake owns immutable extraction
+    receipts and bounded no-follow reads. This path never invokes the PDF parser.
+    """
+    from .contracts import ContextFile
+    files = []
+    for selected in sources:
+        source = SourceReceipt(person, selected.sha256, selected.size,
+                               'application/pdf', Path(selected.path))
+        _source_bytes(vault, source)
+        receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
+        data = _regular(path, ARTIFACT_BYTES)
+        if hash_bytes(data) != receipt['pagesSha256']:
+            raise ArchiveError('INTEGRITY', 'Selected extraction changed during read.')
+        file = ContextFile(str(path), receipt['pagesSha256'], len(data), str(path))
+        if file not in files:
+            files.append(file)
+    return tuple(files)
+
+
 def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
                  identityConfirmed: bool = False, outputDirectory: Path | None = None,
                  limits: IntakeLimits = LIMITS) -> ImportPacket:
@@ -253,7 +277,9 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     _new_directory(destination)
     try:
         context = build_agent_context(vault, source.personId, 'import',
-            ContextRequest(sourceHashes=(source.sourceSha256,)), destination / 'context')
+            ContextRequest(sourceHashes=(source.sourceSha256,), includeSourceExtractions=
+                'selectedExtractions' in load_definition_registry(vault).resolve(
+                    'urn:helseark:schema:0.1.0:agent-context')['properties']), destination / 'context')
         candidate_id = str(uuid4())
         confirmed = identityConfirmed and not any(i.severity == 'error' for i in issues)
         source_data = {'sourceReceipt': document(source), 'extractionReceipt': receipt,
