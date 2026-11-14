@@ -2,13 +2,13 @@
 
 Offline discovery, bounded context and declared-only prompt rendering are
 implemented with no embedded model, network lookup or permission grant. Inspect
-is routing-only and has no prompt. Query and human-controlled reviewed imports are implemented; correction, export, verify and migration remain unavailable until their runtime dependencies exist. Actual external-agent evaluation remains
+is routing-only and has no prompt. Query and human-controlled reviewed imports are implemented; bounded structured intake, native history, person export, reviewed source disclosure, integrity checks and static presentation are implemented. Correction and migration remain unavailable. Actual external-agent evaluation remains
 a separate gate; templates do not establish command support or extraction accuracy.
 
 ## Entry points and pins
 
 A new vault contains generated `AGENTS.md`, a thin `CLAUDE.md` containing
-`@AGENTS.md`, and its explicitly pinned agent-kit directory (current new-vault kit `0.1.5`). The AGENTS template is the one routing
+`@AGENTS.md`, and its explicitly pinned agent-kit directory (current new-vault kit `0.1.9`). The AGENTS template is the one routing
 source; it points to `vault.json` and the retained kit's `START-HERE.md` and
 `manifest.json`. Contributor instructions in the toolkit are a different scope.
 
@@ -231,10 +231,11 @@ canonical FHIR decimals remain distinct; accepted history is never rewritten.
 Implemented runtime capabilities: agent-discovery, agent-context, schema-export,
 baseline-validation, person-identity, raw-record-selection, task-instructions,
 pdf-intake, candidate-read, reviewed-publication, clinical-query, person-export
-and integrity-report. Runtime discovery derives availability from these actual
+, reviewed-source-disclosure, fhir-r4-import and csv-metrics-import. Runtime discovery derives availability from these actual
 implementations; instruction presence alone does not enable a workflow.
-Reviewed publication is human-controlled; import's structured-import dependency,
-correction, migration, terminology and the official validator remain unavailable.
+Reviewed publication is human-controlled. Correction, migration, terminology and
+the official validator remain unavailable. Optional OCR is operator-configured;
+static reports are host commands, never agent publication authority.
 [Local OCR](../how-to/run-ocr.md) is an explicit optional host intake step; task
 availability never implies native tools/models are installed or accuracy is proven.
 [Portability](../how-to/backup-and-restore.md) supplies doctor/backup/restore;
@@ -395,7 +396,7 @@ The renderer neither embeds original evidence nor grants filesystem authority.
 The [intake contract 1](intake.md) defines source/extraction receipts and the real
 CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
 this protocol's existing v2 selector and renderer, never a competing prompt or
-projection owner. Its PDF draft is available; current kit 0.1.5 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
+projection owner. Its PDF draft is available; current kit 0.1.9 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
 publication is available only through explicit human host control. The runtime handoff discloses whole-workflow
 availability separately. Source-specific packets request exactly one user-selected
 source and minimal identity; source assertions cannot grant broader authorization.

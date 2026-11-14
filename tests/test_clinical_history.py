@@ -19,7 +19,7 @@ from helseark.contracts import ReviewDecision
 
 def approve(vault, proposal):
     view=render_review(vault,proposal)
-    acks={(i["code"],i["resourceRef"]): {"code":i["code"],"resourceRef":i["resourceRef"],"reason":"Synthetic human compared source and retained limitation."}
+    acks={i["issueId"]: {"issueId":i["issueId"],"code":i["code"],"resourceRef":i["resourceRef"],"reason":"Synthetic human compared source and retained limitation."}
           for i in view.issues if i["severity"] in ("review","warning")}
     return record_review(vault,proposal,ReviewDecision(True,"accept-with-acknowledged-limitations",tuple(acks.values()),"synthetic human"))
 
@@ -38,11 +38,8 @@ def candidate_for(vault, candidate, kind):
             r.setdefault('note',[]).append({'text':'urn:uuid:'+r['id']})
         resources.append({'fullUrl':'urn:uuid:'+r['id'],'resource':r})
     enrich(vault,candidate,resources)
-    # Register the source with the same supported intake API used by CLI imports.
+    # Genuine legacy source fixture: new intake is covered by issued FHIR tests.
     digest=next(e['sourceSha256'] for e in candidate.evidence['entries'] if e['kind']=='source')
-    source_path=candidate.path/'source.json'
-    source_path.write_bytes((vault.root/f'people/{candidate.personId}/assets/sha256/{digest}/blob').read_bytes())
-    add_source(vault,candidate.personId,source_path)
     # The generic fixture's unused lab source is test setup, not accepted history.
     for p in (vault.root/f'people/{candidate.personId}/assets/sha256').iterdir():
         if p.name!=digest:
@@ -66,7 +63,7 @@ def test_source_assertions_review_native_query_and_restore(good,tmp_path,kind):
     proposal=prepare_candidate(vault,candidate,authorized_sources=sources)
     assert head(vault,candidate.personId)==initial
     # No receipt means no publication; real explicit synthetic human review follows.
-    with pytest.raises((ArchiveError,AttributeError,TypeError)):
+    with pytest.raises(ArchiveError, match='REVIEW_REQUIRED'):
         commit_candidate(vault,proposal,None)
     assert head(vault,candidate.personId)==initial
     commit_candidate(vault,proposal,approve(vault,proposal))

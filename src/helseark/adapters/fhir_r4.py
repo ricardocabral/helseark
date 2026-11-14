@@ -11,9 +11,7 @@ from urllib.parse import urlsplit
 
 from ..contracts import ArchiveError, Candidate, SourceReceipt, Issue, uuid_string
 from ..serialization import decode_json, encode_json
-from ..validation import _FIELDS, _SLUGS, _walk, load_definition_registry
-
-PROFILE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
+from ..validation import _FIELDS, _SLUGS, _walk, _profile as native_profile, load_definition_registry
 
 
 @dataclass(frozen=True)
@@ -32,7 +30,7 @@ class IdentityMapping:
 
 
 def _profile(kind):
-    return {'profile':[PROFILE+_SLUGS[kind]+'|0.1.0']}
+    return {'profile':[native_profile(kind)]}
 
 
 def _source_document(source, person, media):
@@ -165,15 +163,15 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
         if kind=='Patient':continue
         r=deepcopy(original);r['id']=ref.removeprefix('urn:uuid:');r['meta']=_profile(kind)
         # Rewrite only Reference.reference values, never arbitrary equal clinical strings.
-        for pointer,node in _walk(r):
-            if isinstance(node,dict) and 'reference' in node:
-                native=node['reference']
-                if not isinstance(native,str):
-                    raise ArchiveError('INVALID_INPUT','Expected native Reference.reference string.')
-                if pointer=='/subject' and native not in selected_patient_refs:
-                    unsupported(ptr+pointer,'other-person-reference')
-                if native not in aliases:unsupported(ptr+pointer,'unresolved-reference')
-                else:node['reference']=aliases[native]
+        from ..archive import _reference_nodes
+        for pointer,node in _reference_nodes(r):
+            native=node['reference']
+            if not isinstance(native,str):
+                raise ArchiveError('INVALID_INPUT','Expected native Reference.reference string.')
+            if pointer in ('/subject', '/patient') and native not in selected_patient_refs:
+                unsupported(ptr+pointer,'other-person-reference')
+            if native not in aliases:unsupported(ptr+pointer,'unresolved-reference')
+            else:node['reference']=aliases[native]
         if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'} and 'subject' not in r:
             unsupported(ptr+'/subject','missing-explicit-subject')
         if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'}:

@@ -334,7 +334,7 @@ def test_retained_original_protocol1_contracts_stay_readable_without_repinning_h
     manifest=decode_json((fixtures/'manifest.json').read_bytes())
     manifest['compatibility']['definitionLockSha256']=hash_bytes(lock_path.read_bytes())
     (release/'manifest.json').write_bytes(encode_json(manifest))
-    config=replace(vault.config,agentKitVersion=manifest['kitVersion'],definitionLockSha256=hash_bytes(lock_path.read_bytes()),agentKitLockSha256=hash_bytes((release/'manifest.json').read_bytes()))
+    config=replace(vault.config,profileVersion=manifest['compatibility']['profileVersion'],agentKitVersion=manifest['kitVersion'],definitionLockSha256=hash_bytes(lock_path.read_bytes()),agentKitLockSha256=hash_bytes((release/'manifest.json').read_bytes()))
     old_release=vault.root/'agent-kit'/manifest['kitVersion']
     if release != old_release:
         release.rename(old_release)

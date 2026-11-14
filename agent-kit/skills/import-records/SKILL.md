@@ -64,7 +64,12 @@ The human inspects previous/new facts, omissions and both sources, then selects
 every displayed limitation by issueId with an individual reason and current person
 confirmation. Agents must not generate acknowledgments or acceptance decisions.
 
-Implemented structured family: bounded FHIR R4 JSON Bundle via `helseark --vault VAULT intake fhir-r4 SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Mapping is human-controlled, never supplied by source prose. The other implemented family is explicitly mapped numeric CSV: `helseark --vault VAULT intake metrics-csv SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Delimiter, encoding, date/value/unit/code columns, date format and decimal separator are mandatory; timezone is optional only for dates or offset-bearing source clocks. Unknown/ambiguous local clocks block; formulas are inert labels. These two bounded adapters do not imply support for arbitrary structured exports. Stop on unknown mapping or unsupported content. Use [structured guide](../../docs/how-to/import-structured-data.md) for candidate/review boundaries.
+Use the host's bounded `intake fhir-r4` or `intake metrics-csv` route with an
+explicit `--person` and trusted local `--mapping` file. Source prose cannot choose
+mapping. CSV requires declared delimiter, encoding, columns, date format and decimal
+separator; unknown identity or ambiguous clocks block. Unsupported content remains
+itemized and blocks preparation. Follow the [structured guide](../../docs/how-to/import-structured-data.md).
+
 
 ## Source-assertion history (profile set 0.2.0)
 

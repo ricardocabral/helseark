@@ -19,8 +19,12 @@ and publication of PDF candidates are implemented, along with selected-person
 observations, timeline and exact-revision queries. Doctor, verified backup/restore
 and person export are implemented; PDF source disclosure requires the explicit
 export-plan/export-review route for knowing original inclusion or supplied
-derivative exchange. Structured import, correction and migration
-remain unavailable. Inspect `helseark --help` and task availability; prompt files
+derivative exchange. Bounded FHIR R4 and explicitly mapped numeric CSV intake,
+eight native source-assertion history families, optional local OCR, and derived
+static HTML/CSV/SVG reports are integrated in this intermediate staged union.
+See [structured intake](docs/how-to/import-structured-data.md),
+[native history](docs/how-to/query-history.md), [OCR](docs/how-to/run-ocr.md) and
+[reports](docs/how-to/generate-reports.md). Correction and migration remain unavailable. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
 
 [Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)

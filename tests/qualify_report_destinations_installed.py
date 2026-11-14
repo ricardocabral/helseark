@@ -52,7 +52,7 @@ for name,c in cases.items():
  assert c['other'] not in html and 'PRIVATE OTHER PERSON' not in html and 'OTHER PERSON SECRET' not in html
  assert not {'script','img','iframe','object','link','form','base'}&set(page.tags)
  csp=next(m['content'] for m in page.metas if m.get('http-equiv')=='Content-Security-Policy');assert "default-src 'none'" in csp and "base-uri 'none'" in csp and "form-action 'none'" in csp
- assert all(l=='observations.csv' or l.startswith('file://') for l in page.links)
+ assert all(l in ('observations.csv','report.svg') or l.startswith('file://') for l in page.links)
  for l in page.links:
   if l.startswith('file://'):
    u=urlparse(l);p=Path(unquote(u.path));assert p.is_file() and p.name=='evidence.json' and p.is_relative_to(root/'people'/c['person']);assert u.fragment.startswith('/entries/')
@@ -90,7 +90,7 @@ for name,c in cases.items():
  failed=work/(name+'-partial');assert call(c,'report','--person',c['person'],'--out',failed,expected=5,extra={'FAIL_CSV':'1'})['code']=='IO_ERROR';assert not failed.exists();assert not list(work.glob('.helseark-report-*'))
  assert before==inventory(root)
  (out/(name+'-before.json')).write_text(json.dumps(before,indent=2));(out/(name+'-after.json')).write_text(json.dumps(inventory(root),indent=2))
- results.append({'case':name,'rows':len(rows),'unchangedFiles':len(before),'unchangedBytes':sum(e['size'] for e in before.values()),'denialWitnesses':len(probes),'redirectAndProtectedRefusals':len(rejects),'sourceLinks':len(page.links)-1,'htmlSha256':hashlib.sha256(original['index.html']).hexdigest(),'csvSha256':hashlib.sha256(original['observations.csv']).hexdigest(),'controlPrefixes':[{ 'label':repr(f['label']),'csvPrefix':repr(byid[rid]['sourceLabel'][:5])} for rid,f in c.get('facts',{}).items()]})
+ results.append({'case':name,'rows':len(rows),'unchangedFiles':len(before),'unchangedBytes':sum(e['size'] for e in before.values()),'denialWitnesses':len(probes),'redirectAndProtectedRefusals':len(rejects),'sourceLinks':sum(l.startswith('file://') for l in page.links),'htmlSha256':hashlib.sha256(original['index.html']).hexdigest(),'csvSha256':hashlib.sha256(original['observations.csv']).hexdigest(),'controlPrefixes':[{ 'label':repr(f['label']),'csvPrefix':repr(byid[rid]['sourceLabel'][:5])} for rid,f in c.get('facts',{}).items()]})
  print(json.dumps(results[-1]),flush=True)
 (out/'installed-results.json').write_text(json.dumps(results,indent=2)+'\n')
 

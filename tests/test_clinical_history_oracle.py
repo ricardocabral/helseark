@@ -4,19 +4,21 @@ Candidates are pre-authored, not extracted. This tests archive preservation and
 review/evidence enforcement; it does not measure extraction accuracy.
 """
 import copy
+import subprocess
+import sys
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
 from helseark.archive import add_person, commit_candidate, head, init_vault, open_vault, resolve
-from helseark.contracts import ArchiveError, Candidate, Issue, PersonDraft, ResourceRef, ReviewDecision
+from helseark.contracts import ArchiveError, Candidate, Issue, PersonDraft, ResourceRef, ReviewDecision, SourceReceipt
 from helseark.intake import add_source, prepare_candidate
 from helseark.query import history, timeline
 from helseark.review import record_review, render_review
 from helseark.serialization import decode_json, encode_json
 from helseark.validation import validate_candidate
-from test_validation import leaves, no_network, persist
+from test_validation import leaves, no_network, persist, asset
 
 FIXTURES = Path(__file__).parent / 'fixtures'
 SOURCE = FIXTURES / 'synthetic/clinical-history/oracle'
@@ -35,7 +37,12 @@ def oracle_candidate(tmp_path):
     """Bind the fixed proposal to retained source bytes, never generate the source."""
     vault = init_vault(tmp_path / 'vault')
     person = add_person(vault, PersonDraft('Synthetic history oracle patient'))
-    receipt = add_source(vault, person, SOURCE / 'source.json')
+    # This independent pre-authored candidate exercises genuine legacy source
+    # preparation. New non-PDF intake must use immutable adapter issuance.
+    data = (SOURCE / 'source.json').read_bytes()
+    digest = asset(vault, person, data)
+    receipt = SourceReceipt(person, digest, len(data), 'application/json',
+                            vault.root / f'people/{person}/assets/sha256/{digest}/blob')
     source = decode_json((SOURCE / 'source.json').read_bytes())
     resources = decode_json((SOURCE / 'candidate-resources.json').read_bytes().replace(b'PERSON', person.encode()))
     doc_id = str(uuid4())
@@ -113,12 +120,16 @@ def test_independent_facts_survive_review_publication_and_reopen(oracle_candidat
     with pytest.raises(ArchiveError) as missing_review:
         commit_candidate(vault, proposal, None)
     assert missing_review.value.code == "REVIEW_REQUIRED"
-    assert missing_review.value.details["exitCode"] == 3
+    refused = subprocess.run([sys.executable, '-m', 'helseark.cli', '--vault', str(vault.root),
+                              'candidate', 'commit', str(proposal.path), '--person', candidate.personId,
+                              '--json'], capture_output=True)
+    assert refused.returncode == 3, refused.stderr
+    assert b'REVIEW_REQUIRED' in refused.stderr
     assert head(vault, candidate.personId) == initial
     view = render_review(vault, proposal)
     assert any(i['code'] == 'UNSUPPORTED_CONTENT' and i['message'] == ORACLE['unsupported'] for i in view.issues)
     assert_facts(view.resourcesAdded)
-    acks = {(i['code'], i['resourceRef']): {'code': i['code'], 'resourceRef': i['resourceRef'],
+    acks = {i['issueId']: {'issueId': i['issueId'], 'code': i['code'], 'resourceRef': i['resourceRef'],
             'reason': 'Synthetic reviewer compared the independent source; retain unknowns and source-only ImagingStudy.'}
             for i in view.issues if i['severity'] in ('review', 'warning')}
     review = record_review(vault, proposal, ReviewDecision(

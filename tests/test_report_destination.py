@@ -91,7 +91,7 @@ def test_valid_external_and_derived_directories(empty_vault, tmp_path, nested):
     for destination in (tmp_path/nested, vault.root/'derived'/tmp_path.name/nested):
         index = render_static_report(vault, person, destination)
         assert index.is_file()
-        assert set(p.name for p in destination.iterdir()) == {'index.html', 'observations.csv'}
+        assert set(p.name for p in destination.iterdir()) == {'index.html', 'observations.csv', 'report.svg'}
         assert '0 observations' in index.read_text()
     assert inventory(vault.root/'people') == before
 
@@ -196,6 +196,6 @@ int renameatx_np(int fromfd, const char *from, int tofd, const char *to, unsigne
     assert not (protected/'report').exists()
     # This mutation occurs after the last Python precheck. Only descriptor-based
     # rename can publish into the original authority instead of the symlink.
-    assert set(p.name for p in (tmp_path/'parent-original/report').iterdir()) == {'index.html', 'observations.csv'}
+    assert set(p.name for p in (tmp_path/'parent-original/report').iterdir()) == {'index.html', 'observations.csv', 'report.svg'}
     assert result.returncode == 2 and b'INVALID_DESTINATION' in result.stderr
     assert not result.stdout

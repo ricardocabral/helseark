@@ -377,7 +377,7 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         if 'selectedExtractions' not in registry.resolve('urn:helseark:schema:0.1.0:agent-context')['properties']:
             raise ArchiveError('UNSUPPORTED_VERSION', 'Retained context contract lacks extraction read receipts.')
         from .intake import _extraction_files
-        extractions = _extraction_files(vault, person, sources)
+        extractions = _extraction_files(vault, person, sources, request.sourceExtractionHashes)
     supplied_bytes = len(identity_bytes) + sum(f.size for f in extractions)
     if supplied_bytes > request.maxDataBytes:
         raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'Identity and retained extraction exceed data budget.')
@@ -582,7 +582,7 @@ def _verified_context(context, trusted_context_sha256):
             raise ArchiveError('CONTEXT_MISMATCH', 'Source differs from selected person retained asset.')
     if context.selectedExtractions:
         from .intake import _extraction_files
-        if context.taskId != 'import' or _extraction_files(vault, context.personId, context.selectedSources) != context.selectedExtractions:
+        if context.taskId != 'import' or _extraction_files(vault, context.personId, context.selectedSources, tuple(f.sha256 for f in context.selectedExtractions)) != context.selectedExtractions:
             raise ArchiveError('CONTEXT_MISMATCH', 'Extraction reads differ from selected originals.')
     if len({f.path for f in context.selectedRecords}) != len(context.selectedRecords):
         raise ArchiveError('CONTEXT_MISMATCH', 'Selected revisions must be unique.')

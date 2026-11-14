@@ -165,7 +165,7 @@ is not evidence that a model follows the instructions; fresh actual trials remai
 a separate coordinator gate.
 
 
-## Structured host issuance — kit 0.1.5
+## Structured host issuance — kit 0.1.9
 
 Toolkit-retained non-PDF source receipts require original structured issuance when
 reading a candidate. The source-local `structured/<candidate-input-digest>.json`
@@ -190,3 +190,16 @@ OCR allows genuine word boxes in displayed CropBox coordinates; page-only
 PDF-text artifacts still reject invented boxes. All OCR pages remain unresolved
 with mandatory OCR_VISUAL_REVIEW. Re-extraction/reconciliation, exact numeric
 source tokens, patient scope, review and publication use the existing contracts.
+
+An explicitly selected OCR version uses `ContextRequest.sourceExtractionHashes`
+together with `includeSourceExtractions`. Intake resolves exactly one immutable
+artifact per selected original; it checks the original/person, extraction receipt
+and derivatives without rerunning a parser. The host construction digest binds
+these selected receipts and their full sizes count toward the context budget.
+Unselected, changed or ambiguous versions fail before rendering.
+
+New accepted structured proposals retain exact `inputs/coverage.json` in addition
+to the three candidate inputs. Its mapping/coverage digest permits doctor and
+backup to account for a matching source-local issuance receipt when present.
+Unknown, altered and unaccepted sidecars remain visible audit issues. Issuance is
+resumable host state: accepted queries/history do not require it, work or runtime.

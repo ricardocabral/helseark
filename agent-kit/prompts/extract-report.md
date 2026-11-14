@@ -1,4 +1,4 @@
-# extract-report — prompt 0.1.2
+# extract-report — prompt 0.1.3
 
 Fixed task ID: `import`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.

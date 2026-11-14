@@ -231,7 +231,7 @@ def _extraction(vault, source, limits, *, retained_only=False):
     return receipt, pages, path, tuple(dict.fromkeys(issues))
 
 
-def _extraction_files(vault, person, sources):
+def _extraction_files(vault, person, sources, extraction_hashes=()):
     """Resolve exact retained pages from selected originals, never supplied paths.
 
     Context owns selection/budget/host authority; intake owns immutable extraction
@@ -239,17 +239,39 @@ def _extraction_files(vault, person, sources):
     """
     from .contracts import ContextFile
     files = []
+    remaining = set(extraction_hashes)
     for selected in sources:
         source = SourceReceipt(person, selected.sha256, selected.size,
                                'application/pdf', Path(selected.path))
         _source_bytes(vault, source)
-        receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
+        matches = []
+        for digest in tuple(remaining):
+            blob = _safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob')
+            artifact = decode_json(_regular(blob, ARTIFACT_BYTES))
+            if isinstance(artifact, dict) and artifact.get('sourceSha256') == source.sourceSha256:
+                matches.append(digest)
+        if extraction_hashes and len(matches) != 1:
+            raise ArchiveError('EXTRACTION_MISMATCH', 'Select exactly one retained extraction per original.')
+        if matches:
+            digest = matches[0]
+            remaining.remove(digest)
+            artifact = decode_json(_regular(_safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob'), ARTIFACT_BYTES))
+            if artifact.get('artifactVersion') == 'helseark-ocr-pages-1':
+                receipt, _, path, _ = _ocr_extraction(vault, source, digest)
+            else:
+                receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
+                if receipt['pagesSha256'] != digest:
+                    raise ArchiveError('EXTRACTION_MISMATCH', 'Extraction differs from selected original.')
+        else:
+            receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
         data = _regular(path, ARTIFACT_BYTES)
         if hash_bytes(data) != receipt['pagesSha256']:
             raise ArchiveError('INTEGRITY', 'Selected extraction changed during read.')
         file = ContextFile(str(path), receipt['pagesSha256'], len(data), str(path))
         if file not in files:
             files.append(file)
+    if remaining:
+        raise ArchiveError("EXTRACTION_MISMATCH", "Extraction is outside selected originals.")
     return tuple(files)
 
 
@@ -353,7 +375,8 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
         context = build_agent_context(vault, source.personId, 'import',
             ContextRequest(sourceHashes=(source.sourceSha256,), includeSourceExtractions=
                 'selectedExtractions' in load_definition_registry(vault).resolve(
-                    'urn:helseark:schema:0.1.0:agent-context')['properties']), destination / 'context')
+                    'urn:helseark:schema:0.1.0:agent-context')['properties'],
+                sourceExtractionHashes=(receipt['pagesSha256'],) if ocrConfig is not None else ()), destination / 'context')
         candidate_id = str(uuid4())
         confirmed = identityConfirmed and not any(i.severity == 'error' for i in issues)
         source_data = {'sourceReceipt': document(source), 'extractionReceipt': receipt,
@@ -520,6 +543,7 @@ def _resource_references(value, aliases):
     Root resource IDs are handled separately by the caller.
     """
     from .archive import _reference_nodes
+    from copy import deepcopy
     result = deepcopy(value)
     for _, node in _reference_nodes(result):
         node['reference'] = aliases.get(node['reference'], node['reference'])
@@ -673,6 +697,14 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     inputs=[]
     for name,data in zip(('candidate','bundle','evidence'),raw):
         relative=f'inputs/{name}.json'; _write(path/relative,data); inputs.append({'path':relative,'sha256':hash_bytes(data)})
+    if (fresh.path/'coverage.json').exists():
+        data = _regular(fresh.path/'coverage.json', CANDIDATE_FILE_BYTES)
+        for source_hash in sources:
+            issuance = _safe(vault.root, f'people/{fresh.personId}/assets/sha256/{source_hash}/structured/{candidate_digest}.json')
+            if issuance.exists() and _bounded_json(issuance, LIMITS).get('structuredCoverageSha256') != hash_bytes(data):
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured coverage changed during preparation.')
+        _write(path/'inputs/coverage.json', data)
+        inputs.append({'path':'inputs/coverage.json','sha256':hash_bytes(data)})
     assets=[]; bindings=[]
     digests=set(sources)
     for e in evidence['entries']:
@@ -766,7 +798,7 @@ def _structured_candidate(vault, source, family, mapping, resources, evidence, i
     issues = tuple(issues) + (Issue('STRUCTURED_COVERAGE','review',None,None,
         f'Review explicit assignment, source inventory and mapping; coverage SHA-256 {hash_bytes(coverage_bytes)}.'),)
     metadata = {'contractVersion':'0.1.0', 'candidateId':cid,'personId':source.personId,
-        'baseChangeSha256':base.changeSha256,'fhirVersion':'4.0.1','profileVersion':'0.1.0',
+        'baseChangeSha256':base.changeSha256,'fhirVersion':vault.config.fhirVersion,'profileVersion':vault.config.profileVersion,
         'sourceSha256':[source.sourceSha256], 'bundlePath':'bundle.json','evidencePath':'evidence.json',
         'producer':{'kind':'adapter','name':f'deterministic {family} adapter v1 (no model)'},
         'producerProvenance':provenance,'unresolved':[document(i) for i in issues]}

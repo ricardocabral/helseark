@@ -99,7 +99,7 @@ class ReportPublication:
             return
         raise ArchiveError('DESTINATION_EXISTS', 'Report destination must not exist.', {'exitCode': 2})
 
-    def publish(self, html, csv):
+    def publish(self, html, csv, svg):
         self._verify()
         parent = self.chain[-1][2]
         for name in self.missing:
@@ -138,7 +138,7 @@ class ReportPublication:
         stage = self._open(stage_name, temp_parent)
         published = False
         try:
-            for name, content in (('index.html', html), ('observations.csv', csv)):
+            for name, content in (('index.html', html), ('observations.csv', csv), ('report.svg', svg)):
                 self._verify()
                 fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
                              0o600, dir_fd=stage)
@@ -177,7 +177,7 @@ class ReportPublication:
                 # never repair or clean up through a redirected output path.
                 if temp_parent == parent:
                     self._verify()
-                for name in ('index.html', 'observations.csv'):
+                for name in ('index.html', 'observations.csv', 'report.svg'):
                     try:
                         os.unlink(name, dir_fd=stage)
                     except FileNotFoundError:

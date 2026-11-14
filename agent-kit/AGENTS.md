@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt is version `0.1.2`, the import skill is `0.1.4`, and the query prompt/skill are `0.1.1`; other prompts and skills retain `0.1.0`. Each declares task-specific slots below
+The extraction prompt is `0.1.3`, structured mapping prompt is `0.1.3`, import skill is `0.1.5`, and query prompt/skill are `0.1.1`; other versions are pinned in the manifest. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, reviewed-source-disclosure and integrity-report. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, reviewed-source-disclosure, integrity-report, fhir-r4-import and csv-metrics-import. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -88,8 +88,10 @@ Implemented command forms (operator-run; placeholders are documentation only):
 Discovery/context/render are documented in START-HERE.md. PDF intake, draft
 extraction and human-reviewed PDF publication are implemented. Preparation,
 review and commit remain under operator control; agents cannot approve or commit.
-The broader import task remains unavailable because structured import is not
-implemented. Export, backup/restore and doctor are implemented. Correction and migration remain unavailable. Selected-person
+Bounded FHIR R4 and explicitly mapped numeric CSV imports are implemented; see
+[structured mapping](docs/how-to/import-structured-data.md). Optional local OCR uses
+operator-pinned tools; see [OCR](docs/how-to/run-ocr.md). Static HTML/CSV/SVG reports
+use [presentation](docs/how-to/generate-reports.md). Export, backup/restore and doctor are implemented. Correction and migration remain unavailable. Selected-person
 observations/timeline/record and date-filtered query context are implemented; see
 [query workflow](docs/how-to/query-history.md). Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
@@ -137,8 +139,9 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.4: a confirmed retained PDF may draft while the descriptor still lists
-unavailable structured import. Human-controlled reviewed publication is available. The renderer reports both
+Kit 0.1.9 is an intermediate staged union of bounded structured intake, native
+history, optional OCR and static presentation on the current clinical foundation.
+Human-controlled reviewed publication is available. The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.
 
 Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.

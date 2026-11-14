@@ -285,8 +285,16 @@ def _verify_inputs(directory: Path, proposal: dict):
     if 'importReview' not in proposal:
         return
     inputs = proposal.get('inputs', [])
-    if {i['path'] for i in inputs} != {'inputs/candidate.json','inputs/bundle.json','inputs/evidence.json'} or len(inputs) != 3:
-        raise ArchiveError('INTEGRITY', 'Import must retain exactly three candidate inputs.')
+    required = {'inputs/candidate.json','inputs/bundle.json','inputs/evidence.json'}
+    selected = {i['path'] for i in inputs}
+    if selected not in (required, required | {'inputs/coverage.json'}) or len(selected) != len(inputs):
+        raise ArchiveError('INTEGRITY', 'Import must retain three candidate inputs and optional structured coverage.')
+    if 'inputs/coverage.json' in selected:
+        coverage = _json(directory, 'inputs/coverage.json')
+        if (not isinstance(coverage,dict) or set(coverage) != {'family','sourceSha256','mapping','items'} or
+                coverage['family'] not in ('fhir-r4','csv-metrics') or
+                not isinstance(coverage['mapping'],dict) or not isinstance(coverage['items'],list)):
+            raise ArchiveError('INTEGRITY', 'Invalid retained structured coverage.')
     for item in inputs:
         if hash_bytes(_read(directory,item['path'])) != item['sha256']:
             raise ArchiveError('REVIEW_MISMATCH','Retained candidate input changed.')
@@ -640,6 +648,8 @@ def commit_candidate(vault: Vault, proposal: "PreparedProposal", receipt: "Revie
     from .review import _verify_prepared, _decision
     from .contracts import CommitResult, ReviewDecision
     def verify_receipt(directory, *, accepted=False):
+        if receipt is None:
+            raise ArchiveError('REVIEW_REQUIRED', 'Record an explicit human review before publication.')
         data=_read(directory,'review.json')
         if (receipt.path != proposal.path/'review.json' or receipt.proposalSha256!=proposal.proposalSha256 or
             receipt.validationSha256!=hash_bytes(_read(directory,'validation.json')) or receipt.base!=proposal.base or
@@ -732,6 +742,24 @@ def _person_paths(vault: Vault, person: str, history) -> set[str]:
         proposal = _json(directory, 'proposal.json')
         paths.update(prefix + i['path'] for i in proposal.get('inputs', []))
         paths.update(f"people/{person}/{b['path']}" for b in proposal.get('importReview', {}).get('bindings', []))
+        # Issuance is resumable host state, not a requirement for accepted reads.
+        # Recognize only receipts exactly explained by immutable accepted inputs;
+        # arbitrary or unaccepted sidecars still receive the unknown/orphan audit.
+        if any(i['path']=='inputs/coverage.json' for i in proposal.get('inputs', [])):
+            coverage = _json(directory, 'inputs/coverage.json')
+            candidate = _json(directory, 'inputs/candidate.json')
+            for digest in candidate['sourceSha256']:
+                relative = f"people/{person}/assets/sha256/{digest}/structured/{proposal['candidateSha256']}.json"
+                receipt_path = _safe(vault.root, relative)
+                if receipt_path.exists():
+                    expected = {'receiptVersion':1, 'personId':person,
+                        'sourceHashes':candidate['sourceSha256'], 'identityConfirmed':True,
+                        'family':coverage['family'], 'mapping':coverage['mapping'],
+                        'structuredCandidateSha256':proposal['candidateSha256'],
+                        'structuredCoverageSha256':hash_bytes(_read(directory,'inputs/coverage.json'))}
+                    if _read(vault.root, relative) != encode_json(expected):
+                        raise ArchiveError('INTEGRITY', 'Structured host state differs from accepted mapping.', {'path':relative})
+                    paths.add(relative)
     return paths
 
 
@@ -796,7 +824,7 @@ def doctor(vault: Vault) -> IntegrityReport:
                 for relative in _files(asset_root):
                     path = f'people/{person}/assets/{relative}'
                     # Sidecar receipts are bound inside Task6 proposals as retained artifacts.
-                    if path not in assets and path not in bound_paths:
+                    if path not in assets and path not in bound_paths and path not in canonical:
                         orphans.append(path)
         except ArchiveError as error:
             problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')

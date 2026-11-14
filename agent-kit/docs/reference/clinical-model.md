@@ -347,7 +347,7 @@ Profile set 0.2.0 adds source-assertion history families. The original six
 profiles remain byte-identical at version 0.1.0. Provenance 0.2.0 widens the
 native target boundary to include the added families; the original Provenance
 0.1.0 remains supported. New vaults pin profile set
-0.2.0 and kit 0.1.4; existing 0.1.0 vaults continue using their retained locks,
+0.2.0 and kit 0.1.9; existing 0.1.0 vaults continue using their retained locks,
 profiles and kits. They are readable without migration. New history resources
 require a 0.2.0 vault and its pinned history definitions; do not edit vault pins
 or repin accepted history to upgrade. No persisted clinical meaning is rewritten.

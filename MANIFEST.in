@@ -8,3 +8,6 @@ include tests/fixtures/expected/clinical-history-facts.json
 
 recursive-include tests/fixtures/synthetic/ocr *.pdf *.md *.py
 include tests/fixtures/expected/ocr-facts.json
+include tests/qualify_intake_history_presentation_installed.py
+recursive-include tests/fixtures/synthetic/structured *.json *.csv *.md
+recursive-include tests/fixtures/synthetic/clinical-history *.json *.md

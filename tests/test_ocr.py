@@ -135,7 +135,7 @@ def bind_scan_candidate(vault, person, source, packet, destination):
     for entry in evidence['entries']:
         if entry['kind']=='source':entry['extraction']=artifact['extraction']
     context=decode_json((packet.path/'context/context.json').read_bytes())
-    candidate={'contractVersion':'0.1.0','fhirVersion':'4.0.1','profileVersion':'0.1.0',
+    candidate={'contractVersion':'0.1.0','fhirVersion':'4.0.1','profileVersion':vault.config.profileVersion,
         'candidateId':meta['importId'],'personId':person,'baseChangeSha256':context['base']['changeSha256'],
         'sourceSha256':[source.sourceSha256],'bundlePath':'bundle.json','evidencePath':'evidence.json',
         'producer':{'kind':'local-user','name':'hand-authored synthetic OCR oracle; no model run'},
@@ -162,7 +162,7 @@ def test_real_scan_review_commit_reextract_derivative_closure(tmp_path):
     assert 'OCR_VISUAL_REVIEW' in {i['code'] for i in view.issues}
     with pytest.raises(ArchiveError):
         record_review(vault,proposal,ReviewDecision(True,'accept',(),'synthetic human'))
-    acks=tuple({'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Synthetic manual source inspection.'}
+    acks=tuple({'issueId':i['issueId'],'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Synthetic manual source inspection.'}
         for i in view.issues if i['severity'] in ('review','warning'))
     reviewed=record_review(vault,proposal,ReviewDecision(True,'accept-with-acknowledged-limitations',acks,'synthetic human'))
     committed=commit_candidate(vault,proposal,reviewed)

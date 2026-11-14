@@ -23,10 +23,10 @@ def setup(tmp_path):
 
 def decision(v, proposal):
     view=render_review(v,proposal)
-    acks=tuple({'code':i['code'],'resourceRef':i['resourceRef'],
+    acks=tuple({'issueId':i['issueId'],'code':i['code'],'resourceRef':i['resourceRef'],
                 'reason':'Pre-authored synthetic fixture decision; not real clinical approval.'}
                for i in view.issues if i['severity'] in ('review','warning'))
-    acks=tuple({(a['code'],a['resourceRef']):a for a in acks}.values())
+    acks=tuple({a['issueId']:a for a in acks}.values())
     return record_review(v,proposal,ReviewDecision(True,'accept-with-acknowledged-limitations',acks,'synthetic fixture human'))
 
 

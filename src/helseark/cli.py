@@ -24,7 +24,6 @@ from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, do
 from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
-    "CONTEXT_AUTHORITY_REQUIRED": 2,
     "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
@@ -304,7 +303,7 @@ def main(argv=None):
                 ocr_config = None
                 if getattr(args, 'ocr_config', None):
                     from .adapters.ocr import OcrConfig
-                    raw_config = decode_json(args.ocr_config.read_bytes())
+                    raw_config = decode_json(_regular(args.ocr_config, 65536))
                     try:
                         ocr_config = OcrConfig(**{k: Path(v) if k in ('outputDirectory','engine','renderer','model') else v for k,v in raw_config.items()})
                     except (TypeError, ValueError, AttributeError):
@@ -312,13 +311,13 @@ def main(argv=None):
                 source = add_source(vault, args.person, args.source)
                 if args.intake_command == 'fhir-r4':
                     from .adapters.fhir_r4 import import_fhir_r4, IdentityMapping
-                    raw = decode_json(args.mapping.read_bytes())
+                    raw = decode_json(_regular(args.mapping, 65536))
                     if not isinstance(raw,dict) or set(raw) != {'patientReference','localPersonId','assignmentReason','provider'}:
                         raise ArchiveError('IDENTITY_MAPPING_REQUIRED','Expected trusted local IdentityMapping JSON.')
                     output = document(import_fhir_r4(source,args.person,IdentityMapping(**raw)))
                 elif args.intake_command == 'metrics-csv':
                     from .adapters.csv_metrics import import_metrics_csv, CsvMetricMapping
-                    raw = decode_json(args.mapping.read_bytes())
+                    raw = decode_json(_regular(args.mapping, 65536))
                     required = {'delimiter','encoding','dateColumn','valueColumn','unitColumn','codeColumn',
                                 'dateFormat','decimalSeparator','localPersonId','assignmentReason'}
                     if not isinstance(raw,dict) or not required.issubset(raw) or set(raw)-required-{'timezone','codeSystem'}:

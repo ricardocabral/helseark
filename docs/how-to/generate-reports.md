@@ -61,7 +61,11 @@ Cancelled/entered-in-error observations remain explicitly visible for audit.
 The timeline is the current graph, not every historical revision; source report
 result references and query revision-mismatch issues remain visible. Use
 [query history](query-history.md) for historical Heads and complete native records.
-Broader clinical-history presentation is outside this renderer's current contract.
+The native timeline includes the eight supported history families, with status,
+unknowns, native fields and evidence retained. `report.svg` is a standalone textual
+factual figure of those same native assertions and citations. It adds no numeric
+axes, aggregation or inferred comparability. HTML is the complete accessible
+structured view; the SVG contains no scripts or embedded original sources.
 
 Source links identify exact accepted evidence file/entry pointers with evidence
 and original source digests and source DocumentReference revisions. Open the JSON

@@ -5,6 +5,7 @@ A report directory is published once; delete it explicitly before rebuilding.
 """
 from dataclasses import fields
 import csv
+import textwrap
 from html import escape
 from io import StringIO
 from pathlib import Path
@@ -93,11 +94,35 @@ def _render(vault, person, publication):
             '<p>Derived view of accepted records. Human review remains mandatory for imports. '
             'No medical interpretation, conversion, aggregation, or comparability is inferred. Equal labels may have incompatible units, methods, specimens, dates or ranges. '
             'Cancelled and entered-in-error results are shown for audit, never as valid trend points. Missing values are not zero.</p>'
-            '<p><a href="observations.csv">Observation CSV</a> neutralizes formula cells with an apostrophe. '
+            '<p><a href="report.svg">Source-cited factual SVG</a>. <a href="observations.csv">Observation CSV</a> neutralizes formula cells with an apostrophe. '
             'Structured fields use exact JSON. Local source links identify evidence entries and source hashes; '
             'inspect their locators/quotes in the vault. No source blobs are copied. Links require the original vault location; '
             'this report is sensitive data, not a portable archive or a complete revision history.</p>'+
             ''.join(body)+'<h2>Current graph timeline</h2>'+''.join('<article>'+details(event)+'</article>' for event in events)+
             '</body></html>')
-    publication.publish(html, csv_output.getvalue())
+    # A textual SVG preserves native assertions without inventing comparable axes.
+    svg_lines = []
+    y = 28
+    def line(text, link=None):
+        nonlocal y
+        for part in textwrap.wrap(text, width=110, replace_whitespace=False, drop_whitespace=False) or ['']:
+            node = '<text x="16" y="'+str(y)+'">'+escape(part)+'</text>'
+            svg_lines.append('<a href="'+escape(link, quote=True)+'">'+node+'</a>' if link else node)
+            y += 20
+    line('Helseark factual snapshot: ' + person)
+    line('Head: ' + _text(document(base)))
+    line('Native assertions; unknowns retained. No conversion, trends or clinical interpretation.')
+    for event in events:
+        line(_text(document(event.resourceRef)))
+        line(_text(event.resource))
+        line('Time precision: ' + event.timePrecision + '; status: ' + _text(event.status))
+        for binding in event.sourceRefs:
+            link = (vault.root/binding.evidencePath).absolute().as_uri() + '#' + binding.entryPointer
+            line('Evidence: ' + binding.evidencePath + '#' + binding.entryPointer +
+                 '; source SHA-256: ' + (binding.sourceSha256 or 'unknown'), link)
+    svg = ('<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="'+str(y+16)+
+           '" viewBox="0 0 1100 '+str(y+16)+'" role="img" aria-label="Source-cited native clinical assertions">'
+           '<title>Helseark factual snapshot</title><g font-family="monospace" font-size="14">'+
+           ''.join(svg_lines)+'</g></svg>')
+    publication.publish(html, csv_output.getvalue(), svg)
     return destination/'index.html'
