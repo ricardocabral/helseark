@@ -51,7 +51,7 @@ sys.addaudithook(audit)
 tasks = list_agent_tasks(root)
 assert {t.id for t in tasks} == {'inspect','import','query','correct','export','verify','migrate'}
 assert next(t for t in tasks if t.id=='inspect').availability.status == 'available'
-assert all(t.availability.missingCapabilities for t in tasks if t.id not in ('inspect','query','export','verify'))
+assert all(t.availability.missingCapabilities for t in tasks if t.id not in ('inspect','query','correct','export','verify'))
 '''
     result = subprocess.run([sys.executable, '-c', script, str(kit(vault))], capture_output=True)
     assert result.returncode == 0, result.stderr

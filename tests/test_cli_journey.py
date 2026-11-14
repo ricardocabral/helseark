@@ -169,3 +169,37 @@ def test_query_cli_rejects_offset_normalization(corpus):
         assert result.returncode == 2
         assert decode_json(result.stderr)['code'] == 'INVALID_FILTER'
         assert not result.stdout
+
+def test_correction_removal_restore_public_journey(tmp_path):
+    from test_corrections import accepted
+    from helseark.serialization import decode_json, encode_json
+    from helseark.archive import head, _files, _read
+    from helseark.serialization import hash_bytes
+    from pathlib import Path
+    v,p,old=accepted(tmp_path)
+    other=next(path.name for path in (v.root/'people').iterdir() if path.name!=p)
+    other_root=v.root/'people'/other
+    unchanged={path:hash_bytes(_read(other_root,path)) for path in _files(other_root)}
+    def cli(*args):
+        result=run('--vault',v.root,*args,'--json')
+        assert result.returncode==0,result.stderr
+        return decode_json(result.stdout)
+    draft=cli('correct','--person',p,'--resource',f"Observation/{old['id']}",'--reason','transcription: human checked source')
+    path=Path(draft['path'])
+    prepared=cli('candidate','prepare',path,'--person',p)
+    view=cli('candidate','review',prepared['path'],'--person',p)
+    decision=tmp_path/'decision.json'
+    decision.write_bytes(encode_json({'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations','reviewerLabel':'Synthetic human',
+        'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Checked original synthetic source'} for i in view['issues'] if i['severity'] in ('review','warning')]}))
+    cli('candidate','review',prepared['path'],'--person',p,'--decision',decision)
+    cli('candidate','commit',prepared['path'],'--person',p)
+    cli('observations','--person',p)
+    backup=cli('backup','create','--out',tmp_path/'backup')
+    assert backup['peopleCount']==2 and backup['resourceCount']>2
+    plan=cli('erase','plan','--person',p,'--quarantine',tmp_path/'quarantine','--out',tmp_path/'plan.json')
+    cli('erase','apply',tmp_path/'plan.json','--approve',plan['digest'])
+    assert not (v.root/'people'/p).exists()
+    cli('erase','restore',tmp_path/'quarantine','--approve',plan['digest'])
+    assert head(v,p).changeSha256==plan['baseHeads'][p]['changeSha256']
+    assert {path:hash_bytes(_read(other_root,path)) for path in _files(other_root)}==unchanged
+    assert cli('doctor')['issues']==[]

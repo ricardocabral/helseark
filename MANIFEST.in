@@ -1,0 +1,7 @@
+include LICENSE NOTICE SECURITY.md CONTRIBUTING.md AGENTS.md CLAUDE.md
+include tests/fixture-manifest.json tests/family_oracle.py
+recursive-include tests/fixtures *.json *.md *.txt *.pdf *.csv *.py
+recursive-include examples/synthetic-family *.md *.json *.py
+prune docs/internal
+prune .worktrees
+recursive-include scripts *.py

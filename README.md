@@ -18,7 +18,7 @@ scoped external-agent handoffs. Human-controlled preparation, exact-issue review
 and publication of PDF candidates are implemented, along with selected-person
 observations, timeline and exact-revision queries. Doctor, verified backup/restore
 and person export are implemented; PDF source disclosure requires a separate
-reviewed route and remains blocked. Structured import, correction and migration
+reviewed route and remains blocked. Corrections and recoverable person removal are implemented; structured import and migration
 remain unavailable. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
 

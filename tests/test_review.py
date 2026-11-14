@@ -455,3 +455,11 @@ def test_exact_duplicate_issue_semantics_and_report_binding():
     unique=replace(report,issues=(issue,issue))
     normalized=_decision(unique,replace(decision,acknowledgedIssues=(dict(code='LIMIT',resourceRef=None,reason='Fixture selection'),)))
     assert len(normalized)==1 and normalized[0]['issueId']==_review_issues(unique)[0]['issueId']
+def test_missing_unaccepted_review_is_explicitly_review_needed(tmp_path):
+    from helseark.intake import prepare_candidate
+    from test_cli_journey import run
+    v,p,_,_,c=supplied_candidate(tmp_path)
+    proposal=prepare_candidate(v,c)
+    child=run('--vault',v.root,'candidate','commit',proposal.path,'--person',p,'--json')
+    assert child.returncode==3 and b'REVIEW_REQUIRED' in child.stderr
+    assert head(v,p).sequence==1

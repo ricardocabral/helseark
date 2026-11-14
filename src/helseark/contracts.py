@@ -431,3 +431,25 @@ class ExportReceipt:
     resourceCount: int
     assetCount: int
     omissions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ErasurePlan:
+    digest: Sha256
+    personId: PersonId
+    baseHeads: dict[str, Head | None]
+    canonicalPaths: tuple[str, ...]
+    workPaths: tuple[str, ...]
+    derivedPaths: tuple[str, ...]
+    quarantineDestination: Path
+    knownExternalCopies: tuple[str, ...]
+    limitations: tuple[str, ...]
+    vaultId: str
+    inventory: dict[str, Sha256]
+
+
+@dataclass(frozen=True)
+class ErasureReceipt:
+    quarantinePath: Path
+    removedActivePaths: tuple[str, ...]
+    remainingKnownCopies: tuple[str, ...]

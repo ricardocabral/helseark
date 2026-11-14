@@ -879,6 +879,32 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-export.schema",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/correct-record.md",
+          "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
+          "size": 2198
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-correct-record",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/manage-family.md",
+          "sha256": "c1d2b364d39dfb09d08e972ea6a66b6b6b08e6715fa36a778c225a2c3067d279",
+          "size": 4093
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-manage-family",
+      "version": "0.1.0"
     }
   ],
   "contractVersion": "0.1.0",
