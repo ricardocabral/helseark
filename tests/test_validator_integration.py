@@ -34,3 +34,17 @@ def test_immutable_legacy_report_and_current_schema_dispatch(tmp_path):
     current = init_vault(tmp_path/'current')
     with pytest.raises(ArchiveError, match='INVALID_ENVELOPE'):
         _schema(current, 'validation', decode_json((accepted/'validation.json').read_bytes()))
+
+
+def test_invalid_review_authority_returns_typed_contract_error(tmp_path):
+    from test_intake import supplied_candidate
+    from test_review import prepare, approve
+    vault, _, _, _, candidate = supplied_candidate(tmp_path)
+    prepared = prepare(vault, candidate)
+    receipt = approve(vault, prepared)
+    malformed = decode_json(receipt.path.read_bytes())
+    malformed['officialValidationAuthority'] = None
+    # Resolve the real local authority contract and reject the invalid value.
+    # This exercises schema failure handling, not validator conformance.
+    with pytest.raises(ArchiveError, match='INVALID_ENVELOPE'):
+        _schema(vault, 'review', malformed)

@@ -806,8 +806,8 @@
       "files": [
         {
           "path": "schemas/0.1.1/review.schema.json",
-          "sha256": "f79aeff10aa548b787e9afed6fafbc4b5df2264610f2b49c26e817e67b288f14",
-          "size": 2418
+          "sha256": "77445cc22d0fbc68d3d69ffd0ce2d623af90425e9836016b65b05f1edbb41958",
+          "size": 7933
         }
       ],
       "license": "MIT",
