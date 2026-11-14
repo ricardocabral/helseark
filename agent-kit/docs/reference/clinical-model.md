@@ -354,3 +354,9 @@ Preserve occurrenceDateTime precision or occurrenceString for unknown dates. Kee
 Source assertions use `subject` for the selected Patient. Supported native fields: `identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode`. Timeline uses ('performedDateTime', 'performedPeriod', 'performedString', 'performedAge', 'performedRange'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
 
 Preserve performed choices, source status/reason, body site and outcome. Not-done/stopped does not prove completion, and a missing performed time stays unknown.
+
+### Encounter (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf`. Timeline uses ('period',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Preserve class, status/statusHistory and period. Cancelled/planned encounters are not proof of a completed visit. Do not use an encounter period as an observation measurement time.

@@ -38,13 +38,14 @@ _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/hels
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
 # Added resource profiles are versioned independently of the frozen original six.
-_HISTORY = {'Procedure': 'procedure', 'Immunization': 'immunization', 'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
+_HISTORY = {'Encounter': 'encounter', 'Procedure': 'procedure', 'Immunization': 'immunization', 'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
 _SLUGS['MedicationStatement'] = 'medication-statement'
 _SLUGS['MedicationRequest'] = 'medication-request'
 _SLUGS['Condition'] = 'condition'
 _SLUGS['AllergyIntolerance'] = 'allergy-intolerance'
 _SLUGS['Immunization'] = 'immunization'
 _SLUGS['Procedure'] = 'procedure'
+_SLUGS['Encounter'] = 'encounter'
 _PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
 
 _PATIENT_FIELDS['MedicationStatement'] = 'subject'
@@ -58,6 +59,8 @@ _PATIENT_FIELDS['AllergyIntolerance'] = 'patient'
 _PATIENT_FIELDS['Immunization'] = 'patient'
 
 _PATIENT_FIELDS['Procedure'] = 'subject'
+
+_PATIENT_FIELDS['Encounter'] = 'subject'
 
 def _profile(kind):
     return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
@@ -79,9 +82,11 @@ _FIELDS = {
     'AllergyIntolerance': 'identifier clinicalStatus verificationStatus type category criticality code patient encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString recordedDate recorder asserter lastOccurrence note reaction',
     'Immunization': 'identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied',
     'Procedure': 'identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode',
+    'Encounter': 'identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('Encounter', 'status'): 'planned arrived triaged in-progress onleave finished cancelled entered-in-error unknown',
     ('Procedure', 'status'): 'preparation in-progress not-done on-hold stopped completed entered-in-error unknown',
     ('Immunization', 'status'): 'completed entered-in-error not-done',
     ('MedicationRequest', 'status'): 'active on-hold cancelled completed entered-in-error stopped draft unknown',
@@ -527,6 +532,10 @@ class _Checks:
             for index, education in enumerate(r.get('education', [])):
                 if not education.get('documentType') and not education.get('reference'):
                     self.issue('FHIR_REQUIRED', '/education/' + str(index), key)
+        if kind == 'Encounter':
+            for index, state in enumerate(r.get('statusHistory', [])):
+                if state.get('status') not in _STATUSES[('Encounter','status')].split():
+                    self.issue('FHIR_STATUS_INVALID', '/statusHistory/' + str(index) + '/status', key)
         if kind == 'Observation':
             self.observation(r, '', key)
             for i, component in enumerate(r.get('component', [])):

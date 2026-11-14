@@ -1,0 +1,60 @@
+[
+  {
+    "status": "finished",
+    "class": {
+      "system": "urn:synthetic:encounter",
+      "code": "outpatient",
+      "display": "Synthetic outpatient"
+    },
+    "period": {
+      "start": "2026-06-01",
+      "end": "2026-06-02"
+    },
+    "reasonCode": [
+      {
+        "text": "Source reason, no inferred condition"
+      }
+    ],
+    "statusHistory": [
+      {
+        "status": "in-progress",
+        "period": {
+          "start": "2026-06-01",
+          "end": "2026-06-02"
+        }
+      }
+    ],
+    "resourceType": "Encounter",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-encounter|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "cancelled",
+    "class": {
+      "system": "urn:synthetic:encounter",
+      "code": "unknown"
+    },
+    "reasonCode": [
+      {
+        "text": "Cancelled encounter; no visit date documented"
+      }
+    ],
+    "resourceType": "Encounter",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-encounter|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

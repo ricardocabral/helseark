@@ -197,3 +197,10 @@ def test_immunization_date_is_not_inferred_from_age(good):
     _,entries=candidate_for(vault,candidate,'Immunization')
     del entries[0]['resource']['occurrenceDateTime'];persist(candidate)
     assert 'FHIR_REQUIRED' in {i.code for i in validate_candidate(vault,candidate).issues}
+
+
+def test_encounter_status_history_is_not_free_text(good):
+    vault,candidate=good
+    _,entries=candidate_for(vault,candidate,'Encounter')
+    entries[0]['resource']['statusHistory'][0]['status']='invented-status';persist(candidate)
+    assert 'FHIR_STATUS_INVALID' in {i.code for i in validate_candidate(vault,candidate).issues}
