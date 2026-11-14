@@ -1,0 +1,92 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-condition",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-condition",
+  "version": "0.2.0",
+  "name": "HelsearkCondition",
+  "title": "Helseark Condition",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Condition",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Condition",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Condition",
+        "path": "Condition",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-condition|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "Condition.id",
+        "path": "Condition.id",
+        "min": 1
+      },
+      {
+        "id": "Condition.meta",
+        "path": "Condition.meta",
+        "min": 1
+      },
+      {
+        "id": "Condition.implicitRules",
+        "path": "Condition.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Condition.contained",
+        "path": "Condition.contained",
+        "max": "0"
+      },
+      {
+        "id": "Condition.extension",
+        "path": "Condition.extension",
+        "max": "0"
+      },
+      {
+        "id": "Condition.modifierExtension",
+        "path": "Condition.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Condition.verificationStatus",
+        "path": "Condition.verificationStatus",
+        "min": 1
+      },
+      {
+        "id": "Condition.code",
+        "path": "Condition.code",
+        "min": 1
+      },
+      {
+        "id": "Condition.subject",
+        "path": "Condition.subject",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Condition.subject.reference",
+        "path": "Condition.subject.reference",
+        "min": 1
+      }
+    ]
+  }
+}

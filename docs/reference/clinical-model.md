@@ -327,3 +327,12 @@ Source assertions use `subject` for the selected Patient. Supported native field
 ### MedicationRequest (profile 0.2.0)
 
 Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason intent category priority doNotPerform reportedBoolean medicationCodeableConcept subject encounter supportingInformation authoredOn requester reasonCode reasonReference instantiatesCanonical instantiatesUri basedOn groupIdentifier courseOfTherapyType insurance note dosageInstruction dispenseRequest substitution priorPrescription detectedIssue eventHistory`. Timeline uses ('authoredOn',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+### Condition (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier clinicalStatus verificationStatus category severity code bodySite subject encounter onsetDateTime onsetAge onsetPeriod onsetRange onsetString abatementDateTime abatementAge abatementPeriod abatementRange abatementString recordedDate recorder asserter stage evidence note`. Timeline uses ('onsetDateTime', 'onsetPeriod', 'onsetAge', 'onsetRange', 'onsetString'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+Keep Condition verificationStatus (unconfirmed/provisional/differential, refuted,
+confirmed) separate from clinicalStatus. Retain onset and recordedDate independently.
+Refuted assertions remain visible; there is no inferred active-diagnosis summary.
+Contradictory entered-in-error/clinical status and abatement/active status block acceptance.

@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "1f82dbec29fd6f4f6f90456c5551a4c545f477a9efe169783593b2675999ee2d",
-          "size": 23185
+          "sha256": "d755b9aa765a114628ab6dbebc6aaba122663a55052002766a6697f83d1d450b",
+          "size": 24187
         }
       ],
       "license": "Apache-2.0",
@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "profiles/r4/0.2.0/README.md",
-          "sha256": "4e85da39a178dec1de155c0898ed403f66ae6e1310ac944e6ddd3f3725c6c712",
-          "size": 929
+          "sha256": "0542b9d0e76c894d72a7af0389b031dc1f7f0497bd6cbf740b2656f45ff326e7",
+          "size": 1419
         }
       ],
       "license": "Apache-2.0",
@@ -917,6 +917,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-StructureDefinition-helseark-medication-request",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "profiles/r4/0.2.0/StructureDefinition-helseark-condition.json",
+          "sha256": "65f5fb49a6e43f4e9c11472df877715ef83ff685a6ba86234c8e21a1b2fa150c",
+          "size": 2619
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-StructureDefinition-helseark-condition",
       "version": "0.1.0"
     }
   ],

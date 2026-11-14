@@ -154,3 +154,16 @@ def test_profile_and_fixture_are_r4_resources(kind):
     for p in (root/'profiles/r4/0.2.0').glob('StructureDefinition-*.json'):
         profile=json.loads(p.read_text());validator.validate(profile)
         assert len(profile['differential']['element'])>5
+
+
+def test_condition_status_conflicts_are_not_confirmed_diagnoses(good):
+    vault,candidate=good
+    _,entries=candidate_for(vault,candidate,'Condition')
+    r=entries[0]['resource']
+    r['verificationStatus']['coding'][0]['code']='entered-in-error'
+    persist(candidate)
+    assert 'CONDITION_STATUS_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}
+    r['verificationStatus']['coding'][0]['code']='confirmed'
+    r['abatementString']='Source states resolved'
+    persist(candidate)
+    assert 'CONDITION_STATUS_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}
