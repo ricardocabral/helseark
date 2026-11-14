@@ -715,8 +715,8 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "a056de78bf9a8fe80861f97925284873449b8632363a5db4f5bf996d604190b5",
-          "size": 21516
+          "sha256": "2cf2f38da23e253e741ace860a76d0a3decf4a890b5497ba95aad7c75ca303cd",
+          "size": 21520
         }
       ],
       "license": "Apache-2.0",

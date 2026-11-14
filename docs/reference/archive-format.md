@@ -154,7 +154,7 @@ This foundation inherits clinical review limitations pending corrected-foundatio
 integration, including incomplete prior-resource comparisons and issue binding.
 Receipt integrity does not establish review effectiveness, extraction accuracy,
 medical correctness or production qualification. See [evaluated results and
-limits](../explanation/evaluated-results.md).
+limits](../explanation/evaluation-and-limits.md).
 
 Assets retained by intake/preparation are person-local at
 `assets/sha256/<digest>/blob`. Their entries contain SHA-256, byte size, media
