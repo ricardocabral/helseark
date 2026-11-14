@@ -232,7 +232,9 @@ pdf-intake, candidate-read, reviewed-publication, clinical-query, person-export
 and integrity-report. Runtime discovery derives availability from these actual
 implementations; instruction presence alone does not enable a workflow.
 Reviewed publication is human-controlled; import's structured-import dependency,
-correction, migration, OCR, terminology and the official validator remain unavailable.
+correction, migration, terminology and the official validator remain unavailable.
+[Local OCR](../how-to/run-ocr.md) is an explicit optional host intake step; task
+availability never implies native tools/models are installed or accuracy is proven.
 [Portability](../how-to/backup-and-restore.md) supplies doctor/backup/restore;
 [export](../how-to/export-records.md) supplies selected-person snapshots with
 explicit reference mapping and a conservative PDF source-scope gate. Agent reports

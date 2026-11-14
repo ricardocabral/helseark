@@ -87,7 +87,7 @@ parser resource controls are not a source transformation. Model is explicitly
 null. The receipt's immutable `issues` tuple includes `PDF_TEXT_REVIEW` for every
 successful document. Each empty/whitespace-only page adds `OCR_REQUIRED` with a
 zero-based JSON pointer into the retained pages array. Scans yield empty text,
-not invented results. OCR is a separate later integration. Blank pages are also
+not invented results. OCR is a [separate optional integration](../how-to/run-ocr.md). Blank pages are also
 flagged conservatively; absence of this issue does not prove completeness.
 
 No bounding boxes are emitted. Any future boxes must follow

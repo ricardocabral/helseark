@@ -1,0 +1,252 @@
+{
+  "authorship": "Hand-authored synthetic facts and original displayed-page row regions. Not engine output.",
+  "cases": [
+    {
+      "name": "scan",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "Avery Synthetic",
+          "region": [
+            0.05,
+            0.05,
+            0.6,
+            0.09
+          ]
+        },
+        {
+          "text": "1.20",
+          "region": [
+            0.05,
+            0.12,
+            0.6,
+            0.16
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.05,
+            0.19,
+            0.6,
+            0.23
+          ]
+        }
+      ]
+    },
+    {
+      "name": "rotated",
+      "rotation": 270,
+      "facts": [
+        {
+          "text": "Avery Synthetic",
+          "region": [
+            0.9,
+            0.05,
+            0.96,
+            0.6
+          ]
+        },
+        {
+          "text": "1.20",
+          "region": [
+            0.83,
+            0.05,
+            0.89,
+            0.6
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.76,
+            0.05,
+            0.82,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "Avery Synthetic",
+          "region": [
+            0.05,
+            0.05,
+            0.6,
+            0.09
+          ]
+        },
+        {
+          "text": "Morgan Synthetic",
+          "region": [
+            0.05,
+            0.19,
+            0.65,
+            0.23
+          ]
+        },
+        {
+          "text": "9.80",
+          "region": [
+            0.05,
+            0.25,
+            0.65,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "noisy",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "1.20",
+          "region": [
+            0.05,
+            0.12,
+            0.6,
+            0.16
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.05,
+            0.19,
+            0.6,
+            0.23
+          ]
+        }
+      ]
+    },
+    {
+      "name": "decimal-confusion",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "1.20",
+          "region": [
+            0.05,
+            0.12,
+            0.65,
+            0.16
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.05,
+            0.19,
+            0.65,
+            0.23
+          ]
+        },
+        {
+          "text": "O.05",
+          "region": [
+            0.05,
+            0.25,
+            0.65,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "name": "missing-glyph",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "1.20",
+          "region": [
+            0.05,
+            0.12,
+            0.65,
+            0.16
+          ],
+          "unrecoverable": true
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.05,
+            0.19,
+            0.65,
+            0.23
+          ]
+        }
+      ]
+    },
+    {
+      "name": "table-spill",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "1.20",
+          "region": [
+            0.4,
+            0.19,
+            0.65,
+            0.23
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.4,
+            0.25,
+            0.65,
+            0.3
+          ]
+        },
+        {
+          "text": "40.00",
+          "region": [
+            0.4,
+            0.32,
+            0.65,
+            0.37
+          ]
+        }
+      ]
+    },
+    {
+      "name": "mixed-text-image",
+      "rotation": 0,
+      "facts": [
+        {
+          "text": "Text layer: synthetic scan",
+          "region": [
+            0.05,
+            0.005,
+            0.7,
+            0.04
+          ]
+        },
+        {
+          "text": "1.20",
+          "region": [
+            0.05,
+            0.12,
+            0.6,
+            0.16
+          ]
+        },
+        {
+          "text": "<0,05",
+          "region": [
+            0.05,
+            0.19,
+            0.6,
+            0.23
+          ]
+        }
+      ]
+    }
+  ]
+}

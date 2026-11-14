@@ -1,0 +1,2 @@
+recursive-include tests/fixtures/synthetic/ocr *.pdf *.md *.py
+include tests/fixtures/expected/ocr-facts.json

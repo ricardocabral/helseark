@@ -125,3 +125,16 @@ operator-declared installed commit, actual wheel digest/interpreter/package path
 and original CLI construction digest, with modelResult null until a real run.
 Install the named wheel first; the preparation script does not verify a Git
 checkout or turn an operator declaration into an installation attestation.
+
+## Optional OCR versions
+
+`build_packet(..., ocrConfig=OcrConfig(...))` explicitly opts into the separate
+[local OCR capability](../how-to/run-ocr.md). `intake add --ocr-config PATH` reads
+that operator-controlled configuration. Without it, PDF-text behavior is unchanged.
+OCR artifacts and receipts are immutable and selected by extraction hash; they
+never replace the source's existing PDF-text extraction receipt. OCR derivatives
+are retained in the person's asset inventory and reviewed proposal closure.
+OCR allows genuine word boxes in displayed CropBox coordinates; page-only
+PDF-text artifacts still reject invented boxes. All OCR pages remain unresolved
+with mandatory OCR_VISUAL_REVIEW. Re-extraction/reconciliation, exact numeric
+source tokens, patient scope, review and publication use the existing contracts.
