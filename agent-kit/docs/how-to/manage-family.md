@@ -37,3 +37,31 @@ when known. Pre-existing/unknown copies, external agent logs, manually copied fi
 snapshots, SSD remnants and shared exports can remain. This tool neither scans
 all disks nor guarantees their erasure. There is no automatic purge command.
 Individual-record hard erasure and automatic person merge are unsupported.
+
+## Namespace failures and recovery limits
+
+Apply and restore hold no-follow directory authorities for source and destination
+ancestors and verify selected object identity and byte inventory before each
+native no-replace rename. A changed ancestor or replacement selected object
+observed before that move is rejected. Competing destinations are preserved.
+Destination subdirectories and the initial synced plan journal are created through
+held directory descriptors, rather than traversing a substituted symlink.
+
+An error is **not proof that nothing moved**. Earlier moves, a process death, or
+an ancestor renamed during the native syscall can leave approved bytes in a
+partially completed operation. Descriptor-relative rename cannot redirect those
+bytes through a replacement parent symlink, but the original held parent may now
+have a different filesystem name. Preserve the active tree, planned quarantine,
+`plan.json`, and any renamed original ancestors. Inspect their actual locations
+and hashes before explicitly restoring the original namespace and retrying the
+same plan. The tool never deletes or quarantines a competing/unrelated object to
+make recovery succeed.
+
+Use local OS permissions and cooperating writers. POSIX no-replace rename has no
+atomic “move only if the source inode still equals this value” condition. A
+noncooperating same-owner process can still replace the final source name between
+the last identity check and the syscall, modify opened files, or rename a held
+ancestor itself. An arbitrary vault/host owner can also rewrite plans/history.
+The held descriptors, pre-move checks and quarantine journal correct ancestor
+redirection and observed replacement failures; they do not provide owner-proof
+security or a universal power-loss guarantee. Stop such writers before recovery.

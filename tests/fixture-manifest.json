@@ -516,8 +516,8 @@
     },
     {
       "path": "examples/synthetic-family/README.md",
-      "sha256": "30c303886de05b1846b8cb41cdfa026adef6f550b0c19b621e0fe3ce0bd771c7",
-      "size": 1088,
+      "sha256": "1f890b2cd73d899354c3b661fa2a2113827f541d9d1007d2adf7561357b56de3",
+      "size": 3146,
       "synthetic": true,
       "license": "Apache-2.0",
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
@@ -529,6 +529,14 @@
       "synthetic": true,
       "license": "CC0-1.0",
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output."
+    },
+    {
+      "path": "examples/synthetic-family/generate.py",
+      "synthetic": true,
+      "license": "Apache-2.0",
+      "provenance": "Repository-authored executable invented family example; no model or real health data.",
+      "sha256": "aed06f772566d710a253be3d7381257ec7b968bf5421908ff1c0e020b31a17ea",
+      "size": 7969
     }
   ]
 }

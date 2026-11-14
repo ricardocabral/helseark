@@ -1,5 +1,6 @@
 """Synthetic local correction facts; predetermined candidates are not accuracy evidence."""
 from decimal import Decimal
+from family_oracle import check_case
 import pytest
 from test_intake import supplied_candidate
 from test_review import approve
@@ -39,12 +40,19 @@ def test_transcription_and_error_preserve_history_and_native_revision(tmp_path):
     assert resolve(v,p,ResourceRef('Observation',old['id'],old['meta']['versionId']))==old
     provenance=next(r for r in iter_current(v,p) if r['resourceType']=='Provenance' and any(e['role']=='revision' and e['what']['reference'].endswith(old['meta']['versionId']) for e in r['entity']))
     assert provenance['target']
+    check_case('transcription',{'clinicalStatus':current['status'],
+        'valueLexeme':str(current['valueQuantity']['value']),
+        'history':'retained' if resolve(v,p,ResourceRef('Observation',old['id'],old['meta']['versionId']))==old else 'changed'},
+        ['native-revision-provenance','explicit-human-review','decimal-scale'])
     c=start_correction(v,p,ref,'entered-in-error: assigned result was invalid')
     next(e['resource'] for e in c.bundle['entry'] if e['resource']['resourceType']=='Observation')['status']='entered-in-error'
     (c.path/'bundle.json').write_bytes(encode_json(c.bundle))
     proposal=prepare_candidate(v,read_candidate(v,c.path));commit_candidate(v,proposal,approve(v,proposal))
     assert all(r.resourceRef.id!=old['id'] for r in observations(v,p,ObservationFilter()))
     assert any(r.resourceRef.id==old['id'] for r in observations(v,p,ObservationFilter(includeInvalidated=True)))
+    check_case('entered-in-error',{'defaultTrendContainsTarget':any(r.resourceRef.id==old['id'] for r in observations(v,p,ObservationFilter())),
+        'history':'retained' if resolve(v,p,ResourceRef('Observation',old['id'],old['meta']['versionId']))==old else 'changed'},
+        ['status-filter','immutable-history'])
 
 
 def test_transcription_cannot_claim_laboratory_amendment(tmp_path):
@@ -87,6 +95,11 @@ def test_new_laboratory_source_explicit_mapping(tmp_path):
     assert resolve(v,p,ResourceRef('Observation',old['id']))['status']=='amended'
     assert resolve(v,p,ResourceRef('Observation',old['id'],old['meta']['versionId']))==old
     assert new.assetPath.read_bytes()==file.read_bytes() and source.assetPath.exists()
+    native=next(r for r in iter_current(v,p) if r['resourceType']=='Provenance' and any(e['role']=='revision' and e['what']['reference'].endswith(old['meta']['versionId']) for e in r['entity']))
+    assert any(e['role']=='source' for e in native['entity'])
+    check_case('laboratory-amendment',{'clinicalStatus':resolve(v,p,ResourceRef('Observation',old['id']))['status'],
+        'newSourceRequired':new.sourceSha256!=source.sourceSha256},
+        ['source-hash','explicit-correspondence','native-revision-provenance'])
 
 
 def test_stale_report_warning_and_cancellation_do_not_cascade(tmp_path):
@@ -114,6 +127,7 @@ def test_stale_report_warning_and_cancellation_do_not_cascade(tmp_path):
     commit_candidate(v,proposal,approve(v,proposal))
     assert resolve(v,p,ResourceRef('DiagnosticReport',report['id']))==old_report
     assert any(i.code=='REPORT_RESULT_REVISION_MISMATCH' for row in timeline(v,p) for i in row.issues)
+    children={r['id']:r for r in iter_current(v,p) if r['resourceType']=='Observation'}
     c=start_correction(v,p,ResourceRef('DiagnosticReport',report['id']),'cancellation: human recorded withdrawal')
     next(e['resource'] for e in c.bundle['entry'] if e['resource']['resourceType']=='DiagnosticReport')['status']='cancelled'
     (c.path/'bundle.json').write_bytes(encode_json(c.bundle))
@@ -122,3 +136,6 @@ def test_stale_report_warning_and_cancellation_do_not_cascade(tmp_path):
     commit_candidate(v,proposal,approve(v,proposal))
     assert resolve(v,p,child)['status']=='final'
     assert resolve(v,p,ResourceRef('DiagnosticReport',report['id']))['status']=='cancelled'
+
+    check_case('cancelled-report',{'cascadeChildren':any(resolve(v,p,ResourceRef('Observation',id))!=before for id,before in children.items())},
+        ['explicit-disposition-review','stale-parent-warning'])

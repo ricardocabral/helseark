@@ -871,8 +871,8 @@
       "files": [
         {
           "path": "docs/how-to/manage-family.md",
-          "sha256": "589e1e96593414df91553d5e0ff8c07bc804a2040b77d2a93688c3266cd0c27d",
-          "size": 2278
+          "sha256": "c1d2b364d39dfb09d08e972ea6a66b6b6b08e6715fa36a778c225a2c3067d279",
+          "size": 4093
         }
       ],
       "license": "Apache-2.0",

@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "e34737524dd6f1213e16e8a6af5b806a2378c6bf2e3f434e8943c1f2f22f8335",
+    "definitionLockSha256": "9d7eb32130e17490c50eeb61bf31c6a500507b56e0140401cd76d6a097c88aaf",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "e34737524dd6f1213e16e8a6af5b806a2378c6bf2e3f434e8943c1f2f22f8335",
+      "sha256": "9d7eb32130e17490c50eeb61bf31c6a500507b56e0140401cd76d6a097c88aaf",
       "size": 34087
     },
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "docs/how-to/manage-family.md",
-      "sha256": "589e1e96593414df91553d5e0ff8c07bc804a2040b77d2a93688c3266cd0c27d",
-      "size": 2278
+      "sha256": "c1d2b364d39dfb09d08e972ea6a66b6b6b08e6715fa36a778c225a2c3067d279",
+      "size": 4093
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -303,7 +303,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.4",
+  "kitVersion": "0.1.5",
   "prompts": [
     {
       "id": "extract-report",

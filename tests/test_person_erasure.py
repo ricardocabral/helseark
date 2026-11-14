@@ -1,5 +1,6 @@
 """Recoverable synthetic removal, including real files and interrupted moves."""
 from dataclasses import replace
+from family_oracle import check_case
 import pytest
 from helseark.archive import init_vault, add_person, head, _files, _read
 from helseark.contracts import PersonDraft, ArchiveError
@@ -25,6 +26,8 @@ def test_plan_digest_head_isolation_and_restore(tmp_path):
     assert receipt.remainingKnownCopies
     restore_person_erasure(v,receipt.quarantinePath,plan.digest)
     assert head(v,p)==plan.baseHeads[p] and hashes(other)==before
+    check_case('person-removal',{'otherPersonByteChanges':sum(before[k]!=hashes(other).get(k) for k in before),
+        'recoverable':head(v,p)==plan.baseHeads[p],'secureDeletion':False},['plan-digest','restore'])
 
 
 @pytest.mark.parametrize('mutation',['roster','person-head'])
@@ -48,14 +51,14 @@ def test_interrupted_move_is_resumable_and_restorable(tmp_path,monkeypatch):
     from helseark.serialization import encode_json
     (work/'candidate.json').write_bytes(encode_json({'personId':p}))
     plan=port.plan_person_erasure(v,p,tmp_path/'quarantine');before=hashes(v.root/'people'/p)
-    publish=port._publish
-    def fail(stage,dest):
-        if str(stage).endswith('draft'):raise OSError('synthetic boundary failure')
-        return publish(stage,dest)
-    monkeypatch.setattr(port,'_publish',fail)
-    with pytest.raises(OSError):port.apply_person_erasure(v,plan,plan.digest)
+    publish=port._erasure_move
+    def fail(move):
+        if move[1]=='draft':raise OSError('synthetic boundary failure')
+        return publish(move)
+    monkeypatch.setattr(port,'_erasure_move',fail)
+    with pytest.raises(ArchiveError,match='UNSAFE_PATH'):port.apply_person_erasure(v,plan,plan.digest)
     assert (tmp_path/'quarantine'/'plan.json').exists()
-    monkeypatch.setattr(port,'_publish',publish)
+    monkeypatch.setattr(port,'_erasure_move',publish)
     receipt=port.apply_person_erasure(v,plan,plan.digest)
     port.restore_person_erasure(v,receipt.quarantinePath,plan.digest)
     assert hashes(v.root/'people'/p)==before and work.exists()
@@ -86,13 +89,13 @@ def test_restore_after_interrupted_removal_and_refuse_collision(tmp_path,monkeyp
     work=v.root/'work'/'corrections'/'draft';work.mkdir(parents=True)
     (work/'candidate.json').write_bytes(encode_json({'personId':p}))
     plan=port.plan_person_erasure(v,p,tmp_path/'quarantine')
-    original=port._publish
-    def fail(stage,dest):
-        if stage==work:raise OSError('synthetic interruption')
-        return original(stage,dest)
-    monkeypatch.setattr(port,'_publish',fail)
-    with pytest.raises(OSError):port.apply_person_erasure(v,plan,plan.digest)
-    monkeypatch.setattr(port,'_publish',original)
+    original=port._erasure_move
+    def fail(move):
+        if move[1]==work.name:raise OSError('synthetic interruption')
+        return original(move)
+    monkeypatch.setattr(port,'_erasure_move',fail)
+    with pytest.raises(ArchiveError,match='UNSAFE_PATH'):port.apply_person_erasure(v,plan,plan.digest)
+    monkeypatch.setattr(port,'_erasure_move',original)
     port.restore_person_erasure(v,tmp_path/'quarantine',plan.digest)
     assert head(v,p)==plan.baseHeads[p] and work.exists()
 

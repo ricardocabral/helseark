@@ -6,6 +6,8 @@ Accepted resource bytes are copied independently of the derived collection.
 """
 from copy import deepcopy
 from dataclasses import asdict
+from contextlib import contextmanager, ExitStack
+import stat
 from pathlib import Path
 from tempfile import mkdtemp
 from uuid import uuid4
@@ -26,6 +28,24 @@ from .archive import (_writer_lock, _files, _read, _json, _safe, _write,
 from .query import parse_reference
 
 
+def _rename_noreplace(source_fd, source, target_fd, target):
+    """Native rename relative to held authorities; never resolves parent paths."""
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == 'darwin':
+        result = libc.renameatx_np(source_fd, os.fsencode(source), target_fd, os.fsencode(target), 4)
+    elif sys.platform.startswith('linux') and hasattr(libc, 'renameat2'):
+        result = libc.renameat2(source_fd, os.fsencode(source), target_fd, os.fsencode(target), 1)
+    else:
+        raise ArchiveError('UNSUPPORTED_VERSION', 'Atomic no-replace directory publication is unavailable on this platform.')
+    if result:
+        code = ctypes.get_errno()
+        if code in (errno.EEXIST, errno.ENOTEMPTY):
+            raise ArchiveError('DESTINATION_EXISTS', 'Destination must not exist.')
+        raise ArchiveError('IO_ERROR', 'Atomic directory publication failed; preserve both locations.')
+    os.fsync(target_fd)
+    os.fsync(source_fd)
+
+
 def _publish(stage: Path, destination: Path):
     """Atomic absent-destination rename on qualified POSIX systems."""
     libc = ctypes.CDLL(None, use_errno=True)
@@ -42,6 +62,104 @@ def _publish(stage: Path, destination: Path):
             raise ArchiveError('DESTINATION_EXISTS', 'Destination must not exist.')
         raise ArchiveError('IO_ERROR', 'Atomic directory publication failed.')
     _sync_directory(destination.parent)
+
+
+def _identity(info):
+    return info.st_dev, info.st_ino, stat.S_IFMT(info.st_mode)
+
+
+@contextmanager
+def _erasure_moves(source, target, roots, inventory):
+    """Hold every no-follow ancestor and selected object across inventory/moves.
+
+    This owns the erasure namespace invariant for apply AND restore. Retained
+    descriptors prevent parent substitution from redirecting native rename.
+    POSIX has no rename-if-source-inode primitive: same-owner writers must still
+    cooperate during the final identity-check/rename interval.
+    """
+    with ExitStack() as stack:
+        edges, directories = [], {}
+        def directory(path, *, create=False):
+            path = Path(path).absolute()
+            if '..' in path.parts:
+                raise ArchiveError('UNSAFE_PATH','Traversal is forbidden.')
+            if '/' not in directories:
+                directories['/'] = os.open('/',os.O_RDONLY | os.O_DIRECTORY)
+                stack.callback(os.close,directories['/'])
+            fd, prefix = directories['/'], Path('/')
+            for part in path.parts[1:]:
+                prefix = prefix/part
+                if str(prefix) in directories:
+                    fd = directories[str(prefix)]
+                    continue
+                try:
+                    new = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                except FileNotFoundError:
+                    if not create: raise
+                    os.mkdir(part, mode=0o700, dir_fd=fd)
+                    new = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                stack.callback(os.close, new)
+                directories[str(prefix)] = new
+                edges.append((fd, part, _identity(os.fstat(new))))
+                fd = new
+            return fd
+        moves = []
+        try:
+            for relative in roots:
+                path = source/relative
+                parent = directory(path.parent)
+                try:
+                    info = os.stat(path.name, dir_fd=parent, follow_symlinks=False)
+                except FileNotFoundError:
+                    continue  # already moved, checked by the combined inventory
+                if not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode)):
+                    raise ArchiveError('UNSAFE_PATH','Selected object is not a regular file or directory.')
+                fd = os.open(path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK |
+                             (os.O_DIRECTORY if stat.S_ISDIR(info.st_mode) else 0), dir_fd=parent)
+                stack.callback(os.close, fd)
+                if _identity(os.fstat(fd)) != _identity(info):
+                    raise ArchiveError('INTEGRITY','Selected source identity changed.')
+                destination = target/relative
+                dest_parent = directory(destination.parent,create=True)
+                expected = {p: h for p,h in inventory.items() if p==relative or p.startswith(relative+'/')}
+                moves.append((parent,path.name,fd,_identity(info),dest_parent,destination.name,
+                              tuple(edges),relative,expected))
+            yield moves
+        except OSError:
+            raise ArchiveError('UNSAFE_PATH','Erasure namespace changed; preserve active and quarantine trees.') from None
+
+
+def _erasure_move(move):
+    parent, name, fd, identity, dest_parent, dest, edges, relative, expected = move
+    for authority, component, captured in edges:
+        if _identity(os.stat(component,dir_fd=authority,follow_symlinks=False)) != captured:
+            raise ArchiveError('UNSAFE_PATH','Erasure ancestor changed; no replacement will be moved.')
+    if _identity(os.stat(name,dir_fd=parent,follow_symlinks=False)) != identity:
+        raise ArchiveError('INTEGRITY','Selected source identity changed; no replacement will be moved.')
+    found = {}
+    def inspect(opened, path):
+        if stat.S_ISDIR(os.fstat(opened).st_mode):
+            for child in os.listdir(opened):
+                info = os.stat(child,dir_fd=opened,follow_symlinks=False)
+                if not (stat.S_ISDIR(info.st_mode) or stat.S_ISREG(info.st_mode)):
+                    raise ArchiveError('UNSAFE_PATH','Unsafe selected source content.')
+                child_fd = os.open(child,os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK |
+                                   (os.O_DIRECTORY if stat.S_ISDIR(info.st_mode) else 0),dir_fd=opened)
+                try: inspect(child_fd,path+'/'+child)
+                finally: os.close(child_fd)
+        else:
+            os.lseek(opened,0,os.SEEK_SET)
+            import hashlib
+            digest = hashlib.sha256()
+            while chunk := os.read(opened,1024*1024): digest.update(chunk)
+            found[path] = digest.hexdigest()
+    inspect(fd,relative)
+    if found != expected:
+        raise ArchiveError('INTEGRITY','Selected source bytes changed before move; preserve both trees.')
+    # No-follow identity check immediately before the native, fd-relative move.
+    if _identity(os.stat(name,dir_fd=parent,follow_symlinks=False)) != identity:
+        raise ArchiveError('INTEGRITY','Selected source identity changed before move.')
+    _rename_noreplace(parent,name,dest_parent,dest)
 
 
 def _destination(destination: Path, source: Path | None = None):
@@ -529,26 +647,31 @@ def apply_person_erasure(vault: Vault, plan, approvedDigest: str):
             # Re-evaluate ownership, including newly created work after planning.
             if _erasure_scope(vault,plan.personId) != (plan.canonicalPaths,plan.workPaths,plan.derivedPaths):
                 raise ArchiveError('STALE_BASE','Disposable person scope changed after planning.')
-            from .intake import _new_directory
-            _destination(quarantine,vault.root)
-            _new_directory(quarantine)
-            _write(quarantine/'plan.json',encode_json(document(plan)))
-            _sync_tree(quarantine)
+            # Journal creation is relative to the same no-follow authority as
+            # quarantine creation, never through a newly substituted ancestor.
+            from .intake import _directory
+            parent = _directory(quarantine.parent)
+            try:
+                os.mkdir(quarantine.name,mode=0o700,dir_fd=parent)
+                opened = os.open(quarantine.name,os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,dir_fd=parent)
+                try:
+                    journal = os.open('plan.json',os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,0o600,dir_fd=opened)
+                    with os.fdopen(journal,'wb') as stream:
+                        stream.write(encode_json(document(plan)));stream.flush();os.fsync(stream.fileno())
+                    os.fsync(opened)
+                finally: os.close(opened)
+                os.fsync(parent)
+            finally: os.close(parent)
         active_scope = _erasure_scope(vault,plan.personId)
         if any(r not in roots for group in active_scope for r in group):
             raise ArchiveError('STALE_BASE','New person-owned work appeared during interrupted removal.')
-        _erasure_inventory(vault,plan,quarantine)
-        _sync_directory(quarantine.parent)
-        for relative in roots:
-            source = _safe(vault.root,relative)
-            if not source.exists(): continue
-            target = _safe(quarantine/'files',relative)
-            target.parent.mkdir(parents=True,exist_ok=True)
-            source_parent = source.parent
-            _publish(source,target)
-            _sync_directory(source_parent)
-            from .archive import _publication_boundary
-            _publication_boundary('erasure-after-move')
+        with _erasure_moves(vault.root,quarantine/'files',roots,plan.inventory) as moves:
+            _erasure_inventory(vault,plan,quarantine)
+            _sync_directory(quarantine.parent)
+            for move in moves:
+                _erasure_move(move)
+                from .archive import _publication_boundary
+                _publication_boundary('erasure-after-move')
         _erasure_inventory(vault,plan,quarantine)
         receipt = ErasureReceipt(quarantine,roots,(str(quarantine),*plan.knownExternalCopies,*plan.limitations))
         receipt_path = quarantine/'receipt.json'
@@ -569,15 +692,12 @@ def restore_person_erasure(vault: Vault, quarantine: Path, approvedDigest: str):
         raise ArchiveError('INVALID_INPUT','Quarantine location differs from its plan.')
     with _writer_lock(vault):
         roots = _erasure_check(vault,plan,approvedDigest,resuming=True)
-        _erasure_inventory(vault,plan,quarantine)
-        for relative in reversed(roots):
-            source = _safe(quarantine/'files',relative)
-            if not source.exists(): continue
-            target = _safe(vault.root,relative)
-            target.parent.mkdir(parents=True,exist_ok=True)
-            source_parent = source.parent
-            _publish(source,target)
-            _sync_directory(source_parent)
+        with _erasure_moves(quarantine/'files',vault.root,reversed(roots),plan.inventory) as moves:
+            _erasure_inventory(vault,plan,quarantine)
+            for move in moves:
+                _erasure_move(move)
+                from .archive import _publication_boundary
+                _publication_boundary('erasure-after-move')
         _erasure_inventory(vault,plan,quarantine)
         return head(vault,plan.personId)
 

@@ -244,7 +244,7 @@ def main(argv=None):
                     raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
             elif args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command in ('intake','candidate','observations','timeline','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
+            elif args.command in ('intake','candidate','observations','timeline','record','correct') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
