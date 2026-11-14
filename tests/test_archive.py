@@ -363,5 +363,142 @@ def test_corruption_identifies_affected_file_without_private_message(tmp_path):
     change.write_bytes(b'{"PRIVATE RECORD":')
     with pytest.raises(ArchiveError) as raised:
         open_vault(vault.root)
-    assert raised.value.details.get("path") == str(change)
+    assert raised.value.details.get("path") == change.relative_to(vault.root).as_posix()
     assert "PRIVATE" not in raised.value.safeMessage
+
+
+@pytest.mark.parametrize('field', ['id', 'versionId', 'transactionId', 'type', 'sha256'])
+def test_newline_tokens_never_publish(tmp_path, field):
+    vault = init_vault(tmp_path / 'vault')
+    person = add_person(vault, PersonDraft('Synthetic'))
+    payload = tmp_path / 'prepared'
+    base = update_payload(vault, person, payload)
+    proposal = decode_json((payload / 'proposal.json').read_bytes())
+    entry = proposal['resources'][0]
+    if field == 'transactionId':
+        proposal[field] += '\n'
+    else:
+        old_path = entry['path']
+        entry[field] += '\n'
+        resource = decode_json((payload / old_path).read_bytes())
+        if field == 'id':
+            resource['id'] = entry[field]
+        elif field == 'versionId':
+            resource['meta']['versionId'] = entry[field]
+        elif field == 'type':
+            resource['resourceType'] = entry[field]
+        if field in ('id', 'type'):
+            entry['path'] = f"resources/{entry['type']}-{entry['id']}.json"
+            (payload / old_path).unlink()
+        write_json(payload / entry['path'], resource)
+        if field != 'sha256':
+            entry['sha256'] = hash_bytes((payload / entry['path']).read_bytes())
+    rebind_proposal(payload, proposal)
+    with pytest.raises(ArchiveError, match='INVALID_ENVELOPE'):
+        _publish_change(vault, person, payload, base)
+    assert head(open_vault(vault.root), person) == base
+
+
+def test_newline_vault_id_cannot_open(tmp_path):
+    vault = init_vault(tmp_path / 'vault')
+    path = vault.root / 'vault.json'
+    value = decode_json(path.read_bytes())
+    value['vaultId'] += '\n'
+    write_json(path, value)
+    with pytest.raises(ArchiveError, match='INVALID_ENVELOPE'):
+        open_vault(vault.root)
+
+
+def test_exact_pinned_revision_survives_update_and_reopen(tmp_path):
+    vault = init_vault(tmp_path / 'vault')
+    person = add_person(vault, PersonDraft('Synthetic'))
+    original = resolve(vault, person, ResourceRef('Patient', person))
+    ref = ResourceRef('Patient', person, original['meta']['versionId'])
+    payload = tmp_path / 'prepared'
+    base = update_payload(vault, person, payload)
+    _publish_change(vault, person, payload, base)
+    reopened = open_vault(vault.root)
+    assert resolve(reopened, person, ref) == original
+    assert resolve(reopened, person, ResourceRef('Patient', person)) != original
+
+
+def test_ancestor_alias_allowed_but_root_alias_rejected(tmp_path):
+    container = tmp_path / 'container'
+    container.mkdir()
+    alias = tmp_path / 'alias'
+    alias.symlink_to(container, target_is_directory=True)
+    vault = init_vault(alias / 'vault')
+    person = add_person(vault, PersonDraft('Synthetic'))
+    assert head(open_vault(container / 'vault'), person) == head(open_vault(alias / 'vault'), person)
+    direct = tmp_path / 'direct'
+    direct.symlink_to(vault.root, target_is_directory=True)
+    with pytest.raises(ArchiveError, match='UNSAFE_PATH'):
+        open_vault(direct)
+
+
+@pytest.mark.parametrize('damage', ['schema', 'binding', 'inventory', 'revision', 'asset'])
+def test_integrity_diagnostics_are_opaque_relative_paths(tmp_path, damage):
+    vault = init_vault(tmp_path / 'PRIVATE ROOT')
+    person = add_person(vault, PersonDraft('PRIVATE NAME'))
+    directory = next((vault.root / 'people' / person / 'accepted').iterdir())
+    change_path = directory / 'change.json'
+    change = decode_json(change_path.read_bytes())
+    if damage == 'schema':
+        proposal = decode_json((directory / 'proposal.json').read_bytes())
+        proposal['PRIVATE FIELD'] = 'PRIVATE VALUE'
+        write_json(directory / 'proposal.json', proposal)
+    elif damage == 'binding':
+        review = decode_json((directory / 'review.json').read_bytes())
+        review['proposalSha256'] = 'a' * 64
+        write_json(directory / 'review.json', review)
+    elif damage == 'inventory':
+        (directory / 'PRIVATE EXTRA').write_text('PRIVATE CONTENT')
+    elif damage == 'revision':
+        change['resources'][0]['supersedesVersionId'] = str(uuid4())
+        write_json(change_path, change)
+    else:
+        proposal = decode_json((directory / 'proposal.json').read_bytes())
+        proposal['assets'] = [{'sha256': 'a' * 64, 'size': 1, 'mediaType': 'text/plain', 'path': 'assets/sha256/' + 'a' * 64 + '/blob'}]
+        write_json(directory / 'proposal.json', proposal)
+    with pytest.raises(ArchiveError) as raised:
+        open_vault(vault.root)
+    path = raised.value.details.get('path')
+    assert path and not Path(path).is_absolute()
+    assert 'PRIVATE' not in str(raised.value.details) + raised.value.safeMessage
+    assert (vault.root / path).exists() or damage == 'asset'
+
+
+@pytest.mark.parametrize('field', ['id', 'versionId', 'transactionId', 'type', 'sha256'])
+def test_newline_tokens_in_genesis_cannot_open(tmp_path, field):
+    vault = init_vault(tmp_path / 'vault')
+    person = add_person(vault, PersonDraft('Synthetic'))
+    path = next((vault.root / 'people' / person / 'accepted').glob('*/change.json'))
+    value = decode_json(path.read_bytes())
+    target = value if field == 'transactionId' else value['resources'][0]
+    target[field] += '\n'
+    write_json(path, value)
+    with pytest.raises(ArchiveError, match='INTEGRITY'):
+        open_vault(vault.root)
+
+
+@pytest.mark.parametrize('filename,field', [('validation.json', 'checkedProposalSha256'), ('proposal.json', 'evidenceSha256')])
+def test_binding_diagnostic_identifies_affected_envelope(tmp_path, filename, field):
+    vault = init_vault(tmp_path / 'vault')
+    person = add_person(vault, PersonDraft('Synthetic'))
+    directory = next((vault.root / 'people' / person / 'accepted').iterdir())
+    value = decode_json((directory / filename).read_bytes())
+    value[field] = 'a' * 64
+    write_json(directory / filename, value)
+    with pytest.raises(ArchiveError) as raised:
+        open_vault(vault.root)
+    expected = 'validation.json' if filename == 'validation.json' else 'evidence.json'
+    assert raised.value.details['path'] == (directory / expected).relative_to(vault.root).as_posix()
+
+
+def test_definition_corruption_reports_actual_vault_relative_path(tmp_path):
+    vault = init_vault(tmp_path / 'vault')
+    path = vault.root / 'definitions/schemas/0.1.0/proposal.schema.json'
+    path.write_bytes(b'{"PRIVATE RECORD":')
+    with pytest.raises(ArchiveError, match='DEFINITION_MISMATCH') as raised:
+        open_vault(vault.root)
+    assert raised.value.details['path'] == path.relative_to(vault.root).as_posix()

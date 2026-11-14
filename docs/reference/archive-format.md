@@ -234,3 +234,49 @@ FHIR. Stage material is retained on validation/publication failure for
 inspection. Task 2 can use the verified file-scan readers immediately and
 extend the provisional 0.1.0 envelopes before freezing them. Any schema change
 must update the definitions lock's real inventory and its vault pin.
+
+## Storage review qualifications
+
+Vault roots may have symlink ancestors (for example macOS `/tmp` points to
+`/private/tmp`). A symlink at the root itself is rejected, as are symlinks
+beneath it. Both ancestor aliases address the same vault and writer lock.
+This is a static-path policy for cooperating processes. Path checks followed
+by pathname opens do **not** protect against hostile concurrent filesystem
+mutation. Such writers remain unsupported; descriptor-relative traversal would
+be needed before claiming that protection.
+
+Stored malformed JSON, including duplicate keys and genesis files, is an
+integrity failure (exit 5). Malformed external JSON remains `INVALID_JSON`;
+invalid command/person input exits 2. Unsupported envelope contract or version
+pins are checked before supported-schema constants and exit 6, including
+genesis. No unknown version is interpreted as the current version.
+
+Errors include safe `details.path` locations relative to the vault. Known
+opaque file paths identify JSON/schema/resource/asset failures; inventory
+failures identify the affected directory when no single expected file explains
+the error. Unexpected names are omitted in favor of the nearest safe directory.
+Absolute root paths and record values are never needed in these diagnostics.
+
+Numeric acceptance explicitly includes **both** the original token limits and
+round-trip closure limits: at most 128 coefficient digits after fixed-form
+expansion and absolute effective scale at most 128. Thus `1e128`, `0e128` and
+`0.1e-128` are rejected, while `1e127`, `1e-128` and a 128-digit fractional
+coefficient are accepted exactly. This qualifies the design's originally
+independent bounds before freezing the serializer; it does not assert that all
+numbers within those original independent bounds are accepted. The 512-character
+cap is a defensive ceiling, unreachable independently under the tighter
+coefficient/scale limits. There is no separately isolated 512-character boundary
+test. Tests use Decimal precision 2 to verify that accepted values and fractional
+scale survive without rounding. Clinical source-token preservation remains
+Task 2/5 work.
+
+For distribution qualification, build with the declared `setuptools==80.9.0`,
+then rebuild the sdist outside the checkout. Install its wheel and locked runtime
+dependencies into a fresh virtual environment. Copy
+[`tests/qualify_installed.py`](../../tests/qualify_installed.py) outside the
+checkout and run it with that environment's Python, passing a fresh work path
+and the checkout path. It checks the installed module and bundled definitions,
+the installer-generated console entry point, a copied vault without runtime
+state, pinned resolution, and zero socket attempts under a verified blocking
+audit hook. This qualifies runtime offline operation after dependencies are
+installed; it does not promise installation on an empty offline machine.

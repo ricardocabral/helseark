@@ -55,3 +55,29 @@ def test_fixed_form_output_also_obeys_numeric_limits():
     with pytest.raises(ArchiveError, match="NUMERIC_LIMIT"):
         encode_json(Decimal("1e128"))
     assert decode_json(encode_json(Decimal("1e127"))) == Decimal("1e127")
+
+
+@pytest.mark.parametrize('token', ['1e128', '0e128', '0.1e-128', '9' * 129, '1e129', '1e-129'])
+def test_documented_numeric_closure_rejections(token):
+    with pytest.raises(ArchiveError, match='NUMERIC_LIMIT'):
+        decode_json(token.encode())
+    with pytest.raises(ArchiveError, match='NUMERIC_LIMIT'):
+        encode_json(Decimal(token))
+
+
+@pytest.mark.parametrize('token', ['9' * 128, '1e127', '1e-128', '-0.00', '0.' + '1' * 128, '1e' + '0' * 1021 + '1'])
+def test_documented_numeric_boundaries_preserve_value_and_scale(token):
+    from decimal import localcontext
+    with localcontext() as context:
+        context.prec = 2
+        value = decode_json(token.encode())
+        encoded = encode_json(value)
+        reread = decode_json(encoded)
+    assert reread == Decimal(token)
+    if isinstance(value, Decimal) and value.as_tuple().exponent < 0:
+        assert reread.as_tuple() == value.as_tuple()
+
+
+def test_external_malformed_json_stays_invalid_input():
+    with pytest.raises(ArchiveError, match='INVALID_JSON'):
+        decode_json(b'{"PRIVATE RECORD":')

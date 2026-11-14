@@ -14,7 +14,7 @@
             "type": "string"
           },
           "sha256": {
-            "pattern": "^[0-9a-f]{64}$",
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
             "type": "string"
           },
           "size": {
@@ -35,7 +35,7 @@
     "baseChangeSha256": {
       "anyOf": [
         {
-          "pattern": "^[0-9a-f]{64}$",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
           "type": "string"
         },
         {
@@ -44,14 +44,14 @@
       ]
     },
     "candidateSha256": {
-      "pattern": "^[0-9a-f]{64}$",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
       "type": "string"
     },
     "contractVersion": {
       "const": "0.1.0"
     },
     "evidenceSha256": {
-      "pattern": "^[0-9a-f]{64}$",
+      "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
       "type": "string"
     },
     "kind": {
@@ -63,7 +63,7 @@
       ]
     },
     "personId": {
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
       "type": "string"
     },
     "resources": {
@@ -71,20 +71,20 @@
         "additionalProperties": false,
         "properties": {
           "id": {
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
             "type": "string"
           },
           "path": {
             "type": "string"
           },
           "sha256": {
-            "pattern": "^[0-9a-f]{64}$",
+            "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
             "type": "string"
           },
           "supersedesVersionId": {
             "anyOf": [
               {
-                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
                 "type": "string"
               },
               {
@@ -93,11 +93,11 @@
             ]
           },
           "type": {
-            "pattern": "^[A-Z][A-Za-z0-9]{0,63}$",
+            "pattern": "^[A-Z][A-Za-z0-9]{0,63}(?![\\s\\S])",
             "type": "string"
           },
           "versionId": {
-            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+            "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
             "type": "string"
           }
         },
@@ -114,7 +114,7 @@
       "type": "array"
     },
     "transactionId": {
-      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
       "type": "string"
     },
     "versions": {
@@ -133,7 +133,7 @@
           "const": "0.1.0"
         },
         "definitionLockSha256": {
-          "pattern": "^[0-9a-f]{64}$",
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
           "type": "string"
         },
         "fhirVersion": {
