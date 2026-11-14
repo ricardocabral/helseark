@@ -5,3 +5,6 @@ include tests/test_source_disclosure.py
 # Keep the independent history test's retained source, candidate and oracle in sdists.
 recursive-include tests/fixtures/synthetic/clinical-history/oracle *.json *.md
 include tests/fixtures/expected/clinical-history-facts.json
+
+recursive-include tests/fixtures/synthetic/ocr *.pdf *.md *.py
+include tests/fixtures/expected/ocr-facts.json

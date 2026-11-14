@@ -19,6 +19,7 @@ Documentation = "https://github.com/ricardocabral/helseark#documentation-and-par
 
 [project.optional-dependencies]
 pdf = ["pypdf==7.0.0"]
+ocr = ["pypdf==7.0.0"]
 
 [project.scripts]
 helseark = "helseark.cli:main"
@@ -64,7 +65,7 @@ where = ["src"]
 "share/helseark/agent-kit/skills/migrate-archive" = ["agent-kit/skills/migrate-archive/SKILL.md"]
 
 
-"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md", "docs/how-to/export-records.md", "docs/how-to/backup-and-restore.md", "docs/how-to/import-structured-data.md"]
+"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md", "docs/how-to/export-records.md", "docs/how-to/backup-and-restore.md", "docs/how-to/import-structured-data.md", "docs/how-to/run-ocr.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
 
 "share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]

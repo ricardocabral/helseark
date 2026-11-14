@@ -253,9 +253,66 @@ def _extraction_files(vault, person, sources):
     return tuple(files)
 
 
+def _ocr_extraction(vault, source, digest):
+    """Resolve one immutable OCR version within the explicit person's CAS."""
+    sha256_string(digest)
+    path = _safe(vault.root, f'people/{source.personId}/assets/sha256/{digest}/blob')
+    data = _regular(path, ARTIFACT_BYTES)
+    if hash_bytes(data) != digest:
+        raise ArchiveError('INTEGRITY', 'OCR artifact bytes differ.')
+    pages = decode_json(data)
+    if (not isinstance(pages, dict) or pages.get('artifactVersion') != 'helseark-ocr-pages-1' or
+            pages.get('sourceSha256') != source.sourceSha256 or pages.get('personId') != source.personId):
+        raise ArchiveError('EXTRACTION_MISMATCH', 'OCR artifact differs from selected source/person.')
+    from .adapters.ocr import _validate_artifact
+    _validate_artifact(pages)
+    receipt = decode_json(_regular(path.parent/'extraction.json',65536))
+    if (not isinstance(receipt,dict) or set(receipt) != {'receiptVersion','pagesSha256','sourceSha256','pageCount','issues'} or
+            receipt['receiptVersion'] != 1 or receipt.get('pagesSha256') != digest or receipt.get('sourceSha256') != source.sourceSha256 or
+            receipt.get('pageCount') != len(pages['pages'])):
+        raise ArchiveError('INTEGRITY', 'OCR receipt differs from retained bytes.')
+    for derivative in pages['derivatives']:
+        blob = _safe(vault.root, f"people/{source.personId}/assets/sha256/{derivative['sha256']}/blob")
+        content = _regular(blob, ARTIFACT_BYTES)
+        if len(content) != derivative['size'] or hash_bytes(content) != derivative['sha256']:
+            raise ArchiveError('INTEGRITY', 'OCR derivative bytes differ.')
+    # Recompute review requirements; a receipt cannot waive them.
+    issues = (Issue('OCR_VISUAL_REVIEW','review',None,None,
+        'Every OCR page remains unresolved: verify original pixels, identity, missing glyphs, decimals and table rows.'),
+        *tuple(_cue_issues(pages['pages'])))
+    return receipt, pages, path, issues
+
+
+def _create_ocr(vault, source, config):
+    from .adapters.ocr import extract_ocr
+    artifact = extract_ocr(source, config)
+    data = _regular(artifact.pagesPath, ARTIFACT_BYTES)
+    if hash_bytes(data) != artifact.pagesSha256:
+        raise ArchiveError('INTEGRITY','OCR artifact differs from its receipt.')
+    pages = decode_json(data)
+    from .adapters.ocr import _validate_artifact
+    _validate_artifact(pages)
+    for derivative in pages['derivatives']:
+        content = _regular(artifact.pagesPath.parent/derivative['path'],ARTIFACT_BYTES)
+        if hash_bytes(content) != derivative['sha256']:
+            raise ArchiveError('INTEGRITY','OCR derivative differs.')
+        _asset(vault, source.personId, content)
+    path = _asset(vault, source.personId, data)
+    receipt = {'receiptVersion':1,'sourceSha256':source.sourceSha256,
+        'pagesSha256':artifact.pagesSha256,'pageCount':artifact.pageCount,
+        'issues':document(artifact.issues)}
+    stored = path.parent/'extraction.json'
+    if stored.exists():
+        if _regular(stored,65536) != encode_json(receipt):
+            raise ArchiveError('INTEGRITY','OCR receipt differs.')
+    else:
+        _write(stored,encode_json(receipt))
+    return _ocr_extraction(vault,source,artifact.pagesSha256)
+
+
 def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
                  identityConfirmed: bool = False, outputDirectory: Path | None = None,
-                 limits: IntakeLimits = LIMITS) -> ImportPacket:
+                 limits: IntakeLimits = LIMITS, ocrConfig=None) -> ImportPacket:
     """Create a real context/renderer packet; false confirmation renders report-only.
 
     The three required arguments are Task5's public interface. Optional keyword
@@ -264,6 +321,11 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     """
     if type(identityConfirmed) is not bool or not isinstance(limits, IntakeLimits):
         raise ArchiveError('INVALID_INPUT', 'Confirmation must be boolean and limits typed.')
+    if ocrConfig is not None:
+        ocr_output = Path(ocrConfig.outputDirectory).absolute()
+        work = vault.root / 'people' / source.personId / 'work'
+        if (ocr_output == vault.root or vault.root in ocr_output.parents) and work not in ocr_output.parents:
+            raise ArchiveError('UNSAFE_PATH','OCR output must be outside vault or in selected person work.')
     data = _source_bytes(vault, source)
     if len(data) > limits.sourceBytes:
         raise ArchiveError('SOURCE_TOO_LARGE', 'Source exceeds the byte limit.')
@@ -277,7 +339,12 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     with _writer_lock(vault):
         _source_bytes(vault, source)
         try:
-            receipt, pages, extraction_path, issues = _extraction(vault, source, limits)
+            receipt, pages, extraction_path, issues = (_create_ocr(vault, source, ocrConfig) if ocrConfig is not None
+                else _extraction(vault, source, limits))
+            if receipt['pageCount'] > limits.pdfPages:
+                raise ArchiveError('PAGE_LIMIT','Extraction exceeds the caller page limit.')
+            if any(len(p['text'].encode()) > limits.textFieldBytes for p in pages['pages']):
+                raise ArchiveError('TEXT_FIELD_LIMIT','Extraction exceeds the caller text limit.')
         except ArchiveError as error:
             raise ArchiveError(error.code, error.safeMessage,
                 {**error.details, 'retainedSource': document(source)}) from None
@@ -404,17 +471,28 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
         if data.startswith(b'%PDF-'):
             receipt = SourceReceipt(person, digest, len(data), 'application/pdf', path)
             _source_bytes(vault, receipt)
-            if not (path.parent / 'extraction.json').exists():
-                raise ArchiveError('INTEGRITY', 'PDF source lacks retained extraction receipt.')
-            extraction, pages, _, issues = _extraction(vault, receipt, limits)
-            retained_issues.extend(issues)
-            for entry in evidence['entries']:
-                if entry.get('sourceSha256') == digest and entry.get('kind') == 'source':
+            source_entries = [e for e in evidence['entries'] if e.get('sourceSha256') == digest and e.get('kind') == 'source']
+            versions = {e.get('locator',{}).get('extractionSha256') for e in source_entries}
+            if not versions:
+                retained_issues.extend(_extraction(vault,receipt,limits)[3])
+            for version in versions:
+                sha256_string(version)
+                artifact_path = _safe(vault.root,f'people/{person}/assets/sha256/{version}/blob')
+                value = decode_json(_regular(artifact_path,ARTIFACT_BYTES))
+                if not isinstance(value,dict):
+                    raise ArchiveError('INTEGRITY','Expected a retained PDF extraction object.')
+                is_ocr = value.get('artifactVersion') == 'helseark-ocr-pages-1'
+                extraction, pages, _, issues = (_ocr_extraction(vault,receipt,version) if is_ocr
+                    else _extraction(vault,receipt,limits))
+                retained_issues.extend(issues)
+                for entry in source_entries:
+                    if entry.get('locator',{}).get('extractionSha256') != version:
+                        continue
                     if (entry.get('extraction') != pages['extraction'] or
                             entry.get('locator', {}).get('kind') != 'pdf-page' or
-                            entry['locator'].get('extractionSha256') != extraction['pagesSha256'] or
-                            'bbox' in entry['locator']):
-                        raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained page-only extraction.')
+                            version != extraction['pagesSha256'] or
+                            ('bbox' in entry['locator'] and not is_ocr)):
+                        raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained extraction.')
     candidate = Candidate(directory, metadata['candidateId'], person, base, bundle, evidence,
         tuple(Issue(**i) for i in metadata['unresolved']))
     # Preserve exact envelope binding: mandatory intake issues must be present,
@@ -600,6 +678,12 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     for e in evidence['entries']:
         digest=e.get('locator',{}).get('extractionSha256')
         if digest: digests.add(digest)
+    ocr_versions = {e['locator']['extractionSha256'] for e in evidence['entries']
+        if e.get('extraction',{}).get('method') == 'ocr' and e.get('locator',{}).get('kind') == 'pdf-page'}
+    for digest in ocr_versions:
+        artifact = decode_json(_regular(_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/blob'),ARTIFACT_BYTES))
+        if isinstance(artifact,dict) and artifact.get('artifactVersion') == 'helseark-ocr-pages-1':
+            digests.update(d['sha256'] for d in artifact['derivatives'])
     for digest in sorted(digests):
         relative=f'assets/sha256/{digest}/blob'; data=_regular(_safe(vault.root,f'people/{fresh.personId}/{relative}'),LIMITS.sourceBytes)
         declared_media = {a['attachment']['contentType'] for r in resources if r['resourceType']=='DocumentReference'
@@ -608,7 +692,7 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         if len(declared_media)>1:
             raise ArchiveError('INVALID_INPUT','Conflicting source attachment media types.')
         assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':next(iter(declared_media),
-            'application/pdf' if data.startswith(b'%PDF-') else 'application/json')})
+            'application/pdf' if data.startswith(b'%PDF-') else 'image/x-portable-graymap' if data.startswith(b'P5\n') else 'text/tab-separated-values' if data.startswith(b'level\tpage_num\t') else 'application/json')})
         for name in ('source.json','extraction.json'):
             receipt=_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/{name}')
             if receipt.exists(): bindings.append({'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),'sha256':hash_bytes(_regular(receipt,65536))})

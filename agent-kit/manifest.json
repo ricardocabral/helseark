@@ -58,6 +58,11 @@
       "size": 4801
     },
     {
+      "path": "docs/how-to/run-ocr.md",
+      "sha256": "d8ce219fc2cf9197012b7b5b5b01d8708b432c53c1b16f7c84c16a4da02830a5",
+      "size": 8122
+    },
+    {
       "path": "docs/reference/agent-protocol.md",
       "sha256": "3056a130dda8abd9c21fac0f37cb7a6f594c4ab06ef64f969bbb34b77faa1042",
       "size": 29406
@@ -79,8 +84,8 @@
     },
     {
       "path": "docs/reference/pdf-extraction.md",
-      "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1",
-      "size": 16349
+      "sha256": "515fe7b5b75bcb1ed951c11e987ba2d86ef00b8f99b2736ff8f27d0641ff268f",
+      "size": 16376
     },
     {
       "path": "docs/reference/review.md",

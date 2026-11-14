@@ -73,6 +73,7 @@ def main(argv=None):
     ingest.add_argument('--agent-output', type=Path, help='Fresh permitted external-agent output root.')
     ingest.add_argument('--confirm-person', action='store_true', help='Explicit human assignment; source text cannot supply this.')
     ingest.add_argument('--json', action='store_true')
+    ingest.add_argument('--ocr-config', type=Path, help='Explicit pinned local OCR configuration JSON; no downloads.')
     structured = intakes.add_parser('fhir-r4', help='Map a retained R4 export using explicit local Patient/provider configuration.')
     structured.add_argument('source', type=Path)
     structured.add_argument('--person', required=True)
@@ -292,6 +293,14 @@ def main(argv=None):
                 else:
                     output = resolve(vault,args.person,parse_reference(args.resource),at=at)
             elif args.command == 'intake':
+                ocr_config = None
+                if getattr(args, 'ocr_config', None):
+                    from .adapters.ocr import OcrConfig
+                    raw_config = decode_json(args.ocr_config.read_bytes())
+                    try:
+                        ocr_config = OcrConfig(**{k: Path(v) if k in ('outputDirectory','engine','renderer','model') else v for k,v in raw_config.items()})
+                    except (TypeError, ValueError, AttributeError):
+                        raise ArchiveError('INVALID_INPUT','Invalid OCR configuration.') from None
                 source = add_source(vault, args.person, args.source)
                 if args.intake_command == 'fhir-r4':
                     from .adapters.fhir_r4 import import_fhir_r4, IdentityMapping
@@ -309,7 +318,7 @@ def main(argv=None):
                     output = document(import_metrics_csv(source,args.person,CsvMetricMapping(**raw)))
                 else:
                     built = build_packet(vault, source, args.packet,
-                        identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
+                        identityConfirmed=args.confirm_person, outputDirectory=args.agent_output, ocrConfig=ocr_config)
                     output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
             elif args.command == 'candidate':
                 if args.candidate_command=='prepare':
