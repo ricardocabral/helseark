@@ -78,7 +78,7 @@ def test_exact_rows_sources_context_and_rebuild(corpus, tmp_path):
 
 
 @pytest.mark.parametrize('label', ['<script>alert(1)</script><img src=x onerror=alert(2)>',
-                                  '=HYPERLINK("https://invalid", "x")', '\t +SUM(1,2)', '@evil', '-1+2'])
+                                  '=HYPERLINK("https://invalid", "x")', '\t +SUM(1,2)', '@evil', '-1+2', '\x00=1+2', '\ufeff=1+2', '\u200b@SUM(1,2)'])
 def test_hostile_labels_are_inert(clinical_candidate, tmp_path, label):
     vault, candidate = clinical_candidate
     resources = [e for e in candidate.bundle['entry'] if e['resource']['resourceType'] != 'DocumentReference']
@@ -92,7 +92,7 @@ def test_hostile_labels_are_inert(clinical_candidate, tmp_path, label):
     assert label in page.text
     rows = list(csv.DictReader((destination/'observations.csv').open(newline='')))
     row = next(r for r in rows if label in r['sourceLabel'])
-    assert row['sourceLabel'] == ("'"+label if label.lstrip().startswith(('=','+','-','@')) else label)
+    assert row['sourceLabel'] == ("'"+label if (label.lstrip().startswith(('=','+','-','@')) or label.startswith(('\x00','\ufeff','\u200b'))) else label)
     assert all(not cell.lstrip().startswith(('=','+','-','@','\t','\r','\n')) for r in rows for cell in r.values())
 
 

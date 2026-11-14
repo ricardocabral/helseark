@@ -8,13 +8,12 @@ import csv
 from html import escape
 from io import StringIO
 from pathlib import Path
-import shutil
-from tempfile import mkdtemp
+from unicodedata import category
 
 from .agent_context import document
 from .archive import head
-from .contracts import ArchiveError, ObservationFilter, ObservationRow, PersonId, Vault
-from .portability import _publish
+from .contracts import ObservationFilter, ObservationRow, PersonId, Vault
+from .report_publication import ReportPublication
 from .query import observations, timeline
 from .serialization import encode_json
 
@@ -28,24 +27,12 @@ def _csv_cell(value):
     text = _text(value)
     # Quoting alone does not prevent spreadsheet execution. Keep the apostrophe
     # visible in the CSV; HTML/native accepted JSON remain the fidelity sources.
-    if text.lstrip().startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r', '\n')):
+    prefix = 0
+    while prefix < len(text) and (text[prefix].isspace() or category(text[prefix]) in ('Cc', 'Cf')):
+        prefix += 1
+    if text[prefix:].startswith(('=', '+', '-', '@')) or text.startswith(('\t', '\r', '\n')):
         return "'" + text
     return text
-
-
-def _destination(vault, destination):
-    destination = Path(destination).absolute()
-    root = vault.root.resolve()
-    resolved = destination.resolve()
-    # Within the vault only the top-level disposable derived tree is writable.
-    # Do not follow any symlink, including a derived -> accepted redirect.
-    if (resolved == root or (resolved.is_relative_to(root) and
-            not resolved.is_relative_to(root/'derived')) or
-            any(p.is_symlink() for p in (destination, *destination.parents))):
-        raise ArchiveError('INVALID_DESTINATION', 'Use a fresh derived directory or explicit directory outside the vault.', {'exitCode':2})
-    if destination.exists():
-        raise ArchiveError('DESTINATION_EXISTS', 'Report destination already exists; delete the disposable report explicitly to rebuild.', {'exitCode':2})
-    return destination
 
 
 def render_static_report(vault: Vault, person: PersonId, destination: Path) -> Path:
@@ -55,7 +42,12 @@ def render_static_report(vault: Vault, person: PersonId, destination: Path) -> P
     Source links address accepted evidence entries, never remote URLs or copied
     original blobs which might disclose another person. They require the vault.
     """
-    destination = _destination(vault, destination)
+    with ReportPublication(vault, destination) as publication:
+        return _render(vault, person, publication)
+
+
+def _render(vault, person, publication):
+    destination = publication.destination
     base = head(vault, person)
     rows = list(observations(vault, person, ObservationFilter(includeInvalidated=True), at=base))
     events = list(timeline(vault, person, at=base))
@@ -107,13 +99,5 @@ def render_static_report(vault: Vault, person: PersonId, destination: Path) -> P
             'this report is sensitive data, not a portable archive or a complete revision history.</p>'+
             ''.join(body)+'<h2>Current graph timeline</h2>'+''.join('<article>'+details(event)+'</article>' for event in events)+
             '</body></html>')
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    stage = Path(mkdtemp(prefix='.helseark-report-', dir=destination.parent))
-    try:
-        (stage/'index.html').write_text(html, encoding='utf-8')
-        (stage/'observations.csv').write_text(csv_output.getvalue(), encoding='utf-8', newline='')
-        _publish(stage, destination)
-    finally:
-        if stage.exists():
-            shutil.rmtree(stage)
+    publication.publish(html, csv_output.getvalue())
     return destination/'index.html'
