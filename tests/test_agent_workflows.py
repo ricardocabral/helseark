@@ -144,7 +144,7 @@ def test_known_producer_provenance_is_strict_bound_and_retained(clinical_candida
     result = render(context,variables(tmp_path))
     provenance = {'provenanceVersion':1,'status':'known','promptId':result.promptId,
         'promptVersion':result.promptVersion,'promptSha256':result.promptSha256,
-        'skillSha256':result.skillSha256,'skillId':'query-history','skillVersion':'0.1.0','kitVersion':context.kitVersion,'kitSha256':result.kitSha256}
+        'skillSha256':result.skillSha256,'skillId':'query-history','skillVersion':'0.1.1','kitVersion':context.kitVersion,'kitSha256':result.kitSha256}
     metadata = decode_json((candidate.path/'candidate.json').read_bytes())
     metadata['producerProvenance'] = provenance
     candidate.evidence['producerProvenance'] = provenance

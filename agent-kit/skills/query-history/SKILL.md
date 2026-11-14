@@ -46,3 +46,5 @@ For profile-set 0.2.0 history use `history --person PERSON --kind TYPE` (repeat
 `--kind`) or timeline's native `resource`, sourceRefs and issues. Report native
 status and verification qualifiers together. Unknown dates stay unknown; do not
 turn recording time into onset or summarize assertions as inferred diagnoses.
+
+Static presentation is a host operation: `helseark --vault PATH report --person UUID --out ABSENT_PATH --json`. See [generate reports](../../docs/how-to/generate-reports.md). It creates escaped offline HTML and formula-neutralized CSV from accepted query rows, retaining exact values, status, comparators, per-result ranges and incompatible contexts. No grouping or unit conversion. This does not expand the agent output permission beyond `output/report.md`; no accepted edits or source blob disclosure.

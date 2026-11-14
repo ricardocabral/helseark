@@ -82,3 +82,7 @@ complete native `resource`, exact revision, sourceRefs and validation issues.
 Keep clinicalStatus and verificationStatus together; unknown dates remain unknown.
 No diagnosis, medication-adherence determination, risk score or treatment advice
 is produced. Source absence is not a negative allergy or family-history assertion.
+
+For an offline HTML/CSV view of one accepted snapshot, use the host
+[static report workflow](generate-reports.md). It preserves per-result context
+and includes invalidated results for audit without combining them into trends.

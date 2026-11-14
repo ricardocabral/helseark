@@ -38,6 +38,11 @@
       "size": 9858
     },
     {
+      "path": "docs/how-to/generate-reports.md",
+      "sha256": "4864a7ea0f9c3d714b0eca4842c74d4ce70c5b78ee0ebf230c6b0cdabb4177d0",
+      "size": 6079
+    },
+    {
       "path": "docs/how-to/import-report.md",
       "sha256": "8f787a12394a12701e10955a077beb457bbea919850dfb018d9aaaeb305b5cc5",
       "size": 7284
@@ -1033,10 +1038,13 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "static-report-escaped-offline",
+        "per-result-context",
+        "csv-formula-neutralization"
       ],
       "id": "query",
-      "intent": "Read bounded exact revisions without clinical date filtering",
+      "intent": "Read bounded exact revisions and describe offline derived reports without changing accepted records",
       "optionalInputs": [
         "resourceRefs",
         "maxRecords",
@@ -1057,7 +1065,8 @@
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
         "docs/reference/archive-format.md",
-        "docs/how-to/query-history.md"
+        "docs/how-to/query-history.md",
+        "docs/how-to/generate-reports.md"
       ],
       "requiredCapabilities": [
         "agent-context",

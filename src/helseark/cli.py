@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .query import observations, timeline, history, parse_reference
+from .presentation import render_static_report
 from .archive import resolve
 from .contracts import ObservationFilter
 from .intake import add_source, build_packet, read_candidate, prepare_candidate, _regular
@@ -97,6 +98,10 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
+    report = commands.add_parser('report', help='Render an offline derived HTML/CSV snapshot; no accepted writes.')
+    report.add_argument('--person', required=True)
+    report.add_argument('--out', type=Path, help='Fresh directory; default vault/derived/reports/PERSON.')
+    report.add_argument('--json', action='store_true')
     candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
     candidates = candidate.add_subparsers(dest='candidate_command', required=True)
     for verb in ('prepare','review','commit'):
@@ -251,7 +256,7 @@ def main(argv=None):
                     raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
             elif args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command in ('intake','candidate','observations','timeline','history','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
+            elif args.command in ('intake','candidate','observations','timeline','history','record','report') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
@@ -270,6 +275,9 @@ def main(argv=None):
             elif args.command == 'export-review':
                 path = record_disclosure(vault,args.plan,decode_json(_regular(args.decision, DISCLOSURE_BYTES)))
                 output = {'path':str(path)}
+            elif args.command == 'report':
+                destination = args.out if args.out is not None else vault.root/'derived/reports'/args.person
+                output = {'path': str(render_static_report(vault, args.person, destination))}
             elif args.command == 'export':
                 output = document(export_person(vault,args.person,args.out,
                     ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources),review=args.review))

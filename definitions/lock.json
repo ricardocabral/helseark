@@ -1061,6 +1061,19 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-run-ocr",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/generate-reports.md",
+          "sha256": "4864a7ea0f9c3d714b0eca4842c74d4ce70c5b78ee0ebf230c6b0cdabb4177d0",
+          "size": 6079
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-generate-reports",
+      "version": "0.1.0"
     }
   ],
   "contractVersion": "0.1.0",
