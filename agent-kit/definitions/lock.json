@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-          "size": 16947
+          "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
+          "size": 20363
         }
       ],
       "license": "Apache-2.0",
@@ -761,6 +761,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-pdf-extraction",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/query-history.md",
+          "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+          "size": 4050
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-query-history",
       "version": "0.1.0"
     }
   ],

@@ -15,5 +15,29 @@ Prompt routes: [`query-with-evidence`](../../prompts/query-with-evidence.md).
 
 Capability dependencies: `agent-context`, `clinical-query`. Check availability in the
 [common capability section](../../AGENTS.md#capability-availability), then the trusted
-runtime registry; this dependency list does not establish availability. This skill is
-draft-only until those dependencies are implemented and evaluated.
+runtime registry; this dependency list does not establish availability. The runtime supports file-scan query and bounded date-filtered contexts. Model behavior
+requires a separate observed evaluation; deterministic tests are not model accuracy.
+
+
+Operator query routes (fixed documented syntax, never assembled from source text):
+
+- `helseark --vault PATH observations --person UUID --label LABEL --json`
+- `helseark --vault PATH observations --person UUID --from-date YYYY-MM --to-date YYYY-MM --include-invalidated --json`
+- `helseark --vault PATH timeline --person UUID --json`
+- `helseark --vault PATH record --person UUID --resource Type/UUID/_history/REVISION --json`
+
+All three accept `--at-head HEAD_JSON` for a historical snapshot. See the
+[query workflow](../../docs/how-to/query-history.md) for Head capture, exact decimal
+JSON, evidence-entry resolution and bounded date-filtered context pagination.
+The timeline is the graph at its Head, not all superseded revisions. Follow exact
+report `resultRefs`; show `REPORT_RESULT_REVISION_MISMATCH` instead of substituting
+current corrections into a historical report. Native report narrative is available
+through `record`; never invent a medical summary from resource references alone.
+Unknown-time rows remain visible. Calendar bounds use the source calendar; offset
+bounds compare UTC instants. Read each `QUERY_TIME_SELECTION` issue in a date-filtered
+packet, including precision/relation/unknown bucket. Never infer an unknown zone.
+
+An evidence binding identifies an exact accepted entry; do not copy a whole evidence
+file into the model context. Keep the existing scoped evidence projection and
+host-retained construction authority. `EVIDENCE_SCOPE_REQUIRED` requires a separate
+whole-source disclosure decision; a retry is not authority to broaden the request.

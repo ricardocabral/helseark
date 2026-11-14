@@ -8,13 +8,16 @@ from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
+from .query import observations, timeline, parse_reference
+from .archive import resolve
+from .contracts import ObservationFilter
 from .intake import add_source, build_packet, read_candidate
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
-    "CONTEXT_AUTHORITY_REQUIRED": 2,
+    "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
     "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
@@ -73,6 +76,20 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
+    for name in ('observations','timeline','record'):
+        query = commands.add_parser(name, help='Read one person at a current or exact historical Head.')
+        query.add_argument('--person',required=True)
+        query.add_argument('--at-head',type=Path,help='JSON object with sequence, transactionId and changeSha256.')
+        query.add_argument('--json',action='store_true')
+        if name == 'observations':
+            query.add_argument('--label')
+            query.add_argument('--code-system')
+            query.add_argument('--code')
+            query.add_argument('--from-date')
+            query.add_argument('--to-date')
+            query.add_argument('--include-invalidated',action='store_true')
+        if name == 'record':
+            query.add_argument('--resource',required=True,help='Type/UUID or Type/UUID/_history/UUID.')
     agent = commands.add_parser("agent", help="Discover tasks and prepare bounded local context; no model execution.")
     agents = agent.add_subparsers(dest="agent_command", required=True)
     tasks = agents.add_parser("tasks", help="List kit routes without clinical reads.")
@@ -152,11 +169,28 @@ def main(argv=None):
                 raise ArchiveError("INVALID_INPUT", "Provide --vault PATH or HELSEARK_VAULT.")
             if args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command == 'intake':
+            elif args.command in ('intake','observations','timeline','record'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
-            if args.command == 'intake':
+            if args.command in ('observations','timeline','record'):
+                at = None
+                if args.at_head:
+                    raw = decode_json(args.at_head.read_bytes())
+                    if (not isinstance(raw,dict) or set(raw) != {'sequence','transactionId','changeSha256'} or
+                            type(raw['sequence']) is not int or raw['sequence'] < 1):
+                        raise ArchiveError('INVALID_INPUT','Expected an exact Head JSON object.')
+                    from .contracts import sha256_string
+                    uuid_string(raw['transactionId']); sha256_string(raw['changeSha256'])
+                    at = Head(**raw)
+                if args.command == 'observations':
+                    output = document(list(observations(vault,args.person,ObservationFilter(
+                        args.code_system,args.code,args.label,args.from_date,args.to_date,args.include_invalidated),at=at)))
+                elif args.command == 'timeline':
+                    output = document(list(timeline(vault,args.person,at=at)))
+                else:
+                    output = resolve(vault,args.person,parse_reference(args.resource),at=at)
+            elif args.command == 'intake':
                 source = add_source(vault, args.person, args.source)
                 built = build_packet(vault, source, args.packet,
                     identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
@@ -204,7 +238,9 @@ def main(argv=None):
         if args.json:
             sys.stdout.buffer.write(encode_json(output))
         else:
-            if args.command == "validate":
+            if args.command in ('observations','timeline','record'):
+                sys.stdout.buffer.write(encode_json(output))
+            elif args.command == "validate":
                 print("Baseline archive checks blocked." if exit_code in {2, 4, 5, 6} else
                       "Baseline archive checks completed; review required; terminology not checked." if exit_code == 3 else
                       "Baseline archive checks passed; terminology not checked. Human review remains mandatory.")

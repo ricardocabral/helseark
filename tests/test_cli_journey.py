@@ -82,3 +82,33 @@ def test_unsupported_genesis_envelope_versions_are_exit6(tmp_path, filename, pin
     result = run('--vault', vault.root, 'person', 'add', '--name', 'PRIVATE NAME', '--json')
     assert result.returncode == 6, result.stderr
     assert result.stdout == b'' and b'PRIVATE' not in result.stderr
+
+
+from test_query import corpus
+from test_validation import good as clinical_candidate
+
+
+def test_observations_timeline_record_cli_explicit_scope(corpus,tmp_path):
+    from dataclasses import asdict
+    from helseark.serialization import decode_json, encode_json
+    v,c,ids,base,_=corpus
+    result=run('--vault',v.root,'observations','--person',c.personId,'--label','Proteína C reativa — ultrassensível','--json')
+    assert result.returncode==0,result.stderr
+    rows=decode_json(result.stdout)
+    assert len(rows)==7
+    month=next(r for r in rows if r['resourceRef']['id']==ids['month'])
+    assert b'0.050' in result.stdout and month['comparator']=='<' and month['timePrecision']=='month'
+    assert month['sourceRefs']
+    for command in ('observations','timeline','record'):
+        missing=run('--vault',v.root,command,'--json')
+        assert missing.returncode==2 and decode_json(missing.stderr)['code']=='INVALID_INPUT'
+    timeline=run('--vault',v.root,'timeline','--person',c.personId,'--json')
+    assert timeline.returncode==0,timeline.stderr
+    assert any(r['status']=='entered-in-error' for r in decode_json(timeline.stdout))
+    pin=tmp_path/'head.json';pin.write_bytes(encode_json(asdict(base)))
+    ref=month['resourceRef'];reference=f"Observation/{ref['id']}/_history/{ref['versionId']}"
+    record=run('--vault',v.root,'record','--person',c.personId,'--resource',reference,'--at-head',pin,'--json')
+    assert record.returncode==0,record.stderr
+    assert decode_json(record.stdout)['valueQuantity']['value'].as_tuple()==month['value']['value'].as_tuple()
+    invalid=run('--vault',v.root,'observations','--person',c.personId,'--from-date','2026-02-30','--json')
+    assert invalid.returncode==2 and decode_json(invalid.stderr)['code']=='INVALID_FILTER'

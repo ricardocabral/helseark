@@ -246,3 +246,53 @@ Task 10 owns official validator qualification.
 Terminology, full FHIR validation and extraction accuracy remain `not-checked`.
 An earlier structural failure leaves later families `not-checked`, never passed.
 No output declares an extraction or medical assertion correct.
+
+## Query projections and time selection
+
+`observations(vault, person, ObservationFilter(...), at=Head(...))` reads only the
+selected person's accepted files. Omit `at` for the current graph. Historical
+queries use the graph at that exact Head, not today's children substituted into
+old reports. `timeline` includes all current-at-snapshot resource statuses,
+including cancelled and entered-in-error. It does not enumerate every superseded
+revision; use an older Head or an exact `record` revision to inspect those bytes.
+`DiagnosticReport.result` stays pinned. `REPORT_RESULT_REVISION_MISMATCH` marks
+reports whose child revision differs from the snapshot's current result, on both
+the report and current observation. There is no automatic cascade.
+
+Each observation preserves its native `value[x]` subtree and `valueType`,
+components, absent reason, interpretation, notes, ranges, method, specimen,
+status and references. Decimal JSON retains scale; `<0.050` is a bound, not a
+point measurement. Equal labels never establish comparability. No grouping,
+aggregation, terminology inference or unit conversion occurs. Exact label means
+`code.text`; code and system constraints must match the same `coding` item.
+Cancelled/entered-in-error observations require `includeInvalidated=True` (CLI
+`--include-invalidated`); other nonnumeric and absent results remain visible.
+
+Bounds are inclusive valid `YYYY`, `YYYY-MM`, `YYYY-MM-DD`, or offset timestamps.
+Calendar bounds compare the source's displayed calendar without assigning a
+zone. Timestamp bounds compare UTC instants; they cannot be mixed with calendar
+bounds. A date-only value in an instant query remains `unknown` in relation to
+that filter; no timezone is inferred. Partial dates and periods denote possible
+intervals: `contained` if wholly inside, `overlap` if intersecting. Undated values
+remain visible in `timeBucket=unknown` with `timeFilterRelation=unknown`.
+`effective` remains the original FHIR value with `effectiveType` and precision;
+comparison intervals are not emitted as fabricated timestamps. Stable resource
+identity order is presentation order, not a total clinical chronology.
+
+`sourceRefs` are exact accepted evidence bindings: vault-relative evidence path,
+SHA-256, JSON entry pointer, and original source digest/document where present.
+Resolve that entry under the selected person's accepted directory for its
+original quote, locator, target pointers and extraction details. These bindings
+also identify generated/user-entry evidence without fabricating a source digest.
+They do not embed potentially broader source prose in a query row. Giving a model
+raw evidence or a whole source is a separate disclosure decision. Agent contexts
+continue to use the scoped evidence selector, fail closed on ambiguous projections,
+and require the construction authority retained outside the editable packet.
+
+Date-filtered query contexts use this same query module for every selected native
+record (including pinned historical revisions). They preserve explicit reference
+selection and include `QUERY_TIME_SELECTION` metadata issues with bounds,
+precision, bucket and relation for each returned record. Unknown dates remain
+selected. Continuations bind the person, task, source/reference selection, date
+bounds, kit digest and Head. Counts and record/evidence budgets apply per page;
+no filter failure falls back to an unfiltered or all-person scan.

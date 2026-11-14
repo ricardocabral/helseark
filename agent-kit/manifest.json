@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "63f52f62bf59b708398d185468fcef181b4717ce191cbe28d69753652b1233bc",
+    "definitionLockSha256": "71d4859a012f7b13c425fc5b4e770bd61df4019e5d279e96ecbeaf40f41809b4",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -14,18 +14,23 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "cf53f0bc7a539d41a380d7700713e808ce117033ac3dd079c00fa7a245ae5ee6",
-      "size": 9041
+      "sha256": "64e82d412c934a54c3b9e58557cba9ff647909973198f3b37ddd7d93df2b7d16",
+      "size": 9187
     },
     {
       "path": "START-HERE.md",
-      "sha256": "8bb8ba774eea2628f860357e9aea650d77caa9fea6edb4d306100efcb5dc242d",
-      "size": 2587
+      "sha256": "05ba552704e46b33d11d69eaaba2ae33906bf50b43fd8a5fe04fc6cac5a76453",
+      "size": 3033
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "63f52f62bf59b708398d185468fcef181b4717ce191cbe28d69753652b1233bc",
-      "size": 30747
+      "sha256": "71d4859a012f7b13c425fc5b4e770bd61df4019e5d279e96ecbeaf40f41809b4",
+      "size": 31117
+    },
+    {
+      "path": "docs/how-to/query-history.md",
+      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+      "size": 4050
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -39,8 +44,8 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-      "size": 16947
+      "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2",
+      "size": 20363
     },
     {
       "path": "docs/reference/intake.md",
@@ -154,8 +159,8 @@
     },
     {
       "path": "prompts/query-with-evidence.md",
-      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
-      "size": 2469
+      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
+      "size": 3592
     },
     {
       "path": "prompts/verify-archive.md",
@@ -239,8 +244,8 @@
     },
     {
       "path": "skills/query-history/SKILL.md",
-      "sha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
-      "size": 1469
+      "sha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
+      "size": 3140
     },
     {
       "path": "skills/verify-archive/SKILL.md",
@@ -444,9 +449,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/query-with-evidence.md",
-      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
+      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
       "skillId": "query-history",
-      "skillSha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
+      "skillSha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
       "skillVersion": "0.1.0",
       "taskIds": [
         "query"
@@ -898,10 +903,8 @@
     },
     {
       "availability": {
-        "missingCapabilities": [
-          "clinical-query"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -929,7 +932,8 @@
       "referencePaths": [
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
-        "docs/reference/archive-format.md"
+        "docs/reference/archive-format.md",
+        "docs/how-to/query-history.md"
       ],
       "requiredCapabilities": [
         "agent-context",

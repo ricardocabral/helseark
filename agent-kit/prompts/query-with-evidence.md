@@ -1,7 +1,8 @@
 # query-with-evidence — prompt 0.1.0
 
 Fixed task ID: `query`. Apply [common archive instructions](../AGENTS.md).
-This is renderer input content, not an executable template or supported entry point.
+Use the verified `agent render` route in START-HERE.md; this prompt is renderer
+input content, not an executable shell template.
 Common slots and serialization rules are defined there.
 Host-authorized fresh output directory: {{output_directory}}. This is separate from the read-only context packet; it grants no OS sandbox enforcement. Additional typed slots:
 No additional slots.
@@ -37,3 +38,18 @@ request evidence before a source-cited temporal claim.
 Output only `output/report.md`, using the common report requirements. This draft produces no accepted changes, export bytes, recovery writes or executable migration plan.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
+
+
+Use the read-only observations/timeline/record workflow only within host-authorized
+scope; [query routes and semantics](../docs/how-to/query-history.md). Date-filtered
+packets attach QUERY_TIME_SELECTION issues to exact returned revisions. Preserve
+contained/overlap/unknown relations and the unknown-time bucket. Do not call a
+partial date an instant, a bound a point value, or no accepted rows a negative test.
+Report cancelled/entered-in-error separately from default trends. Report/result
+revision mismatch means a retained report points at a different exact child from
+today's current observation; follow the historical reference and show both scopes.
+Return qualitative, absent, component, ratio/range and narrative context as supplied.
+Each method/specimen/unit/range stays with its measurement. A binding's entry pointer
+and digest locate original evidence; only the supplied scoped evidence authorizes
+source-cited assertions. Missing evidence or incomplete pages require an explicit
+limitation. Never turn direct file access into permission to disclose broader data.

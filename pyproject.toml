@@ -41,6 +41,7 @@ where = ["src"]
 "share/helseark/agent-kit/profiles/r4/0.1.0" = ["agent-kit/profiles/r4/0.1.0/*"]
 "share/helseark/agent-kit/prompts" = ["agent-kit/prompts/*.md"]
 "share/helseark/agent-kit/examples" = ["agent-kit/examples/*"]
+"share/helseark/agent-kit/docs/how-to" = ["agent-kit/docs/how-to/*.md"]
 "share/helseark/agent-kit/docs/reference" = ["agent-kit/docs/reference/*.md"]
 "share/helseark/agent-kit/schemas/0.1.0" = ["agent-kit/schemas/0.1.0/*.json"]
 "share/helseark/agent-kit/skills/inspect-archive" = ["agent-kit/skills/inspect-archive/SKILL.md"]
@@ -52,7 +53,7 @@ where = ["src"]
 "share/helseark/agent-kit/skills/migrate-archive" = ["agent-kit/skills/migrate-archive/SKILL.md"]
 
 
-"share/helseark/docs/how-to" = ["docs/how-to/import-report.md"]
+"share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
 
 [tool.pytest.ini_options]
