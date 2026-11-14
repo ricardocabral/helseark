@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt/import skill have version `0.1.1`; other prompts retain `0.1.0`. Each declares task-specific slots below
+The extraction prompt is version `0.1.2`, the import skill is `0.1.4`, and the query prompt/skill are `0.1.1`; other prompts and skills retain `0.1.0`. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 
@@ -135,6 +135,6 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.1: a confirmed retained PDF may draft while the descriptor still lists
-unavailable structured import and reviewed publication. The renderer reports both
+Kit 0.1.4: a confirmed retained PDF may draft while the descriptor still lists
+unavailable structured import. Human-controlled reviewed publication is available. The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.

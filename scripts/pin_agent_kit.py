@@ -51,8 +51,8 @@ def pin():
                 if slot in ('candidate_id','person_id'): spec['pattern']='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
                 if slot=='source_hashes': spec.update(minItems=1,uniqueItems=True)
                 specs[slot]=spec
-            prompts.append({'id':name,'version':'0.1.2' if name=='extract-report' else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
-                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.4' if task['id']=='import' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
+            prompts.append({'id':name,'version':'0.1.2' if name=='extract-report' else '0.1.1' if name=='query-with-evidence' else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
+                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.4' if task['id']=='import' else '0.1.1' if task['id']=='query' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
                 'outputContractIds':['urn:helseark:schema:0.1.0:candidate','urn:helseark:schema:0.1.0:evidence'] if task['id'] in ('import','correct') else [],
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts

@@ -1,4 +1,4 @@
-# query-with-evidence — prompt 0.1.0
+# query-with-evidence — prompt 0.1.1
 
 Fixed task ID: `query`. Apply [common archive instructions](../AGENTS.md).
 Use the verified `agent render` route in START-HERE.md; this prompt is renderer

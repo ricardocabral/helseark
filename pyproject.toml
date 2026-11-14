@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "helseark"
-version = "0.1.1"
+version = "0.1.2"
 description = "Offline immutable personal health archive"
 requires-python = ">=3.12"
 dependencies = ["jsonschema==4.25.1"]
@@ -42,7 +42,6 @@ where = ["src"]
 "share/helseark/agent-kit/profiles/r4/0.1.0" = ["agent-kit/profiles/r4/0.1.0/*"]
 "share/helseark/agent-kit/prompts" = ["agent-kit/prompts/*.md"]
 "share/helseark/agent-kit/examples" = ["agent-kit/examples/*"]
-"share/helseark/agent-kit/docs/how-to" = ["agent-kit/docs/how-to/*.md"]
 "share/helseark/agent-kit/docs/reference" = ["agent-kit/docs/reference/*.md"]
 "share/helseark/agent-kit/schemas/0.1.0" = ["agent-kit/schemas/0.1.0/*.json"]
 "share/helseark/agent-kit/schemas/0.1.1" = ["agent-kit/schemas/0.1.1/*.json"]

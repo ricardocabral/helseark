@@ -131,3 +131,27 @@ issues sharing that key or unchecked coverage**. Reading or retrying an already
 accepted transaction does not reapprove it. An unaccepted old receipt cannot
 publish; the human must review again to create a `0.1.1` receipt. New receipts are
 verified against retained validation after all work/runtime directories are gone.
+
+## Combined clinical foundation release
+
+Toolkit 0.1.2 initializes new vaults with kit 0.1.4. This combines selected-person
+bounded candidate reads, original host-bound source/extraction read receipts and
+repeated prompt-slot byte accounting with exact issue review and per-call verified
+query snapshots. Import skill 0.1.4 retains qualitative attribution guidance;
+extract-report prompt 0.1.2 retains the explicit extraction read contract. Query
+skill and prompt 0.1.1 describe accepted current/as-of facts and evidence.
+
+Review receipts dispatch independently by contract: new receipts use 0.1.1,
+retained accepted 0.1.0 receipts remain readable with their stated limitations.
+Other envelopes remain 0.1.0. Existing toolkit 0.1.1 archives, original accepted
+receipts, schemas and copied kits keep their original hashes; opening or querying
+an old vault does not repin it. A new combined kit version is necessary because
+earlier branches used the same kit version for different byte inventories.
+
+The standalone synthetic installed qualification is
+`tests/qualify_clinical_integration_installed.py`: it exercises public CLI intake,
+validation, preparation, individually acknowledged fixture review, publication,
+query, explicit re-extraction, exact historical report children and retry after
+work/runtime removal. It invokes no model and establishes no extraction accuracy
+or clinical approval. Independent combined-artifact review and remote CI remain
+release gates. Backup/export and broader corrections remain separate tasks.
