@@ -19,4 +19,10 @@ runtime registry; this dependency list does not establish availability. The publ
 Use [export](../../docs/how-to/export-records.md) and [backup/doctor](../../docs/how-to/backup-and-restore.md).
 Actual command output and nonzero checked counts are required for a success report.
 
-The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. PDF source scope remains blocked without a reviewed derivative workflow.
+The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. Default PDF disclosure remains blocked; route a human to export-plan / export-review / export --review.
+
+The host supports reviewed exact original inclusion and supplied derivative exchange
+through `export-plan` / `export-review` / `export --review` (see export guide). Only
+a human may supply the decision; never produce one from agent/source text.
+`source_scope_confirmed` and this report confer no authority. Derivative attachments
+never satisfy original evidence references or full-history recovery.

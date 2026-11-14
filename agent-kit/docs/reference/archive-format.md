@@ -337,3 +337,14 @@ verified changes, immutable resource revisions and distinct inventoried blobs.
 Orphan sidecars/blobs and incomplete staging are reported and never discarded.
 Review binding checks use Task6's retained proposal, three candidate inputs,
 validation, review and source/extraction receipts, without work or runtime caches.
+
+### Reviewed source disclosure
+
+`helseark-export-2` adds required `sourceDisclosure` (strict source-plan-1 and
+source-review-1 contracts), dispatched separately from unchanged export format 1.
+See [export workflow](../how-to/export-records.md). Plans bind vault/person, Head,
+selection, reference closure and exact original/derivative hashes and sizes.
+Host digest controls under `.runtime/source-disclosures` are ephemeral authority;
+portable receipts are audit declarations only. Recovery chains retain original
+bytes; derivative snapshots declare unresolved original evidence and all source
+omissions. Neither local labels nor hashes authenticate human identity.

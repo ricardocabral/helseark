@@ -16,6 +16,7 @@ from .review import read_prepared, render_review, record_review, read_receipt
 from .contracts import ReviewDecision
 from .archive import commit_candidate, doctor
 from .portability import backup, verify_export, restore, export_person
+from .source_disclosure import prepare_disclosure, record_disclosure
 from .contracts import ExportSelection
 from .serialization import encode_json, decode_json
 from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, document, read_agent_context, render_task_prompt
@@ -128,6 +129,18 @@ def main(argv=None):
     exchange.add_argument('--resource', action='append', default=[])
     exchange.add_argument('--no-sources', action='store_true')
     exchange.add_argument('--json', action='store_true')
+    exchange.add_argument('--review', type=Path, help='Host-recorded disclosure plan directory; use export-plan then export-review.')
+    plan = commands.add_parser('export-plan', help='Capture exact source inclusion or supplied derivative scope for human review.')
+    plan.add_argument('--person', required=True)
+    plan.add_argument('--out', type=Path, required=True)
+    plan.add_argument('--mode', choices=('full-person','selected-current'), default='full-person')
+    plan.add_argument('--resource', action='append', default=[])
+    plan.add_argument('--derivatives', type=Path, help='JSON list of individually supplied derivative files and human mappings/omissions.')
+    plan.add_argument('--json', action='store_true')
+    review = commands.add_parser('export-review', help='Record an explicit human decision over the displayed plan digest; local labels are unauthenticated.')
+    review.add_argument('--plan', type=Path, required=True)
+    review.add_argument('--decision', type=Path, required=True)
+    review.add_argument('--json', action='store_true')
     agent = commands.add_parser("agent", help="Discover tasks and prepare bounded local context; no model execution.")
     agents = agent.add_subparsers(dest="agent_command", required=True)
     tasks = agents.add_parser("tasks", help="List kit routes without clinical reads.")
@@ -231,9 +244,18 @@ def main(argv=None):
                 exit_code = 5 if any(i.severity=='error' for i in report.issues) else 3 if report.issues else 0
             elif args.command == 'backup':
                 output = document(backup(vault,args.out,includeWork=args.include_work))
+            elif args.command == 'export-plan':
+                selection = ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource))
+                path = prepare_disclosure(vault,args.person,selection,args.out,
+                    derivatives=_json(args.derivatives.parent,args.derivatives.name) if args.derivatives else ())
+                from .serialization import hash_bytes
+                output = {'path':str(path),'planSha256':hash_bytes((path/'plan.json').read_bytes()),'plan':_json(path,'plan.json')}
+            elif args.command == 'export-review':
+                path = record_disclosure(vault,args.plan,_json(args.decision.parent,args.decision.name))
+                output = {'path':str(path)}
             elif args.command == 'export':
                 output = document(export_person(vault,args.person,args.out,
-                    ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources)))
+                    ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources),review=args.review))
             elif args.command in ('observations','timeline','record'):
                 at = None
                 if args.at_head:
@@ -314,7 +336,7 @@ def main(argv=None):
             else:
                 person_id = add_person(vault, PersonDraft(args.name, args.birth_date, args.note))
                 output = {"personId": person_id}
-        if args.json or args.command in ('doctor','backup','export'):
+        if args.json or args.command in ('doctor','backup','export','export-plan','export-review'):
             sys.stdout.buffer.write(encode_json(output))
         else:
             if args.command in ('observations','timeline','record'):
