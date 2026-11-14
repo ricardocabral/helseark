@@ -68,7 +68,7 @@ This deterministic script stops at a validated draft. Continue with the explicit
 human preparation/review/commit commands in [import a report](../how-to/import-report.md#prepare-and-accept-the-exact-human-reviewed-proposal),
 using lesson-vault, lesson-candidate and the personId field in lesson-packet/intake.json.
 Read every result beside the original PDF and provide your own per-issue reasons.
-After acceptance, [query accepted history](../how-to/query-history.md). Backup/restore remains separate.
+Use [query accepted history](../how-to/query-history.md) after acceptance.
 Never copy candidate files into accepted history. Use [import a report](../how-to/import-report.md)
 for a separately run external agent and the [intake reference](../reference/intake.md)
 for exact limits. Toolkit tests and supplied examples do not measure model accuracy.
@@ -84,3 +84,6 @@ Expect `[]` from observations and one Patient timeline row in the unknown-time
 bucket. This is absence of accepted records, not a negative clinical result.
 After Task6 review/acceptance, repeat these commands and follow each row's exact
 revision and evidence bindings. Never copy draft files into accepted history.
+
+For a separate recovery drill, follow [backup and restore](../how-to/backup-and-restore.md).
+This lesson ends at a validated draft; it does not exercise the full reviewed acceptance and recovery journey.

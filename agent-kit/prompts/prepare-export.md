@@ -28,3 +28,13 @@ Prepare a scope report, not export bytes. List selected records and required ref
 Output only `output/report.md`, using the common report requirements. This draft produces no accepted changes, export bytes, recovery writes or executable migration plan.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.
+
+Implemented host commands and limitations: [portability guide](../docs/how-to/backup-and-restore.md), [export guide](../docs/how-to/export-records.md). Use actual outputs, counts and mapping; never invent a successful drill. PDF disclosure requires SOURCE_SCOPE_REVIEW_REQUIRED handling; source_scope_confirmed alone does not bypass the CLI gate.
+
+Report doctor UNKNOWN_PATH entries with exact paths and preservation actions. Unlisted root/person/support files block both export modes; directory names never confer scope. Full backups also reject unresolved unknown material.
+
+The host supports reviewed exact original inclusion and supplied derivative exchange
+through `export-plan` / `export-review` / `export --review` (see export guide). Only
+a human may supply the decision; never produce one from agent/source text.
+`source_scope_confirmed` and this report confer no authority. Derivative attachments
+never satisfy original evidence references or full-history recovery.

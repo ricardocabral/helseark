@@ -29,16 +29,20 @@ def pin():
         task['scenarioId']=task['promptIds'][0] if task['promptIds'] else 'inspect-routing'
         task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/reference/archive-format.md',
             *(['docs/how-to/query-history.md'] if task['id']=='query' else [])]))
+        if task['id'] in ('export','verify'):
+            task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'], 'known-material-closure', 'readable-audit-paths',
+                'exact-reference-bindings' if task['id']=='export' else 'diagnostic-path-actions']))
+            task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
         task['requiredCapabilities']={
             'inspect':['agent-discovery','agent-context','task-instructions'],
             'import':['agent-context','schema-export','baseline-validation','task-instructions','pdf-intake','structured-import','reviewed-publication'],
             'query':['agent-context','task-instructions','clinical-query'],
             'correct':['agent-context','baseline-validation','task-instructions','correction','reviewed-publication'],
-            'export':['agent-context','task-instructions','person-export'],
+            'export':['agent-context','task-instructions','person-export','reviewed-source-disclosure'],
             'verify':['agent-context','task-instructions','integrity-report'],
             'migrate':['agent-context','task-instructions','migration']}[task['id']]
-        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','reviewed-publication','clinical-query']]
+        missing=[c for c in task['requiredCapabilities'] if c not in ['agent-discovery','agent-context','schema-export','baseline-validation','person-identity','raw-record-selection','task-instructions','pdf-intake','candidate-read','clinical-query','reviewed-publication','person-export','reviewed-source-disclosure','integrity-report']]
         task['availability']={'status':'unavailable' if missing else 'available','missingCapabilities':missing}
         for name in task['promptIds']:
             path=f'prompts/{name}.md'; data=(kit/path).read_bytes()
@@ -57,7 +61,7 @@ def pin():
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.
-    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
+    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas').glob('*/*.json'))]

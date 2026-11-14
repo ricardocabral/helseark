@@ -395,11 +395,15 @@ def test_exact_acknowledgments_fail_closed(tmp_path,mutation):
 
 def test_reference_looking_source_text_remains_literal_after_publication(tmp_path):
     from helseark.intake import add_source,build_packet,read_candidate,prepare_candidate
-    from helseark.archive import commit_candidate
+    from helseark.archive import commit_candidate, head
     from helseark.review import render_review
     from pypdf import PdfReader,PdfWriter
     from pypdf.generic import DecodedStreamObject,NameObject
     vault,person,source,_,candidate=supplied_candidate(tmp_path)
+    # Retain the initial fixture source through review too, so portability audits
+    # a complete accepted corpus rather than unrelated unaccepted intake debris.
+    initial=prepare_candidate(vault,candidate)
+    commit_candidate(vault,initial,approve(vault,initial))
     literal=candidate.bundle['entry'][0]['fullUrl']
     writer=PdfWriter(clone_from=PdfReader(source.assetPath));stream=DecodedStreamObject()
     stream.set_data(writer.pages[0].get_contents().get_data().replace(b'not detected',literal.encode()))
@@ -410,7 +414,7 @@ def test_reference_looking_source_text_remains_literal_after_publication(tmp_pat
     for name in ('bundle.json','evidence.json'):
         data=(candidate.path/name).read_bytes().replace(source.sourceSha256.encode(),other.sourceSha256.encode()).replace(oldext.encode(),newext.encode()).replace(b'not detected',literal.encode())
         (candidate.path/name).write_bytes(data)
-    meta=decode_json((candidate.path/'candidate.json').read_bytes());meta.update(candidateId=packet.importId,sourceSha256=[other.sourceSha256]);(candidate.path/'candidate.json').write_bytes(encode_json(meta))
+    meta=decode_json((candidate.path/'candidate.json').read_bytes());meta.update(candidateId=packet.importId,sourceSha256=[other.sourceSha256],baseChangeSha256=head(vault,person).changeSha256);(candidate.path/'candidate.json').write_bytes(encode_json(meta))
     p=prepare_candidate(vault,read_candidate(vault,candidate.path))
     view=render_review(vault,p);q=next(r for r in view.resourcesAdded if 'valueString' in r)
     assert q['valueString']==literal
@@ -418,6 +422,16 @@ def test_reference_looking_source_text_remains_literal_after_publication(tmp_pat
     commit_candidate(vault,p,approve(vault,p))
     reopened=open_vault(vault.root)
     assert resolve(reopened,person,ResourceRef('Observation',q['id']))['valueString']==literal
+    # The portability compiler must distinguish the same literal from References.
+    from helseark.portability import backup, restore, export_person, verify_export
+    from helseark.contracts import ExportSelection
+    selected = export_person(reopened, person, tmp_path/'selected',
+                             ExportSelection('selected-current', (), False)).path
+    assert not verify_export(selected).issues
+    derived = decode_json((selected/'collection.json').read_bytes())
+    assert any(e['resource'].get('valueString') == literal for e in derived['entry'])
+    restored = restore(backup(reopened, tmp_path/'backup').path, tmp_path/'restored')
+    assert resolve(restored,person,ResourceRef('Observation',q['id']))['valueString']==literal
 
 
 def test_exact_duplicate_issue_semantics_and_report_binding():

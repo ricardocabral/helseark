@@ -230,12 +230,17 @@ is not extraction accuracy or medical correctness. Source numeric tokens and
 canonical FHIR decimals remain distinct; accepted history is never rewritten.
 
 Implemented runtime capabilities: agent-discovery, agent-context, schema-export,
-baseline-validation, person-identity, raw-record-selection and task-instructions.
-Common archive AGENTS, selected skills and typed prompt declarations are bundled. Missing instructions are explicit `task-instructions` capability
-failures, not placeholder workflows. Intake/PDF extraction and reviewed import
-publication, clinical queries, correction/re-extraction, person export, integrity
-report/doctor, migration, OCR, terminology and the official full FHIR validator
-remain unimplemented and are not advertised as working commands.
+baseline-validation, person-identity, raw-record-selection, task-instructions,
+pdf-intake, candidate-read, reviewed-publication, clinical-query, person-export
+and integrity-report. Runtime discovery derives availability from these actual
+implementations; instruction presence alone does not enable a workflow.
+Reviewed publication is human-controlled; import's structured-import dependency,
+correction, migration, OCR, terminology and the official validator remain unavailable.
+[Portability](../how-to/backup-and-restore.md) supplies doctor/backup/restore;
+[export](../how-to/export-records.md) supplies selected-person snapshots with
+explicit reference mapping and a conservative PDF source-scope gate. Agent reports
+remain report-only and do not grant publication/disclosure/restore permission.
+No model evaluation success is inferred from runtime availability.
 
 Errors include EVIDENCE_SCOPE_REQUIRED (default integrity/blocked exit 5),
 UNKNOWN_TASK/INVALID_INPUT/INVALID_CONTINUATION/budget errors
