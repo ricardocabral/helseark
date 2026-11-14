@@ -1,0 +1,126 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-document-reference",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference",
+  "version": "0.1.0",
+  "name": "HelsearkDocumentReference",
+  "title": "Helseark DocumentReference",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Local patient-scoped DocumentReference for a reviewed offline archive. Structural support does not establish extraction accuracy or medical correctness.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "DocumentReference",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/DocumentReference",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "DocumentReference",
+        "path": "DocumentReference",
+        "constraint": [
+          {
+            "key": "helseark-profile",
+            "severity": "error",
+            "human": "Declare the exact supported profile version.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference"
+          },
+          {
+            "key": "helseark-modifiers",
+            "severity": "error",
+            "human": "Modifier extensions are unsupported at every depth.",
+            "expression": "descendants().modifierExtension.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference"
+          }
+        ]
+      },
+      {
+        "id": "DocumentReference.id",
+        "path": "DocumentReference.id",
+        "min": 1,
+        "comment": "Logical UUID identity; selected-person and revision ownership are checked by the archive runtime."
+      },
+      {
+        "id": "DocumentReference.meta",
+        "path": "DocumentReference.meta",
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.meta.profile",
+        "path": "DocumentReference.meta.profile",
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.implicitRules",
+        "path": "DocumentReference.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "DocumentReference.contained",
+        "path": "DocumentReference.contained",
+        "max": "0"
+      },
+      {
+        "id": "DocumentReference.modifierExtension",
+        "path": "DocumentReference.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "DocumentReference.subject",
+        "path": "DocumentReference.subject",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ],
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.subject.reference",
+        "path": "DocumentReference.subject.reference",
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.content.attachment",
+        "path": "DocumentReference.content.attachment",
+        "constraint": [
+          {
+            "key": "helseark-asset",
+            "severity": "error",
+            "human": "Attachment URL identifies an archive-relative asset.",
+            "expression": "url.startsWith('assets/sha256/') and url.endsWith('/blob')",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference"
+          }
+        ]
+      },
+      {
+        "id": "DocumentReference.content.attachment.contentType",
+        "path": "DocumentReference.content.attachment.contentType",
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.content.attachment.data",
+        "path": "DocumentReference.content.attachment.data",
+        "max": "0",
+        "comment": "Retain original bytes in the local content-addressed asset inventory."
+      },
+      {
+        "id": "DocumentReference.content.attachment.url",
+        "path": "DocumentReference.content.attachment.url",
+        "min": 1
+      },
+      {
+        "id": "DocumentReference.content.attachment.title",
+        "path": "DocumentReference.content.attachment.title",
+        "min": 1
+      }
+    ]
+  }
+}

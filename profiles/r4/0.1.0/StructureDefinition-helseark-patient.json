@@ -1,0 +1,74 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-patient",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient",
+  "version": "0.1.0",
+  "name": "HelsearkPatient",
+  "title": "Helseark Patient",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Local patient-scoped Patient for a reviewed offline archive. Structural support does not establish extraction accuracy or medical correctness.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Patient",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Patient",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Patient",
+        "path": "Patient",
+        "constraint": [
+          {
+            "key": "helseark-profile",
+            "severity": "error",
+            "human": "Declare the exact supported profile version.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient"
+          },
+          {
+            "key": "helseark-modifiers",
+            "severity": "error",
+            "human": "Modifier extensions are unsupported at every depth.",
+            "expression": "descendants().modifierExtension.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient"
+          }
+        ]
+      },
+      {
+        "id": "Patient.id",
+        "path": "Patient.id",
+        "min": 1,
+        "comment": "Logical UUID identity; selected-person and revision ownership are checked by the archive runtime."
+      },
+      {
+        "id": "Patient.meta",
+        "path": "Patient.meta",
+        "min": 1
+      },
+      {
+        "id": "Patient.meta.profile",
+        "path": "Patient.meta.profile",
+        "min": 1
+      },
+      {
+        "id": "Patient.implicitRules",
+        "path": "Patient.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Patient.contained",
+        "path": "Patient.contained",
+        "max": "0"
+      },
+      {
+        "id": "Patient.modifierExtension",
+        "path": "Patient.modifierExtension",
+        "max": "0"
+      }
+    ]
+  }
+}

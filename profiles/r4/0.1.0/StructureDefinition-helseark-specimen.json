@@ -1,0 +1,109 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-specimen",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen",
+  "version": "0.1.0",
+  "name": "HelsearkSpecimen",
+  "title": "Helseark Specimen",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Local patient-scoped Specimen for a reviewed offline archive. Structural support does not establish extraction accuracy or medical correctness.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Specimen",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Specimen",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Specimen",
+        "path": "Specimen",
+        "constraint": [
+          {
+            "key": "helseark-profile",
+            "severity": "error",
+            "human": "Declare the exact supported profile version.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen"
+          },
+          {
+            "key": "helseark-modifiers",
+            "severity": "error",
+            "human": "Modifier extensions are unsupported at every depth.",
+            "expression": "descendants().modifierExtension.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen"
+          }
+        ]
+      },
+      {
+        "id": "Specimen.id",
+        "path": "Specimen.id",
+        "min": 1,
+        "comment": "Logical UUID identity; selected-person and revision ownership are checked by the archive runtime."
+      },
+      {
+        "id": "Specimen.meta",
+        "path": "Specimen.meta",
+        "min": 1
+      },
+      {
+        "id": "Specimen.meta.profile",
+        "path": "Specimen.meta.profile",
+        "min": 1
+      },
+      {
+        "id": "Specimen.implicitRules",
+        "path": "Specimen.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Specimen.contained",
+        "path": "Specimen.contained",
+        "max": "0"
+      },
+      {
+        "id": "Specimen.modifierExtension",
+        "path": "Specimen.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Specimen.subject",
+        "path": "Specimen.subject",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ],
+        "min": 1
+      },
+      {
+        "id": "Specimen.subject.reference",
+        "path": "Specimen.subject.reference",
+        "min": 1
+      },
+      {
+        "id": "Specimen.parent",
+        "path": "Specimen.parent",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Specimen.parent.reference",
+        "path": "Specimen.parent.reference",
+        "min": 1
+      }
+    ]
+  }
+}

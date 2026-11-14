@@ -1,0 +1,670 @@
+{
+  "resourceType": "Bundle",
+  "type": "collection",
+  "entry": [
+    {
+      "fullUrl": "urn:uuid:00000001-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "00000001-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000001-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+          ]
+        },
+        "name": [
+          {
+            "text": "Alex Synthetic"
+          }
+        ],
+        "birthDate": "1980-02"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000010-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000010-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000010-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Trace analyte"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueQuantity": {
+          "value": 0.0500,
+          "comparator": "<",
+          "unit": "mg/L"
+        },
+        "effectiveDateTime": "2026-11",
+        "specimen": {
+          "reference": "Specimen/00000003-1111-4111-8111-111111111111/_history/00000003-9999-4999-8999-999999999999"
+        },
+        "referenceRange": [
+          {
+            "text": "less than 5; source adult female interval",
+            "appliesTo": [
+              {
+                "text": "female"
+              }
+            ],
+            "age": {
+              "low": {
+                "value": 18,
+                "unit": "years"
+              }
+            }
+          }
+        ],
+        "note": [
+          {
+            "text": "Original printed value: <0,0500. Local clock 09:15 without timezone; month precision retained with review."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000011-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000011-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000011-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Exact synthetic concentration"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueQuantity": {
+          "value": 1.234567890123456789012345678900,
+          "unit": "source units"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000012-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000012-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000012-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Qualitative screen"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueCodeableConcept": {
+          "text": "Negative"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000013-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000013-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000013-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Source coded result"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueCodeableConcept": {
+          "coding": [
+            {
+              "system": "https://example.invalid/synthetic-lab-codes",
+              "code": "NEG",
+              "display": "Negative"
+            }
+          ],
+          "text": "Negative (source code NEG)"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000014-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000014-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000014-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "cancelled",
+        "code": {
+          "text": "Not performed"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "dataAbsentReason": {
+          "text": "Not performed: insufficient sample"
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000015-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000015-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000015-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Synthetic ratio"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueRatio": {
+          "numerator": {
+            "value": 1,
+            "unit": "source parts"
+          },
+          "denominator": {
+            "value": 3,
+            "unit": "source parts"
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000016-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000016-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000016-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Synthetic range"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueRange": {
+          "low": {
+            "value": 2,
+            "unit": "mm"
+          },
+          "high": {
+            "value": 4,
+            "unit": "mm"
+          }
+        }
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000017-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000017-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000017-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Blood pressure"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "component": [
+          {
+            "code": {
+              "text": "Systolic"
+            },
+            "valueQuantity": {
+              "value": 120,
+              "unit": "mmHg"
+            }
+          },
+          {
+            "code": {
+              "text": "Diastolic"
+            },
+            "valueQuantity": {
+              "value": 80,
+              "unit": "mmHg"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000018-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000018-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000018-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Synthetic panel"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "hasMember": [
+          {
+            "reference": "Observation/00000019-1111-4111-8111-111111111111/_history/00000019-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000020-1111-4111-8111-111111111111/_history/00000020-9999-4999-8999-999999999999"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000019-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000019-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000019-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Panel child A"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueQuantity": {
+          "value": 4,
+          "unit": "mg/L"
+        },
+        "method": {
+          "text": "Synthetic method A"
+        },
+        "referenceRange": [
+          {
+            "low": {
+              "value": 2,
+              "unit": "mg/L"
+            },
+            "high": {
+              "value": 5,
+              "unit": "mg/L"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000020-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000020-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000020-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Panel child B"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueQuantity": {
+          "value": 8,
+          "unit": "mg/L"
+        },
+        "method": {
+          "text": "Synthetic method B"
+        },
+        "referenceRange": [
+          {
+            "text": "Source interval 7–9 for this method"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000021-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000021-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000021-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "amended",
+        "code": {
+          "text": "Microbiology narrative"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueString": "Mixed growth. Synthetic isolate A: scant colonies; susceptibility not performed.",
+        "hasMember": [
+          {
+            "reference": "Observation/00000022-1111-4111-8111-111111111111/_history/00000022-9999-4999-8999-999999999999"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000022-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000022-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000022-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "final",
+        "code": {
+          "text": "Isolate narrative"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueString": "Synthetic isolate A; identification unresolved. Preserve narrative; no organism code inferred."
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000023-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "00000023-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000023-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0"
+          ]
+        },
+        "status": "entered-in-error",
+        "code": {
+          "text": "Retracted synthetic result"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "valueString": "Source marked entered in error; retained for history."
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000003-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "00000003-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000003-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0"
+          ]
+        },
+        "status": "available",
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "type": {
+          "text": "Serum (as printed)"
+        },
+        "collection": {
+          "collectedDateTime": "2026-11-12",
+          "method": {
+            "text": "Source venous collection"
+          }
+        },
+        "note": [
+          {
+            "text": "Collection clock unknown."
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000002-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "00000002-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000002-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-diagnostic-report|0.1.0"
+          ]
+        },
+        "status": "amended",
+        "code": {
+          "text": "Synthetic laboratory report"
+        },
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "effectiveDateTime": "2026-11-12",
+        "specimen": [
+          {
+            "reference": "Specimen/00000003-1111-4111-8111-111111111111/_history/00000003-9999-4999-8999-999999999999"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/00000010-1111-4111-8111-111111111111/_history/00000010-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000011-1111-4111-8111-111111111111/_history/00000011-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000012-1111-4111-8111-111111111111/_history/00000012-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000013-1111-4111-8111-111111111111/_history/00000013-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000014-1111-4111-8111-111111111111/_history/00000014-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000015-1111-4111-8111-111111111111/_history/00000015-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000016-1111-4111-8111-111111111111/_history/00000016-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000017-1111-4111-8111-111111111111/_history/00000017-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000018-1111-4111-8111-111111111111/_history/00000018-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000021-1111-4111-8111-111111111111/_history/00000021-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000023-1111-4111-8111-111111111111/_history/00000023-9999-4999-8999-999999999999"
+          }
+        ],
+        "performer": [
+          {
+            "identifier": {
+              "system": "https://example.invalid/synthetic-issuers",
+              "value": "LAB-1"
+            },
+            "display": "Synthetic lab issuer"
+          }
+        ],
+        "conclusion": "Amended source report; narrative and cancelled result retained."
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000004-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "00000004-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000004-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0"
+          ]
+        },
+        "status": "current",
+        "docStatus": "amended",
+        "subject": {
+          "reference": "Patient/00000001-1111-4111-8111-111111111111"
+        },
+        "content": [
+          {
+            "attachment": {
+              "contentType": "text/plain",
+              "url": "assets/sha256/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/blob",
+              "title": "SYNTHETIC example report (asset placeholder)"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:00000005-9999-4999-8999-999999999999",
+      "resource": {
+        "resourceType": "Provenance",
+        "id": "00000005-1111-4111-8111-111111111111",
+        "meta": {
+          "versionId": "00000005-9999-4999-8999-999999999999",
+          "lastUpdated": "2026-11-14T15:00:00Z",
+          "profile": [
+            "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+          ]
+        },
+        "target": [
+          {
+            "reference": "DiagnosticReport/00000002-1111-4111-8111-111111111111/_history/00000002-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000010-1111-4111-8111-111111111111/_history/00000010-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000011-1111-4111-8111-111111111111/_history/00000011-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000012-1111-4111-8111-111111111111/_history/00000012-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000013-1111-4111-8111-111111111111/_history/00000013-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000014-1111-4111-8111-111111111111/_history/00000014-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000015-1111-4111-8111-111111111111/_history/00000015-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000016-1111-4111-8111-111111111111/_history/00000016-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000017-1111-4111-8111-111111111111/_history/00000017-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000018-1111-4111-8111-111111111111/_history/00000018-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000019-1111-4111-8111-111111111111/_history/00000019-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000020-1111-4111-8111-111111111111/_history/00000020-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000021-1111-4111-8111-111111111111/_history/00000021-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000022-1111-4111-8111-111111111111/_history/00000022-9999-4999-8999-999999999999"
+          },
+          {
+            "reference": "Observation/00000023-1111-4111-8111-111111111111/_history/00000023-9999-4999-8999-999999999999"
+          }
+        ],
+        "recorded": "2026-11-14T15:00:00Z",
+        "agent": [
+          {
+            "who": {
+              "identifier": {
+                "system": "https://example.invalid/synthetic-local-actors",
+                "value": "local-reviewer"
+              },
+              "display": "Synthetic local actor; no clinician attestation"
+            }
+          }
+        ],
+        "entity": [
+          {
+            "role": "source",
+            "what": {
+              "reference": "DocumentReference/00000004-1111-4111-8111-111111111111/_history/00000004-9999-4999-8999-999999999999"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
