@@ -49,29 +49,164 @@
           },
           {
             "additionalProperties": false,
-            "properties": {
-              "extraction": {
-                "additionalProperties": false,
-                "properties": {
-                  "method": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "tool": {
-                    "minLength": 1,
-                    "type": "string"
-                  },
-                  "version": {
-                    "minLength": 1,
-                    "type": "string"
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "locator": {
+                      "properties": {
+                        "kind": {
+                          "enum": [
+                            "text-span",
+                            "pdf-page"
+                          ]
+                        }
+                      }
+                    }
                   }
                 },
-                "required": [
-                  "method",
-                  "tool",
-                  "version"
-                ],
-                "type": "object"
+                "then": {
+                  "required": [
+                    "extraction"
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "extraction": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "method": {
+                              "enum": [
+                                "ocr",
+                                "model",
+                                "llm"
+                              ]
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "model": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "method": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "model": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "name": {
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "version": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "version"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "preprocessing": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "method": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "object"
+                            },
+                            "tool": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "version": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "tool",
+                            "version",
+                            "parameters"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "provenanceVersion": {
+                        "const": "1"
+                      },
+                      "status": {
+                        "const": "known"
+                      },
+                      "tool": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "version": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "provenanceVersion",
+                      "status",
+                      "method",
+                      "tool",
+                      "version",
+                      "model",
+                      "preprocessing"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "provenanceVersion": {
+                        "const": "1"
+                      },
+                      "reason": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "status": {
+                        "const": "unknown"
+                      }
+                    },
+                    "required": [
+                      "provenanceVersion",
+                      "status",
+                      "reason"
+                    ],
+                    "type": "object"
+                  }
+                ]
               },
               "kind": {
                 "const": "source"

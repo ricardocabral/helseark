@@ -31,7 +31,7 @@ from jsonschema.exceptions import SchemaError
 from .contracts import (ArchiveError, Candidate, CheckCoverage, Issue,
                         JsonValue, ResourceRef, ValidationReport, Vault, uuid_string)
 from .serialization import decode_json, encode_json, hash_bytes
-from .archive import _read, _safe, head, resolve, _versions
+from .archive import _read, _safe, head, resolve, _versions, _json
 
 _CORE = 'http://hl7.org/fhir/StructureDefinition/'
 _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
@@ -101,7 +101,7 @@ class DefinitionRegistry:
     def __init__(self, files: dict[str, bytes]):
         self.files = files
         self._definitions = {}
-        self._core_members = {}
+        core_definitions = {}
         core_path = 'definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz'
         if core_path not in files:
             raise ArchiveError('MISSING_DEFINITION', 'Complete pinned core package is missing.')
@@ -114,7 +114,20 @@ class DefinitionRegistry:
                 if match and member.isfile():
                     if member.size > 8 * 1024 * 1024:
                         raise ArchiveError('INVALID_DEFINITION', 'Core member exceeds supported bounds.')
-                    self._core_members[_CORE + match[1]] = archive.extractfile(member).read()
+                    try:
+                        value = json.loads(archive.extractfile(member).read().decode('utf-8-sig'), parse_float=Decimal)
+                        canonical = value['url']
+                        version = value.get('version')
+                        if not isinstance(canonical, str) or not canonical or '|' in canonical or (
+                                version is not None and (not isinstance(version, str) or not version)):
+                            raise ValueError
+                    except (ValueError, KeyError, UnicodeError, TypeError):
+                        raise ArchiveError('INVALID_DEFINITION', 'Core canonical identity is invalid.') from None
+                    identifiers = [canonical] + ([canonical + '|' + version] if version else [])
+                    for identifier in identifiers:
+                        if identifier in core_definitions:
+                            raise ArchiveError('DEFINITION_IDENTITY_CONFLICT', 'Duplicate core canonical identity.')
+                        core_definitions[identifier] = value
         resources = []
         for path, data in files.items():
             if not path.endswith('.json') or not (path.startswith('schemas/') or
@@ -140,6 +153,10 @@ class DefinitionRegistry:
                     raise ArchiveError('UNSUPPORTED_DIALECT', 'Pinned schema dialect is unsupported.')
                 resource = Resource.from_contents(value, default_specification=dialect[1])
                 resources.extend((identifier, resource) for identifier in identifiers)
+        for identifier, value in core_definitions.items():
+            if identifier in self._definitions and self._definitions[identifier] != value:
+                raise ArchiveError('DEFINITION_IDENTITY_CONFLICT', 'Pinned canonical definitions conflict.')
+            self._definitions[identifier] = value
         self._registry = Registry(retrieve=_offline_missing).with_resources(resources)
         # Fail explicitly before accepting graphs that need missing core profiles.
         for name in [*_SLUGS, 'Bundle', 'SimpleQuantity']:
@@ -151,14 +168,6 @@ class DefinitionRegistry:
     def resolve(self, identifier: str) -> JsonValue:
         base, fragment = urldefrag(identifier)
         try:
-            if base not in self._definitions:
-                canonical, sep, version = base.partition('|')
-                if canonical not in self._core_members or sep and version != '4.0.1':
-                    raise KeyError(base)
-                value = json.loads(self._core_members[canonical].decode('utf-8-sig'), parse_float=Decimal)
-                if value.get('url') != canonical or value.get('version') != '4.0.1':
-                    raise KeyError(base)
-                self._definitions[base] = value
             value = self._definitions[base]
             return _pointer(value, '/' + fragment.lstrip('/')) if fragment else value
         except (KeyError, ValueError, IndexError):
@@ -233,7 +242,7 @@ def schema_packet(vault: Vault, resourceTypes: Sequence[str], destination: Path)
         (stage / 'README.md').write_text('Offline Helseark 0.1.0 schema packet.\n'
             'FHIR JSON Schema is draft-06; local envelopes are 2020-12.\n'
             'StructureDefinitions are profile metadata, not JSON Schemas.\n'
-            'This bounded inventory is not a complete FHIR core package or specification.\n'
+            'Includes the complete pinned core package; specification archive is separate.\n'
             'Never fetch missing IDs. Every clinical import requires human review.\n', encoding='utf-8')
         stage.rename(destination)
     finally:
@@ -314,6 +323,16 @@ class _Checks:
             return
         if set(bundle) - {'resourceType','type','entry','id','meta'}:
             self.issue('UNSUPPORTED_ELEMENT', '/')
+        # The collection transport carries only id and optional revision timestamps.
+        # Clinical security/source/profile semantics on a transport are unsupported.
+        meta = bundle.get('meta', {})
+        if isinstance(meta, dict) and set(meta) - {'versionId', 'lastUpdated'}:
+            self.issue('UNSUPPORTED_ELEMENT', '/meta')
+        bookkeeping = {k: v for k, v in bundle.items() if k != 'entry'}
+        for pointer, value in _walk(bookkeeping):
+            if isinstance(value, dict) and ('extension' in value or 'modifierExtension' in value or
+                    any(k.startswith('_') for k in value)):
+                self.issue('UNSUPPORTED_CONTENT', pointer)
         entries = bundle.get('entry', [])
         if not isinstance(entries, list) or not 1 <= len(entries) <= 10000:
             self.issue('RESOURCE_LIMIT')
@@ -733,6 +752,10 @@ class _Checks:
                         rows = list(reader)
                         text = rows[locator['row']-1][locator['column']]
                     elif kind in {'text-span','pdf-page'}:
+                        provenance = entry.get('extraction', {})
+                        if provenance.get('status') != 'known':
+                            self.issue('EXTRACTION_PROVENANCE_UNKNOWN', ref=ref, severity='review',
+                                       message='Extraction provenance is unknown; human review required.')
                         extraction = self.asset(locator['extractionSha256'])
                         self.family = 'evidence'
                         if extraction is None:
@@ -785,7 +808,7 @@ class _Checks:
                 for suffix, value in _walk(target):
                     leaf = pointer + suffix
                     if leaf.endswith('/value') and (type(value) not in (int, Decimal) or value != number or
-                            isinstance(value, Decimal) and value.as_tuple().exponent != number.as_tuple().exponent):
+                            min(0, Decimal(value).as_tuple().exponent) != number.as_tuple().exponent):
                         self.issue('SOURCE_TOKEN_MISMATCH', leaf, ref)
                     if leaf.endswith('/comparator') and value != match['comparator']:
                         self.issue('SOURCE_TOKEN_MISMATCH', leaf, ref)
@@ -810,6 +833,10 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
             raise ArchiveError('INVALID_ENVELOPE', 'Candidate metadata must be an object.')
         if metadata.get('fhirVersion') != vault.config.fhirVersion:
             checks.issue('FHIR_VERSION_MISMATCH')
+        if any(k in metadata and metadata[k] != v for k, v in {
+                'contractVersion':vault.config.contractVersion,'profileVersion':vault.config.profileVersion,
+                'fhirVersion':vault.config.fhirVersion}.items()):
+            raise ArchiveError('UNSUPPORTED_VERSION', 'Candidate version pins are unsupported.')
         checks.checked.add('local-envelopes')
         if not registry.validate('urn:helseark:schema:0.1.0:candidate', metadata):
             checks.issue('INVALID_ENVELOPE')
@@ -856,8 +883,13 @@ def validate_proposal(vault: Vault, proposalDirectory: Path) -> ValidationReport
             raise ArchiveError('UNSAFE_PATH', 'Proposal root cannot be a symlink.')
         raw = _read(proposalDirectory, 'proposal.json')
         digest = hash_bytes(raw)
-        proposal = decode_json(raw)
+        proposal = _json(proposalDirectory, 'proposal.json', data=raw)
         checks.person = proposal.get('personId') if isinstance(proposal, dict) else None
+        if isinstance(proposal, dict):
+            pins = proposal.get('versions')
+            if ('contractVersion' in proposal and proposal['contractVersion'] != vault.config.contractVersion or
+                    isinstance(pins, dict) and any(k in pins and pins[k] != v for k,v in _versions(vault).items())):
+                raise ArchiveError('UNSUPPORTED_VERSION', 'Proposal version pins are unsupported.')
         checks.checked.add('local-envelopes')
         if not registry.validate('urn:helseark:schema:0.1.0:proposal', proposal):
             checks.issue('INVALID_ENVELOPE')
@@ -877,7 +909,7 @@ def validate_proposal(vault: Vault, proposalDirectory: Path) -> ValidationReport
             if item['path'] != f"resources/{item['type']}-{item['id']}.json":
                 checks.issue('UNSAFE_PATH')
             content = _read(proposalDirectory, item['path'])
-            resource = decode_json(content)
+            resource = _json(proposalDirectory, item['path'], data=content)
             if hash_bytes(content) != item['sha256']:
                 checks.issue('RESOURCE_HASH_MISMATCH')
             if not isinstance(resource, dict) or (resource.get('id'), resource.get('resourceType'), resource.get('meta', {}).get('versionId')) != (item['id'],item['type'],item['versionId']):
@@ -900,7 +932,7 @@ def validate_proposal(vault: Vault, proposalDirectory: Path) -> ValidationReport
         evidence_bytes = _read(proposalDirectory, 'evidence.json')
         if hash_bytes(evidence_bytes) != proposal['evidenceSha256']:
             checks.issue('EVIDENCE_HASH_MISMATCH')
-        checks.evidence(decode_json(evidence_bytes), sources)
+        checks.evidence(_json(proposalDirectory, 'evidence.json', data=evidence_bytes), sources)
         if any(item['type'] != 'Patient' for item in proposal['resources']) and 'unresolved' not in proposal:
             checks.issue('SOURCE_ISSUES_REQUIRED')
         checks.source_issues(tuple(Issue(**i) for i in proposal.get('unresolved', [])))

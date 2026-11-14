@@ -202,7 +202,11 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
             shutil.rmtree(stage)
 
 
-def open_vault(root: Path) -> Vault:
+def open_definitions(root: Path) -> Vault:
+    """Open verified vault config/definitions without reading any patient state.
+
+    Intended for schema discovery only. Clinical operations use open_vault.
+    """
     root = Path(root).absolute()
     if root.is_symlink():
         raise ArchiveError("UNSAFE_PATH", "Vault root cannot be a symlink.")
@@ -228,6 +232,13 @@ def open_vault(root: Path) -> Vault:
             if hash_bytes(data) != entry["sha256"] or len(data) != entry["size"]:
                 raise ArchiveError("DEFINITION_MISMATCH", "Definition inventory checksum mismatch.", {"path": "definitions/" + entry["path"]})
     _schema(vault, "vault", value)
+    return vault
+
+
+def open_vault(root: Path) -> Vault:
+    """Open definitions and verify every person's full accepted history."""
+    vault = open_definitions(root)
+    root = vault.root
     for relative in ("people",):
         if not _safe(root, relative).is_dir():
             raise ArchiveError("INTEGRITY", "Missing vault directory.", {"path": relative})

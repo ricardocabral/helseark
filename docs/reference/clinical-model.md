@@ -11,8 +11,12 @@ Six [local profiles](../../profiles/r4/0.1.0/README.md) use canonical base
 `https://github.com/ricardocabral/helseark/fhir`, with `|0.1.0` declarations:
 Patient, Observation, DiagnosticReport, Specimen, DocumentReference, Provenance.
 A candidate is a standard `Bundle` with `type=collection`. Bundle is a transport,
-not a seventh clinical profile. Unsupported resources/elements stay in the
-original retained source and block the structured candidate; no field is dropped.
+not a seventh clinical profile. Its bookkeeping allows only resourceType, type,
+entry, id and optional meta.versionId/meta.lastUpdated. Entries contain only
+fullUrl/resource. Security, source, profile/tag metadata and all nested primitive
+metadata/extensions on the Bundle are unsupported. Transport revision labels
+have no clinical meaning and do not replace resource evidence. Unsupported
+resources/elements stay in the original retained source and block the structured candidate; no field is dropped.
 
 The runtime checks actual upstream draft-06 JSON Schema, inherited cardinalities
 and choices from genuine core snapshots, and the selected local differential
@@ -142,9 +146,23 @@ The baseline checks the retained extraction artifact, not the correspondence
 between that extraction and PDF rendering. It cannot prove page/row attribution.
 A forged extraction remains a human review concern, not a machine proof.
 
-Known `decimal-comma-v1` transformations check numeric value/scale and comparator
-against the retained quote. Other transformation rules emit review issues rather
-than claiming validation. Quote occurrence is text consistency only; it does not
+Derived text/PDF locators require `extraction` with `provenanceVersion="1"`.
+Known provenance has `status="known"`, nonempty method/tool/version, an explicit
+model object `{name,version}` (required for ocr/model/llm methods; null means not
+applicable for other methods), and a preprocessing array. An empty array means
+no preprocessing; each step names method/tool/version and exact parameters.
+These fields describe the producer's declared process; checking them does not
+attest that the engine was run. Direct original JSON/CSV evidence requires no
+extraction engine. Missing/partial derived provenance fails the envelope. If the
+process is unknown, use `{"provenanceVersion":"1","status":"unknown","reason":"..."}`;
+it emits EXTRACTION_PROVENANCE_UNKNOWN for mandatory review. Historic vaults
+retain their original schema pins; missing legacy provenance still requires
+review. No accepted history or contract inventory is rewritten on open.
+
+Known `decimal-comma-v1` transformations check numeric value and fixed-form scale
+(including integers) against the retained quote. Target the complete Quantity
+or all relevant value/comparator/unit pointers to check those leaves together.
+A value-only pointer does not verify comparator/unit evidence elsewhere. Other transformation rules emit review issues rather than claiming validation. Quote occurrence is text consistency only; it does not
 prove a clinical field was extracted correctly, even for a clean candidate.
 
 ## Library and CLI
@@ -152,9 +170,16 @@ prove a clinical field was extracted correctly, even for a clean candidate.
 `load_definition_registry(vault)` verifies every lock inventory byte and returns
 an offline resolver. Unknown/missing IDs fail MISSING_DEFINITION; changed bytes
 fail DEFINITION_MISMATCH. `resolve(identifier)` returns a definition, not a network
-request. The complete genuine core package archive is installed alongside the selected
-extracted definitions; other core StructureDefinitions resolve lazily from its
-verified members. No member is extracted to a source-controlled path at runtime.
+request. The complete genuine core package archive is installed alongside the
+selected extracted definitions; all 655 core StructureDefinitions are indexed
+by their actual canonical URL
+and optional resource version from bounded verified members. A member without
+version resolves unversioned only; package version 4.0.1 is separate acquisition
+provenance in the definition lock and never fabricates a resource version.
+Actual duplicate core identities or conflicting extracted/core definitions fail
+DEFINITION_IDENTITY_CONFLICT. Registry completeness does not expand the six
+supported clinical profiles. No member is extracted to a source-controlled path
+at runtime.
 The genuine upstream schema retains draft-06; local envelopes retain
 2020-12. Unsupported dialects fail explicitly. Definition files are unmodified
 upstream bytes; the extra genuine SimpleQuantity is pinned as a member of the
@@ -181,7 +206,12 @@ helseark --vault /path/to/vault validate proposal ./prepared --person UUID --jso
 ```
 
 Schema export works without a vault using installed version pins, or with an
-explicit vault using its exact retained pins. It includes the complete pinned
+explicit vault (or HELSEARK_VAULT) using its exact retained pins. The
+`archive.open_definitions(root)` opener checks config, version pins and the full
+definition inventory without enumerating or opening people. Schema export uses
+it; clinical commands keep `open_vault` and its full household history checks.
+An unrelated corrupt patient cannot block definition export. Export includes the
+complete pinned
 **runtime inventory**, including the unchanged complete core archive, licenses,
 profiles, schemas, reference and a packet manifest. The selected extracted definitions and reference pages are a bounded subset;
 the compressed core package is complete. The complete specification and separate
@@ -193,6 +223,21 @@ not depend on checkout or acquisition-cache paths. The destination must be absen
 JSON output contains coverage and issues with pointers and resource references.
 Exit 0 means baseline checks passed, 2 blocked input, 3 review issues, 4 stale
 base, 5 integrity/I/O and 6 missing definitions/unsupported capabilities.
+Malformed source candidate JSON, including numeric/duplicate/depth limits,
+exits 2. Retained proposal/resource/evidence corruption exits 5. Unsupported
+candidate/proposal version pins exit 6 before generic envelope checks. Source
+JSON keeps its independent 128-digit coefficient/exponent bounds; final fixed
+resource and evidence bytes use the canonical reader, including expansions of
+1e128 and 1.0e-128. Neither boundary narrows the approved source number domain.
+
+The derived provenance contract is tightened before the 0.1.0 contract freeze;
+producers must supply the new versioned object or explicitly request unknown
+provenance review. Candidate/ValidationReport function signatures stay unchanged.
+Task 3/4 contexts and templates should describe the new evidence object and
+schema-export opener. Task 6 still owns full producer/prompt provenance,
+reconciliation, generated Provenance, review receipts and clinical publication;
+Task 10 owns official validator qualification.
+
 Terminology, full FHIR validation and extraction accuracy remain `not-checked`.
 An earlier structural failure leaves later families `not-checked`, never passed.
 No output declares an extraction or medical assertion correct.

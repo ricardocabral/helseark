@@ -14,8 +14,8 @@
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "30c14fea7cc9b6aca9f7fee2056b841e21f0507468736896814f6a0f1bcaa4c8",
-          "size": 10477
+          "sha256": "b16429d7b7930461ae4132f31aee1714a71198cd11aff3f1c60e9cf95f46de48",
+          "size": 15172
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
@@ -679,8 +679,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "f3edafce80fd74a848fc7c6783b2868fb11bd7afee0f0e9985ab3785aa780d0c",
-          "size": 13344
+          "sha256": "18e43f21b61c9a809b64340dfd9d2e9b324561dbac69912076d8fd8a2427ddd0",
+          "size": 16569
         }
       ],
       "license": "Apache-2.0",

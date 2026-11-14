@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-from .archive import init_vault, open_vault, add_person, head, _read
+from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json
 from .contracts import ArchiveError, PersonDraft, Candidate, Issue, uuid_string
 from .serialization import encode_json, decode_json
 from .validation import load_definition_registry, schema_packet, validate_candidate, validate_proposal
@@ -14,6 +14,7 @@ from .validation import load_definition_registry, schema_packet, validate_candid
 _EXIT = {
     "ARCHIVE_BUSY": 4, "STALE_BASE": 4,
     "UNSUPPORTED_VERSION": 6, "DEFINITION_MISMATCH": 5,
+    "NUMERIC_LIMIT": 2, "DUPLICATE_KEY": 2, "DEPTH_LIMIT": 2,
     "INVALID_JSON": 2, "INVALID_INPUT": 2, "INVALID_PERSON": 2,
     "DESTINATION_EXISTS": 2, "INVALID_ID": 2, "INVALID_REFERENCE": 2,
     "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
@@ -68,13 +69,17 @@ def main(argv=None):
             path = args.vault or os.environ.get("HELSEARK_VAULT")
             if not path:
                 raise ArchiveError("INVALID_INPUT", "Provide --vault PATH or HELSEARK_VAULT.")
-            vault = open_vault(Path(path))
+            vault = open_definitions(Path(path)) if args.command == "schema" else open_vault(Path(path))
             if args.command == "schema":
                 output = {"path": str(schema_packet(vault, args.resource, args.out))}
             elif args.command == "validate":
                 uuid_string(args.person)
                 if args.validation_command == "candidate":
                     metadata = decode_json(_read(args.path, "candidate.json"))
+                    if isinstance(metadata, dict) and any(metadata.get(k) != v for k, v in
+                            {"fhirVersion": vault.config.fhirVersion, "profileVersion": vault.config.profileVersion,
+                             "contractVersion": vault.config.contractVersion}.items() if k in metadata):
+                        raise ArchiveError("UNSUPPORTED_VERSION", "Candidate version pins are unsupported.")
                     registry = load_definition_registry(vault)
                     if not registry.validate("urn:helseark:schema:0.1.0:candidate", metadata):
                         raise ArchiveError("INVALID_ENVELOPE", "Candidate metadata violates its pinned contract.")
@@ -89,7 +94,7 @@ def main(argv=None):
                         tuple(Issue(**issue) for issue in metadata["unresolved"]))
                     report = validate_candidate(vault, candidate)
                 else:
-                    metadata = decode_json(_read(args.path, "proposal.json"))
+                    metadata = _json(args.path, "proposal.json")
                     if not isinstance(metadata, dict) or metadata.get("personId") != args.person:
                         raise ArchiveError("PERSON_MISMATCH", "Proposal differs from explicitly selected person.")
                     report = validate_proposal(vault, args.path)

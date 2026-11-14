@@ -1,0 +1,22 @@
+# Synthetic clinical fixtures
+
+All person identities, measurements, source documents and extraction artifacts
+in this directory are invented test data, dedicated to CC0. Never add real
+health data. Expected facts are hand-authored from the synthetic source and
+are compared with the real runtime without rewriting candidate facts.
+
+`synthetic/validation/source.json` and `candidate-bundle.json` exercise direct
+original JSON evidence. Tests also build original CSV cells and derived text/PDF
+page artifacts. Declared extraction provenance describes the synthetic fixture
+builder; no real PDF extractor, OCR engine or model is qualified by these tests.
+
+`synthetic/validation/corpus-source.txt` accompanies the broader profile corpus.
+Runtime tests use quantity tokens, component phrases and relevant source lines
+where useful. Other context retains broader locators. Quote occurrence, field
+coverage and exact retained hashes do not prove row attribution, clinical meaning
+or extraction correctness. Contradictions and unknown source clocks stay review
+issues; terminology and full FHIR validation stay not-checked.
+
+Extreme numeric regressions exercise source exponent tokens, retained fixed-form
+resource/evidence bytes and later immutable revisions. Their synthetic review
+records are storage fixtures, not an implemented Task 6 clinical acceptance flow.

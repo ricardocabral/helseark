@@ -18,6 +18,8 @@ from helseark.serialization import encode_json, decode_json, hash_bytes
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / 'tests/fixtures/synthetic/validation'
 BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
+EXTRACTION = {'provenanceVersion':'1','status':'known','method':'text',
+              'tool':'synthetic-fixture-builder','version':'1','model':None,'preprocessing':[]}
 PERSON = '11111111-1111-4111-8111-111111111111'
 OBS = '33333333-3333-4333-8333-333333333333'
 DOC = '77777777-7777-4777-8777-777777777777'
@@ -403,6 +405,7 @@ def test_text_span_uses_unicode_codepoint_offsets(good):
     digest=asset(v,c.personId,text.encode())
     entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
     entry['quote']='Synthetic Person A'
+    entry['extraction']=copy.deepcopy(EXTRACTION)
     entry['locator']={'kind':'text-span','extractionSha256':digest,'start':4,'end':22}
     assert 'EVIDENCE_QUOTE_MISMATCH' not in codes(v,c)
     entry['locator']['end']=500
@@ -415,6 +418,7 @@ def test_pdf_page_and_rotation_checked_against_retained_extraction(good):
     pages={'sourceSha256':entry['sourceSha256'],'pages':[{'page':1,'rotation':90,'text':'Synthetic Person A'}]}
     digest=asset(v,c.personId,encode_json(pages))
     entry['quote']='Synthetic Person A'
+    entry['extraction']={**EXTRACTION,'method':'pdf-text'}
     entry['locator']={'kind':'pdf-page','extractionSha256':digest,'page':1,'pageRotationApplied':90,
                       'coordinateSpace':'displayed-cropbox-top-left-normalized','bbox':[0,0,1,1]}
     assert 'EVIDENCE_LOCATOR_INVALID' not in codes(v,c)
@@ -510,6 +514,7 @@ def test_prepared_extraction_must_be_in_asset_inventory(good,tmp_path):
     digest=asset(v,c.personId,b'Synthetic Person A')
     entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
     entry['quote']='Synthetic Person A'
+    entry['extraction']=copy.deepcopy(EXTRACTION)
     entry['locator']={'kind':'text-span','extractionSha256':digest,'start':0,'end':18}
     path=prepare(v,c,tmp_path)
     assert 'SOURCE_NOT_DECLARED' in {i.code for i in runtime().validate_proposal(v,path).issues}
@@ -594,6 +599,15 @@ def test_full_clinical_corpus_runtime_and_independent_facts(good):
     extraction=asset(v,c.personId,source)
     doc=next(e for e in bundle['entry'] if e['resource']['resourceType']=='DocumentReference')
     doc['resource']['content'][0]['attachment']['url']=f'assets/sha256/{digest}/blob'
+    rows=source.decode().splitlines(keepends=True)
+    row_for_label={
+        'Trace analyte':'Trace analyte', 'Exact synthetic concentration':'Exact synthetic concentration',
+        'Qualitative screen':'Qualitative screen', 'Source coded result':'Source coded result',
+        'Not performed':'Not performed', 'Synthetic ratio':'Synthetic ratio', 'Synthetic range':'Synthetic range',
+        'Blood pressure':'Blood pressure', 'Synthetic panel':'Synthetic panel',
+        'Panel child A':'Synthetic panel', 'Panel child B':'child B',
+        'Microbiology narrative':'Microbiology narrative', 'Isolate narrative':'Nested isolate',
+        'Retracted synthetic result':'Retracted synthetic result'}
     evidence=[]
     for e in bundle['entry']:
         for pointer,value in leaves(e['resource']):
@@ -602,9 +616,25 @@ def test_full_clinical_corpus_runtime_and_independent_facts(good):
             if pointer=='/id' or pointer.startswith('/meta/') or pointer.endswith('/attachment/url'):
                 base.update(kind='generated',rule='synthetic-archive-fixture')
             else:
+                label=e['resource'].get('code',{}).get('text')
+                prefix=row_for_label.get(label)
+                row=next((row for row in rows if prefix and row.startswith(prefix)), None)
+                # Context fields that are outside the result's row retain broad evidence.
+                result_field=pointer.startswith(('/value','/component','/code/','/status','/method','/referenceRange'))
+                quote=row.rstrip('\n') if row and result_field else source.decode()
+                quantity_quotes={'Trace analyte':'<0,0500 mg/L',
+                    'Exact synthetic concentration':'1.234567890123456789012345678900 source units'}
+                if pointer.startswith('/valueQuantity') and label in quantity_quotes:
+                    quote=quantity_quotes[label]
+                if label=='Blood pressure' and pointer.startswith('/component/'):
+                    quote='Systolic 120 mmHg' if pointer.startswith('/component/0/') else 'Diastolic 80 mmHg'
+                if label=='Trace analyte' and pointer.startswith('/referenceRange'):
+                    quote='Adult female interval less than 5; applies to female age >=18 years.'
+                start=source.decode().index(quote)
                 base.update(kind='source',sourceSha256=digest,sourceDocument=doc['fullUrl'],
-                            quote=source.decode(),locator={'kind':'text-span','extractionSha256':extraction,
-                                                          'start':0,'end':len(source.decode())})
+                            quote=quote, extraction=copy.deepcopy(EXTRACTION),
+                            locator={'kind':'text-span','extractionSha256':extraction,
+                                     'start':start,'end':start+len(quote)})
             evidence.append(base)
     c=replace(c,bundle=bundle,evidence={'contractVersion':'0.1.0','personId':c.personId,'entries':evidence},
               unresolved=(Issue('SOURCE_CONTRADICTION','review',None,None,'Synthetic rows 2.0 and 3.0 remain unresolved.'),
@@ -730,3 +760,320 @@ def test_prepared_evidence_targets_exact_revisions(good,tmp_path):
     p=decode_json((path/'proposal.json').read_bytes());p['evidenceSha256']=hash_bytes(data)
     (path/'proposal.json').write_bytes(encode_json(p))
     assert 'EVIDENCE_TARGET_INVALID' in {i.code for i in runtime().validate_proposal(v,path).issues}
+
+
+@pytest.mark.parametrize('token', ['1e128', '1.0e-128', '9'*128+'e128', '1.'+'2'*127+'e-128'])
+def test_final_proposal_reads_source_expansions_exactly(good, tmp_path, token):
+    from helseark.serialization import decode_canonical_json
+    v,c=good
+    value=decode_json(token.encode())
+    observation(c)['valueQuantity']['value']=value
+    entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
+    raw=(v.root/'people'/c.personId/'assets/sha256'/entry['sourceSha256']/'blob').read_text()
+    start=raw.index(entry['quote'])
+    entry['locator']={'kind':'text-span','extractionSha256':entry['sourceSha256'],
+                      'start':start,'end':start+len(entry['quote'])}
+    entry['extraction']={**EXTRACTION,'preprocessing':[{'method':'synthetic-parameter',
+        'tool':'fixture-builder','version':'1','parameters':{'exact':value}}]}
+    persist(c)
+    # Untrusted files use the admitted SOURCE tokens, retained files use fixed form.
+    for filename in ['bundle.json','evidence.json']:
+        file=c.path/filename
+        file.write_bytes(file.read_bytes().replace(encode_json(value).strip(),token.encode()))
+    candidate_report=runtime().validate_candidate(v,c)
+    assert not [i for i in candidate_report.issues if i.severity=='error'],candidate_report
+    path=prepare(v,c,tmp_path)
+    report=runtime().validate_proposal(v,path)
+    assert not [i for i in report.issues if i.severity=='error'],report
+    evidence=decode_canonical_json((path/'evidence.json').read_bytes())
+    exact=next(e['extraction']['preprocessing'][0]['parameters']['exact']
+               for e in evidence['entries'] if 'extraction' in e)
+    assert encode_json(exact)==encode_json(value)
+    p=decode_canonical_json((path/'proposal.json').read_bytes())
+    item=next(i for i in p['resources'] if i['type']=='Observation')
+    retained=decode_canonical_json((path/item['path']).read_bytes())['valueQuantity']['value']
+    assert encode_json(retained)==encode_json(value)
+    if isinstance(retained,Decimal):
+        assert retained.as_tuple()==value.as_tuple()
+    # Storage-only synthetic review: no claim to implement the Task 6 acceptance UI.
+    from helseark.archive import _publish_change, open_vault, resolve
+    from helseark.contracts import ResourceRef
+    def publish_fixture(path,report,base):
+        (path/'validation.json').write_bytes(encode_json({'checkedProposalSha256':report.checkedProposalSha256,
+            'coverage':[asdict(x) for x in report.coverage],'issues':[asdict(x) for x in report.issues]}))
+        (path/'review.json').write_bytes(encode_json({
+            'contractVersion':'0.1.0','personId':c.personId,'confirmedPerson':True,
+            'decision':'accept','acknowledgedIssues':[],
+            'proposalSha256':report.checkedProposalSha256,
+            'validationSha256':hash_bytes((path/'validation.json').read_bytes()),
+            'baseChangeSha256':base.changeSha256,
+            'reviewer':{'kind':'local-user','label':'Synthetic storage fixture'},
+            'reviewedAt':'2026-11-14T12:00:00Z'}))
+        return _publish_change(v,c.personId,path,base)
+    first=publish_fixture(path,report,c.base)
+    old=ResourceRef('Observation',OBS,item['versionId'])
+    reopened=open_vault(v.root)
+    assert encode_json(resolve(reopened,c.personId,old)['valueQuantity']['value'])==encode_json(value)
+    later=tmp_path/'later';later.mkdir()
+    c=replace(c,base=first)
+    persist(c)
+    later_path=prepare(reopened,c,later)
+    later_proposal=decode_canonical_json((later_path/'proposal.json').read_bytes())
+    for resource in later_proposal['resources']:
+        resource['supersedesVersionId']=next(i['versionId'] for i in p['resources'] if i['id']==resource['id'])
+    (later_path/'proposal.json').write_bytes(encode_json(later_proposal))
+    later_report=runtime().validate_proposal(reopened,later_path)
+    assert not [i for i in later_report.issues if i.severity=='error'],later_report
+    publish_fixture(later_path,later_report,first)
+    reopened=open_vault(v.root)
+    current=resolve(reopened,c.personId,ResourceRef('Observation',OBS))
+    assert current['meta']['versionId']!=old.versionId
+    assert encode_json(current['valueQuantity']['value'])==encode_json(value)
+    assert encode_json(resolve(reopened,c.personId,old)['valueQuantity']['value'])==encode_json(value)
+
+
+def test_decimal_comma_integer_does_not_preserve_declared_scale(good):
+    v,c=good
+    original=next(e['sourceSha256'] for e in c.evidence['entries'] if e['kind']=='source')
+    source=decode_json((v.root/'people'/c.personId/'assets/sha256'/original/'blob').read_bytes())
+    source['result']='<1,00 mg/L'
+    digest=asset(v,c.personId,encode_json(source))
+    c.bundle['entry'][1]['resource']['content'][0]['attachment']['url']=f'assets/sha256/{digest}/blob'
+    for e in c.evidence['entries']:
+        if e['kind']=='source':
+            e['sourceSha256']=digest
+            if e['locator'].get('pointer')=='/result': e['quote']=source['result']
+    e=next(e for e in c.evidence['entries'] if e['target']['pointers']==['/valueQuantity/value'])
+    e['transformation']={'rule':'decimal-comma-v1'}
+    for value, mismatch in [(Decimal('1.00'),False),(Decimal('1.0'),True),(1,True)]:
+        observation(c)['valueQuantity']['value']=value
+        assert ('SOURCE_TOKEN_MISMATCH' in codes(v,c))==mismatch
+
+
+@pytest.mark.parametrize('kind',['text-span','pdf-page'])
+@pytest.mark.parametrize('provenance',[None, {'method':'ocr','tool':'synthetic','version':'1'},
+    {'provenanceVersion':'1','status':'unknown','reason':'Historical extraction engine was not recorded.'},
+    {'provenanceVersion':'1','status':'known','method':'ocr','tool':'synthetic','version':'1',
+     'model':{'name':'synthetic-model','version':'2'},'preprocessing':[]}])
+def test_derived_provenance_is_complete_or_explicit_review(good,kind,provenance):
+    v,c=good
+    entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
+    text=entry['quote']
+    data=text.encode() if kind=='text-span' else encode_json({'sourceSha256':entry['sourceSha256'],
+        'pages':[{'page':1,'rotation':0,'text':text}]})
+    digest=asset(v,c.personId,data)
+    entry['locator']=({'kind':kind,'extractionSha256':digest,'start':0,'end':len(text)} if kind=='text-span'
+        else {'kind':kind,'extractionSha256':digest,'page':1,'pageRotationApplied':0,
+              'coordinateSpace':'displayed-cropbox-top-left-normalized'})
+    if provenance: entry['extraction']=provenance
+    report=runtime().validate_candidate(v,persist(c))
+    issues={i.code:i.severity for i in report.issues}
+    if provenance is None or 'status' not in provenance:
+        assert issues.get('INVALID_ENVELOPE')=='error'
+    elif provenance['status']=='unknown':
+        assert issues.get('EXTRACTION_PROVENANCE_UNKNOWN')=='review'
+        assert not [i for i in report.issues if i.severity=='error']
+    else:
+        assert not [i for i in report.issues if i.severity in {'error','review'}],report
+
+
+def test_full_registry_resolves_actual_optional_version_identities(good):
+    import io,tarfile
+    v,_=good
+    registry=runtime().load_definition_registry(v)
+    archive=registry.files['definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz']
+    count=0
+    with tarfile.open(fileobj=io.BytesIO(archive),mode='r:gz') as tgz:
+        for member in tgz:
+            if member.name.startswith('package/StructureDefinition-') and member.name.endswith('.json'):
+                expected=json.loads(tgz.extractfile(member).read())
+                assert registry.resolve(expected['url'])==expected
+                if 'version' in expected:
+                    assert registry.resolve(expected['url']+'|'+expected['version'])==expected
+                else:
+                    with pytest.raises(ArchiveError,match='MISSING_DEFINITION'):
+                        registry.resolve(expected['url']+'|4.0.1')
+                count+=1
+    assert count==655
+    with pytest.raises(ArchiveError,match='MISSING_DEFINITION'):
+        registry.resolve('https://unrecognized.invalid/StructureDefinition/nope')
+
+
+@pytest.mark.parametrize('extra',[
+    {'meta':{'security':[{'system':'urn:policy','code':'restricted'}]}},
+    {'meta':{'profile':['http://hl7.org/fhir/StructureDefinition/Bundle']}},
+    {'meta':{'source':'urn:source'}},
+    {'meta':{'_lastUpdated':{'extension':[{'url':'urn:unknown','valueString':'unknown'}]}}},
+    {'_type':{'extension':[{'url':'urn:unknown','valueString':'unknown'}]}},
+])
+def test_bundle_bookkeeping_refuses_uninterpreted_semantics(good,extra):
+    v,c=good
+    c.bundle.update(extra)
+    assert codes(v,c)&{'UNSUPPORTED_ELEMENT','UNSUPPORTED_CONTENT'}
+
+
+@pytest.mark.parametrize('mode',['explicit','env','standalone'])
+def test_schema_export_never_reads_patients_even_corrupt(good,tmp_path,mode):
+    import os
+    v,c=good
+    # Prove the guard catches a real patient open, then run the actual CLI.
+    guard=tmp_path/'patient-guard';guard.mkdir()
+    (guard/'sitecustomize.py').write_text("import os,sys\ndef guard(event,args):\n if event=='open' and '/people/' in str(args[0]):\n  raise RuntimeError('patient read forbidden')\n if event.startswith('socket.'): raise RuntimeError('network forbidden')\nsys.addaudithook(guard)\n")
+    env={k:value for k,value in os.environ.items() if k!='HELSEARK_VAULT'}
+    env['PYTHONPATH']=str(guard)+os.pathsep+str(ROOT/'src')
+    patient=next((v.root/'people'/c.personId/'accepted').glob('*/resources/Patient-*.json'))
+    witness=subprocess.run([sys.executable,'-c','import sys; open(sys.argv[1])',str(patient)],env=env,capture_output=True)
+    assert witness.returncode!=0 and b'patient read forbidden' in witness.stderr
+    patient.write_bytes(b'corrupt unrelated patient')
+    args=[sys.executable,'-m','helseark.cli']
+    if mode=='explicit': args+=['--vault',str(v.root)]
+    if mode=='env': env['HELSEARK_VAULT']=str(v.root)
+    result=subprocess.run(args+['schema','export','--resource','Observation','--out',str(tmp_path/'packet'),'--json'],env=env,capture_output=True)
+    assert result.returncode==0,result.stderr
+    from helseark.archive import open_vault
+    with pytest.raises(ArchiveError,match='INTEGRITY'):
+        open_vault(v.root)
+
+
+@pytest.mark.parametrize('data,code',[(b'{"private":"PRIVATE_SENTINEL","n":1e999}', 'NUMERIC_LIMIT'),
+    (b'{"private":"PRIVATE_SENTINEL","private":1}','DUPLICATE_KEY'),
+    (b'['*65+b'"PRIVATE_SENTINEL"'+b']'*65,'DEPTH_LIMIT')])
+@pytest.mark.parametrize('file',['candidate.json','bundle.json','evidence.json'])
+def test_candidate_cli_parse_limits_exit_two(good,data,code,file):
+    v,c=good
+    (c.path/file).write_bytes(data)
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'validate','candidate',str(c.path),
+        '--person',c.personId,'--json'],capture_output=True)
+    assert result.returncode==2,result.stderr
+    assert code in json.loads(result.stderr)['code']
+    assert b'PRIVATE_SENTINEL' not in result.stderr and b'Traceback' not in result.stderr
+
+
+def test_candidate_unsupported_version_exit_six(good):
+    v,c=good
+    p=decode_json((c.path/'candidate.json').read_bytes());p['fhirVersion']='5.0.0'
+    (c.path/'candidate.json').write_bytes(encode_json(p))
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'validate','candidate',str(c.path),
+        '--person',c.personId,'--json'],capture_output=True)
+    assert result.returncode==6,result.stderr
+    assert json.loads(result.stderr)['code']=='UNSUPPORTED_VERSION'
+
+
+@pytest.mark.parametrize('conflict',['core-duplicate','subset-conflict'])
+def test_registry_rejects_actual_identity_conflicts(good,conflict):
+    import io,tarfile
+    v,_=good
+    files=dict(runtime().load_definition_registry(v).files)
+    if conflict=='subset-conflict':
+        path='definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Patient.json'
+        value=json.loads(files[path]);value['description']='Synthetic conflicting definition'
+        files[path]=json.dumps(value).encode()
+    else:
+        path='definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz'
+        output=io.BytesIO()
+        with tarfile.open(fileobj=io.BytesIO(files[path]),mode='r:gz') as old, tarfile.open(fileobj=output,mode='w:gz') as new:
+            for member in old:
+                new.addfile(member,old.extractfile(member) if member.isfile() else None)
+                if member.name=='package/StructureDefinition-Patient.json':
+                    data=old.extractfile(member).read()
+                    duplicate=tarfile.TarInfo('package/StructureDefinition-synthetic-alias.json');duplicate.size=len(data)
+                    new.addfile(duplicate,io.BytesIO(data))
+        files[path]=output.getvalue()
+    with pytest.raises(ArchiveError,match='DEFINITION_IDENTITY_CONFLICT'):
+        runtime().DefinitionRegistry(files)
+
+
+@pytest.mark.parametrize('data',[b'{"n":1e999}',b'{"x":1,"x":2}',b'['*65+b'0'+b']'*65])
+def test_retained_patient_corruption_remains_exit_five(good,data):
+    v,c=good
+    patient=next((v.root/'people'/c.personId/'accepted').glob('*/resources/Patient-*.json'))
+    patient.write_bytes(data)
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'validate','candidate',str(c.path),
+        '--person',c.personId,'--json'],capture_output=True)
+    assert result.returncode==5,result.stderr
+    assert json.loads(result.stderr)['code']=='INTEGRITY'
+    assert b'Traceback' not in result.stderr
+
+
+def test_complete_quantity_transformation_checks_comparator_and_unit(good):
+    v,c=good
+    entry=next(e for e in c.evidence['entries'] if e['target']['pointers']==['/valueQuantity/value'])
+    entry['target']['pointers']=['/valueQuantity']
+    entry['transformation']={'rule':'decimal-comma-v1'}
+    assert 'SOURCE_TOKEN_MISMATCH' not in codes(v,c)
+    observation(c)['valueQuantity']['comparator']='>'
+    assert 'SOURCE_TOKEN_MISMATCH' in codes(v,c)
+    observation(c)['valueQuantity']['comparator']='<'
+    observation(c)['valueQuantity']['unit']='g/L'
+    assert 'SOURCE_TOKEN_MISMATCH' in codes(v,c)
+
+
+@pytest.mark.parametrize('location',['proposal','resource','evidence'])
+def test_proposal_malformed_retained_json_is_integrity(good,tmp_path,location):
+    v,c=good
+    path=prepare(v,c,tmp_path)
+    target={'proposal':path/'proposal.json','resource':next((path/'resources').iterdir()),
+            'evidence':path/'evidence.json'}[location]
+    target.write_bytes(b'{"private":"PRIVATE_SENTINEL","n":1e999}')
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'validate','proposal',str(path),
+        '--person',c.personId,'--json'],capture_output=True)
+    assert result.returncode==5,result.stderr
+    assert b'PRIVATE_SENTINEL' not in result.stdout+result.stderr and b'Traceback' not in result.stderr
+
+
+def test_proposal_unsupported_version_exit_six(good,tmp_path):
+    v,c=good
+    path=prepare(v,c,tmp_path)
+    p=decode_json((path/'proposal.json').read_bytes());p['versions']['fhirVersion']='5.0.0'
+    (path/'proposal.json').write_bytes(encode_json(p))
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'validate','proposal',str(path),
+        '--person',c.personId,'--json'],capture_output=True)
+    assert result.returncode==6,result.stderr
+    assert 'UNSUPPORTED_VERSION' in {i['code'] for i in json.loads(result.stdout)['issues']}
+
+
+@pytest.mark.parametrize('missing',['model','preprocessing','tool','version'])
+def test_partial_known_extraction_provenance_fails_real_candidate(good,missing):
+    v,c=good
+    entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
+    text=entry['quote'];digest=asset(v,c.personId,text.encode())
+    entry['locator']={'kind':'text-span','extractionSha256':digest,'start':0,'end':len(text)}
+    entry['extraction']=copy.deepcopy(EXTRACTION)
+    del entry['extraction'][missing]
+    assert 'INVALID_ENVELOPE' in codes(v,c)
+
+
+def test_ocr_requires_explicit_model_and_preprocessing(good):
+    v,c=good
+    entry=next(e for e in c.evidence['entries'] if e['kind']=='source')
+    text=entry['quote'];digest=asset(v,c.personId,text.encode())
+    entry['locator']={'kind':'text-span','extractionSha256':digest,'start':0,'end':len(text)}
+    entry['extraction']={**EXTRACTION,'method':'ocr'}
+    assert 'INVALID_ENVELOPE' in codes(v,c)
+    entry['extraction']['model']={'name':'synthetic','version':'1'}
+    entry['extraction']['preprocessing']=[{'method':'rotate','tool':'synthetic','version':'1','parameters':{'degrees':90}}]
+    assert not [i for i in runtime().validate_candidate(v,persist(c)).issues if i.severity in {'error','review'}]
+
+
+def test_direct_csv_evidence_does_not_invent_extraction_engine(good):
+    v,c=good
+    # CSV is the original asset for this fixture; every locator addresses its cell.
+    import csv,io
+    sources=decode_json((FIXTURES/'source.json').read_bytes())
+    stream=io.StringIO();writer=csv.DictWriter(stream,fieldnames=list(sources));writer.writeheader();writer.writerow(sources)
+    digest=asset(v,c.personId,stream.getvalue().encode())
+    c.bundle['entry'][1]['resource']['content'][0]['attachment']['url']=f'assets/sha256/{digest}/blob'
+    c.bundle['entry'][1]['resource']['content'][0]['attachment']['contentType']='text/csv'
+    for e in c.evidence['entries']:
+        if e['kind']=='source':
+            column=e['locator']['pointer'][1:]
+            e['sourceSha256']=digest
+            e['locator']={'kind':'csv-cell','delimiter':',','row':1,'column':column}
+    assert not [i for i in runtime().validate_candidate(v,persist(c)).issues if i.severity in {'error','review'}]
+
+
+def test_full_registry_does_not_admit_other_clinical_resources(good):
+    v,c=good
+    r={'resourceType':'Composition','id':str(uuid4())}
+    c.bundle['entry'].append({'fullUrl':'urn:uuid:'+r['id'],'resource':r})
+    assert 'UNSUPPORTED_RESOURCE' in codes(v,c)
