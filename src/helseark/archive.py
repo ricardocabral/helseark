@@ -439,15 +439,16 @@ class _ResourceSnapshot:
         self._revisions = {}
         current = {}
         for _, directory, change in self.transactions:
-            for entry in change['resources']:
-                data = _read(directory, entry['path'])
-                # Bind the bytes used by this call to the verified inventory.
-                if hash_bytes(data) != entry['sha256']:
-                    raise ArchiveError('INTEGRITY', 'Resource checksum mismatch.')
-                resource = _json(directory, entry['path'], data=data)
-                key = (entry['type'], entry['id'])
-                self._revisions[ResourceRef(*key, entry['versionId'])] = resource
-                current[key] = resource
+            with _stored_location(vault, directory):
+                for entry in change['resources']:
+                    data = _read(directory, entry['path'])
+                    # Bind the bytes used by this call to the verified inventory.
+                    if hash_bytes(data) != entry['sha256']:
+                        raise ArchiveError('INTEGRITY', 'Resource checksum mismatch.', {'path': entry['path']})
+                    resource = _json(directory, entry['path'], data=data)
+                    key = (entry['type'], entry['id'])
+                    self._revisions[ResourceRef(*key, entry['versionId'])] = resource
+                    current[key] = resource
         self.current = [current[key] for key in sorted(current)]
         self._current = current
 
