@@ -44,8 +44,8 @@
         },
         {
           "path": "schemas/0.1.0/agent-context.schema.json",
-          "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
-          "size": 10084
+          "sha256": "f158d033f6c17118daf77fc338b86b727a77126750923c23d243c44773f785c1",
+          "size": 12235
         }
       ],
       "license": "Apache-2.0",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "0cb40078af6e28c555b91c8545be4d19579988f61932a993f2091efc52541376",
-          "size": 10191
+          "sha256": "92f7bec6f88250fb40cdad1a87566990e5a4ccc66cd4d27947a7f1efca890d7b",
+          "size": 12132
         }
       ],
       "license": "Apache-2.0",

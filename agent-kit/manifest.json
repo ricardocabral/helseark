@@ -5,7 +5,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "6be31d763ec5e67e31a505340497a75c2d9fe6aa42e6ba7881f4a7cbf349a069",
+    "definitionLockSha256": "20afe40c2fe4217f43db74e0c007efb2c759a8bf8bc38ea6027293674ad84b4f",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"

@@ -1,4 +1,66 @@
 {
+  "$defs": {
+    "evidenceSelection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "additionalProperties": false,
+      "properties": {
+        "entries": {
+          "items": {
+            "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/entries/items"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "original": {
+          "additionalProperties": false,
+          "properties": {
+            "changeSha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "entryPointers": {
+              "items": {
+                "pattern": "^/entries/(0|[1-9][0-9]*)$",
+                "type": "string"
+              },
+              "minItems": 1,
+              "type": "array",
+              "uniqueItems": true
+            },
+            "sha256": {
+              "pattern": "^[0-9a-f]{64}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "changeSha256",
+            "sha256",
+            "entryPointers"
+          ],
+          "type": "object"
+        },
+        "personId": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+          "type": "string"
+        },
+        "revision": {
+          "pattern": "^[A-Z][A-Za-z0-9]*/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/_history/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+          "type": "string"
+        },
+        "selectionVersion": {
+          "const": "1"
+        }
+      },
+      "required": [
+        "selectionVersion",
+        "personId",
+        "revision",
+        "original",
+        "entries"
+      ],
+      "type": "object"
+    }
+  },
   "$id": "urn:helseark:schema:0.1.0:agent-context",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
@@ -149,10 +211,12 @@
       "uniqueItems": true
     },
     "dataBytes": {
+      "description": "Actual embedded identity, selected record and scoped evidence bytes. Explicit original source references and definition references are excluded.",
       "minimum": 0,
       "type": "integer"
     },
     "evidencePaths": {
+      "description": "Packet-relative disposable evidence selections, one per returned exact revision. sourcePath points to the selection itself, never the original accepted evidence. See $defs/evidenceSelection.",
       "items": {
         "additionalProperties": false,
         "properties": {

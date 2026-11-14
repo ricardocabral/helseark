@@ -177,8 +177,41 @@ def test_tampered_kit_digest_missing_contract_and_unknown_task(tmp_path):
     assert not (tmp_path / 'missing-contract').exists()
 
 
+def update_payload(vault, person, destination):
+    """Real validated identity revision, including exact new evidence targets."""
+    from test_archive import update_payload as storage_update
+    from helseark.validation import validate_proposal
+    from helseark.agent_context import document
+    base = storage_update(vault, person, destination)
+    proposal_path = destination / 'proposal.json'
+    proposal = decode_json(proposal_path.read_bytes())
+    item = proposal['resources'][0]
+    resource_path = destination / item['path']
+    resource = decode_json(resource_path.read_bytes())
+    resource['meta']['profile'] = ['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0']
+    resource_path.write_bytes(encode_json(resource))
+    item['sha256'] = hash_bytes(resource_path.read_bytes())
+    evidence_path = destination / 'evidence.json'
+    evidence = decode_json(evidence_path.read_bytes())
+    for entry in evidence['entries']:
+        entry['resourceRef'] = f"Patient/{person}/_history/{item['versionId']}"
+        if entry['pointer'] == '/name/0/text':
+            entry['value'] = 'Alex Revised'
+    evidence_path.write_bytes(encode_json(evidence))
+    proposal['evidenceSha256'] = hash_bytes(evidence_path.read_bytes())
+    proposal_path.write_bytes(encode_json(proposal))
+    report = validate_proposal(vault, destination)
+    assert not [i for i in report.issues if i.severity == 'error'], report
+    validation = encode_json(document(report))
+    (destination / 'validation.json').write_bytes(validation)
+    review_path = destination / 'review.json'
+    review = decode_json(review_path.read_bytes())
+    review.update(proposalSha256=hash_bytes(proposal_path.read_bytes()), validationSha256=hash_bytes(validation))
+    review_path.write_bytes(encode_json(review))
+    return base
+
+
 def revisions(vault, person, tmp_path):
-    from test_archive import update_payload
     original = archive.resolve(vault, person, ResourceRef('Patient', person))
     base = update_payload(vault, person, tmp_path / 'prepared')
     archive._publish_change(vault, person, tmp_path / 'prepared', base)
@@ -195,11 +228,10 @@ def test_bounded_pages_exact_counts_continuation_and_stale_head(tmp_path):
     second = build(vault, person, 'query', replace(request, continuation=first.continuation), tmp_path / 'page2')
     assert second.returnedCount == 1 and second.continuation is None
     assert first.selectedRecords[0].path != second.selectedRecords[0].path
-    assert first.dataBytes == sum(f.size for f in (*first.selectedRecords, first.identity))
+    assert first.dataBytes == sum(f.size for f in (*first.selectedRecords, first.identity, *first.evidencePaths))
     assert first.instructionBytes == sum(f.size for f in first.instructionPaths)
     with pytest.raises(ArchiveError, match='INVALID_CONTINUATION'):
         build(vault, other, 'query', replace(request, continuation=first.continuation), tmp_path / 'wrong-person')
-    from test_archive import update_payload
     base = update_payload(vault, person, tmp_path / 'next')
     archive._publish_change(vault, person, tmp_path / 'next', base)
     with pytest.raises(ArchiveError, match='STALE_BASE'):
@@ -263,7 +295,7 @@ def test_packet_supplies_exact_manifest_evidence_and_check_routes(tmp_path):
     assert context.kitManifest.sha256 == context.manifestSha256
     assert context.evidencePaths
     for file in context.evidencePaths:
-        assert hash_bytes(Path(file.path).read_bytes()) == file.sha256
+        assert hash_bytes(readable(file, context).read_bytes()) == file.sha256
     assert 'explicit-person' in context.expectedChecks
     assert context.outputPaths == ('context.json', 'identity.json')
 
@@ -272,10 +304,15 @@ def test_packet_supplies_exact_manifest_evidence_and_check_routes(tmp_path):
 from test_validation import good as clinical_candidate, prepare, persist, OBS
 
 
-def accept_fixture(vault, candidate, tmp_path):
+def accept_fixture(vault, candidate, tmp_path, supersedes=None):
     from helseark.validation import validate_proposal
     from helseark.agent_context import document
     prepared = prepare(vault, candidate, tmp_path)
+    if supersedes:
+        proposal = decode_json((prepared / 'proposal.json').read_bytes())
+        for entry in proposal['resources']:
+            entry['supersedesVersionId'] = supersedes[(entry['type'], entry['id'])]
+        (prepared / 'proposal.json').write_bytes(encode_json(proposal))
     report = validate_proposal(vault, prepared)
     assert not [i for i in report.issues if i.severity == 'error'], report
     validation_bytes = encode_json(document(report))
@@ -304,7 +341,7 @@ def test_actual_clinical_bytes_precision_and_accepted_history_unchanged(clinical
     assert b'0.050' in content
     value = decode_json(content)['valueQuantity']
     assert str(value['value']) == '0.050' and value['comparator'] == '<' and value['unit'] == 'mg/L'
-    evidence = decode_json(Path(context.evidencePaths[0].path).read_bytes())
+    evidence = decode_json(readable(context.evidencePaths[0], context).read_bytes())
     assert any(e.get('quote') == '<0,050 mg/L' for e in evidence['entries'])
     after = {p.relative_to(vault.root):hash_bytes(p.read_bytes()) for p in vault.root.rglob('*') if p.is_file()}
     assert before == after
@@ -328,17 +365,20 @@ def test_default_100_records_and_byte_budget_on_real_accepted_graph(clinical_can
             candidate.evidence['entries'].append(e)
     persist(candidate)
     accept_fixture(vault, candidate, tmp_path)
-    first = build(vault, candidate.personId, 'query', Request(), tmp_path / 'first')
+    first = build(vault, candidate.personId, 'query', Request(maxDataBytes=1048576), tmp_path / 'first')
     assert first.totalCount == 104 and first.returnedCount == 100 and first.continuation.offset == 100
-    second = build(vault, candidate.personId, 'query', Request(continuation=first.continuation), tmp_path / 'second')
+    second = build(vault, candidate.personId, 'query', Request(maxDataBytes=1048576, continuation=first.continuation), tmp_path / 'second')
     assert second.returnedCount == 4 and second.continuation is None
     assert len({f.sourcePath for f in (*first.selectedRecords, *second.selectedRecords)}) == 104
-    small = build(vault, candidate.personId, 'query', Request(maxDataBytes=2500), tmp_path / 'small')
-    assert 0 < small.returnedCount < 100 and small.dataBytes <= 2500 and small.continuation
+    default = build(vault, candidate.personId, 'query', Request(), tmp_path / 'default')
+    assert 0 < default.returnedCount < 100 and default.dataBytes <= 262144 and default.continuation
+    assert default.dataBytes == sum(f.size for f in (default.identity, *default.selectedRecords, *default.evidencePaths))
+    small = build(vault, candidate.personId, 'query', Request(maxDataBytes=16384), tmp_path / 'small')
+    assert 0 < small.returnedCount < 100 and small.dataBytes <= 16384 and small.continuation
     assert small.returnedCount == len(small.selectedRecords)
 
 
-def test_actual_installed_wheel_discovery_context_with_network_denied(tmp_path):
+def test_actual_installed_wheel_discovery_context_with_network_denied(tmp_path, clinical_candidate):
     """Build/install a wheel; run entry-point scripts away from checkout/editable paths."""
     root = Path(__file__).resolve().parents[1]
     dist = tmp_path / 'dist'
@@ -366,6 +406,11 @@ def audit(event, args):
         raise RuntimeError('network denied')
     if event in ('open', 'os.scandir', 'os.listdir') and os.environ.get('HELSEARK_DENY_CLINICAL') and '/people' in str(args[0]):
         raise RuntimeError('discovery attempted clinical read')
+    if event in ('open', 'os.scandir', 'os.listdir'):
+        for name in ('HELSEARK_DENY_PERSON', 'HELSEARK_DENY_CHECKOUT'):
+            denied = os.environ.get(name)
+            if denied and str(args[0]).startswith(denied):
+                raise RuntimeError('out-of-scope filesystem read')
 sys.addaudithook(audit)
 ''')
     env = {k:v for k,v in os.environ.items() if k not in ('HELSEARK_VAULT','PYTHONPATH','VIRTUAL_ENV')}
@@ -391,6 +436,37 @@ sys.addaudithook(audit)
         assert hash_bytes(Path(file['path']).read_bytes()) == file['sha256']
     imported = subprocess.run([str(env_root/'bin/python'),'-c','import helseark.agent_context;print(helseark.agent_context.__file__)'],cwd=tmp_path,env=env,capture_output=True)
     assert imported.returncode == 0 and str(env_root).encode() in imported.stdout and str(root).encode() not in imported.stdout
+    # Prove the guard is active, then measure runtime only after the witness.
+    witness = subprocess.run([str(env_root/'bin/python'), '-c', 'import socket;socket.socket()'], cwd=tmp_path, env=env, capture_output=True)
+    assert witness.returncode != 0 and 'socket.' in events.read_text()
+    events.write_text('')
+    clinical_vault, candidate = clinical_candidate
+    secret = two_source_change(clinical_vault, candidate)
+    accept_fixture(clinical_vault, candidate, tmp_path)
+    other_person = archive.add_person(clinical_vault, PersonDraft('Synthetic Person A', note='OTHER PERSON SECRET'))
+    forbidden = clinical_vault.root / 'people' / other_person
+    (next((forbidden/'accepted').iterdir())/'change.json').write_bytes(b'corrupt unrelated history')
+    original_hashes = {p:hash_bytes(p.read_bytes()) for p in (clinical_vault.root/'people'/candidate.personId/'accepted').rglob('*') if p.is_file()}
+    ref = archive.resolve(clinical_vault, candidate.personId, ResourceRef('Observation', OBS))
+    exact = f"Observation/{OBS}/_history/{ref['meta']['versionId']}"
+    env.update(HELSEARK_DENY_PERSON=str(forbidden), HELSEARK_DENY_CHECKOUT=str(root))
+    packet = run('--vault',str(clinical_vault.root),'agent','context','--task','query','--person',candidate.personId,
+        '--resource',exact,'--out',str(tmp_path/'installed-clinical'),'--json')
+    assert packet['selectedSources'] == [] and packet['returnedCount'] == packet['totalCount'] == 1
+    clinical_files = [packet['identity'], *packet['selectedRecords'], *packet['evidencePaths']]
+    assert packet['dataBytes'] == sum(f['size'] for f in clinical_files)
+    for f in clinical_files:
+        path = Path(f['path'])
+        path = path if path.is_absolute() else Path(packet['path'])/path
+        data = path.read_bytes()
+        assert len(data) == f['size'] and hash_bytes(data) == f['sha256']
+        assert b'UNRELATED CLINICAL SECRET' not in data and secret.encode() not in data
+        assert Path(f['sourcePath']).read_bytes() == data
+    resource = decode_json((Path(packet['path'])/packet['selectedRecords'][0]['path']).read_bytes())
+    assert str(resource['valueQuantity']['value']) == '0.050' and resource['valueQuantity']['comparator'] == '<'
+    selection = decode_json((Path(packet['path'])/packet['evidencePaths'][0]['path']).read_bytes())
+    assert selection['revision'] == exact and any(e.get('quote') == '<0,050 mg/L' for e in selection['entries'])
+    assert all(p.read_bytes() and hash_bytes(p.read_bytes()) == sha for p, sha in original_hashes.items())
     assert events.read_text() == ''
 
 
@@ -505,3 +581,218 @@ def test_context_can_use_selected_person_work_but_never_accepted_or_other_person
         with pytest.raises(ArchiveError, match='UNSAFE_PATH'):
             build(vault, person, 'query', Request(), path)
         assert not path.exists()
+
+
+def two_source_change(vault, candidate):
+    """Independent secret source/records in the SAME real accepted change."""
+    import copy
+    from test_validation import asset, DOC
+    old_digest = next(e['sourceSha256'] for e in candidate.evidence['entries'] if e['kind'] == 'source')
+    source = decode_json((vault.root / f'people/{candidate.personId}/assets/sha256/{old_digest}/blob').read_bytes())
+    source['label'] = 'UNRELATED CLINICAL SECRET sentinel 6ea2'
+    digest = asset(vault, candidate.personId, encode_json(source))
+    newobs, newdoc = str(uuid4()), str(uuid4())
+    for old, new in [(OBS, newobs), (DOC, newdoc)]:
+        entry = copy.deepcopy(next(e for e in candidate.bundle['entry'] if e['resource']['id'] == old))
+        entry['resource']['id'], entry['fullUrl'] = new, 'urn:uuid:' + new
+        if old == OBS:
+            entry['resource']['code']['text'] = source['label']
+        else:
+            entry['resource']['content'][0]['attachment']['url'] = f'assets/sha256/{digest}/blob'
+        candidate.bundle['entry'].append(entry)
+        for original in list(candidate.evidence['entries']):
+            if original['target']['reference'] == 'urn:uuid:' + old:
+                e = copy.deepcopy(original)
+                e['target']['reference'] = entry['fullUrl']
+                if e['kind'] == 'source':
+                    e.update(sourceSha256=digest, sourceDocument='urn:uuid:' + newdoc)
+                    if old == OBS and e['target']['pointers'] == ['/code/text']:
+                        e['quote'] = source['label']
+                candidate.evidence['entries'].append(e)
+    persist(candidate)
+    return digest
+
+
+def readable(file, context):
+    path = Path(file.path)
+    return path if path.is_absolute() else context.path / path
+
+
+def test_exact_revision_evidence_is_disposable_scoped_and_budgeted(clinical_candidate, tmp_path):
+    from helseark.serialization import decode_canonical_json
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    secret_digest = two_source_change(vault, candidate)
+    accept_fixture(vault, candidate, tmp_path)
+    original = next(d / 'evidence.json' for d in (vault.root / f'people/{candidate.personId}/accepted').iterdir()
+                    if len(decode_json((d / 'evidence.json').read_bytes())['entries']) > 10)
+    before = original.read_bytes()
+    context = build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path / 'scoped')
+    assert context.returnedCount == context.totalCount == 1 and context.selectedSources == ()
+    payloads = b''.join(readable(f, context).read_bytes() + Path(f.sourcePath).read_bytes()
+                        for f in (*context.evidencePaths, *context.selectedRecords, context.identity))
+    assert b'UNRELATED CLINICAL SECRET' not in payloads
+    assert secret_digest.encode() not in payloads
+    assert str(original).encode() not in (context.path / 'context.json').read_bytes()
+    assert len(context.evidencePaths) == 1
+    f = context.evidencePaths[0]
+    assert not Path(f.path).is_absolute()
+    assert Path(f.sourcePath) == context.path / f.path
+    data = readable(f, context).read_bytes()
+    assert len(data) == f.size and hash_bytes(data) == f.sha256
+    selection = decode_canonical_json(data)
+    record = decode_canonical_json(readable(context.selectedRecords[0], context).read_bytes())
+    ref = f"Observation/{OBS}/_history/{record['meta']['versionId']}"
+    assert selection['revision'] == ref
+    assert selection['original']['sha256'] == hash_bytes(before)
+    assert selection['original']['changeSha256'] == hash_bytes((original.parent / 'change.json').read_bytes())
+    original_entries = decode_json(before)['entries']
+    assert selection['entries'] == [original_entries[int(p.split('/')[-1])] for p in selection['original']['entryPointers']]
+    assert all(e.get('target', {}).get('reference', e.get('resourceRef')) == ref for e in selection['entries'])
+    assert any(e.get('quote') == '<0,050 mg/L' for e in selection['entries'])
+    assert any(e['kind'] == 'generated' and len(e['target']['pointers']) == 2 for e in selection['entries'])
+    assert context.dataBytes == sum(f.size for f in (context.identity, *context.selectedRecords, *context.evidencePaths))
+    assert original.read_bytes() == before
+    with pytest.raises(ArchiveError, match='CONTEXT_BUDGET_EXCEEDED'):
+        build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),), maxDataBytes=context.dataBytes-1), tmp_path / 'too-small-evidence')
+    assert not (tmp_path / 'too-small-evidence').exists()
+
+
+@pytest.mark.parametrize('token', ['1e128', '1.0e-128', '9'*128+'e128', '1.'+'2'*127+'e-128'])
+def test_evidence_multiple_revisions_generations_and_exact_numbers(clinical_candidate, tmp_path, token):
+    from helseark.serialization import decode_canonical_json
+    from test_validation import EXTRACTION
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    value = decode_json(token.encode())
+    candidate.bundle['entry'][0]['resource']['valueQuantity']['value'] = value
+    # A single accepted entry covers multiple fields, copied without splitting quotes.
+    quantities = [e for e in candidate.evidence['entries'] if e['target']['reference'] == 'urn:uuid:' + OBS
+                  and e['target']['pointers'][0].startswith('/valueQuantity/')]
+    quantities[0]['target']['pointers'] = [e['target']['pointers'][0] for e in quantities]
+    for e in quantities[1:]:
+        candidate.evidence['entries'].remove(e)
+    # Canonical extremes also occur inside retained evidence extraction parameters.
+    entry = quantities[0]
+    raw = (vault.root / f"people/{candidate.personId}/assets/sha256/{entry['sourceSha256']}/blob").read_text()
+    start = raw.index(entry['quote'])
+    entry['locator'] = {'kind':'text-span', 'extractionSha256':entry['sourceSha256'], 'start':start,'end':start+len(entry['quote'])}
+    entry['extraction'] = {**EXTRACTION, 'preprocessing':[{'method':'synthetic-parameter','tool':'fixture-builder',
+        'version':'1','parameters':{'exact':value}}]}
+    persist(candidate)
+    accept_fixture(vault, candidate, tmp_path)
+    old = archive.resolve(vault, candidate.personId, ResourceRef('Observation', OBS))
+    supersedes = {(e['resource']['resourceType'], e['resource']['id']):
+        archive.resolve(vault, candidate.personId, ResourceRef(e['resource']['resourceType'], e['resource']['id']))['meta']['versionId']
+        for e in candidate.bundle['entry']}
+    later = tmp_path / 'later'
+    later.mkdir()
+    candidate = replace(candidate, base=archive.head(vault, candidate.personId))
+    accept_fixture(vault, candidate, later, supersedes)
+    request = Request(resourceRefs=(ResourceRef('Observation', OBS, old['meta']['versionId']), ResourceRef('Observation', OBS)), maxRecords=1)
+    first = build(vault, candidate.personId, 'query', request, tmp_path / 'gen1')
+    second = build(vault, candidate.personId, 'query', replace(request, continuation=first.continuation), tmp_path / 'gen2')
+    assert first.totalCount == second.totalCount == 2 and first.continuation.offset == 1 and second.continuation is None
+    originals = set()
+    versions = set()
+    for page in (first, second):
+        resource = decode_canonical_json(readable(page.selectedRecords[0], page).read_bytes())
+        versions.add(resource['meta']['versionId'])
+        assert encode_json(resource['valueQuantity']['value']) == encode_json(value)
+        evidence = decode_canonical_json(readable(page.evidencePaths[0], page).read_bytes())
+        originals.add(evidence['original']['sha256'])
+        selected = next(e for e in evidence['entries'] if 'extraction' in e)
+        assert selected['target']['pointers'] == quantities[0]['target']['pointers']
+        assert selected['quote'] == '<0,050 mg/L'
+        assert encode_json(selected['extraction']['preprocessing'][0]['parameters']['exact']) == encode_json(value)
+        assert page.dataBytes == sum(f.size for f in (page.identity, *page.selectedRecords, *page.evidencePaths))
+    assert len(versions) == len(originals) == 2
+
+
+@pytest.mark.parametrize('mutation', ['missing', 'tampered'])
+def test_missing_or_tampered_accepted_evidence_fails_cleanly(clinical_candidate, tmp_path, mutation):
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    accept_fixture(vault, candidate, tmp_path)
+    path = next(d / 'evidence.json' for d in (vault.root / f'people/{candidate.personId}/accepted').iterdir()
+                if len(decode_json((d / 'evidence.json').read_bytes())['entries']) > 10)
+    if mutation == 'missing':
+        path.unlink()
+    else:
+        path.write_bytes(path.read_bytes().replace(b'<0,050 mg/L', b'<0,051 mg/L'))
+    with pytest.raises(ArchiveError):
+        build(vault, candidate.personId, 'query', Request(resourceRefs=(ResourceRef('Observation', OBS),)), tmp_path / 'failed')
+    assert not (tmp_path / 'failed').exists() and not list(tmp_path.glob('.helseark-context-*'))
+
+
+def test_real_writer_advances_during_staging_and_no_packet_is_published(tmp_path):
+    # Audit hook lives in a child so it cannot outlive this test. Writer is a
+    # separate real process, without replacing archive/read/publication functions.
+    script = '''
+import sys, subprocess
+from pathlib import Path
+from helseark import archive
+from helseark.contracts import PersonDraft, ContextRequest, ArchiveError
+from helseark.agent_context import build_agent_context
+from test_agent_context import update_payload
+root = Path(sys.argv[1])
+v = archive.init_vault(root/'vault')
+person = archive.add_person(v, PersonDraft('Synthetic race'))
+prepared = root/'prepared'
+base = update_payload(v, person, prepared)
+fired = False
+def audit(event, args):
+    global fired
+    if not fired and event == 'open' and '/.helseark-context-' in str(args[0]) and str(args[0]).endswith('/context.json'):
+        fired = True
+        code = "from pathlib import Path;from helseark import archive;from helseark.contracts import Head;import sys;v=archive.open_vault(Path(sys.argv[1]));archive._publish_change(v,sys.argv[2],Path(sys.argv[3]),Head(int(sys.argv[4]),sys.argv[5],sys.argv[6]))"
+        p = subprocess.run([sys.executable,'-c',code,str(v.root),person,str(prepared),str(base.sequence),base.transactionId,base.changeSha256],capture_output=True)
+        assert p.returncode == 0, p.stderr
+sys.addaudithook(audit)
+try:
+    build_agent_context(v, person, 'query', ContextRequest(), root/'packet')
+except ArchiveError as error:
+    assert error.code == 'STALE_BASE', error
+else:
+    raise AssertionError('stale publication')
+assert fired and archive.head(v, person).sequence == 2
+assert not (root/'packet').exists() and not list(root.glob('.helseark-context-*'))
+'''
+    env = {**os.environ, 'PYTHONPATH': os.pathsep.join([str(Path(__file__).parent), str(Path(__file__).parents[1]/'src')])}
+    child = subprocess.run([sys.executable, '-c', script, str(tmp_path)], env=env, capture_output=True)
+    assert child.returncode == 0, child.stderr
+
+
+def test_large_evidence_is_bounded_as_whole_revision_and_shared_entries_retained(clinical_candidate, tmp_path):
+    import copy
+    _, build, Request = api()
+    vault, candidate = clinical_candidate
+    entry = next(e for e in candidate.evidence['entries'] if e['target']['reference'] == 'urn:uuid:' + OBS and e['kind'] == 'source')
+    candidate.evidence['entries'].extend(copy.deepcopy(entry) for _ in range(1000))
+    persist(candidate)
+    accept_fixture(vault, candidate, tmp_path)
+    refs = (ResourceRef('Observation', OBS),)
+    with pytest.raises(ArchiveError, match='CONTEXT_BUDGET_EXCEEDED'):
+        build(vault, candidate.personId, 'query', Request(resourceRefs=refs), tmp_path / 'large-failed')
+    assert not (tmp_path / 'large-failed').exists() and not list(tmp_path.glob('.helseark-context-*'))
+    context = build(vault, candidate.personId, 'query', Request(resourceRefs=refs, maxDataBytes=1048576), tmp_path / 'large')
+    data = readable(context.evidencePaths[0], context).read_bytes()
+    assert len(data) > 262144
+    entries = decode_json(data)['entries']
+    assert entries.count(next(e for e in entries if e['kind'] == 'source')) == 1001
+    assert context.dataBytes == sum(f.size for f in (context.identity, *context.selectedRecords, *context.evidencePaths))
+
+
+def test_large_pdf_requires_explicit_source_scope_and_remains_hash_reference(tmp_path):
+    from test_validation import asset
+    _, build, Request = api()
+    vault, person, _ = family(tmp_path)
+    data = b'%PDF-synthetic\n' + b'x' * 300000
+    digest = asset(vault, person, data)
+    unselected = build(vault, person, 'inspect', Request(), tmp_path / 'no-pdf')
+    assert unselected.selectedSources == () and digest not in (unselected.path / 'context.json').read_text()
+    selected = build(vault, person, 'import', Request(sourceHashes=(digest, digest)), tmp_path / 'pdf')
+    assert len(selected.selectedSources) == 1 and selected.selectedSources[0].sha256 == digest
+    assert selected.selectedSources[0].size == len(data)
+    assert selected.dataBytes == selected.identity.size
+    assert selected.evidencePaths == () and not list(selected.path.rglob('blob'))

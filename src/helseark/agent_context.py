@@ -17,8 +17,8 @@ from .archive import _bundled_root, _safe, _read, _history, head, resolve
 from .contracts import (ArchiveError, Vault, ResourceRef, AgentTask, ContextRequest,
     AgentTaskDescriptor, CapabilityAvailability, ContextFile, ContextContinuation,
     AgentContext, Issue, uuid_string, sha256_string)
-from .serialization import decode_json, encode_json, hash_bytes
-from .validation import load_definition_registry
+from .serialization import decode_json, decode_canonical_json, encode_json, hash_bytes
+from .validation import load_definition_registry, _pointer
 
 _TASKS = frozenset(('inspect', 'import', 'query', 'correct', 'export', 'verify', 'migrate'))
 _CAPABILITIES = frozenset(('agent-discovery', 'agent-context', 'schema-export',
@@ -171,6 +171,40 @@ def _source(vault, person, digest):
     return ContextFile(str(path), digest, size, str(path))
 
 
+def _evidence_selection(person, entry, data, original, change, resource, registry):
+    """Project exact entries, retaining original indexes without a readable route.
+
+    Whole revisions are the selection unit. Never follow sourceDocument/locator
+    links: quotes are retained evidence, broader source/page reads require an
+    explicit sourceHashes request. Accepted entries are copied unchanged.
+    """
+    if hash_bytes(data) != change['payload']['evidence.json']:
+        raise ArchiveError('INTEGRITY', 'Selected evidence differs from accepted inventory.')
+    evidence = decode_canonical_json(data)
+    revision = f"{entry['type']}/{entry['id']}/_history/{entry['versionId']}"
+    entries, pointers = [], []
+    for index, item in enumerate(evidence['entries']):
+        target = item.get('target', {})
+        if target.get('reference', item.get('resourceRef')) != revision:
+            continue
+        try:
+            for pointer in target.get('pointers', [item.get('pointer')]):
+                _pointer(resource, pointer)
+        except (ValueError, TypeError, KeyError, IndexError):
+            raise ArchiveError('INTEGRITY', 'Selected evidence pointer does not resolve in its revision.') from None
+        entries.append(item)
+        pointers.append(f'/entries/{index}')
+    if not entries:
+        raise ArchiveError('INTEGRITY', 'Selected revision has no retained evidence.')
+    selection = {'selectionVersion': '1', 'personId': person, 'revision': revision,
+        'original': {'changeSha256': original.changeSha256,
+                     'sha256': hash_bytes(data), 'entryPointers': pointers},
+        'entries': entries}
+    if not registry.validate('urn:helseark:schema:0.1.0:agent-context#/$defs/evidenceSelection', selection):
+        raise ArchiveError('INVALID_ENVELOPE', 'Generated evidence selection violates pinned context contract.')
+    return encode_json(selection)
+
+
 def build_agent_context(vault: Vault, person: str, task: AgentTask,
                         request: ContextRequest, destination: Path) -> AgentContext:
     """Build a bounded snapshot; fail closed before making destination visible.
@@ -236,6 +270,7 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
         raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'Person identity exceeds data budget; explicitly increase maxDataBytes.')
     sources = tuple(_source(vault, person, d) for d in dict.fromkeys(request.sourceHashes))
     current, revisions = {}, {}
+    evidence_origins = {directory: (original, change) for original, directory, change in history}
     for _, directory, change in history:
         for entry in change['resources']:
             key = (entry['type'], entry['id'])
@@ -271,30 +306,36 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
             raise ArchiveError('INVALID_CONTINUATION', 'Continuation offset is outside selected inventory.')
         offset = token.offset
     data_bytes, records, record_bytes = len(identity_bytes), [], []
+    evidence_paths, evidence_bytes = [], []
     for directory, entry in selected[offset:]:
+        if len(records) >= request.maxRecords:
+            break
         source_path = directory / entry['path']
         data = _read(directory, entry['path'])
-        if len(data) + len(identity_bytes) > request.maxDataBytes:
-            raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'One whole record plus identity exceeds data budget; increase maxDataBytes or select other records.')
-        if len(records) >= request.maxRecords or data_bytes + len(data) > request.maxDataBytes:
+        if hash_bytes(data) != entry['sha256']:
+            raise ArchiveError('INTEGRITY', 'Selected record differs from accepted inventory.')
+        original, change = evidence_origins[directory]
+        evidence = _evidence_selection(person, entry, _read(directory, 'evidence.json'),
+            original, change, decode_canonical_json(data), registry)
+        size = len(data) + len(evidence)
+        if size + len(identity_bytes) > request.maxDataBytes:
+            raise ArchiveError('CONTEXT_BUDGET_EXCEEDED', 'One whole record with scoped evidence plus identity exceeds data budget; increase maxDataBytes or select other records.')
+        if data_bytes + size > request.maxDataBytes:
             break
         relative = f"records/{entry['type']}-{entry['id']}-{entry['versionId']}.json"
         records.append(ContextFile(relative, entry['sha256'], len(data), str(source_path)))
         record_bytes.append(data)
-        data_bytes += len(data)
+        evidence_relative = relative.replace('records/', 'evidence/', 1)
+        evidence_paths.append(ContextFile(evidence_relative, hash_bytes(evidence), len(evidence), str(destination / evidence_relative)))
+        evidence_bytes.append(evidence)
+        data_bytes += size
     next_offset = offset + len(records)
     continuation = ContextContinuation(person, task, base, scope_digest, next_offset) if next_offset < len(selected) else None
     issues = (Issue('WORKFLOW_UNAVAILABLE', 'info', None, None,
         'Missing workflow capabilities: ' + ', '.join(descriptor.availability.missingCapabilities) + '.'),) if descriptor.availability.status == 'unavailable' else ()
     instructions = tuple(ContextFile('instructions/' + p, hash_bytes(files[p]), len(files[p]), str(kit / p)) for p in instruction_names)
-    patient_entry = current[('Patient', person)]
     identity_file = ContextFile('identity.json', hash_bytes(identity_bytes), len(identity_bytes),
-        str(patient_entry[0] / patient_entry[1]['path']))
-    evidence_paths = []
-    for record in records:
-        evidence_path = Path(record.sourcePath).parent.parent / 'evidence.json'
-        if not any(f.path == str(evidence_path) for f in evidence_paths):
-            evidence_paths.append(_reference(evidence_path, evidence_path.read_bytes()))
+        str(destination / 'identity.json'))
     context = AgentContext(destination, manifest_digest, person, base, task, manifest['kitVersion'], 1,
         instructions, tuple(contracts), sources, tuple(records), len(records), continuation, issues,
         len(selected), data_bytes, instruction_bytes, identity_file, descriptor.availability, descriptor.permittedOperations,
@@ -307,6 +348,7 @@ def build_agent_context(vault: Vault, person: str, task: AgentTask,
     try:
         stage.mkdir(mode=0o700)
         for file, data in [(identity_file, identity_bytes), *zip(records, record_bytes),
+                           *zip(evidence_paths, evidence_bytes),
                            *((f, files[p]) for f, p in zip(instructions, instruction_names))]:
             target = _safe(stage, file.path)
             target.parent.mkdir(parents=True, exist_ok=True)

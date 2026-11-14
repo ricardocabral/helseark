@@ -227,8 +227,9 @@ class AgentTaskDescriptor:
 
 @dataclass(frozen=True)
 class ContextFile:
-    # Instructions/records are packet-relative; contracts/sources are absolute
-    # references into the retained vault. sourcePath always identifies exact bytes.
+    # Instructions/records/evidence are packet-relative; contracts/sources are
+    # absolute retained references. Identity/evidence sourcePath identifies the
+    # disposable projection itself, never a broader original payload.
     path: str
     sha256: Sha256
     size: int
@@ -258,6 +259,7 @@ class AgentContext:
     availability: CapabilityAvailability
     permittedOperations: tuple[str, ...]
     kitManifest: ContextFile
+    # One budgeted evidenceSelection JSON per returned exact revision, in order.
     evidencePaths: tuple[ContextFile, ...]
     expectedChecks: tuple[str, ...]
     outputPaths: tuple[str, ...]

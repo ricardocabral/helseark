@@ -76,8 +76,8 @@ selection uses repeated `--resource Type/UUID` or
 Each packet contains `context.json`, `identity.json`, selected whole immutable
 record bytes under `records/`, and base plus selected instruction files under
 `instructions/`. Identity is a disposable projection of Patient resourceType,
-id, name and birthDate; its original accepted Patient path is retained for
-traceability. It is not a second canonical record. Clinical records are copied
+id, name and birthDate; its sourcePath points to the projection itself.
+It is not a second canonical record. Clinical records are copied
 byte-for-byte with decimal scale, comparator, unit, status and date precision.
 
 `AgentContext` records destination path, manifest digest, person/head/task, kit/
@@ -86,24 +86,53 @@ selectedRecords, returnedCount, continuation and issues. Additional diagnostics
 are totalCount, dataBytes, instructionBytes, identity, availability,
 permittedOperations, kitManifest, evidencePaths, expectedChecks and outputPaths.
 Every file reference has path, SHA-256, byte size and sourcePath. Record and
-instruction paths are packet-relative; sourcePath is absolute. Contracts, kit
-manifest, evidence and sources are hashed absolute references to retained local
-bytes. Task-listed schemas, profiles, references and the definition lock provide exact
-local routes; unlisted files are never added to the context response. Large PDFs and core
-archives are references, not embedded or copied. For a portable complete schema
-copy use Task2's implemented `schema export`; context is not a backup/export.
-Evidence references identify exact accepted evidence files for the selected
-revisions; they are not embedded and can contain other entries from that same
-person/change. Import packets expose none of those historical evidence paths.
+instruction and evidence paths are packet-relative; sourcePath is absolute.
+For identity and evidence it points to the disposable packet file itself.
+Contracts, kit manifest and explicitly selected sources are hashed absolute
+references to retained local bytes. Task-listed schemas, profiles, references
+and the definition lock provide exact local routes; unlisted files are never
+added. Large PDFs and core archives remain references, never embedded or copied.
+For a portable complete schema copy use Task2's `schema export`; context is not
+a backup/export.
 
-`dataBytes` counts embedded identity plus whole selected record bytes;
-`instructionBytes` counts base plus selected skill/prompt bytes. Reference sizes
-are explicit but do not consume embedded data budget. Base and selected
-instructions have a fixed 32 KiB ceiling. The builder refuses an oversized
-identity or any single record plus identity with `CONTEXT_BUDGET_EXCEEDED` and an
-actionable message. It never truncates clinical values. `--max-records` and
-`--max-data-bytes` explicitly change data budgets; instruction overflow requires
-a smaller compatible kit. A page stops before crossing either data limit.
+`evidencePaths` contains one disposable JSON selection per returned exact
+revision under `evidence/`, in selectedRecords order. The payload contract is
+`agent-context.schema.json#/$defs/evidenceSelection`: selectionVersion `1`,
+personId, revision (`Type/UUID/_history/UUID`), original and entries.
+`original` contains the accepted changeSha256, exact evidence-file sha256 and
+entryPointers (`/entries/N`) in original order. Each output entry is an unchanged
+copy at that original index: exact target revision, field pointers, quotes,
+locators, sourceDocument, hashes and generated rules retain their meaning.
+Original entry pointers identify the original evidence, not indexes in the
+selection. They are identifiers, not filesystem routes. No original evidence
+path is published. Accepted evidence is never rewritten; deleting a packet has
+no effect on the archive. This projection is not a second canonical evidence
+store or an independently verifiable proof of acceptance; archive integrity
+verification remains necessary to verify the original bindings.
+
+Selection never follows sourceDocument or locator links to expand scope.
+Necessary source identifiers and quotes in selected entries are evidence for the
+selected revision; they do not authorize reading whole sources, extraction
+artifacts or pages. `selectedSources` contains exactly the requested sourceHashes,
+including none when none were requested. If a workflow needs a broader source or
+page, it must disclose that additional exposure and obtain explicit source scope
+before requesting a new context with those hashes. Import exposes no historical
+evidence. A task with general filesystem access can still read the vault;
+external tools must enforce the packet's scope, which is not a filesystem ACL.
+
+`dataBytes` counts actual embedded identity, whole selected records and all
+scoped evidence bytes (including selection provenance). `instructionBytes`
+counts base plus selected skill/prompt bytes. Explicit source and definition
+reference sizes do not consume the data budget; their full sizes are reported.
+Base and selected instructions have a fixed 32 KiB ceiling. The builder refuses
+an oversized identity or any single whole record with its evidence plus identity
+with `CONTEXT_BUDGET_EXCEEDED`. It never truncates values, quotes or pointers.
+`--max-records` and `--max-data-bytes` explicitly change data budgets;
+instruction overflow requires a smaller compatible kit. A page stops before
+crossing either limit. Evidence may therefore reduce records per default page.
+The selection contract must exist in the retained pinned definition registry;
+a release predating it fails explicitly, without using installed latest schemas
+or rewriting an existing vault's pins.
 
 `returnedCount` is this page's record count; `totalCount` is the whole selected
 record inventory, excluding identity and source references. A continuation binds

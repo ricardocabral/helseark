@@ -1,7 +1,8 @@
-# Archive format 1 (Task 1)
+# Archive format 1
 
-This reference describes the implemented storage boundary. Clinical imports,
-FHIR profiles, source-document evidence, agent discovery and import review are
+This reference describes the implemented storage boundary. Supported-profile
+validation, source-document evidence and pinned agent
+discovery/context are implemented. Intake and interactive import review remain
 later tasks. Person creation accepts a narrow self-reported identity only.
 Validation is not a claim of medical correctness or full FHIR conformance.
 
@@ -49,26 +50,36 @@ people/<person UUID>/accepted/<8-digit sequence>-<transaction UUID>/
     evidence.json
     validation.json
     review.json
-    resources/Patient-<person UUID>.json
+    resources/<type>-<resource UUID>.json
+agent-kit/<kit version>/manifest.json
+agent-kit/<kit version>/<manifest-listed assets>
+AGENTS.md
+CLAUDE.md
 .runtime/writer.lock
 .runtime/staging/<opaque UUID>/
 ```
 
 `vault.json` contains no names. It pins archive format `1`, contract/profile
 `0.1.0`, FHIR `4.0.1`, serializer `helseark-json-1`, the actual SHA-256 of the
-copied definitions lock, and an independent vault UUID. Profile version is a
-reserved compatibility pin; Task 1 does not ship or claim profile validation.
-Agent-kit version and digest are explicitly `null` until the kit is implemented.
-No absent artifact is assigned an invented digest or advertised as supported.
+copied definitions lock, and an independent vault UUID. Profile validation uses
+retained supported profiles with pinned official FHIR R4 definitions; it is not
+the full official validator or a terminology service. New vaults also pin the
+retained agent-kit version and actual manifest digest as a pair. Legacy paired
+null pins remain readable, but agent contexts fail `MISSING_KIT`; there is no
+fallback to installed latest and no automatic pin/history rewrite.
 
-The six [local schemas](../../schemas/0.1.0/) use JSON Schema 2020-12 and
-reject unknown envelope fields, including nested ones. Schema IDs are local
-URNs. The [definitions lock](../../definitions/lock.json) inventories the exact
-repository-authored schema bytes with their sizes and real SHA-256 values.
-It makes no claim to contain upstream FHIR artifacts. Init copies and checks
-these contracts offline; an installed wheel carries the same inventory.
-Envelope validation has no remote references. Task 2 extends this inventory
-with pinned official FHIR definitions, licenses and acquisition provenance.
+The [local schemas](../../schemas/0.1.0/) use JSON Schema 2020-12 and reject
+unknown envelope fields, including nested ones. The retained
+[definitions lock](../../definitions/lock.json) inventories exact schema, profile,
+reference and upstream definition bytes, sizes and hashes, with acquisition and
+license information. Upstream R4 JSON schemas retain draft-06. Local URN/canonical
+IDs resolve through the retained registry offline, with no remote fallback.
+Init copies and verifies these artifacts; the installed wheel carries the same
+inventory. See [agent protocol](agent-protocol.md) for manifest-only discovery,
+explicit person/source/revision scope and budgeted disposable evidence selections.
+Accepted evidence is immutable. Packet evidence identifies its original change,
+file digest and entry indexes without offering the whole accepted evidence as a
+readable task payload.
 
 Accepted JSON, copied definitions, vault identity and explanatory README are
 the durable archive. Reading needs no database, roster, installed source
@@ -79,7 +90,10 @@ A writer recreates missing runtime directories. Readers perform no repair.
 An empty `accepted/` may remain for an unpublished person after process death;
 its head is `None` and it has no accepted Patient. A missing accepted directory,
 malformed change, sequence gap, checksum mismatch or symlink fails closed.
-Opening a vault verifies all visible person histories; scoped reads verify
+`open_definitions` verifies configuration and retained definition bytes without
+reading people or kit state. `_open_vault_metadata` layers kit closure and vault
+structure checks. `open_vault` additionally verifies all visible person histories;
+scoped reads verify
 the selected person's entire visible chain, even for an older snapshot.
 
 ## Identity and revisions
@@ -98,8 +112,8 @@ the person's history. The relative path is exactly
 Version-pinned reads retain their meaning after later changes.
 
 Each person's graph and history are separate. A resource lookup never searches
-another person. Full clinical subject/reference closure is Task 2's validation
-responsibility; the internal publisher is not a clinical-import API.
+another person. Clinical subject/reference closure belongs to proposal
+validation; the internal publisher is not a clinical-import API.
 
 ## Retained proposal and review binding
 
@@ -107,12 +121,12 @@ Person creation makes the same retained envelopes as a normal change:
 
 - `evidence.json` records explicit self-reported fields with `kind=user-entry`
   and generated IDs/meta with the `person-add-1` rule. The current evidence
-  schema supports these identity entries; source locators belong to Task 2.
+  schema supports these identity entries and validated clinical source locators.
 - `proposal.json` binds person, transaction, kind, candidate-input digest,
   base digest, version pins, resource/asset inventories and evidence digest.
 - `validation.json` binds the proposal digest and records check coverage.
-  The narrow Patient constructor passes; full FHIR and terminology are
-  explicitly `not-checked`.
+  Supported-profile and evidence checks are implemented; full official FHIR
+  validation and terminology are explicitly `not-checked`.
 - `review.json` binds proposal bytes, validation bytes, person and base digest.
   The explicit `person add` action records a local-user decision about the
   entered identity. Its label does not authenticate a human identity.
@@ -124,7 +138,8 @@ Changed resource, evidence, proposal or validation bytes invalidate the retained
 bindings. Readers check both change inventory and proposal inventory. Failed
 validation checks cannot be accepted. Import-specific issue acknowledgement,
 source matching, clinical admissibility and interactive human review are
-additional Task 2/6 responsibilities; there is no arbitrary-write CLI.
+additional validation/review responsibilities; the interactive import review
+workflow is not implemented and there is no arbitrary-write CLI.
 
 Assets, when supplied by later preparation, are person-local at
 `assets/sha256/<digest>/blob`. Their entries contain SHA-256, byte size, media
