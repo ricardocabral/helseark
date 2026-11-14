@@ -1,0 +1,35 @@
+{
+  "fixtureId": "clinical-history-independent-oracle-v1",
+  "license": "CC0-1.0",
+  "creationMethod": "Manually authored synthetic source sentences, separately authored candidate FHIR and independently specified expected facts; literal fixture data, no runtime generator or extraction/model trial.",
+  "reviewerNotes": "Representative assertions grounded in the independent wave8 Task13 review corpus. Author assertions are not independent approval. Unknowns and unsupported ImagingStudy are deliberate.",
+  "files": [
+    {
+      "path": "source.json",
+      "sha256": "0698c8286570aee4bc955c472c0e8612478065b2b8e964f0ec5984d1a8f0c678"
+    },
+    {
+      "path": "candidate-resources.json",
+      "sha256": "a4179b966fc984a5c2f9fe4e16e9362b6d6df8ad47224df284683ebc2bd32f6f"
+    },
+    {
+      "path": "../../../expected/clinical-history-facts.json",
+      "sha256": "a245653ffae89310df903e1e45b47dd731442d4232b9d0f1c3dba9f96cfe8217"
+    }
+  ],
+  "behaviorTest": "tests/test_clinical_history_oracle.py",
+  "expectedFacts": "../../../expected/clinical-history-facts.json",
+  "expectedCounts": {
+    "clinicalAssertions": 8,
+    "families": 8,
+    "sourceDocuments": 1,
+    "unsupportedSourceOnlyKinds": [
+      "ImagingStudy"
+    ]
+  },
+  "expectedFailures": {
+    "singleLeafEvidenceRemoved": "EVIDENCE_MISSING",
+    "singleLeafEvidenceForgedGenerated": "GENERATED_CLINICAL_EVIDENCE"
+  },
+  "accuracyClaim": "Toolkit preservation and bounded evidence enforcement only; extraction accuracy not checked."
+}

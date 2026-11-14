@@ -1,0 +1,13 @@
+{
+  "identity": "Synthetic history oracle patient; explicitly assigned to the selected test person",
+  "document": "current; application/json; Synthetic independent history source",
+  "reportedUse": "active reported use of Synthetic evening medicine, 1.250 mg each evening daily since 2024-02. Adherence unknown; stop date unknown.",
+  "prescription": "active order for Synthetic prescribed medicine, 2.500 mg daily, authored 2025-01. Actual use unknown.",
+  "condition": "active but unconfirmed Synthetic suspected condition; onset Possibly childhood; recorded 2025-09-01. This is not a confirmed diagnosis.",
+  "allergy": "active, confirmed source assertion: No known allergies explicitly reported. This is an explicit negative assertion, not a missing allergy list.",
+  "vaccination": "completed Synthetic vaccine in 2021, 0.500 mL. Series Unknown; dose number Unknown. Month and day unknown.",
+  "procedure": "not-done Synthetic planned procedure; Cancelled per source. Performed date unknown; outcome unknown.",
+  "encounter": "cancelled AMB encounter. Period unknown; no measurement time supplied.",
+  "relative": "completed family history assertion about Mother: Synthetic relative condition, onset age 45.00 years, contributedToDeath false. Birth date unknown; this is not the selected patient's diagnosis.",
+  "unsupported": "ImagingStudy: synthetic image pixels and acquisition details remain source only; not structured."
+}

@@ -1,0 +1,73 @@
+[
+  {
+    "resourceType": "MedicationStatement",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-statement|0.2.0"]},
+    "status": "active",
+    "medicationCodeableConcept": {"text": "Synthetic evening medicine"},
+    "subject": {"reference": "Patient/PERSON"},
+    "effectivePeriod": {"start": "2024-02"},
+    "dosage": [{"text": "1.250 mg each evening; adherence unknown", "timing": {"repeat": {"frequency": 1, "period": 1, "periodUnit": "d", "when": ["EVE"]}}, "doseAndRate": [{"doseQuantity": {"value": 1.250, "unit": "mg"}}]}],
+    "note": [{"text": "Adherence unknown; stop date unknown"}]
+  },
+  {
+    "resourceType": "MedicationRequest",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-request|0.2.0"]},
+    "status": "active",
+    "intent": "order",
+    "medicationCodeableConcept": {"text": "Synthetic prescribed medicine"},
+    "subject": {"reference": "Patient/PERSON"},
+    "authoredOn": "2025-01",
+    "dosageInstruction": [{"text": "2.500 mg daily; actual use unknown", "doseAndRate": [{"doseQuantity": {"value": 2.500, "unit": "mg"}}]}]
+  },
+  {
+    "resourceType": "Condition",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-condition|0.2.0"]},
+    "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+    "verificationStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-ver-status", "code": "unconfirmed"}]},
+    "code": {"text": "Synthetic suspected condition"},
+    "subject": {"reference": "Patient/PERSON"},
+    "onsetString": "Possibly childhood",
+    "recordedDate": "2025-09-01"
+  },
+  {
+    "resourceType": "AllergyIntolerance",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-allergy-intolerance|0.2.0"]},
+    "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+    "verificationStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "code": "confirmed"}]},
+    "code": {"text": "No known allergies explicitly reported"},
+    "patient": {"reference": "Patient/PERSON"}
+  },
+  {
+    "resourceType": "Immunization",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-immunization|0.2.0"]},
+    "status": "completed",
+    "vaccineCode": {"text": "Synthetic vaccine"},
+    "patient": {"reference": "Patient/PERSON"},
+    "occurrenceDateTime": "2021",
+    "doseQuantity": {"value": 0.500, "unit": "mL"},
+    "protocolApplied": [{"series": "Unknown", "doseNumberString": "Unknown"}]
+  },
+  {
+    "resourceType": "Procedure",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-procedure|0.2.0"]},
+    "status": "not-done",
+    "statusReason": {"text": "Cancelled per source"},
+    "code": {"text": "Synthetic planned procedure"},
+    "subject": {"reference": "Patient/PERSON"}
+  },
+  {
+    "resourceType": "Encounter",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-encounter|0.2.0"]},
+    "status": "cancelled",
+    "class": {"code": "AMB"},
+    "subject": {"reference": "Patient/PERSON"}
+  },
+  {
+    "resourceType": "FamilyMemberHistory",
+    "meta": {"profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-family-member-history|0.2.0"]},
+    "status": "completed",
+    "patient": {"reference": "Patient/PERSON"},
+    "relationship": {"text": "Mother"},
+    "condition": [{"code": {"text": "Synthetic relative condition"}, "onsetAge": {"value": 45.00, "unit": "years"}, "contributedToDeath": false}]
+  }
+]
