@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
-          "size": 16947
+          "sha256": "ed786e03f9cf799d353971799f4cea45aea379361248b5e96edb189d8330cc52",
+          "size": 20737
         }
       ],
       "license": "Apache-2.0",
@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "57242db995db9e58634317c2fd1da6615e6499526c6256b271e7777f81d2ffce",
-          "size": 8487
+          "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a",
+          "size": 9254
         }
       ],
       "license": "Apache-2.0",
@@ -793,13 +793,39 @@
       "files": [
         {
           "path": "docs/tutorials/first-archive.md",
-          "sha256": "a88da7b33d458b96651ee8378786f4bbb9d910134acc44db4c9fe1b0146cdb1a",
-          "size": 4004
+          "sha256": "1363bcc1960de847614e4fb54b570a90fe1aad0b99e65d178c9987da76ce0b1e",
+          "size": 3753
         }
       ],
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-first-archive",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/query-history.md",
+          "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
+          "size": 4050
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-query-history",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/import-structured-data.md",
+          "sha256": "d27de6f7c32c3d16f2ccde81f7f73bd79a9af323ae71708b947a6a6575ae4780",
+          "size": 2902
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-import-structured-data",
       "version": "0.1.0"
     }
   ],

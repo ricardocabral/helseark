@@ -296,3 +296,10 @@ precision, bucket and relation for each returned record. Unknown dates remain
 selected. Continuations bind the person, task, source/reference selection, date
 bounds, kit digest and Head. Counts and record/evidence budgets apply per page;
 no filter failure falls back to an unfiltered or all-person scan.
+
+## Structured R4 import
+
+[Structured import](../how-to/import-structured-data.md) uses explicit incoming Patient and
+provider mapping through candidates and the production review boundary. Source-native
+identities never become local logical/revision IDs. Unsupported data remains in original
+bytes and blocks silent loss; accepted history is never rewritten by an adapter.

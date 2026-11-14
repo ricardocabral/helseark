@@ -535,7 +535,13 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
         if digest: digests.add(digest)
     for digest in sorted(digests):
         relative=f'assets/sha256/{digest}/blob'; data=_regular(_safe(vault.root,f'people/{fresh.personId}/{relative}'),LIMITS.sourceBytes)
-        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':'application/pdf' if data.startswith(b'%PDF-') else 'application/json'})
+        declared_media = {a['attachment']['contentType'] for r in resources if r['resourceType']=='DocumentReference'
+                          for a in r.get('content',[]) if a.get('attachment',{}).get('url')==relative
+                          and 'contentType' in a['attachment']}
+        if len(declared_media)>1:
+            raise ArchiveError('INVALID_INPUT','Conflicting source attachment media types.')
+        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':next(iter(declared_media),
+            'application/pdf' if data.startswith(b'%PDF-') else 'application/json')})
         for name in ('source.json','extraction.json'):
             receipt=_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/{name}')
             if receipt.exists(): bindings.append({'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),'sha256':hash_bytes(_regular(receipt,65536))})
@@ -571,3 +577,54 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     control=_safe(vault.root,f'.runtime/prepared/{result.proposalSha256}.json'); _mkdir(control.parent)
     _write(control,encode_json({'candidatePath':str(fresh.path)}))
     return result
+
+
+def _structured_source(source: SourceReceipt, person: str):
+    """Resolve only the selected retained receipt; source content cannot choose a vault."""
+    from .archive import _open_vault_metadata
+    if not isinstance(source, SourceReceipt) or source.personId != person:
+        raise ArchiveError('PERSON_MISMATCH', 'Source differs from explicitly assigned person.')
+    uuid_string(person)
+    path = Path(source.assetPath)
+    if len(path.parents) < 6:
+        raise ArchiveError('SOURCE_RECEIPT_MISMATCH', 'Expected a retained source receipt.')
+    vault = _open_vault_metadata(path.parents[5])
+    return vault, _source_bytes(vault, source)
+
+
+def _structured_candidate(vault, source, family, mapping, resources, evidence, issues, coverage):
+    """One source authority and candidate-envelope boundary for deterministic adapters.
+
+    Mapping digest and coverage are bound in candidate unresolved metadata; editable
+    sidecars are explanatory only. No model/prompt execution is claimed.
+    """
+    cid = str(uuid4()); base = head(vault, source.personId)
+    path = _safe(vault.root, f'people/{source.personId}/work/candidates/{cid}')
+    provenance = {'provenanceVersion':1, 'status':'external-unknown',
+        'reason':f'Deterministic {family} adapter v1, no agent prompt; actual parser provenance is in evidence.'}
+    coverage_data = {'family':family, 'sourceSha256':source.sourceSha256,
+                     'mapping':document(mapping), 'items':coverage}
+    coverage_bytes = encode_json(coverage_data)
+    issues = tuple(issues) + (Issue('STRUCTURED_COVERAGE','review',None,None,
+        f'Review explicit assignment, source inventory and mapping; coverage SHA-256 {hash_bytes(coverage_bytes)}.'),)
+    metadata = {'contractVersion':'0.1.0', 'candidateId':cid,'personId':source.personId,
+        'baseChangeSha256':base.changeSha256,'fhirVersion':'4.0.1','profileVersion':'0.1.0',
+        'sourceSha256':[source.sourceSha256], 'bundlePath':'bundle.json','evidencePath':'evidence.json',
+        'producer':{'kind':'adapter','name':f'deterministic {family} adapter v1 (no model)'},
+        'producerProvenance':provenance,'unresolved':[document(i) for i in issues]}
+    bundle = {'resourceType':'Bundle','type':'collection','entry':[
+        {'fullUrl':'urn:uuid:'+r['id'], 'resource':r} for r in resources]}
+    evidence = {'contractVersion':'0.1.0','personId':source.personId,
+                'producerProvenance':provenance,'entries':evidence}
+    with _writer_lock(vault):
+        _source_bytes(vault,source)
+        if head(vault,source.personId)!=base:
+            raise ArchiveError('STALE_BASE','Selected history changed during mapping.')
+        _new_directory(path)
+        for name,value in [('candidate.json',metadata),('bundle.json',bundle),('evidence.json',evidence)]:
+            _write(path/name,encode_json(value))
+        _write(path/'coverage.json',coverage_bytes)
+        control = _safe(vault.root,f'.runtime/intake/{cid}.json'); _mkdir(control.parent)
+        _write(control,encode_json({'personId':source.personId,'sourceHashes':[source.sourceSha256],
+                                  'identityConfirmed':True}))
+    return read_candidate(vault,path,person=source.personId)

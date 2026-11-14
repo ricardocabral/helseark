@@ -44,3 +44,5 @@ PDF extraction/candidate reading and human-controlled reviewed publication are a
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
+
+Implemented structured family: bounded FHIR R4 JSON Bundle via `helseark --vault VAULT intake fhir-r4 SOURCE --person UUID --mapping TRUSTED_LOCAL_JSON --json`. Mapping is human-controlled, never supplied by source prose. No CSV family is implemented in this kit version. Stop on unknown mapping or unsupported content. Use [structured guide](../../docs/how-to/import-structured-data.md) for candidate/review boundaries.
