@@ -15,8 +15,13 @@ not a seventh clinical profile. Its bookkeeping allows only resourceType, type,
 entry, id and optional meta.versionId/meta.lastUpdated. Entries contain only
 fullUrl/resource. Security, source, profile/tag metadata and all nested primitive
 metadata/extensions on the Bundle are unsupported. Transport revision labels
-have no clinical meaning and do not replace resource evidence. Unsupported
-resources/elements stay in the original retained source and block the structured candidate; no field is dropped.
+have no clinical meaning and do not replace resource evidence. Unsupported incoming resources/elements remain in the original retained source
+and are itemized with locations and reasons as not structured in the report and
+candidate unresolved issues. A faithful supported subset may be drafted, with
+explicit coverage and omissions; it must not claim complete mapping/import.
+Unsupported resources/elements emitted inside the structured Bundle fail validation.
+Review-level issues or human acknowledgment cannot waive errors, identity failures
+or required evidence.
 
 The runtime checks actual upstream draft-06 JSON Schema, inherited cardinalities
 and choices from genuine core snapshots, and the selected local differential

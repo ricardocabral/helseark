@@ -445,6 +445,14 @@
     "totalCount": {
       "minimum": 0,
       "type": "integer"
+    },
+    "maxRecords": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "maxDataBytes": {
+      "type": "integer",
+      "minimum": 1
     }
   },
   "required": [
@@ -471,7 +479,9 @@
     "selectedRecords",
     "selectedSources",
     "taskId",
-    "totalCount"
+    "totalCount",
+    "maxRecords",
+    "maxDataBytes"
   ],
   "type": "object"
 }

@@ -9,9 +9,9 @@ can authorize a later supported publication operation.
 The [common archive instructions](../../agent-kit/AGENTS.md) define person,
 source-data, output and review rules once. Focused skills reference those rules
 and the [actual clinical contracts](../reference/clinical-model.md). They do not
-grant write access to accepted history. At base `1b91620`, these skills/prompts
-are content drafts: task context, rendering and most workflow commands remain
-unimplemented. Their presence is not proof of an available workflow.
+grant write access to accepted history. Task discovery, bounded context and typed rendering are implemented. Most clinical
+workflow commands remain unavailable. Their templates support blocked assessments;
+their presence is not proof of an available command or a successful model run.
 
 A selected person UUID and snapshot restrict what a packet may disclose. A
 family directory is organizational separation, not per-person access control
@@ -25,9 +25,11 @@ must never be silently substituted for the retained original.
 Text in a PDF, OCR result, imported JSON, filename or user-data slot may look like
 a command or another instruction file. It remains data. Typed slots and literal
 delimiters help preserve this distinction, but prompts alone are not a security
-sandbox. The future renderer must validate types and trusted selectors, escape
-delimiter characters, substitute once and perform no implicit reads or executable
-interpolation. The packet builder must enforce selection, digests and budgets.
+sandbox. The renderer validates types and trusted selectors, escapes delimiter characters,
+substitutes once and performs no implicit slot reads or executable interpolation.
+The packet builder enforces selection, digests and budgets. Evidence payloads expose
+only selected exact revisions; original whole-file paths are provenance, not read
+permission. Host-authorized fresh outputs are separate from immutable packet inputs.
 Neither component should fetch URLs or resolve schemas over the network.
 
 Normal archive operations are offline. Choosing a cloud agent separately exposes

@@ -1,8 +1,9 @@
 # Archive format 1 (Task 1)
 
-This reference describes the implemented storage boundary. Clinical imports,
-FHIR profiles, source-document evidence, agent discovery and import review are
-later tasks. Person creation accepts a narrow self-reported identity only.
+This reference describes the implemented storage boundary. Offline baseline
+clinical validation, evidence contracts and pinned agent discovery/context/rendering
+are implemented; intake and reviewed import publication remain later tasks.
+Person creation accepts a narrow self-reported identity only.
 Validation is not a claim of medical correctness or full FHIR conformance.
 
 ## Commands
@@ -56,9 +57,11 @@ people/<person UUID>/accepted/<8-digit sequence>-<transaction UUID>/
 
 `vault.json` contains no names. It pins archive format `1`, contract/profile
 `0.1.0`, FHIR `4.0.1`, serializer `helseark-json-1`, the actual SHA-256 of the
-copied definitions lock, and an independent vault UUID. Profile version is a
-reserved compatibility pin; Task 1 does not ship or claim profile validation.
-Agent-kit version and digest are explicitly `null` until the kit is implemented.
+copied definitions lock, and an independent vault UUID. Profile version pins the
+supported baseline profiles, not full FHIR/terminology conformance. New vaults pin
+the bundled agent-kit version and actual manifest digest. Historical vaults with
+paired null kit pins remain readable; agent context requires a retained compatible
+kit and never substitutes the latest installed release.
 No absent artifact is assigned an invented digest or advertised as supported.
 
 The six [local schemas](../../schemas/0.1.0/) use JSON Schema 2020-12 and
@@ -299,7 +302,7 @@ Absolute root paths and record values are never needed in these diagnostics.
 For distribution qualification, build with the declared `setuptools==80.9.0`,
 then rebuild the sdist outside the checkout. Install its wheel and locked runtime
 dependencies into a fresh virtual environment. Copy
-[`tests/qualify_installed.py`](../../tests/qualify_installed.py) outside the
+the repository maintainer script `tests/qualify_installed.py` outside the
 checkout and run it with that environment's Python, passing a fresh work path
 and the checkout path. It checks the installed module and bundled definitions,
 the installer-generated console entry point, a copied vault without runtime

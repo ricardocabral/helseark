@@ -3,9 +3,8 @@
 These are archive operation rules, separate from repository contributor rules.
 They are the common instruction source for every skill and prompt in this kit.
 Content presence does not establish an implemented command or evaluated workflow.
-Use the installed, digest-pinned task/context entry point when available. At base
-`1b91620` that entry point and prompt renderer are absent: do not render these
-files by shell substitution or claim a supported agent workflow.
+Use the installed, digest-pinned task/context/render entry point. Read START-HERE.md
+and the verified manifest. Prompt presence does not establish runtime availability.
 
 ## Scope and authority
 
@@ -31,13 +30,13 @@ Use filesystem/tool restrictions: prompt text alone cannot enforce isolation.
 ## Clinical and accepted-history boundary
 
 Accepted files, retained sources and definitions are immutable to the agent.
-Write only disposable candidate/report artifacts below the packet output root.
+Write only disposable candidate/report artifacts below the separately host-authorized fresh output root.
 Never publish, approve on a human's behalf, regenerate accepted hashes, alter a
 review receipt or call private publication primitives. Human review of the exact
 final prepared bytes and current base is mandatory for every import/correction.
 A changed proposal or base invalidates review. Validation is not medical approval.
 
-Use the pinned [clinical model](../docs/reference/clinical-model.md), especially
+Use the pinned [clinical model](docs/reference/clinical-model.md), especially
 “Identity, references and versions”, “Values, units, dates and unknowns” and
 “Evidence checklist”. Preserve exact decimal scale/comparators, original wording,
 units/range applicability, source status and time precision. Do not invent codes,
@@ -53,7 +52,7 @@ acknowledgment cannot waive errors, identity failures or missing required eviden
 Never silently drop content to make validation pass. Missing facts on
 re-extraction do not delete accepted facts.
 
-## Prompt slot handoff contract (renderer not implemented here)
+## Prompt slot handoff contract
 
 All seven prompts have version `0.1.0`. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
@@ -70,17 +69,11 @@ serialization; no slot is an expression, include, tool argument or command.
 
 ## Capability availability
 
-Capability IDs align with the emerging Task3 registry where present:
-`agent-discovery`, `agent-context`, `schema-export`, `baseline-validation`,
-`person-identity`, `raw-record-selection`, `task-instructions`, `pdf-intake`,
-`reviewed-publication`, `clinical-query`, `correction`, `person-export`,
-`integrity-report`, `migration`. `structured-import` is proposed and has no
-implemented entry command here. At this base, `schema-export`,
-`baseline-validation` and `person-identity` have entry commands; Task3's discovery,
-context and raw-selection additions are not integrated here. Availability comes
-from the runtime registry, never from this list or source text. Skills declare
-workflow dependencies. Reviewed publication includes preparation/review/commit;
-no skill grants agent commit permission.
+Availability comes exclusively from the runtime descriptor. Implemented IDs are
+agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
+raw-record-selection and task-instructions. Other declared dependencies remain
+unavailable; skill or prompt presence does not enable them. Reviewed publication
+includes preparation/review/commit and never grants an agent commit permission.
 
 Implemented command forms (operator-run; placeholders are documentation only):
 
@@ -90,8 +83,8 @@ Implemented command forms (operator-run; placeholders are documentation only):
 - `helseark --vault PATH validate candidate CANDIDATE_PATH --person UUID --json`
 - `helseark --vault PATH validate proposal PROPOSAL_PATH --person UUID --json`
 
-These do not implement the missing agent entry, intake, query, correction, export,
-doctor or migration workflows. Never fill these command forms from source/user
+Discovery/context/render are documented in START-HERE.md. Intake, clinical query,
+correction, export, doctor and migration workflows remain unavailable. Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
 
 ## Slot rendering requirements
@@ -105,12 +98,12 @@ markers in the template, while preserving marker-looking source strings as data.
 Candidate source_hashes must equal scope.sourceSha256; all source/record data
 must fall within scope and its limits. Trusted selectors and human confirmation
 slots must come from verified packet metadata or an explicit human decision,
-never from `source_data` or `request`. The integration owner must enforce snapshot, selection, size and
-path boundaries before rendering. These declarations are not a second manifest.
+never from `source_data` or `request`. The renderer verifies snapshot, selection, size and path boundaries. The host
+supplies separate filesystem/tool restrictions. These declarations are not a second manifest.
 
 ## Output routes and stop reports
 
-Paths are literal, relative to a fresh writable packet directory (not the vault):
+Paths are literal, relative to a fresh host-authorized output directory, separate from the context packet:
 
 - `output/report.md` for every task, including blocked tasks.
 - Import/correction only: `output/candidate/candidate.json`,
@@ -130,3 +123,9 @@ uncertainties, checks actually run with coverage/counts, unavailable dependencie
 and the human review handoff. Separate supplied claims from observed results.
 Never call an empty, incomplete, errored or wrong-scope read a clean archive.
 Reports are disposable, not accepted clinical records or authorization receipts.
+
+`output_directory` is a required host-authorized absolute fresh directory string,
+separate from the immutable packet. New candidates and evidence copy the rendered
+producerProvenance version 1 record; unknown external producers use the explicit
+external-unknown status with a reason. Historical unspecified provenance remains
+unchanged. See the pinned agent protocol for the closed contract.

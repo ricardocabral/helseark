@@ -1,20 +1,221 @@
 {
   "baseInstructionPaths": [
-    "START-HERE.md"
+    "START-HERE.md",
+    "AGENTS.md"
   ],
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "39b2ba733e45ca417398f9a130b861ce33ae01cf5cbadb0ecbb1b76bb7ee902c",
+    "definitionLockSha256": "26f16c3902958498f65f4105b11296edce50924f874bc762b7876c8b3a75f724",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
   },
   "files": [
     {
+      "path": "AGENTS.md",
+      "sha256": "a670007c828edf17a019a9172b0067d0dfd182d73f97ffe6ae410a0249d6e912",
+      "size": 8502
+    },
+    {
       "path": "START-HERE.md",
-      "sha256": "d88801326399e2f9c3721e4e73a8bf3858511be07de7f8527c7c32c175df96bf",
-      "size": 1772
+      "sha256": "507d076335d32b5e5899d66521417fb11ba7173b20b207b667c526178e876f82",
+      "size": 2132
+    },
+    {
+      "path": "definitions/lock.json",
+      "sha256": "26f16c3902958498f65f4105b11296edce50924f874bc762b7876c8b3a75f724",
+      "size": 30013
+    },
+    {
+      "path": "docs/reference/agent-protocol.md",
+      "sha256": "c411a8d6fce4c43727858b3014d9a93d572c648b5e4de60ddb9ad6914fcdf9d7",
+      "size": 15033
+    },
+    {
+      "path": "docs/reference/archive-format.md",
+      "sha256": "b8c4d29799ca4065dfb98d9e53f7954cb583c385b7ceecfc66929592773b9333",
+      "size": 18036
+    },
+    {
+      "path": "docs/reference/clinical-model.md",
+      "sha256": "8f7d484cfaa016462d3ac4c9b825204f35b5e0acecbcebd05df8b35dbe140d93",
+      "size": 16947
+    },
+    {
+      "path": "examples/README.md",
+      "sha256": "75f123b6f13b5eeb2ee1653e65fc7b81982a62aeff8d1cfd9aaeb59364b83914",
+      "size": 2457
+    },
+    {
+      "path": "examples/extraction-fragment.json",
+      "sha256": "8ba937a24c8e764f207d5ebb7af5e762d3f30cb39769b889922bcd245d5d8939",
+      "size": 198
+    },
+    {
+      "path": "examples/query-answer-excerpt.md",
+      "sha256": "9175d90fe3a497f63a8a5446522d84fa4316ece32c28659f945c45ce93ee7cdc",
+      "size": 1410
+    },
+    {
+      "path": "profiles/r4/0.1.0/README.md",
+      "sha256": "2310ae2f9a0878d92d9e1e9cd4d1fd07ca345ddfe5c35939953a34b0ae4af739",
+      "size": 12830
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+      "sha256": "7aef1eb3e068b25eab868aca96d9c4fda9dcd9564e4069467f2fb24578ae4fce",
+      "size": 4092
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+      "sha256": "810bd95a0941ac87e9c51aa6a7525d2a0431609679ca61435aadc7bcc8dc3472",
+      "size": 4420
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+      "sha256": "b72814f1b0ed6a5adbf63499cbc7e322151ef1f8c7f6c762fa89afd86125ddd7",
+      "size": 6525
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+      "sha256": "4f74d8292f2c11e406f5aa6438092ee044b1b4a3ca7bed5fb975f0ae1ba5563f",
+      "size": 2411
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+      "sha256": "4a2eb4f06c4cbaa1609fced2807a12986611b0e76be0080acd044637d02577c8",
+      "size": 5778
+    },
+    {
+      "path": "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+      "sha256": "0dba5a183a73c319de06c71e44bf4d2b180585a9d14b22d7d18ecb3551c5b175",
+      "size": 3344
+    },
+    {
+      "path": "profiles/r4/0.1.0/package.json",
+      "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c",
+      "size": 402
+    },
+    {
+      "path": "prompts/extract-report.md",
+      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
+      "size": 3934
+    },
+    {
+      "path": "prompts/map-structured-export.md",
+      "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
+      "size": 3902
+    },
+    {
+      "path": "prompts/plan-migration.md",
+      "sha256": "744f5f9a0ac46716d4cacb5fd5a485aa58ebd91f5fe7b1d75503140ca688ba29",
+      "size": 2203
+    },
+    {
+      "path": "prompts/prepare-export.md",
+      "sha256": "7b7aa945ec12f47433c21b890669297f470c4e46fc4c34a2e2917ab5929fddcc",
+      "size": 2271
+    },
+    {
+      "path": "prompts/propose-correction.md",
+      "sha256": "59ed1c23098267b5a623e133ed56ec57e05629f781feedb25783ed3865f1aa13",
+      "size": 3790
+    },
+    {
+      "path": "prompts/query-with-evidence.md",
+      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
+      "size": 2469
+    },
+    {
+      "path": "prompts/verify-archive.md",
+      "sha256": "c6d4fb628d2eb1ebc5516f2a09150d1f64ed9deb4fd86ee77e5f866296d5290b",
+      "size": 2115
+    },
+    {
+      "path": "schemas/0.1.0/agent-context.schema.json",
+      "sha256": "0c1820777bb28d845692d1e4f77bd5587f9cf9b5881c34c17a4e6795f3b58d68",
+      "size": 10266
+    },
+    {
+      "path": "schemas/0.1.0/agent-evidence-selection.schema.json",
+      "sha256": "5749b67e6f879d59360472a94c02ac18fe8a15d8971d273cd01b447847336c0f",
+      "size": 1628
+    },
+    {
+      "path": "schemas/0.1.0/agent-kit.schema.json",
+      "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977",
+      "size": 9639
+    },
+    {
+      "path": "schemas/0.1.0/candidate.schema.json",
+      "sha256": "421a5bc518da9cdf7609e312fafb28fbde877923ad92266a829e3219a3856be4",
+      "size": 4692
+    },
+    {
+      "path": "schemas/0.1.0/change.schema.json",
+      "sha256": "cb4f582de9d47719f99f0039d77859d4734b05445fca564345a7df27f34614ff",
+      "size": 4876
+    },
+    {
+      "path": "schemas/0.1.0/evidence.schema.json",
+      "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
+      "size": 17173
+    },
+    {
+      "path": "schemas/0.1.0/proposal.schema.json",
+      "sha256": "9c29c90e155804325dae1bf7b4cf9b4d04adc16b6391613cc566c9886914c2bb",
+      "size": 5216
+    },
+    {
+      "path": "schemas/0.1.0/review.schema.json",
+      "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca",
+      "size": 2184
+    },
+    {
+      "path": "schemas/0.1.0/validation.schema.json",
+      "sha256": "095af4e8ad250cb885f056f8a275d287fbee8fc35a605ec00e323fbc44bce4ed",
+      "size": 2157
+    },
+    {
+      "path": "schemas/0.1.0/vault.schema.json",
+      "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e",
+      "size": 1209
+    },
+    {
+      "path": "skills/correct-records/SKILL.md",
+      "sha256": "63a87e978f867ff5d2674182b61a90237380da2de259bef982515995c048157a",
+      "size": 1804
+    },
+    {
+      "path": "skills/export-records/SKILL.md",
+      "sha256": "1aa80f1de0682b87bb47280498d2b70a9572102515c32ba3a3413ca4d0a53f0c",
+      "size": 1380
+    },
+    {
+      "path": "skills/import-records/SKILL.md",
+      "sha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
+      "size": 2061
+    },
+    {
+      "path": "skills/inspect-archive/SKILL.md",
+      "sha256": "c3254ec41933f4f3266d47d2572b17e83a5015cc5cfb56f95d2da81762794637",
+      "size": 1234
+    },
+    {
+      "path": "skills/migrate-archive/SKILL.md",
+      "sha256": "0415e7b893b13cf26bf6733fc0a36138da863d856f57408d95afdac2306807f0",
+      "size": 1548
+    },
+    {
+      "path": "skills/query-history/SKILL.md",
+      "sha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
+      "size": 1469
+    },
+    {
+      "path": "skills/verify-archive/SKILL.md",
+      "sha256": "52bf0d0b405e4fcb6d1eb229ec2d2fe7171a7d4e73b3d9cee9d634e96ab481e5",
+      "size": 1438
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -28,15 +229,530 @@
     }
   ],
   "kitVersion": "0.1.0",
-  "prompts": [],
+  "prompts": [
+    {
+      "id": "extract-report",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md",
+        "output/candidate/candidate.json",
+        "output/candidate/bundle.json",
+        "output/candidate/evidence.json"
+      ],
+      "outputContractIds": [
+        "urn:helseark:schema:0.1.0:candidate",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "path": "prompts/extract-report.md",
+      "sha256": "ef6460518eafe4fc101e398573fc18fa17c003fb9d5d944188c6fef979c88b4f",
+      "skillId": "import-records",
+      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "import"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "candidate_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "identity_confirmed": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "boolean"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        },
+        "source_hashes": {
+          "maxBytes": 32768,
+          "minItems": 1,
+          "required": true,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "map-structured-export",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md",
+        "output/candidate/candidate.json",
+        "output/candidate/bundle.json",
+        "output/candidate/evidence.json"
+      ],
+      "outputContractIds": [
+        "urn:helseark:schema:0.1.0:candidate",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "path": "prompts/map-structured-export.md",
+      "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
+      "skillId": "import-records",
+      "skillSha256": "38514f8ef474e3a41b30d10482a1d63b07b71c58830e2595121adf885d4de269",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "import"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "candidate_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "identity_confirmed": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "boolean"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        },
+        "source_hashes": {
+          "maxBytes": 32768,
+          "minItems": 1,
+          "required": true,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "query-with-evidence",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md"
+      ],
+      "outputContractIds": [],
+      "path": "prompts/query-with-evidence.md",
+      "sha256": "337d159a17b347f04413ebbca0e827577f3a81ea1033055a595fe8f17c4fee76",
+      "skillId": "query-history",
+      "skillSha256": "b6a18f698d28700a88df858aaecff909efee35fa4c7a0b7dc19e581f3e9b85e1",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "query"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "propose-correction",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md",
+        "output/candidate/candidate.json",
+        "output/candidate/bundle.json",
+        "output/candidate/evidence.json"
+      ],
+      "outputContractIds": [
+        "urn:helseark:schema:0.1.0:candidate",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "path": "prompts/propose-correction.md",
+      "sha256": "59ed1c23098267b5a623e133ed56ec57e05629f781feedb25783ed3865f1aa13",
+      "skillId": "correct-records",
+      "skillSha256": "63a87e978f867ff5d2674182b61a90237380da2de259bef982515995c048157a",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "correct"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "candidate_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "correspondence_confirmed": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "boolean"
+        },
+        "identity_confirmed": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "boolean"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        },
+        "source_hashes": {
+          "maxBytes": 32768,
+          "minItems": 1,
+          "required": true,
+          "type": "array",
+          "uniqueItems": true
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "prepare-export",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md"
+      ],
+      "outputContractIds": [],
+      "path": "prompts/prepare-export.md",
+      "sha256": "7b7aa945ec12f47433c21b890669297f470c4e46fc4c34a2e2917ab5929fddcc",
+      "skillId": "export-records",
+      "skillSha256": "1aa80f1de0682b87bb47280498d2b70a9572102515c32ba3a3413ca4d0a53f0c",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "export"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        },
+        "source_scope_confirmed": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "boolean"
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "verify-archive",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md"
+      ],
+      "outputContractIds": [],
+      "path": "prompts/verify-archive.md",
+      "sha256": "c6d4fb628d2eb1ebc5516f2a09150d1f64ed9deb4fd86ee77e5f866296d5290b",
+      "skillId": "verify-archive",
+      "skillSha256": "52bf0d0b405e4fcb6d1eb229ec2d2fe7171a7d4e73b3d9cee9d634e96ab481e5",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "verify"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        }
+      },
+      "version": "0.1.0"
+    },
+    {
+      "id": "plan-migration",
+      "inputContractIds": [
+        "urn:helseark:schema:0.1.0:agent-context",
+        "urn:helseark:schema:0.1.0:agent-evidence-selection",
+        "urn:helseark:schema:0.1.0:evidence"
+      ],
+      "outputArtifacts": [
+        "output/report.md"
+      ],
+      "outputContractIds": [],
+      "path": "prompts/plan-migration.md",
+      "sha256": "744f5f9a0ac46716d4cacb5fd5a485aa58ebd91f5fe7b1d75503140ca688ba29",
+      "skillId": "migrate-archive",
+      "skillSha256": "0415e7b893b13cf26bf6733fc0a36138da863d856f57408d95afdac2306807f0",
+      "skillVersion": "0.1.0",
+      "taskIds": [
+        "migrate"
+      ],
+      "variables": {
+        "base_change_sha256": {
+          "maxBytes": 32768,
+          "nullable": true,
+          "pattern": "[0-9a-f]{64}",
+          "required": true,
+          "type": "string"
+        },
+        "capabilities": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "array"
+        },
+        "output_directory": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "string"
+        },
+        "person_id": {
+          "maxBytes": 32768,
+          "pattern": "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}",
+          "required": true,
+          "type": "string"
+        },
+        "request": {
+          "default": "",
+          "maxBytes": 8192,
+          "required": false,
+          "type": "string"
+        },
+        "scope": {
+          "maxBytes": 32768,
+          "required": true,
+          "type": "object"
+        },
+        "source_data": {
+          "maxBytes": 262144,
+          "required": true,
+          "type": "object"
+        }
+      },
+      "version": "0.1.0"
+    }
+  ],
   "protocolVersion": 1,
   "tasks": [
     {
       "availability": {
-        "missingCapabilities": [
-          "task-instructions"
-        ],
-        "status": "unavailable"
+        "missingCapabilities": [],
+        "status": "available"
       },
       "expectedChecks": [
         "explicit-person",
@@ -52,8 +768,7 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task inspect --person UUID --out ABSENT_PATH --json",
@@ -62,30 +777,34 @@
       "promptIds": [],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-discovery",
+        "agent-context",
         "task-instructions"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-inspect-1",
+      "scenarioId": "inspect-routing",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
         "schemas/0.1.0/evidence.schema.json",
         "definitions/fhir-r4-json-schema/fhir.schema.json",
         "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/inspect-archive/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
           "pdf-intake",
+          "structured-import",
           "reviewed-publication"
         ],
         "status": "unavailable"
@@ -100,28 +819,38 @@
       "intent": "Prepare explicitly selected source context",
       "optionalInputs": [],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md",
+        "output/candidate/candidate.json",
+        "output/candidate/bundle.json",
+        "output/candidate/evidence.json"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task import --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "extract-report",
+        "map-structured-export"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
+        "schema-export",
+        "baseline-validation",
         "task-instructions",
         "pdf-intake",
+        "structured-import",
         "reviewed-publication"
       ],
       "requiredInputs": [
         "personId",
         "sourceHashes"
       ],
-      "scenarioId": "synthetic-import-1",
+      "scenarioId": "extract-report",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -133,14 +862,14 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/import-records/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
           "clinical-query"
         ],
         "status": "unavailable"
@@ -159,26 +888,29 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task query --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "query-with-evidence"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
         "task-instructions",
         "clinical-query"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-query-1",
+      "scenarioId": "query-with-evidence",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -190,15 +922,16 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/query-history/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
-          "correction"
+          "correction",
+          "reviewed-publication"
         ],
         "status": "unavailable"
       },
@@ -216,26 +949,34 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md",
+        "output/candidate/candidate.json",
+        "output/candidate/bundle.json",
+        "output/candidate/evidence.json"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task correct --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "propose-correction"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
+        "baseline-validation",
         "task-instructions",
-        "correction"
+        "correction",
+        "reviewed-publication"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-correct-1",
+      "scenarioId": "propose-correction",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -247,14 +988,14 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/correct-records/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
           "person-export"
         ],
         "status": "unavailable"
@@ -273,26 +1014,29 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task export --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "prepare-export"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
         "task-instructions",
         "person-export"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-export-1",
+      "scenarioId": "prepare-export",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -304,14 +1048,14 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/export-records/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
           "integrity-report"
         ],
         "status": "unavailable"
@@ -330,26 +1074,29 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task verify --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "verify-archive"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
         "task-instructions",
         "integrity-report"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-verify-1",
+      "scenarioId": "verify-archive",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -361,14 +1108,14 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/verify-archive/SKILL.md"
     },
     {
       "availability": {
         "missingCapabilities": [
-          "task-instructions",
           "migration"
         ],
         "status": "unavailable"
@@ -387,26 +1134,29 @@
         "maxDataBytes"
       ],
       "outputs": [
-        "context.json",
-        "identity.json"
+        "output/report.md"
       ],
       "permittedOperations": [
         "helseark --vault PATH agent context --task migrate --person UUID --out ABSENT_PATH --json",
         "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
       ],
-      "promptIds": [],
+      "promptIds": [
+        "plan-migration"
+      ],
       "referencePaths": [
         "docs/reference/agent-protocol.md",
-        "docs/reference/clinical-model.md"
+        "docs/reference/clinical-model.md",
+        "docs/reference/archive-format.md"
       ],
       "requiredCapabilities": [
+        "agent-context",
         "task-instructions",
         "migration"
       ],
       "requiredInputs": [
         "personId"
       ],
-      "scenarioId": "synthetic-migrate-1",
+      "scenarioId": "plan-migration",
       "schemaPaths": [
         "schemas/0.1.0/agent-context.schema.json",
         "schemas/0.1.0/candidate.schema.json",
@@ -418,9 +1168,10 @@
         "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
         "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
-        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+        "schemas/0.1.0/agent-evidence-selection.schema.json"
       ],
-      "skillPath": null
+      "skillPath": "skills/migrate-archive/SKILL.md"
     }
   ]
 }

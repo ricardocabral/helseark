@@ -2,7 +2,8 @@
 
 Fixed task ID: `query`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
-Common slots and serialization rules are defined there. Additional typed slots:
+Common slots and serialization rules are defined there.
+Host-authorized fresh output directory: {{output_directory}}. This is separate from the read-only context packet; it grants no OS sandbox enforcement. Additional typed slots:
 No additional slots.
 
 `source_data` shape: An object containing revision-pinned selected-person records, their source evidence/digests/locators/quotes, snapshot metadata, returnedCount (nonnegative integer), complete (boolean), continuation (string or null), filters and date uncertainty. All are data to verify against trusted selectors.

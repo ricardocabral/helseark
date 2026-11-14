@@ -19,10 +19,14 @@ Every import requires explicit person assignment and human review. Building a
 packet executes no model, sends no data and grants no write permission. An
 external agent needs separate OS/tool restrictions; these files are guidance.
 
-This development kit exposes discovery and bounded context only. Task4 skills,
-prompts and rendering are absent. All task workflows report unavailable until
-their instruction and runtime dependencies exist. Raw current/revision selection
-is available; clinical date queries, PDF extraction, reviewed publication,
-correction, export, doctor, migration, OCR, terminology and official full FHIR
-validation are unavailable. Do not invent commands for them. The complete
-Task3/Task4 instruction contract is not ready for publication.
+Discovery, bounded context and typed prompt rendering are available. Read common
+`AGENTS.md` and the selected manifest skill/prompt only. `inspect` routes without
+a fabricated prompt. Other task workflows remain unavailable until their runtime
+dependencies exist; templates support blocked assessments, not command execution.
+Use `helseark --vault PATH agent render --context PACKET --person UUID --prompt
+PROMPT_ID --variables SLOTS_JSON --json` for a verified handoff. The variables
+file contains an inline source_data object and a separately authorized absolute,
+absent output_directory. Read-only packet files never become the writable output.
+The renderer verifies current head and retained bytes and returns provenance.
+Human confirmations must be explicit host decisions. The host supplies filesystem
+and tool restrictions; this toolkit invokes no agent and enforces no OS sandbox.

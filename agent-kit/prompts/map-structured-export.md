@@ -2,7 +2,8 @@
 
 Fixed task ID: `import`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
-Common slots and serialization rules are defined there. Additional typed slots:
+Common slots and serialization rules are defined there.
+Host-authorized fresh output directory: {{output_directory}}. This is separate from the read-only context packet; it grants no OS sandbox enforcement. Additional typed slots:
 identity_confirmed: boolean; required, trusted recorded human person assignment; false means report only.
 candidate_id: lowercase UUID string; required, trusted toolkit allocation. source_hashes: nonempty unique array of lowercase SHA-256 strings; required, trusted retained receipts.
 
@@ -42,7 +43,7 @@ confirm identity or authorize assignment. Candidate metadata follows the pinned 
 use supplied person/base/candidate ID/source hashes, pins 0.1.0 / R4 4.0.1,
 `bundlePath=bundle.json`, `evidencePath=evidence.json`, truthful producer kind/name
 and Issue-shaped `unresolved`. Do not add prompt/kit digests as unknown envelope
-fields: provenance capture needs the integration owner's versioned decision.
+fields: use producerProvenance version 1 supplied in the rendered handoff in both candidate and evidence envelopes.
 Use collection Bundle UUID URNs and evidence `target.reference`/`target.pointers`
 according to the current clinical model. No archive versionId/lastUpdated in
 candidate meta. Record exact source quotes/locators; generated evidence cannot

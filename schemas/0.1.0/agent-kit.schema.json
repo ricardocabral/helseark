@@ -142,8 +142,28 @@
                     "string",
                     "json",
                     "integer",
-                    "boolean"
+                    "boolean",
+                    "object",
+                    "array"
                   ]
+                },
+                "nullable": {
+                  "type": "boolean"
+                },
+                "default": {},
+                "maxBytes": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "pattern": {
+                  "type": "string"
+                },
+                "minItems": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "uniqueItems": {
+                  "type": "boolean"
                 }
               },
               "required": [
@@ -157,6 +177,18 @@
           "version": {
             "minLength": 1,
             "type": "string"
+          },
+          "skillId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skillVersion": {
+            "type": "string",
+            "minLength": 1
+          },
+          "skillSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
           }
         },
         "required": [
@@ -168,7 +200,10 @@
           "variables",
           "inputContractIds",
           "outputContractIds",
-          "outputArtifacts"
+          "outputArtifacts",
+          "skillId",
+          "skillVersion",
+          "skillSha256"
         ],
         "type": "object"
       },

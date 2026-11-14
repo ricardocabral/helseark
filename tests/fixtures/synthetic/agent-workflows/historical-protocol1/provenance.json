@@ -1,0 +1,28 @@
+{
+  "synthetic": true,
+  "sourceCommit": "b56c767376728e57f2c0b8583e6feffe05409929",
+  "purpose": "Exact retained protocol-1 contract compatibility; no health data.",
+  "files": [
+    {
+      "path": "agent-kit/manifest.json",
+      "sha256": "bb987143ec174e2bb74826b8bb8df6ac771ed8be4bbdbf2c91953b9debe35c41",
+      "bytes": 13956
+    },
+    {
+      "path": "agent-kit/START-HERE.md",
+      "sha256": "d88801326399e2f9c3721e4e73a8bf3858511be07de7f8527c7c32c175df96bf",
+      "bytes": 1772
+    },
+    {
+      "path": "schemas/0.1.0/agent-kit.schema.json",
+      "sha256": "3378bc9efb5cc5a73ff99500c52584cb86c53d22ccf7605bd0bc27c62be3dfe7",
+      "bytes": 8686
+    },
+    {
+      "path": "schemas/0.1.0/agent-context.schema.json",
+      "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
+      "bytes": 10084
+    }
+  ],
+  "license": "Apache-2.0 (original repository instructions and schemas)"
+}

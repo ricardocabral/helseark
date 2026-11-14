@@ -1,7 +1,9 @@
 # Synthetic examples and evaluation handoff
 
-Use the raw [workflow inputs](../../tests/fixtures/synthetic/agent-workflows/README.md)
-with the independent [expected facts](../../tests/fixtures/expected/agent-workflows/).
+Maintainer evaluation inputs live in repository tests/fixtures/synthetic/agent-workflows/;
+independent expected facts live in tests/fixtures/expected/agent-workflows/.
+They are evaluator resources, not runtime dependencies or instructions to discover
+or read them. Do not give the expected facts to the evaluated agent.
 All health content is invented. These are not actual model outputs, a supported
 vault or a successful end-to-end journey. Original synthetic data is CC0.
 
@@ -31,6 +33,5 @@ method evidence only where the source supplies a method. The repeated-label
 fixture includes a same-quote wrong-row counterexample; successful quote/token
 validation does not satisfy that independent row oracle. The query example marks
 its projected month unverified because its raw assertions have no date evidence.
-See the [fixture notes](../../tests/fixtures/synthetic/agent-workflows/README.md)
-for supported-subset coverage and the distinction between omitted incoming
+The maintainer fixture notes describe supported-subset coverage and the distinction between omitted incoming
 content and unsupported emitted structured fields.

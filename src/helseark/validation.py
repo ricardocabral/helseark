@@ -679,6 +679,11 @@ class _Checks:
         if not isinstance(evidence, dict) or evidence.get('personId') != self.person:
             self.issue('PERSON_MISMATCH')
             return
+        from .agent_context import _verify_producer
+        try:
+            _verify_producer(self.vault,evidence.get('producerProvenance'),self.registry)
+        except (ArchiveError, TypeError, AttributeError):
+            self.issue('PRODUCER_MISMATCH')
         covered = set()
         entries = evidence.get('entries', [])
         if not isinstance(entries, list):
@@ -852,6 +857,8 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
             disk = decode_json(_read(candidate.path, metadata[field]))
             if encode_json(disk) != encode_json(value):
                 checks.issue('CANDIDATE_MISMATCH')
+        if metadata.get('producerProvenance') != candidate.evidence.get('producerProvenance'):
+            checks.issue('PRODUCER_MISMATCH')
         checks.graph(candidate.bundle)
         sources = metadata.get('sourceSha256', [])
         for source in sources:

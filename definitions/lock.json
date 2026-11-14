@@ -4,8 +4,8 @@
       "files": [
         {
           "path": "schemas/0.1.0/candidate.schema.json",
-          "sha256": "52b902028c381f06fb479097a96a67f9ef3cb82049e024d41adca02a9185b7f7",
-          "size": 2665
+          "sha256": "421a5bc518da9cdf7609e312fafb28fbde877923ad92266a829e3219a3856be4",
+          "size": 4692
         },
         {
           "path": "schemas/0.1.0/change.schema.json",
@@ -14,8 +14,8 @@
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "b16429d7b7930461ae4132f31aee1714a71198cd11aff3f1c60e9cf95f46de48",
-          "size": 15172
+          "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
+          "size": 17173
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
@@ -39,13 +39,13 @@
         },
         {
           "path": "schemas/0.1.0/agent-kit.schema.json",
-          "sha256": "3378bc9efb5cc5a73ff99500c52584cb86c53d22ccf7605bd0bc27c62be3dfe7",
-          "size": 8686
+          "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977",
+          "size": 9639
         },
         {
           "path": "schemas/0.1.0/agent-context.schema.json",
-          "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
-          "size": 10084
+          "sha256": "0c1820777bb28d845692d1e4f77bd5587f9cf9b5881c34c17a4e6795f3b58d68",
+          "size": 10266
         }
       ],
       "license": "Apache-2.0",
@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "18e43f21b61c9a809b64340dfd9d2e9b324561dbac69912076d8fd8a2427ddd0",
-          "size": 16569
+          "sha256": "8f7d484cfaa016462d3ac4c9b825204f35b5e0acecbcebd05df8b35dbe140d93",
+          "size": 16947
         }
       ],
       "license": "Apache-2.0",
@@ -702,13 +702,39 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "0cb40078af6e28c555b91c8545be4d19579988f61932a993f2091efc52541376",
-          "size": 10191
+          "sha256": "c411a8d6fce4c43727858b3014d9a93d572c648b5e4de60ddb9ad6914fcdf9d7",
+          "size": 15033
         }
       ],
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-agent-reference",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/archive-format.md",
+          "sha256": "b8c4d29799ca4065dfb98d9e53f7954cb583c385b7ceecfc66929592773b9333",
+          "size": 18036
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-archive-format",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/agent-evidence-selection.schema.json",
+          "sha256": "5749b67e6f879d59360472a94c02ac18fe8a15d8971d273cd01b447847336c0f",
+          "size": 1628
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-agent-evidence-selection.schema",
       "version": "0.1.0"
     }
   ],

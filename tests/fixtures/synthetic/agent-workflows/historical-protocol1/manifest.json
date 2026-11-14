@@ -1,0 +1,426 @@
+{
+  "baseInstructionPaths": [
+    "START-HERE.md"
+  ],
+  "compatibility": {
+    "archiveFormatVersion": 1,
+    "contractVersion": "0.1.0",
+    "definitionLockSha256": "39b2ba733e45ca417398f9a130b861ce33ae01cf5cbadb0ecbb1b76bb7ee902c",
+    "fhirVersion": "4.0.1",
+    "profileVersion": "0.1.0",
+    "serializationVersion": "helseark-json-1"
+  },
+  "files": [
+    {
+      "path": "START-HERE.md",
+      "sha256": "d88801326399e2f9c3721e4e73a8bf3858511be07de7f8527c7c32c175df96bf",
+      "size": 1772
+    },
+    {
+      "path": "templates/vault-AGENTS.md",
+      "sha256": "406c16f8df255172af7f9c7c0598e3c6987692be5e1a6edb331f01bc31829969",
+      "size": 421
+    },
+    {
+      "path": "templates/vault-CLAUDE.md",
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "size": 11
+    }
+  ],
+  "kitVersion": "0.1.0",
+  "prompts": [],
+  "protocolVersion": 1,
+  "tasks": [
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "inspect",
+      "intent": "Inspect explicit person identity and declared capabilities",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task inspect --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-inspect-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "pdf-intake",
+          "reviewed-publication"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "import",
+      "intent": "Prepare explicitly selected source context",
+      "optionalInputs": [],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task import --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "pdf-intake",
+        "reviewed-publication"
+      ],
+      "requiredInputs": [
+        "personId",
+        "sourceHashes"
+      ],
+      "scenarioId": "synthetic-import-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "clinical-query"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "query",
+      "intent": "Read bounded exact revisions without clinical date filtering",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task query --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "clinical-query"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-query-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "correction"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "correct",
+      "intent": "Prepare correction context",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task correct --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "correction"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-correct-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "person-export"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "export",
+      "intent": "Prepare export scope context",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task export --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "person-export"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-export-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "integrity-report"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "verify",
+      "intent": "Prepare integrity inspection context",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task verify --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "integrity-report"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-verify-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    },
+    {
+      "availability": {
+        "missingCapabilities": [
+          "task-instructions",
+          "migration"
+        ],
+        "status": "unavailable"
+      },
+      "expectedChecks": [
+        "explicit-person",
+        "exact-digests",
+        "pinned-head",
+        "human-review-required"
+      ],
+      "id": "migrate",
+      "intent": "Prepare migration scope context",
+      "optionalInputs": [
+        "resourceRefs",
+        "maxRecords",
+        "maxDataBytes"
+      ],
+      "outputs": [
+        "context.json",
+        "identity.json"
+      ],
+      "permittedOperations": [
+        "helseark --vault PATH agent context --task migrate --person UUID --out ABSENT_PATH --json",
+        "helseark --vault PATH schema export --resource Patient --out ABSENT_PATH --json"
+      ],
+      "promptIds": [],
+      "referencePaths": [
+        "docs/reference/agent-protocol.md",
+        "docs/reference/clinical-model.md"
+      ],
+      "requiredCapabilities": [
+        "task-instructions",
+        "migration"
+      ],
+      "requiredInputs": [
+        "personId"
+      ],
+      "scenarioId": "synthetic-migrate-1",
+      "schemaPaths": [
+        "schemas/0.1.0/agent-context.schema.json",
+        "schemas/0.1.0/candidate.schema.json",
+        "schemas/0.1.0/evidence.schema.json",
+        "definitions/fhir-r4-json-schema/fhir.schema.json",
+        "definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+        "profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json"
+      ],
+      "skillPath": null
+    }
+  ]
+}

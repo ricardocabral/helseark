@@ -1,0 +1,72 @@
+{
+  "$id": "urn:helseark:schema:0.1.0:agent-evidence-selection",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "selectionVersion": {
+      "const": 1
+    },
+    "personId": {
+      "type": "string",
+      "pattern": "^[0-9a-f-]{36}$"
+    },
+    "resourceRef": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z0-9]+/[0-9a-f-]{36}/_history/[0-9a-f-]{36}$"
+    },
+    "original": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size"
+      ]
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "originalPointer": {
+            "type": "string",
+            "pattern": "^/entries/[0-9]+$"
+          },
+          "entry": {
+            "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/entries/items"
+          }
+        },
+        "required": [
+          "originalPointer",
+          "entry"
+        ]
+      }
+    },
+    "producerProvenance": {
+      "$ref": "urn:helseark:schema:0.1.0:evidence#/properties/producerProvenance"
+    }
+  },
+  "required": [
+    "selectionVersion",
+    "personId",
+    "resourceRef",
+    "original",
+    "entries"
+  ]
+}
