@@ -1,0 +1,3 @@
+# Review routing only; enforce approvals separately in repository rules.
+# The repository owner coordinates integration; independent review is still required.
+* @ricardocabral

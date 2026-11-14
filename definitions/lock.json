@@ -48,7 +48,7 @@
           "size": 19161
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-contracts",
       "version": "0.1.0"
@@ -662,11 +662,11 @@
         },
         {
           "path": "profiles/r4/0.1.0/package.json",
-          "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c",
-          "size": 402
+          "sha256": "d956741803826333dae2812372489683c4fba0df6819834df18370dd2f2a142a",
+          "size": 395
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark.fhir.r4",
       "version": "0.1.0"
@@ -693,7 +693,7 @@
           "size": 16947
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-clinical-reference",
       "version": "0.1.0"
@@ -706,7 +706,7 @@
           "size": 27987
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-agent-reference",
       "version": "0.1.0"
@@ -719,7 +719,7 @@
           "size": 18703
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-archive-format",
       "version": "0.1.0"
@@ -732,7 +732,7 @@
           "size": 205
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-agent-evidence-selection.schema",
       "version": "0.1.0"
@@ -745,7 +745,7 @@
           "size": 11829
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-intake",
       "version": "0.1.0"
@@ -758,9 +758,22 @@
           "size": 16349
         }
       ],
-      "license": "Apache-2.0",
+      "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-pdf-extraction",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "LICENSE",
+          "sha256": "a3c5d7f7ec16ed6310143905f329f26503964f4e1f0de6f1f6df3dbc8de44805",
+          "size": 1162
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-license",
       "version": "0.1.0"
     }
   ],

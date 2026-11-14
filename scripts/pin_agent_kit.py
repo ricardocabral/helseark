@@ -69,7 +69,7 @@ def pin():
     lock_path=ROOT/'definitions/lock.json'; lock=json.loads(lock_path.read_text())
     for name in references:
         if not any(f['path']==name for a in lock['artifacts'] for f in a['files']):
-            lock['artifacts'].append({'packageId':'helseark-reference-'+Path(name).stem,'version':'0.1.0','license':'Apache-2.0','origin':'repository-authored','files':[{'path':name}]})
+            lock['artifacts'].append({'packageId':'helseark-reference-'+Path(name).stem,'version':'0.1.0','license':'MIT','origin':'repository-authored','files':[{'path':name}]})
     for artifact in lock['artifacts']:
         for entry in artifact['files']:
             data=(ROOT/entry['path']).read_bytes(); entry.update(sha256=digest(data),size=len(data))

@@ -1,21 +1,55 @@
 # Helseark
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/svg/helseark-horizontal-reverse.svg">
-  <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-reverse.svg">
+  <img src="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
 </picture>
 
 A local personal and family health archive toolkit, under development.
 
 Canonical clinical records use FHIR R4, with retained source evidence, explicit human review, and immutable history. Normal archive operations are offline. No medical correctness or release readiness is claimed.
 
-Task 1 implements offline vault initialization and explicit person creation.
-See the [archive format and supported commands](docs/reference/archive-format.md)
-for the file contract, Python interfaces and tested crash behavior.
-Clinical import and full FHIR validation are not implemented yet.
+## Current implementation
 
-[Prepare a PDF import](docs/how-to/import-report.md) or follow the
-[synthetic first-intake lesson](docs/tutorials/first-archive.md). Task5 creates
-untrusted drafts; Task6 review/publication remains unavailable.
+The current CLI supports vault initialization, explicit person creation, offline
+schema export, bounded candidate/proposal validation, and agent task discovery,
+context packets and prompt rendering. Text-PDF intake retains sources and creates
+scoped external-agent handoffs. Review/publication of clinical imports, queries,
+recovery and other workflows are still being implemented. Inspect `helseark --help` and task availability; prompt files
+are not proof of a supported command. No model provider is required or invoked.
 
-[Logo and brand assets](docs/brand/README.md)
+[Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)
+or follow the [synthetic first-intake lesson](https://github.com/ricardocabral/helseark/blob/main/docs/tutorials/first-archive.md).
+Intake produces untrusted drafts; it does not authorize publication.
+
+## Try a synthetic archive
+
+Use Python 3.12 and uv. Dependency installation may need networking; the archive
+commands run locally. The directory created by `mktemp` is disposable demo data.
+
+```sh
+uv sync --locked --extra pdf --group dev
+uv run --no-sync helseark --help
+DEMO_ROOT=$(mktemp -d)
+uv run --no-sync helseark init "$DEMO_ROOT/vault" --json
+uv run --no-sync helseark --vault "$DEMO_ROOT/vault" person add --name 'Alex Example' --json
+uv run --no-sync helseark agent tasks --json
+```
+
+Do not store real records in this repository or upload them to issues or CI.
+Local storage is not encryption or per-person access control. External agents
+receive the context you explicitly share with them.
+
+## Documentation and participation
+
+- [Archive format and supported commands](https://github.com/ricardocabral/helseark/blob/main/docs/reference/archive-format.md)
+- [Clinical model](https://github.com/ricardocabral/helseark/blob/main/docs/reference/clinical-model.md), [agent protocol](https://github.com/ricardocabral/helseark/blob/main/docs/reference/agent-protocol.md), [PDF extraction](https://github.com/ricardocabral/helseark/blob/main/docs/reference/pdf-extraction.md)
+- [Privacy and agent boundaries](https://github.com/ricardocabral/helseark/blob/main/docs/explanation/privacy-and-agent-boundaries.md)
+- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](https://github.com/ricardocabral/helseark/blob/main/docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
+- [Security reporting](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md), [support](https://github.com/ricardocabral/helseark/blob/main/SUPPORT.md), [code of conduct](https://github.com/ricardocabral/helseark/blob/main/CODE_OF_CONDUCT.md)
+- [Release guide](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/releasing.md) and [licensing status](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/licensing.md)
+- [Logo and brand assets](https://github.com/ricardocabral/helseark/blob/main/docs/brand/README.md)
+
+Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
+[MIT License](https://github.com/ricardocabral/helseark/blob/main/LICENSE), matching Rikdom. Existing fixture/upstream terms are
+listed in the licensing guide. User records are not licensed by the toolkit.

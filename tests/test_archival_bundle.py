@@ -96,6 +96,7 @@ def test_complete_sources_and_reproducible_offline_bundle(inputs, tmp_path, monk
         inventory = json.loads(bundle.read('inventories/specification.json'))
         assert {m['path'] for m in inventory} == {'index.html', 'site\\license.html', 'assets/style.css'}
         assert bundle.read('licenses/specification-license.html') == b'CC0; trademarks; third-party terms'
+        assert bundle.read('LICENSE') == (SCRIPT.parents[1] / 'LICENSE').read_bytes()
         assert 'scripts/build_archival_bundle.py' in bundle.namelist()
 
 
@@ -540,7 +541,7 @@ def test_publication_race_preserves_competing_output(inputs, tmp_path, monkeypat
     assert list(output.parent.iterdir()) == [output]
 
 
-@pytest.mark.parametrize('name', ['README.md', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md'])
+@pytest.mark.parametrize('name', ['LICENSE', 'README.md', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md'])
 def test_verify_rejects_empty_mandatory_support(inputs, tmp_path, name):
     pins, cache = inputs
     good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
@@ -558,3 +559,12 @@ def test_verify_rejects_missing_blob_even_with_consistent_manifest(inputs, tmp_p
     rewrite_bundle(good, bad, omit=['sources/' + source['sha256']])
     with pytest.raises(ValueError, match='structure'):
         archival.verify(bad)
+
+
+def test_verify_accepts_legacy_v1_without_project_license(inputs, tmp_path):
+    pins, cache = inputs
+    current, legacy = tmp_path / 'current.zip', tmp_path / 'legacy.zip'
+    archival.build(pins, cache, current)
+    # Original version-1 bundles predate the added project-license file.
+    rewrite_bundle(current, legacy, omit=['LICENSE'])
+    archival.verify(legacy)

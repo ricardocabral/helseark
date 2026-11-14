@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 import subprocess
 import sys
 
@@ -16,6 +17,7 @@ def test_init_and_explicit_person_journey(tmp_path):
     initialized = run("init", root, "--json")
     assert initialized.returncode == 0, initialized.stderr
     assert json.loads(initialized.stdout)["vaultId"]
+    assert (root / "definitions/LICENSE").read_bytes() == (Path(__file__).resolve().parents[1] / "LICENSE").read_bytes()
     created = run("--vault", root, "person", "add", "--name", "Alex Example", "--birth-date", "1990", "--json")
     assert created.returncode == 0, created.stderr
     person = json.loads(created.stdout)["personId"]
