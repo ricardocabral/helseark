@@ -37,6 +37,16 @@ _CORE = 'http://hl7.org/fhir/StructureDefinition/'
 _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-'
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
+# Added resource profiles are versioned independently of the frozen original six.
+_HISTORY = {'MedicationStatement': 'medication-statement'}
+_SLUGS['MedicationStatement'] = 'medication-statement'
+_PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
+
+_PATIENT_FIELDS['MedicationStatement'] = 'subject'
+
+def _profile(kind):
+    return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
+
 _SCHEMA = 'definitions/fhir-r4-json-schema/fhir.schema.json'
 _DIALECTS = {'http://json-schema.org/draft-06/schema#': (Draft6Validator, DRAFT6),
              'https://json-schema.org/draft/2020-12/schema': (Draft202012Validator, DRAFT202012)}
@@ -48,9 +58,11 @@ _FIELDS = {
     'Specimen': 'identifier accessionIdentifier status type subject receivedTime parent collection processing container condition note',
     'DocumentReference': 'masterIdentifier identifier status docStatus type category subject date author authenticator custodian relatesTo description securityLabel content context',
     'Provenance': 'target occurredPeriod occurredDateTime recorded policy location reason activity agent entity',
+    'MedicationStatement': 'identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('MedicationStatement', 'status'): 'active completed entered-in-error intended stopped on-hold unknown not-taken',
     ('Observation', 'status'): 'registered preliminary final amended corrected cancelled entered-in-error unknown',
     ('DiagnosticReport', 'status'): 'registered partial preliminary final amended corrected appended cancelled entered-in-error unknown',
     ('Specimen', 'status'): 'available unavailable unsatisfactory entered-in-error',
@@ -145,7 +157,11 @@ class DefinitionRegistry:
                     identifiers.append(canonical + '|' + value['version'])
             for identifier in identifiers:
                 if identifier in self._definitions:
-                    raise ArchiveError('INVALID_DEFINITION', 'Duplicate definition identifier.')
+                    previous = self._definitions[identifier]
+                    if identifier != canonical or not previous.get('version') or not value.get('version') or previous['version'] == value['version']:
+                        raise ArchiveError('INVALID_DEFINITION', 'Duplicate definition identifier.')
+                    if tuple(map(int, previous['version'].split('.'))) > tuple(map(int, value['version'].split('.'))):
+                        continue
                 self._definitions[identifier] = value
             if '$schema' in value:
                 dialect = _DIALECTS.get(value['$schema'])
@@ -161,8 +177,9 @@ class DefinitionRegistry:
         # Fail explicitly before accepting graphs that need missing core profiles.
         for name in [*_SLUGS, 'Bundle', 'SimpleQuantity']:
             self.resolve(_CORE + name)
-        for slug in _SLUGS.values():
-            self.resolve(_BASE + slug + '|0.1.0')
+        for kind in _SLUGS:
+            if kind not in _HISTORY:
+                self.resolve(_profile(kind))
         self.resolve(_SCHEMA)
 
     def resolve(self, identifier: str) -> JsonValue:
@@ -223,6 +240,11 @@ def schema_packet(vault: Vault, resourceTypes: Sequence[str], destination: Path)
     types = tuple(dict.fromkeys(resourceTypes))
     if not types or any(t not in _SLUGS and t != 'Bundle' for t in types):
         raise ArchiveError('UNSUPPORTED_RESOURCE', 'Requested schema resource type is unsupported.')
+    if vault.config.profileVersion != '0.2.0' and any(t in _HISTORY for t in types):
+        raise ArchiveError('UNSUPPORTED_PROFILE', 'History requires profile set 0.2.0; retain old vault pins.')
+    for kind in types:
+        if kind != 'Bundle':
+            registry.resolve(_profile(kind))
     destination = Path(destination).absolute()
     if destination.exists() or destination.is_symlink():
         raise ArchiveError('DESTINATION_EXISTS', 'Schema packet destination must not exist.')
@@ -236,7 +258,7 @@ def schema_packet(vault: Vault, resourceTypes: Sequence[str], destination: Path)
             target.write_bytes(data)
         (stage / 'definitions/lock.json').write_bytes(_read(vault.root, 'definitions/lock.json'))
         (stage / 'packet.json').write_bytes(encode_json({'contractVersion': '0.1.0', 'fhirVersion': '4.0.1',
-            'profileVersion': '0.1.0', 'resourceTypes': list(types),
+            'profileVersion': vault.config.profileVersion, 'resourceTypes': list(types),
             'definitionLockSha256': vault.config.definitionLockSha256,
             'coverage': 'Baseline archive rules only; terminology and full FHIR conformance not checked.'}))
         (stage / 'README.md').write_text('Offline Helseark 0.1.0 schema packet.\n'
@@ -379,7 +401,12 @@ class _Checks:
     def resource(self, r, key):
         self.family = 'supported-profile-rules'
         kind = r['resourceType']
-        profile = _BASE + _SLUGS[kind] + '|0.1.0'
+        profile = _profile(kind)
+        if kind == 'Provenance' and r.get('meta', {}).get('profile') == [_BASE + 'provenance|0.2.0'] and self.vault.config.profileVersion == '0.2.0':
+            profile = _BASE + 'provenance|0.2.0'
+        if kind in _HISTORY and self.vault.config.profileVersion != '0.2.0':
+            self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
+            return
         if r.get('meta', {}).get('profile') != [profile]:
             self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
         meta = r.get('meta', {})
@@ -428,13 +455,14 @@ class _Checks:
         if kind == 'Patient' and r['id'] != self.person:
             self.family = 'patient-reference-scope'
             self.issue('PERSON_MISMATCH', '/id', key)
-        if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'}:
+        if kind in _PATIENT_FIELDS:
+            patient_field = _PATIENT_FIELDS[kind]
             self.family = 'patient-reference-scope'
-            subject = r.get('subject', {}).get('reference') if isinstance(r.get('subject', {}), dict) else None
+            subject = r.get(patient_field, {}).get('reference') if isinstance(r.get(patient_field, {}), dict) else None
             if subject is None:
-                self.issue('SUBJECT_REQUIRED', '/subject', key)
+                self.issue('SUBJECT_REQUIRED', '/' + patient_field, key)
             elif subject != 'Patient/' + self.person and not (subject == 'urn:uuid:' + self.person and 'Patient/' + self.person in self.resources):
-                self.issue('PERSON_MISMATCH', '/subject/reference', key)
+                self.issue('PERSON_MISMATCH', '/' + patient_field + '/reference', key)
         self.family = 'supported-profile-rules'
         if kind == 'Observation':
             self.observation(r, '', key)
@@ -613,17 +641,21 @@ class _Checks:
         if kind not in _SLUGS:
             self.issue('UNSUPPORTED_RESOURCE', ref=key)
             return
+        if kind in _HISTORY and self.vault.config.profileVersion != '0.2.0':
+            self.issue('UNSUPPORTED_PROFILE', '/meta/profile', key)
+            return
         if kind == 'Patient' and resource.get('id') != self.person:
             self.issue('PERSON_MISMATCH', ref=key)
-        if kind in {'Observation','DiagnosticReport','Specimen','DocumentReference'}:
-            subject = resource.get('subject', {}).get('reference')
+        if kind in _PATIENT_FIELDS:
+            patient_field = _PATIENT_FIELDS[kind]
+            subject = resource.get(patient_field, {}).get('reference') if isinstance(resource.get(patient_field, {}), dict) else None
             if subject is None:
-                self.issue('SUBJECT_REQUIRED', '/subject', key)
+                self.issue('SUBJECT_REQUIRED', '/' + patient_field, key)
             elif subject != 'Patient/' + self.person and not (subject == 'urn:uuid:' + self.person and not self.prepared):
-                self.issue('PERSON_MISMATCH', '/subject/reference', key)
+                self.issue('PERSON_MISMATCH', '/' + patient_field + '/reference', key)
         if identity not in self.typed_resources:
             definition = self.registry.resolve(_CORE + kind)
-            differential = [] if kind == 'Patient' else self.registry.resolve(_BASE + _SLUGS[kind] + '|0.1.0')['differential']['element']
+            differential = [] if kind == 'Patient' else self.registry.resolve(resource.get('meta', {}).get('profile', [_profile(kind)])[0])['differential']['element']
             self.elements(resource, definition['snapshot']['element'], kind, '', key, differential)
             self.typed_resources.add(identity)
             self.family = 'patient-reference-scope'
@@ -642,7 +674,7 @@ class _Checks:
             inherited_allowed = self.reference_types.get((key, pointer))
             if inherited_allowed is not None and target_kind not in inherited_allowed:
                 self.issue('REFERENCE_TYPE_MISMATCH', pointer, key)
-            allowed = {'subject': {'Patient'}, 'specimen': {'Specimen'}, 'result': {'Observation'},
+            allowed = {'subject': {'Patient'}, 'patient': {'Patient'}, 'specimen': {'Specimen'}, 'result': {'Observation'},
                        'hasMember': {'Observation'}, 'derivedFrom': {'Observation','DocumentReference'},
                        'parent': {'Specimen'}}.get(field)
             if kind == 'Provenance' and re.fullmatch(r'/entity/[0-9]+/what', pointer):

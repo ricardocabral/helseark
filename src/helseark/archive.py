@@ -162,7 +162,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
     bundle = _bundled_root()
     lock_bytes = _read(bundle, "definitions/lock.json")
     if config is None:
-        config = VaultConfig(1, "0.1.0", "0.1.0", "4.0.1", "helseark-json-1",
+        config = VaultConfig(1, "0.1.0", "0.2.0", "4.0.1", "helseark-json-1",
                              hash_bytes(lock_bytes), _json(bundle / "agent-kit", "manifest.json")["kitVersion"], hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
     if config.definitionLockSha256 != hash_bytes(lock_bytes):
         raise ArchiveError("DEFINITION_MISMATCH", "Requested definitions are not bundled.")
@@ -213,9 +213,9 @@ def open_definitions(root: Path) -> Vault:
     value = _json(root, "vault.json")
     # Check supported pins before reporting a generic envelope error.
     expected = {"archiveFormatVersion": 1, "contractVersion": "0.1.0",
-                "profileVersion": "0.1.0", "fhirVersion": "4.0.1",
+                "fhirVersion": "4.0.1",
                 "serializationVersion": "helseark-json-1"}
-    if not isinstance(value, dict) or any(value.get(k) != v for k, v in expected.items()):
+    if not isinstance(value, dict) or value.get("profileVersion") not in ("0.1.0", "0.2.0") or any(value.get(k) != v for k, v in expected.items()):
         raise ArchiveError("UNSUPPORTED_VERSION", "Vault version pins are unsupported.")
     try:
         vault = Vault(root, VaultConfig(**value))

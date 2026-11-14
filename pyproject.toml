@@ -58,5 +58,8 @@ where = ["src"]
 
 "share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]
 
+"share/helseark/profiles/r4/0.2.0" = ["profiles/r4/0.2.0/*"]
+"share/helseark/agent-kit/profiles/r4/0.2.0" = ["agent-kit/profiles/r4/0.2.0/*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

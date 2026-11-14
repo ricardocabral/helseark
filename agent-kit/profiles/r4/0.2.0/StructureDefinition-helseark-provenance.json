@@ -1,0 +1,140 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-provenance",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance",
+  "version": "0.2.0",
+  "name": "HelsearkProvenance",
+  "title": "Helseark Provenance",
+  "status": "active",
+  "experimental": false,
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Local patient-scoped Provenance for a reviewed offline archive. Structural support does not establish extraction accuracy or medical correctness.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Provenance",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Provenance",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Provenance",
+        "path": "Provenance",
+        "constraint": [
+          {
+            "key": "helseark-profile",
+            "severity": "error",
+            "human": "Declare the exact supported profile version.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.2.0').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance"
+          },
+          {
+            "key": "helseark-modifiers",
+            "severity": "error",
+            "human": "Modifier extensions are unsupported at every depth.",
+            "expression": "descendants().modifierExtension.empty()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance"
+          },
+          {
+            "key": "helseark-source",
+            "severity": "error",
+            "human": "Generation and correction provenance include a source entity.",
+            "expression": "entity.where(role = 'source').exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance"
+          },
+          {
+            "key": "helseark-source-document",
+            "severity": "error",
+            "human": "Source entities point to DocumentReference revisions.",
+            "expression": "entity.where(role = 'source').all(what.resolve() is DocumentReference)",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance"
+          }
+        ]
+      },
+      {
+        "id": "Provenance.id",
+        "path": "Provenance.id",
+        "min": 1,
+        "comment": "Logical UUID identity; selected-person and revision ownership are checked by the archive runtime."
+      },
+      {
+        "id": "Provenance.meta",
+        "path": "Provenance.meta",
+        "min": 1
+      },
+      {
+        "id": "Provenance.meta.profile",
+        "path": "Provenance.meta.profile",
+        "min": 1
+      },
+      {
+        "id": "Provenance.implicitRules",
+        "path": "Provenance.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Provenance.contained",
+        "path": "Provenance.contained",
+        "max": "0"
+      },
+      {
+        "id": "Provenance.modifierExtension",
+        "path": "Provenance.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Provenance.target",
+        "path": "Provenance.target",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "http://hl7.org/fhir/StructureDefinition/Resource"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Provenance.target.reference",
+        "path": "Provenance.target.reference",
+        "min": 1
+      },
+      {
+        "id": "Provenance.agent.who",
+        "path": "Provenance.agent.who",
+        "constraint": [
+          {
+            "key": "helseark-actor",
+            "severity": "error",
+            "human": "Identify an actor explicitly; display alone is insufficient.",
+            "expression": "reference.exists() or identifier.exists()",
+            "source": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance"
+          }
+        ]
+      },
+      {
+        "id": "Provenance.entity.what",
+        "path": "Provenance.entity.what",
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-diagnostic-report|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0",
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Provenance.entity.what.reference",
+        "path": "Provenance.entity.what.reference",
+        "min": 1
+      }
+    ]
+  }
+}

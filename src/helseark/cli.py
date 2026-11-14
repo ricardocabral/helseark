@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
-from .query import observations, timeline, parse_reference
+from .query import observations, timeline, history, parse_reference
 from .archive import resolve
 from .contracts import ObservationFilter
 from .intake import add_source, build_packet, read_candidate, prepare_candidate
@@ -81,7 +81,7 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
-    for name in ('observations','timeline','record'):
+    for name in ('observations','timeline','history','record'):
         query = commands.add_parser(name, help='Read one person at a current or exact historical Head.')
         query.add_argument('--person',required=True)
         query.add_argument('--at-head',type=Path,help='JSON object with sequence, transactionId and changeSha256.')
@@ -93,6 +93,8 @@ def main(argv=None):
             query.add_argument('--from-date')
             query.add_argument('--to-date')
             query.add_argument('--include-invalidated',action='store_true')
+        if name == 'history':
+            query.add_argument('--kind', action='append', required=True)
         if name == 'record':
             query.add_argument('--resource',required=True,help='Type/UUID or Type/UUID/_history/UUID.')
     candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
@@ -221,7 +223,7 @@ def main(argv=None):
                     raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
             elif args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command in ('intake','candidate','observations','timeline','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
+            elif args.command in ('intake','candidate','observations','timeline','history','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
@@ -234,7 +236,7 @@ def main(argv=None):
             elif args.command == 'export':
                 output = document(export_person(vault,args.person,args.out,
                     ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources)))
-            elif args.command in ('observations','timeline','record'):
+            elif args.command in ('observations','timeline','history','record'):
                 at = None
                 if args.at_head:
                     raw = decode_json(args.at_head.read_bytes())
@@ -247,6 +249,8 @@ def main(argv=None):
                 if args.command == 'observations':
                     output = document(list(observations(vault,args.person,ObservationFilter(
                         args.code_system,args.code,args.label,args.from_date,args.to_date,args.include_invalidated),at=at)))
+                elif args.command == 'history':
+                    output = list(history(vault,args.person,args.kind,at=at))
                 elif args.command == 'timeline':
                     output = document(list(timeline(vault,args.person,at=at)))
                 else:
@@ -317,7 +321,7 @@ def main(argv=None):
         if args.json or args.command in ('doctor','backup','export'):
             sys.stdout.buffer.write(encode_json(output))
         else:
-            if args.command in ('observations','timeline','record'):
+            if args.command in ('observations','timeline','history','record'):
                 sys.stdout.buffer.write(encode_json(output))
             elif args.command == "validate":
                 print("Baseline archive checks blocked." if exit_code in {2, 4, 5, 6} else

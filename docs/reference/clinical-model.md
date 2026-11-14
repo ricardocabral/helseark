@@ -1,6 +1,6 @@
 # Clinical model and offline validation
 
-Applies to Helseark contracts/profiles **0.1.0**, archive format **1**, FHIR
+Applies to Helseark contract **0.1.0**, profile sets **0.1.0/0.2.0**, archive format **1**, FHIR
 **R4 4.0.1**. Clinical facts are native FHIR resources, never a parallel lab model.
 Every import needs human review of the final prepared bytes. Validation does not
 establish extraction accuracy, source identity, consent or medical correctness.
@@ -296,3 +296,30 @@ precision, bucket and relation for each returned record. Unknown dates remain
 selected. Continuations bind the person, task, source/reference selection, date
 bounds, kit digest and Head. Counts and record/evidence budgets apply per page;
 no filter failure falls back to an unfiltered or all-person scan.
+
+### History profile compatibility and query
+
+Profile set 0.2.0 adds source-assertion history families. The original six
+profiles remain byte-identical at version 0.1.0. Provenance 0.2.0 widens the
+native target boundary to include the added families; the original Provenance
+0.1.0 remains supported. New vaults pin profile set
+0.2.0 and kit 0.1.4; existing 0.1.0 vaults continue using their retained locks,
+profiles and kits. They are readable without migration. New history resources
+require a 0.2.0 vault and its pinned history definitions; do not edit vault pins
+or repin accepted history to upgrade. No persisted clinical meaning is rewritten.
+The archive contract and FHIR release stay 0.1.0 and R4 4.0.1 respectively.
+
+`helseark --vault VAULT history --person PERSON --kind MedicationStatement --json`
+returns native assertions and their native Provenance at one head. Repeat `--kind`
+for multiple supported families; `--at-head HEAD.json` selects an exact snapshot.
+The Python API is `query.history(vault, person, kinds, at=None)`. It returns
+FHIR resources, without adding non-FHIR fields. `timeline` includes the complete
+native `resource` alongside exact revision, source evidence references and retained
+validation issues. This preserves qualifiers without deriving an active diagnosis
+or a medication list. Timeline order is identity order, not clinical chronology.
+Recording, assertion and event dates remain separate native fields. Partial,
+textual, age-based and absent event dates are not converted into invented dates.
+
+### MedicationStatement (profile 0.2.0)
+
+Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusReason category medicationCodeableConcept subject context effectiveDateTime effectivePeriod dateAsserted informationSource derivedFrom reasonCode reasonReference note dosage`. Timeline uses ('effectiveDateTime', 'effectivePeriod'), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.

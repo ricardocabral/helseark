@@ -51,3 +51,7 @@ MULTIPLE_PERSON_CUES blocks ordinary acceptance and requires a report-only hando
 OCR_REQUIRED means retain unreadable pages and emit no invented results. Explicit
 trusted assignment is separate from source assertions. Always require uncertainty
 review: finite patient-label checks do not solve arbitrary person recognition.
+
+For broader history, follow the source-assertion history rules in the import skill
+and selected profiles. Prescription, claimed use and adherence are distinct.
+Preserve uncertainty, negative assertions and unknown dates; infer no diagnoses.

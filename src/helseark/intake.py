@@ -513,7 +513,7 @@ def prepare_candidate(vault: Vault, candidate: Candidate, *, clock: Callable[[],
     provenance_id=new_id(); provenance_version=new_id(); provenance_ref=f'Provenance/{provenance_id}/_history/{provenance_version}'
     documents=[v for k,v in aliases.items() if k.startswith('DocumentReference/')]
     if not documents: raise ArchiveError('VALIDATION_BLOCKED','Imports require an evidenced source DocumentReference.')
-    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0'],'versionId':provenance_version,'lastUpdated':now},
+    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|' + vault.config.profileVersion],'versionId':provenance_version,'lastUpdated':now},
         'target':[{'reference':v} for v in dict.fromkeys(aliases.values())], 'recorded':now,
         'agent':[{'who':{'identifier':{'system':'urn:helseark:local-actor','value':'proposal-compiler'}}}],
         'entity':[{'role':'source','what':{'reference':v}} for v in documents] +

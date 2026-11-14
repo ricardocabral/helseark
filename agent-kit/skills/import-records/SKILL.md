@@ -44,3 +44,20 @@ PDF extraction/candidate reading and human-controlled reviewed publication are a
 whole-workflow limitation; a complete, confirmed text-PDF handoff can still draft.
 Never represent validation as acceptance or a synthetic supplied candidate as model
 accuracy. The host must restrict real filesystem/tool access independently.
+
+## Source-assertion history (profile set 0.2.0)
+
+Use only the native families present in the selected schema packet. Distinguish
+MedicationRequest prescription/order from MedicationStatement reported use;
+neither proves adherence. Preserve dose text/schedule, stop status and unknown
+adherence. Do not derive diagnosis, interactions, risk or treatment advice.
+Keep Condition verification (suspected/unconfirmed, refuted, confirmed) separate
+from clinical status and onset separate from recording time. An explicit “no
+known allergies” assertion is an AllergyIntolerance with source wording, never
+an empty allergy list. Missing records are not that assertion. Preserve vaccine
+occurrenceString when its date is unknown, and unknown dose/series; never infer
+from age. Preserve procedure/encounter disposition and native periods. A parent's
+history is FamilyMemberHistory for the selected patient; relationship text does
+not authorize linking or reading another person's vault. Retain unsupported
+content as source/narrative with an explicit limitation. Review every scalar
+against source evidence. Read [history compatibility](../../docs/reference/clinical-model.md#history-profile-compatibility-and-query).

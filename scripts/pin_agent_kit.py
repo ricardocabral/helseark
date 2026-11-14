@@ -16,6 +16,7 @@ def write(path, value):
 def pin():
     kit = ROOT/'agent-kit'
     manifest = json.loads((kit/'manifest.json').read_text())
+    history_profiles = [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'profiles/r4/0.2.0').glob('StructureDefinition-*.json'))]
     manifest['baseInstructionPaths'] = ['START-HERE.md','AGENTS.md']
     skills = dict(zip(['inspect','import','query','correct','export','verify','migrate'],
         ['inspect-archive','import-records','query-history','correct-records','export-records','verify-archive','migrate-archive']))
@@ -23,6 +24,10 @@ def pin():
         'correct':['propose-correction'],'export':['prepare-export'],'verify':['verify-archive'],'migrate':['plan-migration'],'inspect':[]}
     prompts=[]
     for task in manifest['tasks']:
+        if task['id'] in ('import', 'query'):
+            task['schemaPaths'] = list(dict.fromkeys([*task['schemaPaths'], *history_profiles]))
+        if task['id'] == 'query':
+            task['permittedOperations'] = list(dict.fromkeys([*task['permittedOperations'], 'helseark --vault PATH history --person UUID --kind MedicationStatement --json']))
         task['schemaPaths']=list(dict.fromkeys([*task['schemaPaths'],'schemas/0.1.0/agent-evidence-selection.schema.json']))
         task['skillPath']=f"skills/{skills[task['id']]}/SKILL.md"
         task['promptIds']=routes[task['id']]
@@ -63,7 +68,7 @@ def pin():
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas/0.1.0').glob('*.json'))]
-    references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'profiles/r4/0.1.0').glob('*')) if p.is_file()]
+    references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'profiles/r4').glob('*/*')) if p.is_file()]
     references = list(dict.fromkeys(references))
     for name in references:
         target=kit/name; target.parent.mkdir(parents=True,exist_ok=True); shutil.copyfile(ROOT/name,target)

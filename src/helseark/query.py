@@ -8,7 +8,7 @@ from datetime import date, datetime
 from calendar import monthrange
 from fractions import Fraction
 import re
-from typing import Iterator
+from typing import Iterator, Sequence
 
 from .archive import head, iter_current, resolve, _snapshot, _read, _json
 from .contracts import (ArchiveError, EvidenceRef, Head, Issue, ObservationFilter,
@@ -73,7 +73,16 @@ def _date_window(from_date, to_date):
     return low, high, instant
 
 
+# Native event time only. Recording/authorship does not imply event onset.
+_HISTORY_TIMES = {'MedicationStatement': ('effectiveDateTime', 'effectivePeriod')}
+
 def _effective(resource):
+    kind = resource.get('resourceType')
+    if kind in _HISTORY_TIMES:
+        for field in _HISTORY_TIMES[kind]:
+            if field in resource:
+                return field, resource[field]
+        return None, None
     for key in ('effectiveDateTime','effectivePeriod','effectiveInstant','effectiveTiming'):
         if key in resource:
             return key, resource[key]
@@ -94,7 +103,7 @@ def _time(resource, window):
     precision = 'unknown'
     low, high, instant = window
     try:
-        if isinstance(value, dict) and kind and kind.endswith('Period'):
+        if isinstance(value, dict) and kind and (kind.endswith('Period') or kind == 'period'):
             begin, end = value.get('start'), value.get('end')
             first = _bounds(begin,instant=instant) if begin else (_MIN,_MIN,'unknown')
             last = _bounds(end,instant=instant) if end else (_MAX,_MAX,'unknown')
@@ -236,4 +245,22 @@ def timeline(vault: Vault, person: PersonId, *, at: Head | None = None) -> Itera
         ref = _ref(r); target = _ref_text(ref)
         kind,effective,precision,_,bucket = _time(r,_date_window(None,None))
         yield TimelineRow(ref,r.get('status'),effective,precision,bucket,kind,results.get(target,()),
-            tuple(evidence.get(target,())),tuple(issues.get(target,())))
+            tuple(evidence.get(target,())),tuple(issues.get(target,())),r)
+
+
+def history(vault: Vault, person: PersonId, kinds: Sequence[str], at: Head | None = None) -> Iterator[dict]:
+    """Native assertions plus their native Provenance at one verified Head.
+
+    Evidence locators remain in the accepted evidence envelope (also exposed by
+    timeline); no synthetic fields are added to these FHIR resources.
+    """
+    if isinstance(kinds, (str, bytes)) or not kinds or any(k not in _HISTORY_TIMES for k in kinds):
+        raise ArchiveError('INVALID_FILTER', 'Select supported clinical history resource kinds.')
+    resources, _, _, _ = _graph(vault, person, at)
+    selected = [r for r in resources if r['resourceType'] in kinds]
+    targets = {_ref_text(_ref(r)) for r in selected}
+    logical = {r['resourceType']+'/'+r['id'] for r in selected}
+    for r in resources:
+        if r in selected or (r['resourceType']=='Provenance' and any(
+                t.get('reference') in targets | logical for t in r.get('target', []))):
+            yield r

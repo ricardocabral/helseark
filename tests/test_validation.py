@@ -53,7 +53,7 @@ def persist(candidate):
     (candidate.path / 'evidence.json').write_bytes(encode_json(candidate.evidence))
     metadata = {'contractVersion': '0.1.0', 'candidateId': candidate.candidateId,
                 'personId': candidate.personId, 'baseChangeSha256': candidate.base.changeSha256,
-                'fhirVersion': '4.0.1', 'profileVersion': '0.1.0',
+                'fhirVersion': '4.0.1', 'profileVersion': '0.2.0',
                 'sourceSha256': sorted({e['sourceSha256'] for e in candidate.evidence['entries'] if 'sourceSha256' in e}),
                 'bundlePath': 'bundle.json', 'evidencePath': 'evidence.json',
                 'producer': {'kind': 'external-agent', 'name': 'synthetic'},

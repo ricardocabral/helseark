@@ -1,0 +1,68 @@
+[
+  {
+    "status": "active",
+    "medicationCodeableConcept": {
+      "text": "Synthetic medicine — reported use"
+    },
+    "effectivePeriod": {
+      "start": "2026-01"
+    },
+    "dateAsserted": "2026-03-01",
+    "dosage": [
+      {
+        "text": "1.250 mg each evening; adherence unknown",
+        "timing": {
+          "repeat": {
+            "frequency": 1,
+            "period": 1,
+            "periodUnit": "d"
+          }
+        },
+        "doseAndRate": [
+          {
+            "doseQuantity": {
+              "value": 1.250,
+              "unit": "mg"
+            }
+          }
+        ]
+      }
+    ],
+    "note": [
+      {
+        "text": "Reported use is not proof of adherence."
+      }
+    ],
+    "resourceType": "MedicationStatement",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-statement|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "stopped",
+    "medicationCodeableConcept": {
+      "text": "Synthetic medicine — discontinued per source"
+    },
+    "note": [
+      {
+        "text": "Stop date and adherence unknown."
+      }
+    ],
+    "resourceType": "MedicationStatement",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-statement|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

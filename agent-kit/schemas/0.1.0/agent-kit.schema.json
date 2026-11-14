@@ -28,7 +28,10 @@
           "const": "4.0.1"
         },
         "profileVersion": {
-          "const": "0.1.0"
+          "enum": [
+            "0.1.0",
+            "0.2.0"
+          ]
         },
         "serializationVersion": {
           "const": "helseark-json-1"
