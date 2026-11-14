@@ -396,3 +396,42 @@ def test_verified_snapshot_rejects_unknown_and_other_person_references(corpus):
             snapshot.resolve(ref)
     with pytest.raises(ArchiveError, match='UNKNOWN_HEAD'):
         archive._ResourceSnapshot(v, c.personId, replace(base, changeSha256='0'*64))
+
+
+@pytest.mark.parametrize('operation', ['observations', 'timeline'])
+def test_snapshot_second_read_checksum_error_has_safe_resource_path(corpus, operation):
+    import os
+    import sys
+    obs, timeline, Filter = api()
+    v, c, _, _, _ = corpus
+    query = (lambda: list(obs(v, c.personId, Filter()))) if operation == 'observations' else (
+        lambda: list(timeline(v, c.personId)))
+    before = query()
+    target = next((v.root/'people'/c.personId/'accepted').glob('*/resources/Patient-*.json'))
+    original = target.read_bytes()
+    fd = os.open(target, os.O_RDWR)
+    reads = 0
+    active = True
+
+    def change_on_second_open(event, args):
+        nonlocal reads
+        if active and event == 'open' and str(args[0]) == str(target):
+            reads += 1
+            if reads == 2:
+                # Alter real bytes after history verification, before snapshot parsing.
+                os.pwrite(fd, b'X', 0)
+
+    sys.addaudithook(change_on_second_open)
+    try:
+        with pytest.raises(ArchiveError) as caught:
+            query()
+        assert reads == 2
+        assert caught.value.code == 'INTEGRITY'
+        assert caught.value.details == {'path': target.relative_to(v.root).as_posix()}
+    finally:
+        active = False
+        os.pwrite(fd, original, 0)
+        os.ftruncate(fd, len(original))
+        os.close(fd)
+    assert target.read_bytes() == original
+    assert query() == before
