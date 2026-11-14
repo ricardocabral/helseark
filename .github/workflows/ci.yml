@@ -118,8 +118,11 @@ jobs:
       - name: Build and install exact authority qualification runtime
         run: |
           uv build --no-sources
-          uv venv --system-site-packages "$RUNNER_TEMP/authority-env"
+          uv venv --python "$PWD/.venv/bin/python" "$RUNNER_TEMP/authority-env"
           uv pip install --offline --no-deps --python "$RUNNER_TEMP/authority-env/bin/python" dist/*.whl
+          # Reuse only this job's exact locked dependencies after installing the
+          # wheel, so the editable project cannot satisfy the wheel installation.
+          "$RUNNER_TEMP/authority-env/bin/python" -c 'import pathlib,sys,sysconfig; pathlib.Path(sysconfig.get_path("purelib"), "qualified-dependencies.pth").write_text(sys.argv[1]+"\n")' "$PWD/.venv/lib/python3.12/site-packages"
           uv run --no-sync python tests/setup_validator_legacy.py "$RUNNER_TEMP/legacy-workflow"
       - name: Actual installed execution authority and failed-request matrix
         run: |
