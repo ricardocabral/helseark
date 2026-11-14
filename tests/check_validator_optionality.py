@@ -13,6 +13,6 @@ with TemporaryDirectory() as temporary:
     patient=resolve(vault,person,ResourceRef('Patient',person))
     assert patient['resourceType']=='Patient'
     try: validate_with_official_tool(None,None,vault=vault)
-    except ArchiveError as error: assert error.code=='VALIDATOR_UNAVAILABLE'
-    else: raise AssertionError('Required tool absence did not block')
-print('base without Java: 1 Patient resolved; required absent tool blocked')
+    except ArchiveError as error: assert error.code=='INVALID_INPUT'
+    else: raise AssertionError('Invalid explicit request did not block')
+print('base without Java: 1 Patient resolved; invalid explicit request blocked')

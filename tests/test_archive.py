@@ -278,7 +278,11 @@ def test_prepare_clock_and_ids_are_explicit_and_collision_does_not_overwrite(tmp
     person = add_person(vault, PersonDraft("Alex"), clock=lambda: datetime(2000, 1, 2, tzinfo=timezone.utc),
                         uuid_factory=iter(ids).__next__)
     patient = resolve(vault, person, ResourceRef("Patient", person))
-    assert patient["meta"] == {"versionId": ids[1], "lastUpdated": "2000-01-02T00:00:00Z"}
+    assert patient["meta"] == {
+        "versionId": ids[1],
+        "lastUpdated": "2000-01-02T00:00:00Z",
+        "profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"],
+    }
     before = head(vault, person)
     with pytest.raises(ArchiveError, match="DESTINATION_EXISTS"):
         add_person(vault, PersonDraft("Different"), uuid_factory=iter(ids).__next__)

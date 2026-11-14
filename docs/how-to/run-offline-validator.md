@@ -16,10 +16,12 @@ python scripts/acquire_validator.py /absolute/new/validator-7.0.5
 
 This is explicit acquisition of public software, never health data. It obtains
 the official release JAR and nine exact packages from their pinned primary
-URLs. It bounds sizes and verifies every SHA-256 against
-`definitions/validator-lock.json`; changed bytes fail. Package hashes other than
-the release JAR were measured from official registry downloads; they are byte
-pins, not independently signed registry attestations. Keep the generated notices
+URLs. The R4 core archive comes from the [published R4 download](https://hl7.org/fhir/R4/hl7.fhir.r4.core.tgz)
+that supplied its exact byte and digest pin; the other eight packages come from
+the official package registry. It bounds sizes and verifies every SHA-256 against
+`definitions/validator-lock.json`; changed bytes fail. Package hashes were measured
+from those official downloads; they are byte pins, not independently signed
+package attestations. Keep the generated notices
 with the JAR. `definitions/validator-notices.json` records the inspected embedded
 notice members; the shaded executable contains several third-party licenses,
 not just the upstream project's Apache-2.0 license. See [NOTICE](../../NOTICE).
@@ -165,3 +167,22 @@ cannot be loaded. On the same filesystem this uses a hardlink to the verified
 immutable JAR, otherwise an exclusive byte copy. Original input byte inventories
 are checked before/after execution; reference tools are not rewritten. Runtime
 and terminology byte pins and acquisition URLs are unchanged by this correction.
+
+
+## Combined release and CI qualification
+
+New vaults use agent kit 0.1.12. The original 0.1.0 review/validation schemas
+remain unchanged; enriched reports use the separately pinned 0.1.1 validation
+schema, and exact-issue 0.1.1 human receipts retain the execution authority. Old
+vaults keep their own definitions and kit. No automatic repinning is performed.
+
+The Linux offline-validator job runs both the actual supported corpus and
+`tests/qualify_validator_authority.py` against an installed wheel. The latter
+verifies a reachable network control, actual positive and schema-valid deeper
+negative, unavailable required terminology, four early-request revocations,
+missing Java, actual successful recovery, public replay rejection and preserved
+history. Its legacy input comes from the immutable synthetic fixture via
+`tests/setup_validator_legacy.py`; no execution attestation is added to old bytes.
+The three disjoint agent/clinical/core groups run all pytest cases separately;
+the base-only jobs retain optional dependency checks. Only a completed CI run
+on the integrated commit establishes Linux results.

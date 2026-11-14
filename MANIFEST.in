@@ -1,3 +1,8 @@
 # Retain the corrected installed oracle and its focused regressions in the sdist.
 include tests/qualify_source_disclosure_installed.py
 include tests/test_source_disclosure.py
+include tests/qualify_validator_authority.py
+include tests/qualify_validator_requests.py
+include tests/setup_validator_legacy.py
+recursive-include tests/fixtures/synthetic/validator-legacy *
+include tests/qualify_official_validator.py

@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "ff7a025b755b59a6658e6a4963339b9161dbd16db342e6b1cfb152c6a91cdff6",
+    "definitionLockSha256": "4e33bd69096682586e26c0037572248ee19f71c5dc1fd45fd64a7540dd28878d",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -29,13 +29,13 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "ff7a025b755b59a6658e6a4963339b9161dbd16db342e6b1cfb152c6a91cdff6",
+      "sha256": "4e33bd69096682586e26c0037572248ee19f71c5dc1fd45fd64a7540dd28878d",
       "size": 36939
     },
     {
       "path": "definitions/validator-lock.json",
-      "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e",
-      "size": 4136
+      "sha256": "9968fe099e5c97fd3c96dae0626d8e4edd89fed1939f1508acdcb0b43fc8e33b",
+      "size": 4132
     },
     {
       "path": "definitions/validator-notices.json",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/how-to/run-offline-validator.md",
-      "sha256": "55be3df24b21484a7c0447d2c3fb4242c542d4629cce3820d3a72eb46291b43a",
-      "size": 10186
+      "sha256": "3e9686bf0c86f5cadcd2dff35741e28410e1175dece374ce83be3c7bd642c53f",
+      "size": 11484
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -209,8 +209,8 @@
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "6ddd0e34c922da55c557b011c5b325313f47b15affc6e883bd6b71526e614d65",
-      "size": 4138
+      "sha256": "4635f5e65892c3d0fdb6e48fda99af9162d711bd159799799a44c71a4d34737b",
+      "size": 4135
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -744,7 +744,7 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "6ddd0e34c922da55c557b011c5b325313f47b15affc6e883bd6b71526e614d65",
+      "sha256": "4635f5e65892c3d0fdb6e48fda99af9162d711bd159799799a44c71a4d34737b",
       "skillId": "verify-archive",
       "skillSha256": "359780bcdd2af939e050d913f382cfc060ee896d672161832d76eb9738214a5c",
       "skillVersion": "0.1.0",
@@ -1175,7 +1175,10 @@
         "human-review-required",
         "known-material-closure",
         "readable-audit-paths",
-        "diagnostic-path-actions"
+        "diagnostic-path-actions",
+        "original-official-execution-authority",
+        "complete-baseline-reconciliation",
+        "failed-request-revocation"
       ],
       "id": "verify",
       "intent": "Prepare integrity inspection context",

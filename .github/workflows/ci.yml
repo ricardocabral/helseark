@@ -84,7 +84,7 @@ jobs:
       - name: Install base only in this fresh job environment
         run: uv sync --locked --no-default-groups
 
-      - name: Verify baseline and required-tool policy without Java
+      - name: Verify baseline without Java
         run: uv run --no-sync python tests/check_validator_optionality.py
 
       - name: Verify absent dependency and base-only behavior
@@ -107,7 +107,7 @@ jobs:
         run: uv sync --locked --extra pdf --group dev
       - name: Explicit public artifact acquisition (before offline execution)
         run: |
-          python scripts/acquire_validator.py "$RUNNER_TEMP/validator" --linux-jre
+          uv run --no-sync python scripts/acquire_validator.py "$RUNNER_TEMP/validator" --linux-jre
           test -x "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java"
       - name: Real corpus with enforced empty network namespace
         run: |
@@ -115,12 +115,29 @@ jobs:
             "$PWD/.venv/bin/python" tests/qualify_official_validator.py \
             --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
             --output "$RUNNER_TEMP/official-evidence" --timeout-seconds 240
+      - name: Build and install exact authority qualification runtime
+        run: |
+          uv build --no-sources
+          uv venv --system-site-packages "$RUNNER_TEMP/authority-env"
+          uv pip install --offline --no-deps --python "$RUNNER_TEMP/authority-env/bin/python" dist/*.whl
+          uv run --no-sync python tests/setup_validator_legacy.py "$RUNNER_TEMP/legacy-workflow"
+      - name: Actual installed execution authority and failed-request matrix
+        run: |
+          mkdir "$RUNNER_TEMP/authority-staging"
+          sudo env PYTHONPATH="$PWD/tests" TMPDIR="$RUNNER_TEMP/authority-staging" \
+            "$RUNNER_TEMP/authority-env/bin/python" tests/qualify_validator_authority.py \
+            --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
+            --output "$RUNNER_TEMP/authority-evidence" --timeout-seconds 240 \
+            --legacy-workflow "$RUNNER_TEMP/legacy-workflow"
       - name: Retain synthetic qualification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: official-validator-evidence
           path: |
+            ${{ runner.temp }}/validator/acquisition.jsonl
             ${{ runner.temp }}/official-evidence/*.json
             ${{ runner.temp }}/official-evidence/*.txt
+            ${{ runner.temp }}/authority-evidence/*.json
+            ${{ runner.temp }}/authority-evidence/*.txt
           if-no-files-found: error

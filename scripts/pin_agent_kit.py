@@ -34,6 +34,7 @@ def pin():
                 'exact-reference-bindings' if task['id']=='export' else 'diagnostic-path-actions']))
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
         if task['id']=='verify':
+            task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'],'original-official-execution-authority','complete-baseline-reconciliation','failed-request-revocation']))
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/run-offline-validator.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
         task['requiredCapabilities']={

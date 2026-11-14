@@ -910,8 +910,8 @@
       "files": [
         {
           "path": "docs/how-to/run-offline-validator.md",
-          "sha256": "55be3df24b21484a7c0447d2c3fb4242c542d4629cce3820d3a72eb46291b43a",
-          "size": 10186
+          "sha256": "3e9686bf0c86f5cadcd2dff35741e28410e1175dece374ce83be3c7bd642c53f",
+          "size": 11484
         }
       ],
       "license": "MIT",
@@ -923,8 +923,8 @@
       "files": [
         {
           "path": "definitions/validator-lock.json",
-          "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e",
-          "size": 4136
+          "sha256": "9968fe099e5c97fd3c96dae0626d8e4edd89fed1939f1508acdcb0b43fc8e33b",
+          "size": 4132
         }
       ],
       "license": "MIT",

@@ -179,7 +179,7 @@ def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorCon
     if (proposal.path/'review.json').exists():
         _error('REVIEW_MISMATCH','Official validation must precede human review; prepare a fresh proposal.')
     from .archive import _json
-    if 'officialValidationAuthority' not in _json(vault.root,'definitions/schemas/0.1.1/review.schema.json')['properties']:
+    if not (vault.root/'definitions/schemas/0.1.1/review.schema.json').is_file() or 'officialValidationAuthority' not in _json(vault.root,'definitions/schemas/0.1.1/review.schema.json')['properties']:
         _error('UNSUPPORTED_VERSION','Pinned review contract cannot retain authenticated executions; preserve old pins and use a compatible workflow.')
     baseline, bundle, mapping = _context(vault, proposal)
     runtime_inputs=_runtime_inputs(config)

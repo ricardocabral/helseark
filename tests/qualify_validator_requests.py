@@ -5,6 +5,7 @@ Run against an installed runtime and an owned copy of a real pending workflow.
 """
 from dataclasses import replace
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 
@@ -94,6 +95,7 @@ def failed_request_matrix(pending, output, config, *, vulnerable=False):
                         'proposalBytesUnchanged': inventory(path) == {**before_proposal, 'review.json': hash_bytes(review_bytes)},
                         'peopleBytesUnchanged': inventory(vault.root/'people') == before_people,
                         'reportSha256': before_proposal['validation.json'], **observations})
+        shutil.rmtree(vault.root.parent)
     return results
 
 

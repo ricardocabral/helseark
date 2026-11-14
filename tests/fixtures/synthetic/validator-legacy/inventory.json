@@ -1,0 +1,1067 @@
+{
+  "archiveSha256": "eb91d09651a218125368e982b6fc736d7c004fc1312e971cc508a80680ed7867",
+  "archiveBytes": 5643698,
+  "sourceCommit": "a4e715ef656a380db6ae66ff2f9fefb6cb0bdb7f",
+  "files": [
+    {
+      "path": "vault/AGENTS.md",
+      "bytes": 412,
+      "sha256": "2ae01b27ca5ec15293dcc3b9a831a24625f5a7c389ba8cca61f4c9bc8ac8731b"
+    },
+    {
+      "path": "vault/CLAUDE.md",
+      "bytes": 11,
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49"
+    },
+    {
+      "path": "vault/README.md",
+      "bytes": 325,
+      "sha256": "640d9f665979f9d32832076a0c4da82cb758f5e43c66ba9d8e197c37aeb77ce7"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/AGENTS.md",
+      "bytes": 9539,
+      "sha256": "ba137139e53014d04d85fb9e308f73d397c4fe2716eeca452c8bb500c69f233b"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/NOTICE",
+      "bytes": 1545,
+      "sha256": "593e84a1b184f88b66de3992d8666c35563ecd27b6ab6e6cda772f1133b45b0a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/START-HERE.md",
+      "bytes": 3232,
+      "sha256": "6cb12303cdceeb4888d7a11acd7ce5199d405c2ed2dd3a985c83eabdfa728014"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/definitions/lock.json",
+      "bytes": 34826,
+      "sha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/definitions/validator-lock.json",
+      "bytes": 4136,
+      "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/definitions/validator-notices.json",
+      "bytes": 2889,
+      "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/how-to/backup-and-restore.md",
+      "bytes": 3961,
+      "sha256": "03d446245fc4aee6c65b4d5f4078a16589afd1030c25f765ff07b09dc87456cf"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/how-to/export-records.md",
+      "bytes": 2990,
+      "sha256": "e59f5969459a2fe154c886b6123fa37b58a3ad608a963efde96a26f764d134e7"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/how-to/import-report.md",
+      "bytes": 7122,
+      "sha256": "8e403a5c4129a02e315b34771e537b00a9e5675040b91d785bd908a7300fdc73"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/how-to/query-history.md",
+      "bytes": 4050,
+      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/how-to/run-offline-validator.md",
+      "bytes": 7174,
+      "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/agent-protocol.md",
+      "bytes": 28184,
+      "sha256": "3fba31c103ebef8fc9edc1fc0993f7e613a3372449cccecf631991d4bd358006"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/archive-format.md",
+      "bytes": 19675,
+      "sha256": "112ac8a082b2a7e5b7299660ae731f60b72cdd8663c7155eb56f1d1219968dd6"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/clinical-model.md",
+      "bytes": 20363,
+      "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/intake.md",
+      "bytes": 9254,
+      "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/pdf-extraction.md",
+      "bytes": 16349,
+      "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/reference/review.md",
+      "bytes": 7113,
+      "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/docs/tutorials/first-archive.md",
+      "bytes": 4569,
+      "sha256": "4391521cc435127a537d18c2830fb88737db9ecbe2c7d9bc384129920a2ceecb"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/README.md",
+      "bytes": 2779,
+      "sha256": "6e55b14b483bcf13d0474a1edf53785e34f2db2e52a759dfee4dbb3fb3289155"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/extraction-fragment.json",
+      "bytes": 198,
+      "sha256": "8ba937a24c8e764f207d5ebb7af5e762d3f30cb39769b889922bcd245d5d8939"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/query-answer-excerpt.md",
+      "bytes": 1410,
+      "sha256": "9175d90fe3a497f63a8a5446522d84fa4316ece32c28659f945c45ce93ee7cdc"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/task5-bundle.json",
+      "bytes": 2354,
+      "sha256": "dcdccf5be78e537f1195a5fc84b9643169bbaba087565f3013487940732ec8be"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/task5-complete.pdf",
+      "bytes": 1756,
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/task5-evidence.json",
+      "bytes": 16472,
+      "sha256": "10a1b0702a051dc6a545b376dffe0fd2e43c9315641ec7a891fc4e239cfb2fab"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/examples/task5-example.py",
+      "bytes": 2097,
+      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/manifest.json",
+      "bytes": 39609,
+      "sha256": "6423e183e4a7d06c87a8873d52f91ebf0c509ccf262476bf4686c7e4e31f074b"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/README.md",
+      "bytes": 12830,
+      "sha256": "2310ae2f9a0878d92d9e1e9cd4d1fd07ca345ddfe5c35939953a34b0ae4af739"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+      "bytes": 4092,
+      "sha256": "7aef1eb3e068b25eab868aca96d9c4fda9dcd9564e4069467f2fb24578ae4fce"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+      "bytes": 4420,
+      "sha256": "810bd95a0941ac87e9c51aa6a7525d2a0431609679ca61435aadc7bcc8dc3472"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+      "bytes": 6525,
+      "sha256": "b72814f1b0ed6a5adbf63499cbc7e322151ef1f8c7f6c762fa89afd86125ddd7"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+      "bytes": 2411,
+      "sha256": "4f74d8292f2c11e406f5aa6438092ee044b1b4a3ca7bed5fb975f0ae1ba5563f"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+      "bytes": 5778,
+      "sha256": "4a2eb4f06c4cbaa1609fced2807a12986611b0e76be0080acd044637d02577c8"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+      "bytes": 3344,
+      "sha256": "0dba5a183a73c319de06c71e44bf4d2b180585a9d14b22d7d18ecb3551c5b175"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/profiles/r4/0.1.0/package.json",
+      "bytes": 402,
+      "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/extract-report.md",
+      "bytes": 4341,
+      "sha256": "ae5d206925eeda2bc03e5dd5d3feadb80b4dcc355a52faa5b6ebc4320185601d"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/map-structured-export.md",
+      "bytes": 3902,
+      "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/plan-migration.md",
+      "bytes": 2203,
+      "sha256": "744f5f9a0ac46716d4cacb5fd5a485aa58ebd91f5fe7b1d75503140ca688ba29"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/prepare-export.md",
+      "bytes": 2619,
+      "sha256": "f4104ddac65f37307e82afdc24c6ed1b7ccfcc3c4232f6e80ca2118fdf5c348a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/propose-correction.md",
+      "bytes": 3790,
+      "sha256": "59ed1c23098267b5a623e133ed56ec57e05629f781feedb25783ed3865f1aa13"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/query-with-evidence.md",
+      "bytes": 3592,
+      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/prompts/verify-archive.md",
+      "bytes": 2997,
+      "sha256": "a169e9256a4f291f975bc0c424dfe65ecefc5c30745b78e19d0089b040abb8d7"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/agent-context.schema.json",
+      "bytes": 18252,
+      "sha256": "fa1b7c6d2ba743ec887cf95111366e0ea1022e8359432041d30bc4f3c0db294a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/agent-evidence-selection.schema.json",
+      "bytes": 205,
+      "sha256": "af761ed18a8b5ab502727f462ce0af20d7caa9ea1ea38cc0c2f13587288d996d"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/agent-kit.schema.json",
+      "bytes": 9639,
+      "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/candidate.schema.json",
+      "bytes": 4879,
+      "sha256": "96b1e10c70c645cd6dd41d27c18574edf4fbae1f9bcbee92198dd9f24e82b160"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/change.schema.json",
+      "bytes": 5027,
+      "sha256": "475ca00b35a9f24b4393dd5a22b39b266e8743e62b36328e4f0a2c012b4d50e5"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/evidence.schema.json",
+      "bytes": 17173,
+      "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/export.schema.json",
+      "bytes": 4012,
+      "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/proposal.schema.json",
+      "bytes": 7165,
+      "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/review.schema.json",
+      "bytes": 2184,
+      "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/validation.schema.json",
+      "bytes": 5779,
+      "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/schemas/0.1.0/vault.schema.json",
+      "bytes": 1209,
+      "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/correct-records/SKILL.md",
+      "bytes": 1804,
+      "sha256": "63a87e978f867ff5d2674182b61a90237380da2de259bef982515995c048157a"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/export-records/SKILL.md",
+      "bytes": 1830,
+      "sha256": "dd20b1d934f0ee6ad852587a5fb901dfd59e3de9d5e37e869b3cf154d504d3f7"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/import-records/SKILL.md",
+      "bytes": 3897,
+      "sha256": "a2b7e24fa54f974660d1b3c593abd7b75d3a167d652f5ba745e1aa9f8055f91d"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/inspect-archive/SKILL.md",
+      "bytes": 1234,
+      "sha256": "c3254ec41933f4f3266d47d2572b17e83a5015cc5cfb56f95d2da81762794637"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/migrate-archive/SKILL.md",
+      "bytes": 1548,
+      "sha256": "0415e7b893b13cf26bf6733fc0a36138da863d856f57408d95afdac2306807f0"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/query-history/SKILL.md",
+      "bytes": 3140,
+      "sha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/skills/verify-archive/SKILL.md",
+      "bytes": 2425,
+      "sha256": "79257da698902e412abc2c12524e3ae440cf5755412c4791010325392570c360"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/templates/vault-AGENTS.md",
+      "bytes": 421,
+      "sha256": "406c16f8df255172af7f9c7c0598e3c6987692be5e1a6edb331f01bc31829969"
+    },
+    {
+      "path": "vault/agent-kit/0.1.3/templates/vault-CLAUDE.md",
+      "bytes": 11,
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49"
+    },
+    {
+      "path": "vault/definitions/NOTICE",
+      "bytes": 1545,
+      "sha256": "593e84a1b184f88b66de3992d8666c35563ecd27b6ab6e6cda772f1133b45b0a"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/cc0-1.0.html",
+      "bytes": 32223,
+      "sha256": "b43732f4c1463b087cf10d4daf8d8766514b2bf8f21bc5ef50905f95be227726"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/datatypes-definitions.html",
+      "bytes": 180283,
+      "sha256": "bb084e4451eb0359c29df4e155a809e15cdd7b2270095a9aaa7bd96f0ec86846"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/datatypes.html",
+      "bytes": 1364305,
+      "sha256": "03d88289865b77620321652f4b9b5c954b795c17715aa0a24f1a220dc12af573"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/diagnosticreport.html",
+      "bytes": 259555,
+      "sha256": "c7872244ae561cd552afcb035fb8a8c3a1681a81067e3d61449c50cb69b67cbc"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/documentreference.html",
+      "bytes": 302069,
+      "sha256": "0c76c8827205023617507a4b0575b94305d23326c68dcb330b71c7fc99ebdd97"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/downloads.html",
+      "bytes": 19967,
+      "sha256": "e42cc57b4934bd8018d6d4bb46dff9ec1749fcdaf429c9d6c5d75bce2fbfedc0"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/json.html",
+      "bytes": 36583,
+      "sha256": "29f37b0f90451ab55318ab371f35dd3176c5b24c1d5f4406cb855a1dbf1bc56e"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/license.html",
+      "bytes": 22009,
+      "sha256": "b2aeb02247ca2aa855ed1fce29f62600aeeb8dcc8257ec1e0b40ceaf4fd60a15"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/observation-definitions.html",
+      "bytes": 60059,
+      "sha256": "0377eafc8bd2d9753724141ef0039926e6ed1d142abcaef88fad6e2d9ffdf998"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/observation.html",
+      "bytes": 575414,
+      "sha256": "1388e9c5df3495fc5307376f23f178f5ff7d06366a0b79bee12aaa135a652480"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/patient.html",
+      "bytes": 320662,
+      "sha256": "fb65456ffb34331ac685b9bee21baa69cc43ca4118a56778501e56811ba8a8b3"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/profiling.html",
+      "bytes": 89620,
+      "sha256": "66b75593b754e692743cad349ebbba426b3275a61f87a53d3b583fb83b082e78"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/provenance.html",
+      "bytes": 217624,
+      "sha256": "1f0fd44cfa491592d4900654267e650142f7b0fe050d69c744b1ce6c8b596c29"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/references.html",
+      "bytes": 123187,
+      "sha256": "c7b2bade9002d88236d10f8c55754bc4b43edb3297d196a42935f30107bbee0f"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/specimen.html",
+      "bytes": 318327,
+      "sha256": "4a5f85a2adb692b34abb7ba593eac47e0c3e219b340bbd3b008c6527bdd2709b"
+    },
+    {
+      "path": "vault/definitions/definitions/docs/r4/validation.html",
+      "bytes": 31627,
+      "sha256": "d1372a4d0614d0d298edd6e92e3f74542329d31d7691cb0054782b6131d6e5bb"
+    },
+    {
+      "path": "vault/definitions/definitions/fhir-r4-json-schema/fhir.schema.json",
+      "bytes": 3386892,
+      "sha256": "2230406893b4cf002a4ee1e5e2bbeca22ac5d2d4931b3e9ef7b9594bbc376a01"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Address.json",
+      "bytes": 23663,
+      "sha256": "49c580b7d2046e0ea7aba1ac0fcb1369ae0a92790414baae8fffcc483a769e21"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Age.json",
+      "bytes": 12068,
+      "sha256": "05d6aba194959cc1cda1eebf592f45649dec833fe41cc2741f23f76b10a97907"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Annotation.json",
+      "bytes": 9291,
+      "sha256": "e181043a206c383b05ef74d6914457fbc0eb77a28fd6856e1d720aa33a4b48ce"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Attachment.json",
+      "bytes": 20616,
+      "sha256": "acce838cf4c297dead66ec243b92ebfda68b8a76ea0603e10c9963feceb9f969"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-BackboneElement.json",
+      "bytes": 9462,
+      "sha256": "919bf12de10bcc0b4e0b65ed6234e82b0d14a829eef21355e74e642f8ffd3260"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Bundle.json",
+      "bytes": 81552,
+      "sha256": "8229e58c10f75e34f7ae3bc719109416d8e058d23a7abb8cd620122db68adda9"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-CodeableConcept.json",
+      "bytes": 10657,
+      "sha256": "94004b63149919705cb814f0cc13dcf801d8bab7e00b4e3a337427acda675ba9"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Coding.json",
+      "bytes": 15859,
+      "sha256": "ebe5ecf63d818acf7bc855b34e50a1f3a798a4ae440987a554f44a331827156c"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ContactDetail.json",
+      "bytes": 6540,
+      "sha256": "54c1c1a9ee2c4dfd933e55b0a9ceda3a09e9e1d3f1fb330ce70b7bf226357fd2"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ContactPoint.json",
+      "bytes": 14252,
+      "sha256": "8bdcd8869d41e0f443823b31b3e504e194850da3f875b55d07427caa1ae74abc"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Contributor.json",
+      "bytes": 7410,
+      "sha256": "69cab99d244480bbbf43c4b07b3a4d84b112743e8ad76ebc074366d4d388ac56"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Count.json",
+      "bytes": 12301,
+      "sha256": "2e3541670b9e8aae8bfb0d132ad4ecef589e27f9f4b87fc972164e09808b6a41"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DataRequirement.json",
+      "bytes": 39435,
+      "sha256": "546d27ce903a4c6ed5eb9dcda30a57a92dab515b4a42f86bd3a58d53820f75ff"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DiagnosticReport.json",
+      "bytes": 65737,
+      "sha256": "9250647e26bd893484eefbd133ff9813cf7c7cc295afd48e1df9a1ee2b770225"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Distance.json",
+      "bytes": 11868,
+      "sha256": "8ecb08dc37542bfdde410b82183a285e06939b608eb2968459bc75ae46f28633"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DocumentReference.json",
+      "bytes": 95650,
+      "sha256": "9b671e99cce7c7c7cdb09395a66bcf524565fc5823cb718fe0679633c69113cc"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-DomainResource.json",
+      "bytes": 23705,
+      "sha256": "a18458dabb37be1bf98e937a2c434115d806c691f44cf8bee12c38bcd98412f8"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Dosage.json",
+      "bytes": 44509,
+      "sha256": "f11860657943794630125742cdeb8120b7261e450f6daf4ec6489114ea3c807e"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Duration.json",
+      "bytes": 12013,
+      "sha256": "0347d05e26ffbda49adbb7aca672a43737b1252949f2460c9cac04a24ce43c9a"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Element.json",
+      "bytes": 6146,
+      "sha256": "20830570772422ddaa06acb709ff8462f00c3ce8bc24c104d118710faacd1654"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Expression.json",
+      "bytes": 10558,
+      "sha256": "28bf1228896b1c3844e1b52865832d413cb15a5effbf30ef18ec2786a7af278f"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Extension.json",
+      "bytes": 9630,
+      "sha256": "9470f0873f62573d729dc78255d20cfb9ad59014621a1686c67071b570fbc8fc"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-HumanName.json",
+      "bytes": 17498,
+      "sha256": "39abf369c7aa8082203f017f77fbee1c078b9d0ecff6da0d1f8b1986dec207e3"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Identifier.json",
+      "bytes": 18640,
+      "sha256": "b5227053428f8a15e96effc2155b6a41a8e7850ca0c73f18a8332d22393ccf3f"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Meta.json",
+      "bytes": 15849,
+      "sha256": "04af4f73dacb7bf3c3a3c1fd53a716273b3eaeafb9c93a4db2eb17fec8fcdc87"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Money.json",
+      "bytes": 7698,
+      "sha256": "e4a9f4060aaa7120e88373ed9894e3ecf0e4108dae96a1e63edf07bc4f18c7ba"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Narrative.json",
+      "bytes": 11163,
+      "sha256": "e8aa46de26f2e1c39a9e7f0ff9e69979e4fe6aea54340fb301849ae0ab2614b6"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Observation.json",
+      "bytes": 119966,
+      "sha256": "037032dfe299064946ecfc195e4b8b921f6fef6b31e9dc571131bf7fc138e633"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-ParameterDefinition.json",
+      "bytes": 12646,
+      "sha256": "224296176174149fb5e9d96ace192a3cca1ba974bc2a3917660dc8cc299909bb"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Patient.json",
+      "bytes": 88208,
+      "sha256": "7f157a56ade5c6a9d4c8d13d676a0069a585412578f6a93f794baf9e8d0a4bd4"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Period.json",
+      "bytes": 9380,
+      "sha256": "7a9029144ac3d53491b1b0861ed2b4a504fcb9c210c96f6a25d21f537825ce93"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Provenance.json",
+      "bytes": 60948,
+      "sha256": "1c2c7fde07ee9c35aadd70d001f9f8c932b71aa3551edbc904fe8a168905e497"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Quantity.json",
+      "bytes": 15484,
+      "sha256": "5473f2536e80c5cd5e2b052c8e9d0f51957a5733f4337c5ed000079a3c33e8a8"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Range.json",
+      "bytes": 8292,
+      "sha256": "dd0bff7dc67bdbbc45c25afb837370bf885ecd9a0b4c39826d8af18d61938ce0"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Ratio.json",
+      "bytes": 7887,
+      "sha256": "1a1e5c31d17691dd4ebfe7e14a1f105e4921ab58ec963cd354ae2bfe36e70377"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Reference.json",
+      "bytes": 19635,
+      "sha256": "413f80a8107b637af28bfc0e1c1147d125dfe2938e7655086c353a9aea1c5048"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-RelatedArtifact.json",
+      "bytes": 12989,
+      "sha256": "2081e3770c34f0dc9918e18127ea92179e7104b84cb75681ce539a95a4c4460a"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Resource.json",
+      "bytes": 9736,
+      "sha256": "20e855671ff358a8cfcfb22bec37efe602eaba3e30716d8cf03ee44dffac22bc"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-SampledData.json",
+      "bytes": 14443,
+      "sha256": "160d2f1023cb32aaccbdc56a3ef6217f4f651acc0b3f7acdba2d43eaf6daab63"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Signature.json",
+      "bytes": 17794,
+      "sha256": "19d9773ded5fb73e6c60a2c2024064aec4f02649b08de5c2f5083272c34a78e6"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Specimen.json",
+      "bytes": 75351,
+      "sha256": "7104b14e414460a02b17c576f86ff3cc0a1414789fe789aecc9a3ab7c1e2ce74"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-Timing.json",
+      "bytes": 43191,
+      "sha256": "c227e277f92adc8975d7939f6db995f8352ca6bd806d45983c2dc8a93ea8e10c"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-TriggerDefinition.json",
+      "bytes": 15965,
+      "sha256": "35a63fa188db5132bbbb0093ddddd275cdb50a300311ee1585b2f052ce42e370"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-UsageContext.json",
+      "bytes": 9177,
+      "sha256": "0c400ad9baf3f494ecdaca5cef10acda95fef24242759754169d37174c3fcc0e"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-base64Binary.json",
+      "bytes": 4687,
+      "sha256": "a51c3c6dccf8c42f810b9c6183300570453ef25a09eb4c8a86aca74d97f0722c"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-boolean.json",
+      "bytes": 4462,
+      "sha256": "2adcef348bede84379faa940e0fefa5c4056f792f900c46ef8afe48194b4959d"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-canonical.json",
+      "bytes": 4731,
+      "sha256": "59afa21ad1aa393e0fd74a51c5a5de851624a8ab4068c9a4f2552551a82d5083"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-code.json",
+      "bytes": 4782,
+      "sha256": "2f19cdb6b72bfe4e64ce5cce1ce7fd39dc610f21303d546de006dd9cc681610d"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-date.json",
+      "bytes": 5000,
+      "sha256": "527c6349dfd44b3f5a5c3e378c2d65b8f9ab28e1167d69e00cf8f9e9cb17ae3b"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-dateTime.json",
+      "bytes": 5867,
+      "sha256": "b79f31bb66eb49e19c7f832691856db9cde5c0263fbb9dd0c3975be228119afd"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-decimal.json",
+      "bytes": 4883,
+      "sha256": "e9ed0a0e9d1eefb1656c1dceec8f228ff1a164960e872fc821603f80bda2f90f"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-id.json",
+      "bytes": 5023,
+      "sha256": "ed5981e3d0bf1fdd30b9278fc1d74cc68e3303525fd91c376afd21f6b3189a07"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-instant.json",
+      "bytes": 5443,
+      "sha256": "35751ce500aa816e3025dd92590d7d92f4df38747929c42b46c7a9f369e21e0a"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-integer.json",
+      "bytes": 4690,
+      "sha256": "2ae1359fb47f1368afad5b2cf7ac0c4c6f40f6feee05efab5270cd3147452d9c"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-markdown.json",
+      "bytes": 5137,
+      "sha256": "0fac500d984ff46c66bfb1f1d9bf77ae643ba42d23dd88a70ee19ed5310424f6"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-oid.json",
+      "bytes": 4507,
+      "sha256": "8582ac15fb991f083a0b9f3ec5dec0588ac1f4cdeefb75b7612406a69dc10da7"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-positiveInt.json",
+      "bytes": 4632,
+      "sha256": "051835bd0c6cf35da72f39b327d79e6f933b2b20832cc7ea2a88a1bc9ac9b4f0"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-string.json",
+      "bytes": 4620,
+      "sha256": "0c389d669772f8a7b6c59fb07265ac9263a3808cd4968e3ab012e55f6b677091"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-time.json",
+      "bytes": 4517,
+      "sha256": "8c7be8d87141914ad939783aae3ccd49b9df6740b63020910645ff76aac471d9"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-unsignedInt.json",
+      "bytes": 4662,
+      "sha256": "cf89bf6727805cc6081dcabb8e4b466f38c80b27af1cc50ca38e117e90476a07"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-uri.json",
+      "bytes": 4574,
+      "sha256": "3753c4fca85112c45f05684de7f63c645a5d5c7fc57320c43a5faa308c53420e"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-url.json",
+      "bytes": 4359,
+      "sha256": "26d08df23b54d1a61f4db7a447d03339224cc390314d8e4b5ba753f7cc3fb318"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-uuid.json",
+      "bytes": 4677,
+      "sha256": "d192dd8d6e47877bd933e04acc48f321f7c9db8d8eea0a9aefd878ef261749b9"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/StructureDefinition-xhtml.json",
+      "bytes": 4061,
+      "sha256": "bd854b3a64c2df1102ed77fb4473584c0ff9472ced77e64d384cb00e0ccb4e83"
+    },
+    {
+      "path": "vault/definitions/definitions/hl7.fhir.r4.core/4.0.1/package/package.json",
+      "bytes": 434,
+      "sha256": "7614377a54db343e48a9b3b862114f9f63ad1d5f746f6f0f7af68e55ac81c6f7"
+    },
+    {
+      "path": "vault/definitions/definitions/runtime-core/4.0.1/hl7.fhir.r4.core.tgz",
+      "bytes": 4531911,
+      "sha256": "b090bf929e1f665cf2c91583720849695bc38d2892a7c5037c56cb00817fb091"
+    },
+    {
+      "path": "vault/definitions/definitions/upstream-inventory.json",
+      "bytes": 28241,
+      "sha256": "93a0bbe3b10e48c6a449c53f394e273c5b70cd2cffb33961b56c3edfccb8c7d0"
+    },
+    {
+      "path": "vault/definitions/definitions/validator-lock.json",
+      "bytes": 4136,
+      "sha256": "b7fa300f25a63824f95f585ac66da89bd7f69eebc1b30e6a3e2cc44ec19ee58e"
+    },
+    {
+      "path": "vault/definitions/definitions/validator-notices.json",
+      "bytes": 2889,
+      "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8"
+    },
+    {
+      "path": "vault/definitions/docs/how-to/backup-and-restore.md",
+      "bytes": 3961,
+      "sha256": "03d446245fc4aee6c65b4d5f4078a16589afd1030c25f765ff07b09dc87456cf"
+    },
+    {
+      "path": "vault/definitions/docs/how-to/export-records.md",
+      "bytes": 2990,
+      "sha256": "e59f5969459a2fe154c886b6123fa37b58a3ad608a963efde96a26f764d134e7"
+    },
+    {
+      "path": "vault/definitions/docs/how-to/import-report.md",
+      "bytes": 7122,
+      "sha256": "8e403a5c4129a02e315b34771e537b00a9e5675040b91d785bd908a7300fdc73"
+    },
+    {
+      "path": "vault/definitions/docs/how-to/query-history.md",
+      "bytes": 4050,
+      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518"
+    },
+    {
+      "path": "vault/definitions/docs/how-to/run-offline-validator.md",
+      "bytes": 7174,
+      "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9"
+    },
+    {
+      "path": "vault/definitions/docs/reference/agent-protocol.md",
+      "bytes": 28184,
+      "sha256": "3fba31c103ebef8fc9edc1fc0993f7e613a3372449cccecf631991d4bd358006"
+    },
+    {
+      "path": "vault/definitions/docs/reference/archive-format.md",
+      "bytes": 19675,
+      "sha256": "112ac8a082b2a7e5b7299660ae731f60b72cdd8663c7155eb56f1d1219968dd6"
+    },
+    {
+      "path": "vault/definitions/docs/reference/clinical-model.md",
+      "bytes": 20363,
+      "sha256": "c3dd41b64bedcfad090f11b89ca14f3996f29cc0cf0a8d57fee1c087e2d88bd2"
+    },
+    {
+      "path": "vault/definitions/docs/reference/intake.md",
+      "bytes": 9254,
+      "sha256": "7e6c961820c3ca20f4aa2d089730cc8d590af8d56692ef2ded58fd7e9bd08a9a"
+    },
+    {
+      "path": "vault/definitions/docs/reference/pdf-extraction.md",
+      "bytes": 16349,
+      "sha256": "b29ae31dbde0ca7e27979db21607279262f6b6bb3d0b0360bb178e78cf463af1"
+    },
+    {
+      "path": "vault/definitions/docs/reference/review.md",
+      "bytes": 7113,
+      "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c"
+    },
+    {
+      "path": "vault/definitions/docs/tutorials/first-archive.md",
+      "bytes": 4569,
+      "sha256": "4391521cc435127a537d18c2830fb88737db9ecbe2c7d9bc384129920a2ceecb"
+    },
+    {
+      "path": "vault/definitions/lock.json",
+      "bytes": 34826,
+      "sha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/README.md",
+      "bytes": 12830,
+      "sha256": "2310ae2f9a0878d92d9e1e9cd4d1fd07ca345ddfe5c35939953a34b0ae4af739"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-diagnostic-report.json",
+      "bytes": 4092,
+      "sha256": "7aef1eb3e068b25eab868aca96d9c4fda9dcd9564e4069467f2fb24578ae4fce"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-document-reference.json",
+      "bytes": 4420,
+      "sha256": "810bd95a0941ac87e9c51aa6a7525d2a0431609679ca61435aadc7bcc8dc3472"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-observation.json",
+      "bytes": 6525,
+      "sha256": "b72814f1b0ed6a5adbf63499cbc7e322151ef1f8c7f6c762fa89afd86125ddd7"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-patient.json",
+      "bytes": 2411,
+      "sha256": "4f74d8292f2c11e406f5aa6438092ee044b1b4a3ca7bed5fb975f0ae1ba5563f"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-provenance.json",
+      "bytes": 5778,
+      "sha256": "4a2eb4f06c4cbaa1609fced2807a12986611b0e76be0080acd044637d02577c8"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/StructureDefinition-helseark-specimen.json",
+      "bytes": 3344,
+      "sha256": "0dba5a183a73c319de06c71e44bf4d2b180585a9d14b22d7d18ecb3551c5b175"
+    },
+    {
+      "path": "vault/definitions/profiles/r4/0.1.0/package.json",
+      "bytes": 402,
+      "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/agent-context.schema.json",
+      "bytes": 18252,
+      "sha256": "fa1b7c6d2ba743ec887cf95111366e0ea1022e8359432041d30bc4f3c0db294a"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/agent-evidence-selection.schema.json",
+      "bytes": 205,
+      "sha256": "af761ed18a8b5ab502727f462ce0af20d7caa9ea1ea38cc0c2f13587288d996d"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/agent-kit.schema.json",
+      "bytes": 9639,
+      "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/candidate.schema.json",
+      "bytes": 4879,
+      "sha256": "96b1e10c70c645cd6dd41d27c18574edf4fbae1f9bcbee92198dd9f24e82b160"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/change.schema.json",
+      "bytes": 5027,
+      "sha256": "475ca00b35a9f24b4393dd5a22b39b266e8743e62b36328e4f0a2c012b4d50e5"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/evidence.schema.json",
+      "bytes": 17173,
+      "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/export.schema.json",
+      "bytes": 4012,
+      "sha256": "ff3d824195b779663466682aefbbef59145393c89cd9fd045f2c2bfc78b82ffb"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/proposal.schema.json",
+      "bytes": 7165,
+      "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/review.schema.json",
+      "bytes": 2184,
+      "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/validation.schema.json",
+      "bytes": 5779,
+      "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38"
+    },
+    {
+      "path": "vault/definitions/schemas/0.1.0/vault.schema.json",
+      "bytes": 1209,
+      "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/change.json",
+      "bytes": 1457,
+      "sha256": "7ba82a90b8b0993a3c8d023a676ea5ef7a2ee5c0e8185a53a9b17f623ce1732d"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/evidence.json",
+      "bytes": 866,
+      "sha256": "97126614ddde005b308d411ba4dcce256a324ed1593eb7dc2546887cdd14dc5d"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/proposal.json",
+      "bytes": 1167,
+      "sha256": "57627511f5331c04f69fe6040aeeea620224f068069fc47bdd3b610d328787d3"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/resources/Patient-34c94db5-b612-4832-a472-863f4a574c48.json",
+      "bytes": 388,
+      "sha256": "ba4d462dfae7fc5b56dbe4e460918c190e16366660b83ecedc29780ee7cf3e5b"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/review.json",
+      "bytes": 501,
+      "sha256": "f4b5b5c6da424560e292973420001fa2d1eacf51441df0e4866fad4678431a2f"
+    },
+    {
+      "path": "vault/people/34c94db5-b612-4832-a472-863f4a574c48/accepted/00000001-cfd5f852-5e61-451e-817a-5fe7c4fd7aee/validation.json",
+      "bytes": 402,
+      "sha256": "f58c8ce4be0bf480e0cebac3529967fe56215016a8b0342843b22beac6504664"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/change.json",
+      "bytes": 1457,
+      "sha256": "b4b9faad96aa8e5b1ecd97b798fbf9f890995b890120c64f7715bf330ccd2403"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/evidence.json",
+      "bytes": 864,
+      "sha256": "cad22a8e5080be50ee7827dc7721abd04debe4925bfce0b8e4b5515d0cfd9bdb"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/proposal.json",
+      "bytes": 1167,
+      "sha256": "02bc2ab6de9fd0cddc83d0f24bd943a74467ce71b45f65d94345a4e8d357a858"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/resources/Patient-ccd0deaf-f4c7-4c6d-a006-7829c97da3fb.json",
+      "bytes": 386,
+      "sha256": "586784a53f3fc6d4d5234bd7bb8b9fb8a3e35fd99a3700bfd00ec2d3a0ee7923"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/review.json",
+      "bytes": 501,
+      "sha256": "0f2b610f8c73f3c1a9f0cd64d5444ccaa2c9aef16266a3ec5e3b40c34fc45a56"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000001-8ac3496c-61c8-444e-a26c-c7592cf72871/validation.json",
+      "bytes": 402,
+      "sha256": "3c504a2a54c672dfb82772612a5cc0f0f62eccf155ad218f6ab6d92683a352b8"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/change.json",
+      "bytes": 3392,
+      "sha256": "cc9973e62764f5b1a17e54e43e28a7ed8af70d2082807afe7a0e785014fcd902"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/evidence.json",
+      "bytes": 21911,
+      "sha256": "94e90817ca8e5424f9a7c3251a87597a35207085bce83f36f87fc3e6647934dd"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/inputs/bundle.json",
+      "bytes": 2407,
+      "sha256": "67d62850d524e9d366af7d9803b0e902a423f62f5bedf924078d36d3b1e9576c"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/inputs/candidate.json",
+      "bytes": 1191,
+      "sha256": "dbe73ef59a7ae3926e5641a3856be5213e3d84a660ff2931b60c742022960a89"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/inputs/evidence.json",
+      "bytes": 18308,
+      "sha256": "2db6470688248ba52e0419c543b06b4730a7f4cb287189061674ea239d06b3c3"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/proposal.json",
+      "bytes": 4837,
+      "sha256": "329bac63169e4276eef6b615dc71381f1fb7d849575eed7416b53f83e1d28764"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/resources/DocumentReference-00000000-0000-4000-8000-000000000006.json",
+      "bytes": 699,
+      "sha256": "34bdb587395e85f9d928d20a903ebf9c3b6686c35a6df8e67a36886c7649a8cb"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/resources/Observation-00000000-0000-4000-8000-000000000002.json",
+      "bytes": 702,
+      "sha256": "1a1439fb085a88c78be566986900e7dbf8b49aa1e855548e263fe5a6d8799441"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/resources/Observation-00000000-0000-4000-8000-000000000004.json",
+      "bytes": 541,
+      "sha256": "1382e69b31d1c9e24bf744526b8cb6e707183750035582f5daeb72b17322990e"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/resources/Provenance-00000000-0000-4000-8000-000000000008.json",
+      "bytes": 1150,
+      "sha256": "2333da42b9c580461647d178113ec9ffe504d0e7914bb5fe73990729498ca40a"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/review.json",
+      "bytes": 2550,
+      "sha256": "34a2859e2d58bce91bb6b53335c2719b35dd450a379e8038af271acf1fda53ee"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/accepted/00000002-00000000-0000-4000-8000-000000000001/validation.json",
+      "bytes": 29416,
+      "sha256": "df810d95a4b190b2a42843c0a9ec47e3076b18aa9208f7b5fe96dddbf2cda2fe"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/assets/sha256/599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442/blob",
+      "bytes": 1756,
+      "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/assets/sha256/599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442/extraction.json",
+      "bytes": 694,
+      "sha256": "efaa2a5dc76f7b57e38d16a2242a10184a97f14585da14cd2f238b174c9ead82"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/assets/sha256/599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442/source.json",
+      "bytes": 388,
+      "sha256": "d0ded3d79e98afc7fac7da8883241723cd4b0b3398dd39ab35d3c41c6b5a13bd"
+    },
+    {
+      "path": "vault/people/ccd0deaf-f4c7-4c6d-a006-7829c97da3fb/assets/sha256/a6a92a77a2ded7a09b9be0d31cb4d800b7c681f693de11c30ec5a319bac27f4c/blob",
+      "bytes": 722,
+      "sha256": "a6a92a77a2ded7a09b9be0d31cb4d800b7c681f693de11c30ec5a319bac27f4c"
+    },
+    {
+      "path": "vault/vault.json",
+      "bytes": 431,
+      "sha256": "c58bbb1b622e9cf20bb9d25b06fac3d07f4853d1ad6072496c29d159c92173ab"
+    }
+  ]
+}

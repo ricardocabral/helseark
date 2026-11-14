@@ -40,7 +40,7 @@ def inventory(root):
 
 def decision(view):
     return ReviewDecision(True,'accept-with-acknowledged-limitations',tuple(
-        {'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Explicit synthetic human decision; original sources and individual limitations checked.'}
+        {'code':i['code'],'resourceRef':i['resourceRef'],'issueId':i['issueId'],'reason':'Explicit synthetic human decision; original sources and individual limitations checked.'}
         for i in view.issues if i['severity'] in ('review','warning')),'synthetic authority qualification')
 
 
@@ -159,6 +159,21 @@ def main():
     from qualify_validator_requests import failed_request_matrix
     requests=failed_request_matrix(pending,args.output/'failed-requests',config)
     (args.output/'failed-requests.json').write_bytes(encode_json(requests))
+    # A genuine failed request revokes the original positive; only an actual
+    # successful rerun restores render/review/commit authority.
+    failed=expect_block(lambda:tool.validate_with_official_tool(prepared,None,vault=vault))
+    assert failed=='VALIDATOR_UNAVAILABLE'
+    assert expect_block(lambda:render_review(vault,prepared))=='VALIDATOR_AUTHORITY_MISMATCH'
+    staging_space()
+    recovered=tool.validate_with_official_tool(prepared,config,vault=vault)
+    assert recovered.officialRun['counts']==report.officialRun['counts']
+    report=recovered
+    (proposal.path/'validation.json').write_bytes(encode_json(document(report)))
+    prepared=read_prepared(vault,proposal.path)
+    human=decision(render_review(vault,prepared))
+    (args.output/'recovery-report.json').write_bytes(encode_json(document(report)))
+    # Attack copies must use this exact generation and report.
+    shutil.rmtree(pending);clone(args.output/'workflow',pending)
     # Each attack has its own nonempty copy, genuine host authority is never forged.
     attacks=[]
     names=('forged-outcome','command','java-digest','policy','missing-extraction','missing-baseline',
@@ -176,6 +191,7 @@ def main():
         assert cli.returncode!=0,(name,cli.stdout)
         assert inventory(v.root/'people')==original
         attacks.append({'case':name,'render':rendered,'record':reviewed,'cliExit':cli.returncode,'originalFiles':len(original)})
+        shutil.rmtree(v.root.parent)
     for name in ('missing-authority','missing-preparation','fake-accepted-path'):
         v,path=fork_workflow(pending,args.output/'attacks'/name)
         p=read_prepared(v,path)
@@ -185,6 +201,7 @@ def main():
             if name=='fake-accepted-path':(path/'change.json').write_bytes(encode_json({}))
         attacks.append({'case':name,'render':expect_block(lambda:render_review(v,p)),
                         'record':expect_block(lambda:record_review(v,p,human)),'originalFiles':len(original)})
+        shutil.rmtree(v.root.parent)
     # The complete Java closure, not only its launcher, is checked while pending.
     runtime_file=(args.output/'java-runtime'/java_relative).parent.parent/'lib/tzdb.dat';saved=runtime_file.read_bytes()
     try:
@@ -194,11 +211,18 @@ def main():
         code=expect_block(lambda:render_review(v,p));assert code=='VALIDATOR_RUNTIME_CHANGED'
         attacks.append({'case':'runtime-file','render':code,'originalFiles':len(original)})
     finally:runtime_file.write_bytes(saved)
+    shutil.rmtree(v.root.parent)
     # A failed new required-policy request invalidates the old result at request start.
     v,path=fork_workflow(pending,args.output/'attacks/new-request-fails')
     p=read_prepared(v,path)
+    before_request=(v.root/f'.runtime/prepared/{p.proposalSha256}.json').read_bytes()
     failed=expect_block(lambda:tool.validate_with_official_tool(p,replace(config,requireTerminology=True,javaPath=args.output/'absent/bin/java'),vault=v))
+    assert failed=='VALIDATOR_RUNTIME_CHANGED'
+    assert (v.root/f'.runtime/prepared/{p.proposalSha256}.json').read_bytes()!=before_request
+    assert expect_block(lambda:render_review(v,p))=='VALIDATOR_AUTHORITY_MISMATCH'
+    assert inventory(v.root/'people')==original
     attacks.append({'case':'new-request-fails','request':failed,'render':expect_block(lambda:render_review(v,p)),'originalFiles':len(original)})
+    shutil.rmtree(v.root.parent)
     # A separate explicit synthetic baseline decision advances the selected head.
     v,path=fork_workflow(pending,args.output/'attacks/advanced-head')
     from helseark.intake import prepare_candidate,read_candidate
@@ -208,12 +232,14 @@ def main():
     old=read_prepared(v,path)
     code=expect_block(lambda:render_review(v,old));assert code=='STALE_BASE'
     attacks.append({'case':'advanced-head','render':code,'originalFiles':len(original)})
+    shutil.rmtree(v.root.parent)
     # A changed source in a disposable copy cannot reuse genuine report authority.
     v,path=fork_workflow(pending,args.output/'attacks/source-bytes')
     changed_source=v.root/source.assetPath.relative_to(vault.root)
     saved=changed_source.read_bytes();changed_source.write_bytes(saved+b'\nSYNTHETIC REPLAY')
     p=read_prepared(v,path)
     attacks.append({'case':'source-bytes','render':expect_block(lambda:render_review(v,p)),'intentionallyChangedSources':1})
+    shutil.rmtree(v.root.parent)
     # Scope replays change only mutable proposal/report, never their host controls.
     for field,replacement in (('personId',next(p.name for p in (vault.root/'people').iterdir() if p.name!=person)),
                               ('baseChangeSha256','0'*64),('evidenceSha256','0'*64)):
@@ -223,6 +249,7 @@ def main():
         changed=deepcopy(document(report));changed['checkedProposalSha256']=hash_bytes((path/'proposal.json').read_bytes())
         (path/'validation.json').write_bytes(encode_json(changed))
         attacks.append({'case':'replay-'+field,'publicRead':expect_block(lambda:render_review(v,read_prepared(v,path)))})
+        shutil.rmtree(v.root.parent)
     (args.output/'attacks.json').write_bytes(encode_json(attacks))
     print('public report/coverage/runtime/policy/scope attacks blocked',len(attacks),flush=True)
     # One independent real schema-valid deeper invariant, without touching input bytes.
@@ -253,6 +280,7 @@ def main():
     assert inventory(v.root/'people')==original
     print('real required terminology',required.officialRun['resourceCount'],required.officialRun['counts'],
           'public record_review',rejected,'old optional replay',stale,flush=True)
+    shutil.rmtree(v.root.parent)
     # Authentic review retains the host binding; post-review report tamper blocks direct commit.
     prepared=read_prepared(vault,proposal.path)
     receipt=record_review(vault,prepared,human)
@@ -266,6 +294,7 @@ def main():
         cli=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),'candidate','commit',str(path),'--person',person,'--json'],capture_output=True)
         assert cli.returncode!=0
         attacks.append({'case':'commit-'+name,'commit':code,'cliExit':cli.returncode})
+        shutil.rmtree(v.root.parent)
     (args.output/'attacks.json').write_bytes(encode_json(attacks))
     result=commit_candidate(vault,prepared,receipt);assert result.disposition=='committed'
     accepted=next(d for d in (vault.root/'people'/person/'accepted').iterdir() if d.name.startswith('00000002-'))
@@ -293,6 +322,19 @@ def main():
     assert inventory(old.root/'people')==old_before
     print('legacy accepted receipts readable, execution unattested, immutable files',len(old_before),flush=True)
     assert tool._runtime_inputs(config)==before_inputs
+    (args.output/'runtime-inputs.json').write_bytes(encode_json(before_inputs))
+    (args.output/'legacy-inventory.json').write_bytes(encode_json(old_before))
+    # Real PDF workflow without Java remains available in the final installed runtime.
+    old_path=os.environ.get('PATH');os.environ['PATH']='/no-java'
+    try:
+        nv,np,ns,npacket,nc=supplied_candidate(args.output/'no-java')
+        no_java=prepare(nv,nc);no_java_view=render_review(nv,no_java)
+        assert no_java.validation.officialRun is None and len(no_java_view.resourcesAdded)>0
+        (args.output/'no-java.json').write_bytes(encode_json({'resources':len(no_java_view.resourcesAdded),
+            'coverageFamilies':len(no_java_view.validationCoverage),'issues':len(no_java_view.issues)}))
+    finally:
+        if old_path is None:os.environ.pop('PATH',None)
+        else:os.environ['PATH']=old_path
     print('qualification complete; no clinical correctness or licensed terminology claim',flush=True)
 
 
