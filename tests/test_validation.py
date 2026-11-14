@@ -1080,3 +1080,77 @@ def test_full_registry_does_not_admit_other_clinical_resources(good):
     r={'resourceType':'Composition','id':str(uuid4())}
     c.bundle['entry'].append({'fullUrl':'urn:uuid:'+r['id'],'resource':r})
     assert 'UNSUPPORTED_RESOURCE' in codes(v,c)
+
+
+@pytest.mark.parametrize('file', ['candidate.json', 'bundle.json', 'evidence.json'])
+@pytest.mark.parametrize('change', ['oversize', 'symlink', 'ancestor'])
+def test_candidate_disk_rereads_keep_intake_boundary(good, tmp_path, file, change):
+    from helseark.intake import CANDIDATE_FILE_BYTES, read_candidate
+    v, original = good
+    candidate = read_candidate(v, original.path)
+    target = candidate.path / file
+    if change == 'oversize':
+        with target.open('wb') as stream:
+            stream.seek(CANDIDATE_FILE_BYTES)
+            stream.write(b' ')
+        expected = 'SOURCE_TOO_LARGE'
+    elif change == 'symlink':
+        moved = tmp_path / 'replacement.json'
+        target.rename(moved)
+        target.symlink_to(moved)
+        expected = 'UNSAFE_PATH'
+    else:
+        moved = tmp_path / 'moved-candidate'
+        candidate.path.rename(moved)
+        candidate.path.symlink_to(moved, target_is_directory=True)
+        expected = 'UNSAFE_PATH'
+    assert expected in {i.code for i in runtime().validate_candidate(v, candidate).issues}
+
+
+def test_candidate_cli_rejects_sparse_metadata_before_json_parse(good):
+    from helseark.intake import CANDIDATE_FILE_BYTES
+    v, c = good
+    with (c.path / 'candidate.json').open('wb') as stream:
+        stream.seek(CANDIDATE_FILE_BYTES)
+        stream.write(b' ')
+    result = subprocess.run([sys.executable, '-m', 'helseark.cli', '--vault', str(v.root),
+        'validate', 'candidate', str(c.path), '--person', c.personId, '--json'], capture_output=True)
+    assert result.returncode == 2, result.stderr
+    assert json.loads(result.stderr)['code'] == 'SOURCE_TOO_LARGE'
+
+
+def test_candidate_cli_selected_scope_and_wrong_person_authority(good):
+    v, c = good
+    other = add_person(v, PersonDraft('Unselected Synthetic'))
+    change = next((v.root / 'people' / other / 'accepted').glob('*/change.json'))
+    change.write_bytes(b'corrupt unrelated synthetic history')
+    script = """
+import sys
+from pathlib import Path
+from helseark.cli import main
+vault, selected, other, candidate, witness = sys.argv[1:]
+def guard(event, args):
+    if event in ('open', 'os.listdir', 'os.scandir') and other in str(args[0]).split('/'):
+        raise PermissionError('Unselected person denied')
+sys.addaudithook(guard)
+try:
+    Path(witness).read_bytes()
+    raise AssertionError('Guard inactive')
+except PermissionError:
+    pass
+raise SystemExit(main(['--vault', vault, 'validate', 'candidate', candidate,
+    '--person', selected, '--json']))
+"""
+    args = [sys.executable, '-c', script, str(v.root), c.personId, other, str(c.path), str(change)]
+    result = subprocess.run(args, capture_output=True)
+    assert result.returncode == 0, result.stderr
+    assert not [i for i in json.loads(result.stdout)['issues'] if i['severity'] == 'error']
+    meta = decode_json((c.path / 'candidate.json').read_bytes())
+    meta['personId'] = other
+    (c.path / 'candidate.json').write_bytes(encode_json(meta))
+    result = subprocess.run(args, capture_output=True)
+    assert result.returncode == 2, result.stderr
+    assert json.loads(result.stderr)['code'] == 'PERSON_MISMATCH'
+    from helseark.archive import open_vault
+    with pytest.raises(ArchiveError, match='INTEGRITY'):
+        open_vault(v.root)

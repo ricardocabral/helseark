@@ -70,7 +70,7 @@ uncertainty. Trusted caller assignment is recorded separately from untrusted sou
 assertions. Source text cannot confirm identity, remove errors or authorize another
 person/source. False confirmation or blocking cues renders report only.
 
-`read_candidate(vault, candidateDirectory) -> Candidate` reads strict candidate and
+`read_candidate(vault, candidateDirectory, *, person=None) -> Candidate` reads strict candidate and
 evidence envelopes using retained definitions, checks current person/head, declared
 producer pins, exact source bytes and PDF extraction receipts, and preserves Issue
 bytes. Artifact paths must be distinct confined relative paths: absolute paths,
@@ -78,7 +78,17 @@ bytes. Artifact paths must be distinct confined relative paths: absolute paths,
 itself may be absolute; that does not authorize absolute bundle/evidence paths.
 Defaults are 10000 resources, 64 JSON containers, 1 MiB per text field/key, and
 64 MiB per candidate JSON file. Number tokens use the exact Task2 serializer;
-no binary float conversion. Boundary/provenance/receipt failures raise safe errors.
+no binary float conversion. The optional person is caller authority: a mismatch
+fails before candidate metadata can select any person's history or assets.
+The CLI requires this explicit selection, verifies vault metadata/definitions and
+only that person's history; unrelated corrupt histories do not block it.
+Whole-vault opening/integrity checks retain their global verification scope.
+Every candidate JSON read, including Task2's later metadata/bundle/evidence
+binding rereads, enforces the same no-follow, byte, text and depth limits before
+parsing. Oversized files fail SOURCE_TOO_LARGE, including sparse metadata.
+Changed files cannot bypass those read boundaries; unequal admitted values fail
+CANDIDATE_MISMATCH. Local single-writer/external host restrictions still apply.
+Boundary/provenance/receipt failures raise safe errors.
 Semantic clinical checks use `validate_candidate` and the CLI `validate candidate`;
 a returned Candidate is not a validation pass or an acceptance. Missing/downgraded
 retained issues fail INTAKE_ISSUES_MISSING; MULTIPLE_PERSON_CUES is never waivable.
