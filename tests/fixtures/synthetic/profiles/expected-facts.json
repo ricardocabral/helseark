@@ -1,0 +1,20 @@
+{
+  "observations": {
+    "Trace analyte": {
+      "valueQuantity": {"value": 0.0500, "comparator": "<", "unit": "mg/L"},
+      "effectiveDateTime": "2026-11"
+    },
+    "Exact synthetic concentration": {"valueQuantity": {"value": 1.234567890123456789012345678900, "unit": "source units"}},
+    "Qualitative screen": {"valueCodeableConcept": {"text": "Negative"}},
+    "Source coded result": {"valueCodeableConcept": {"coding": [{"system": "https://example.invalid/synthetic-lab-codes", "code": "NEG", "display": "Negative"}], "text": "Negative (source code NEG)"}},
+    "Not performed": {"status": "cancelled", "dataAbsentReason": {"text": "Not performed: insufficient sample"}},
+    "Synthetic ratio": {"valueRatio": {"numerator": {"value": 1, "unit": "source parts"}, "denominator": {"value": 3, "unit": "source parts"}}},
+    "Synthetic range": {"valueRange": {"low": {"value": 2, "unit": "mm"}, "high": {"value": 4, "unit": "mm"}}},
+    "Blood pressure": {"component": [{"code": {"text": "Systolic"}, "valueQuantity": {"value": 120, "unit": "mmHg"}}, {"code": {"text": "Diastolic"}, "valueQuantity": {"value": 80, "unit": "mmHg"}}]},
+    "Panel child A": {"method": {"text": "Synthetic method A"}, "referenceRange": [{"low": {"value": 2, "unit": "mg/L"}, "high": {"value": 5, "unit": "mg/L"}}]},
+    "Panel child B": {"method": {"text": "Synthetic method B"}, "referenceRange": [{"text": "Source interval 7–9 for this method"}]},
+    "Microbiology narrative": {"status": "amended", "valueString": "Mixed growth. Synthetic isolate A: scant colonies; susceptibility not performed."},
+    "Isolate narrative": {"valueString": "Synthetic isolate A; identification unresolved. Preserve narrative; no organism code inferred."},
+    "Retracted synthetic result": {"status": "entered-in-error"}
+  }
+}
