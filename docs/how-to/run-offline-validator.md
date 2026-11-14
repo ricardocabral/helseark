@@ -16,10 +16,12 @@ python scripts/acquire_validator.py /absolute/new/validator-7.0.5
 
 This is explicit acquisition of public software, never health data. It obtains
 the official release JAR and nine exact packages from their pinned primary
-URLs. It bounds sizes and verifies every SHA-256 against
-`definitions/validator-lock.json`; changed bytes fail. Package hashes other than
-the release JAR were measured from official registry downloads; they are byte
-pins, not independently signed registry attestations. Keep the generated notices
+URLs. The R4 core archive comes from the [published R4 download](https://hl7.org/fhir/R4/hl7.fhir.r4.core.tgz)
+that supplied its exact byte and digest pin; the other eight packages come from
+the official package registry. It bounds sizes and verifies every SHA-256 against
+`definitions/validator-lock.json`; changed bytes fail. Package hashes were measured
+from those official downloads; they are byte pins, not independently signed
+package attestations. Keep the generated notices
 with the JAR. `definitions/validator-notices.json` records the inspected embedded
 notice members; the shaded executable contains several third-party licenses,
 not just the upstream project's Apache-2.0 license. See [NOTICE](../../NOTICE).
