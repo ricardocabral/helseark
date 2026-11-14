@@ -17,7 +17,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        test-group: [agent, core]
+        test-group: [agent, clinical, core]
     steps:
       - name: Check out repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -42,9 +42,15 @@ jobs:
         if: matrix.test-group == 'agent'
         run: uv run --no-sync pytest tests/test_agent_context.py tests/test_agent_workflows.py
 
+      # Review, validation and query account for most of the Linux core job's
+      # runtime. Keep them separate while the remaining group discovers new tests.
+      - name: Run clinical review, validation and query tests
+        if: matrix.test-group == 'clinical'
+        run: uv run --no-sync pytest tests/test_review.py tests/test_validation.py tests/test_query.py
+
       - name: Run all remaining tests
         if: matrix.test-group == 'core'
-        run: uv run --no-sync pytest --ignore=tests/test_agent_context.py --ignore=tests/test_agent_workflows.py
+        run: uv run --no-sync pytest --ignore=tests/test_agent_context.py --ignore=tests/test_agent_workflows.py --ignore=tests/test_review.py --ignore=tests/test_validation.py --ignore=tests/test_query.py
 
       - name: Build source distribution and wheel
         if: matrix.test-group == 'core'
