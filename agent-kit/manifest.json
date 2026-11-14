@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "5612df5026f8e414291cf3fca16a522a5b1ed741a452165caf24c51d8edb1958",
+    "definitionLockSha256": "286bfcacc8fc30737fc12313028d237c405b4a09779c41e1f86e1ee10295c774",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "5612df5026f8e414291cf3fca16a522a5b1ed741a452165caf24c51d8edb1958",
+      "sha256": "286bfcacc8fc30737fc12313028d237c405b4a09779c41e1f86e1ee10295c774",
       "size": 33704
     },
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "docs/how-to/run-ocr.md",
-      "sha256": "54915d65748e41518c9af691bf61c48f083fba66b5888d0321ed14c7b8b51b8f",
-      "size": 7565
+      "sha256": "d8ce219fc2cf9197012b7b5b5b01d8708b432c53c1b16f7c84c16a4da02830a5",
+      "size": 8122
     },
     {
       "path": "docs/reference/agent-protocol.md",

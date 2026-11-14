@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "docs/how-to/run-ocr.md",
-          "sha256": "54915d65748e41518c9af691bf61c48f083fba66b5888d0321ed14c7b8b51b8f",
-          "size": 7565
+          "sha256": "d8ce219fc2cf9197012b7b5b5b01d8708b432c53c1b16f7c84c16a4da02830a5",
+          "size": 8122
         }
       ],
       "license": "Apache-2.0",

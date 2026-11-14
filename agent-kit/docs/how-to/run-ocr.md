@@ -118,6 +118,15 @@ Official documentation consulted 2026-11-14:
 [image quality/table limits](https://tesseract-ocr.github.io/tessdoc/ImproveQuality.html).
 The installed Poppler 26.11.0 `pdftoppm(1)` manual specifies CropBox, scale, page
 selection and grayscale options. Tesseract and tessdata_fast are Apache-2.0;
-Poppler is GPL-2.0-or-later, Leptonica BSD-2-Clause. Native tools/models and their
-notices remain separately provisioned, not redistributed in the Helseark wheel.
-Preserve all upstream notices and dependency licenses when distributing them.
+the qualified Homebrew Poppler 26.11.0 build has license expression
+`GPL-2.0-only OR GPL-3.0-only`. Its installed `.brew/poppler.rb` declares
+`any_of: ["GPL-2.0-only", "GPL-3.0-only"]`; the Poppler entries in
+`sbom.spdx.json` record that expression as `licenseConcluded` (`licenseDeclared`
+is `NOASSERTION`). `README-XPDF` explicitly excludes unspecified later GPL
+versions. Leptonica is BSD-2-Clause.
+
+Native tools/models and their notices remain separately provisioned, not
+redistributed in the Helseark wheel. When distributing them, preserve all
+upstream notices and dependency licenses, including Poppler's `COPYING` (GPL v2),
+`COPYING3` (GPL v3), `README-XPDF` and applicable component documentation/notices.
+The engine/model Apache-2.0 notices do not cover the renderer or its dependencies.
