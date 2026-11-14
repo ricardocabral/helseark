@@ -635,3 +635,15 @@ def test_qualitative_date_identity_and_unicode_whole_values_render(clinical_cand
         for quote in ('Negative','2026-11',label,'Synthetic Person A'))
     from helseark.validation import load_definition_registry
     assert load_definition_registry(vault).validate('urn:helseark:schema:0.1.0:agent-evidence-selection',selection)
+
+
+def test_rendered_inline_data_respects_selected_budget_after_delimiter_escaping(tmp_path):
+    vault,person,_=family(tmp_path)
+    context=agents.build_agent_context(vault,person,'query',ContextRequest(maxDataBytes=8000),tmp_path/'packet')
+    with pytest.raises(ArchiveError,match='CONTEXT_BUDGET_EXCEEDED'):
+        render(context,{'source_data':{'text':'<'*1500},'output_directory':str(tmp_path/'fresh-output')})
+    result=render(context,{'source_data':{'text':'<>&'},'output_directory':str(tmp_path/'fresh-output')})
+    header=decode_json(result.text.split('\n',1)[1].split('\n# query-with-evidence',1)[0].encode())
+    source=result.text.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0]
+    assert header['inlineDataBytes']==len(source.encode())+len(b'""')
+    assert header['handoffDataBytes']==context.dataBytes+header['inlineDataBytes'] <= 8000

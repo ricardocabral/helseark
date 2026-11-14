@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "1cffebc603130e9597bd5c25dcca679a2988b1f2d8968b82f6caca041f3ba8c1",
-          "size": 22352
+          "sha256": "72abf8239876922b6af6c7c380dd760a02a0561e8793a898755a03e24f763dff",
+          "size": 22700
         }
       ],
       "license": "Apache-2.0",
