@@ -166,3 +166,28 @@ class CommitResult:
     disposition: Literal["committed", "already-accepted"]
     head: Head
     logicalResources: tuple[ResourceRef, ...]
+
+
+@dataclass(frozen=True)
+class IntakeLimits:
+    sourceBytes: int = 104857600
+    pdfPages: int = 500
+    candidateResources: int = 10000
+    jsonDepth: int = 64
+    textFieldBytes: int = 1048576
+
+    def __post_init__(self):
+        if any(type(value) is not int or value <= 0 for value in (
+                self.sourceBytes, self.pdfPages, self.candidateResources,
+                self.jsonDepth, self.textFieldBytes)):
+            raise ArchiveError("INVALID_LIMIT", "Intake limits must be positive integers.")
+
+
+@dataclass(frozen=True)
+class ExtractionArtifact:
+    method: str
+    toolVersion: str
+    pagesPath: Path
+    pagesSha256: Sha256
+    pageCount: int
+    issues: tuple[Issue, ...]

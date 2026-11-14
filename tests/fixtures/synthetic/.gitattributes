@@ -1,0 +1,3 @@
+# PDFs are byte-preserved fixtures; xref lines contain significant whitespace.
+lab-*.pdf binary
+pdf/*.pdf binary
