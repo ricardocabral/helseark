@@ -1,6 +1,6 @@
 # Why migrations produce a new vault
 
-Applies to toolkit 0.1.0, archive 1 and kit 0.1.4.
+Applies to toolkit 0.1.2, archive 1 and kit 0.1.13.
 
 Clinical corrections and storage migration are different decisions. A correction
 records a reviewed new assertion and preserves its predecessor. Migration should

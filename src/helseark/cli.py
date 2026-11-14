@@ -106,7 +106,7 @@ def main(argv=None):
     for name in ('observations','timeline','record'):
         query = commands.add_parser(name, help='Read one person at a current or exact historical Head.')
         query.add_argument('--person',required=True)
-        query.add_argument('--at-head',type=Path,help='JSON object with sequence, transactionId and changeSha256.')
+        query.add_argument('--at-head',type=Path,help='Path to a JSON file containing the exact Head object.')
         query.add_argument('--json',action='store_true')
         if name == 'observations':
             query.add_argument('--label')

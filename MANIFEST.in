@@ -8,3 +8,7 @@ recursive-include scripts *.py
 # Retain the corrected installed oracle and its focused regressions in the sdist.
 include tests/qualify_source_disclosure_installed.py
 include tests/test_source_disclosure.py
+include README.md AGENTS.md CLAUDE.md pyproject.toml uv.lock
+recursive-include docs *.md
+recursive-include tests *.py *.json *.txt *.md *.pdf
+global-exclude *.pyc

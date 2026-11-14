@@ -2,14 +2,15 @@
 
 Offline discovery, bounded context and declared-only prompt rendering are
 implemented with no embedded model, network lookup or permission grant. Inspect
-is routing-only and has no prompt. The other six workflows remain unavailable
-until their runtime dependencies exist. Actual external-agent evaluation remains
+is routing-only and has no prompt. Query, correction, export, verify and migration
+have implemented runtime capabilities; import can draft PDFs while its structured
+import dependency remains unavailable. Actual external-agent evaluation remains
 a separate gate; templates do not establish command support or extraction accuracy.
 
 ## Entry points and pins
 
 A new vault contains generated `AGENTS.md`, a thin `CLAUDE.md` containing
-`@AGENTS.md`, and `agent-kit/0.1.0/`. The AGENTS template is the one routing
+`@AGENTS.md`, and `agent-kit/<agentKitVersion>/` (currently 0.1.13). The AGENTS template is the one routing
 source; it points to `vault.json` and the retained kit's `START-HERE.md` and
 `manifest.json`. Contributor instructions in the toolkit are a different scope.
 
@@ -69,9 +70,9 @@ selection uses repeated `--resource Type/UUID` or
   continuations. It includes only those source references and minimal identity;
   no historical resources or evidence are returned.
 - Other tasks default to identity only. Explicit record/source selections stay
-  within the selected person. Their eventual runtime workflows remain unavailable.
-- Any fromDate/toDate request fails `CAPABILITY_UNAVAILABLE`: Task7 owns date,
-  partial-date and uncertainty semantics. Task3 does not implement another engine.
+  within the selected person. Their capability availability is derived from runtime discovery.
+- Query fromDate/toDate uses the shared clinical date/partial-date overlap rules;
+  invalid or reversed bounds fail. Other tasks reject date filters.
 
 Each packet contains `context.json`, `identity.json`, selected whole immutable
 record bytes under `records/`, and base plus selected instruction files under
@@ -232,10 +233,10 @@ canonical FHIR decimals remain distinct; accepted history is never rewritten.
 Implemented runtime capabilities: agent-discovery, agent-context, schema-export,
 baseline-validation, person-identity, raw-record-selection, task-instructions,
 pdf-intake, candidate-read, reviewed-publication, clinical-query, person-export
-and integrity-report. Runtime discovery derives availability from these actual
+reviewed-source-disclosure, correction, migration and integrity-report. Runtime discovery derives availability from these actual
 implementations; instruction presence alone does not enable a workflow.
 Reviewed publication is human-controlled; import's structured-import dependency,
-correction, migration, OCR, terminology and the official validator remain unavailable.
+OCR, terminology and the official validator remain unavailable.
 [Portability](../how-to/backup-and-restore.md) supplies doctor/backup/restore;
 [export](../how-to/export-records.md) supplies selected-person snapshots with
 explicit reference mapping and a conservative PDF source-scope gate. Agent reports

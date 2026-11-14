@@ -2,18 +2,20 @@
 
 This reference describes the implemented storage boundary. Offline baseline
 clinical validation, evidence contracts and pinned agent discovery/context/rendering
-are implemented, together with text-PDF intake and human-reviewed publication.
-Person creation accepts a narrow self-reported identity only.
+are implemented, together with text-PDF intake and limited prepared,
+human-controlled import publication. Person creation accepts a narrow
+self-reported identity only. Clinical imports use the candidate prepare/review/commit
+boundary described below; intake alone does not accept clinical records.
 Validation is not a claim of medical correctness or full FHIR conformance.
 
 ## Commands
 
-Python 3.12 or later and a POSIX environment are required.
+An installed compatible Helseark release, Python 3.12 or later and a POSIX
+environment are required. See the [CLI reference](cli.md) for supported commands.
 
 ```sh
-uv sync --frozen
-uv run helseark init /tmp/demo-health --json
-uv run helseark --vault /tmp/demo-health person add --name 'Alex Example' --json
+helseark init /tmp/demo-health --json
+helseark --vault /tmp/demo-health person add --name 'Alex Example' --json
 ```
 
 The init destination must not exist. Person options are `--name` (required),
@@ -32,7 +34,7 @@ echo supplied names, notes or birth dates.
 | --- | --- |
 | 0 | Success |
 | 2 | Invalid command/input, invalid person or existing destination |
-| 3 | Review required or review binding mismatch |
+| 3 | Review required or blocked, including review binding mismatch |
 | 4 | `ARCHIVE_BUSY` or `STALE_BASE` |
 | 5 | Integrity, unsupported path or I/O failure |
 | 6 | Unsupported version |
@@ -71,7 +73,7 @@ fallback to installed latest and no automatic pin/history rewrite.
 
 The [local schemas](../../schemas/0.1.0/) use JSON Schema 2020-12 and reject
 unknown envelope fields, including nested ones. The retained
-[definitions lock](../../definitions/lock.json) inventories exact schema, profile,
+definitions lock (`definitions/lock.json` from the vault root) inventories exact schema, profile,
 reference and upstream definition bytes, sizes and hashes, with acquisition and
 license information. Upstream R4 JSON schemas retain draft-06. Local URN/canonical
 IDs resolve through the retained registry offline, with no remote fallback.
@@ -145,11 +147,28 @@ independently versioned contract `0.1.1`; all other envelope/vault contracts rem
 bytes. The reader dispatches review schemas by the receipt version and verifies
 the selected schema against that vault's original definition lock. An old vault
 is never silently repinned; an old reader cannot interpret the new receipt.
+validation checks cannot be accepted. For clinical imports, `candidate prepare`
+compiles and validates the final proposal; `candidate review` displays it and,
+with an explicit user-controlled `--decision JSON_PATH`, records a receipt.
+`candidate commit` requires that receipt and the matching current base. Changed
+candidate, source, prepared resource or validation bytes invalidate review.
+The exact already-accepted proposal returns its original transaction on retry.
+Human confirmation of the selected person and review of the exact final bytes
+remain mandatory; agents receive no review or commit authority. Fatal errors and
+unresolved identity cannot be acknowledged away. There is no arbitrary-write CLI.
+See [review bindings](review.md), [import a report](../how-to/import-report.md)
+and the [complete synthetic lesson](../tutorials/first-archive.md).
 
-Assets, when supplied by later preparation, are person-local at
+The review displays pinned prior resources and binds each exact issue acknowledgment.
+Receipt integrity does not establish review effectiveness, extraction accuracy,
+medical correctness or production qualification. See [evaluated results and
+limits](../explanation/evaluation-and-limits.md).
+
+Assets retained by intake/preparation are person-local at
 `assets/sha256/<digest>/blob`. Their entries contain SHA-256, byte size, media
-type and path. The publisher verifies already-retained asset bytes; asset
-intake and durable installation are not Task 1 APIs.
+type and path. Intake retains original source bytes and extraction provenance;
+preparation binds required source/extraction receipts and candidate input snapshots.
+The publisher verifies the already-retained asset bytes before acceptance.
 
 ## Publication, recovery and durability
 
@@ -173,13 +192,18 @@ rename. Cross-filesystem rename fails rather than copying into accepted.
 
 Orphan staging and empty unpublished person directories are retained. They
 are not accepted facts and are never automatically promoted or deleted.
-There is no `doctor` or automatic orphan-cleanup command yet. With all writers
-stopped, an operator can preserve a full folder copy, inspect the retained JSON,
-and move orphan staging aside. An offline copy of the whole vault while no
-writer is active retains its interpretation and history. Backup/restore
-verification tools are later work.
+`helseark --vault PATH doctor --json` reports integrity counts, issues and orphan
+paths without repair or deletion. Unknown material and incomplete staging block
+verified backup pending inspection. With all writers stopped, an operator can
+preserve a full folder safety copy and inspect the retained JSON before moving
+owned orphan material outside the vault. Such a safety copy is not a verified
+Helseark backup. Supported `backup create --out ABSENT_PATH`, `backup verify`
+and `backup restore --into ABSENT_PATH` retain and verify canonical history,
+definitions and pinned kit bytes; see [backup and restore](../how-to/backup-and-restore.md).
+No automatic orphan cleanup is provided.
 
-Test qualification: macOS 15 / Darwin 24.6.0, ARM64, local APFS, Python 3.12.8.
+Historical storage-test qualification (not a fresh release/platform result):
+macOS 15 / Darwin 24.6.0, ARM64, local APFS, Python 3.12.8.
 Real child processes terminate via `os._exit(91)` immediately before and after
 rename, both for genesis and for a second revision. The internal environment
 hook `_HELSEARK_TEST_CRASH_AT=before-rename|after-rename` exists only for these
@@ -255,12 +279,13 @@ existing emitted fixed bytes remain readable. Integer Decimal negative zero
 now emits `0` so its reread is byte-stable; the older `-0` remains readable.
 No accepted bytes or original plan/design documents are rewritten. Callers
 that previously used `decode_json` for encoder output must use the canonical
-reader. Clinical source-token preservation remains later-task work.
+reader. Clinical source wording and tokens belong in retained source bytes and
+field evidence; the serializer alone does not establish their faithful mapping.
 
 SHA-256 identifies exact bytes; reformatting accepted JSON changes its digest.
 This is a project serializer, not a claim of standards-based canonical JSON.
 
-## Python API and Task 2 interface
+## Storage Python API
 
 Records and `ArchiveError(code, safeMessage, details)` are in
 `helseark.contracts`. Default error messages omit private content; optional
@@ -288,11 +313,12 @@ returns a Head after locking and verifying the prepared directory. That
 directory contains exactly proposal/evidence/validation/review JSON and the
 inventoried resource and candidate-input files; it must not supply `change.json`. Genesis uses
 `expectedBase=None`; later publication requires the exact current Head.
-It is an internal primitive for Task 6, not permission to accept arbitrary
-FHIR. Stage material is retained on validation/publication failure for
-inspection. Task 2 can use the verified file-scan readers immediately and
-extend the provisional 0.1.0 envelopes before freezing them. Any schema change
-must update the definitions lock's real inventory and its vault pin.
+It is a private implementation primitive. Public clinical mutation uses
+`commit_candidate` with a prepared proposal and bound review receipt; see the
+[Python API](python-api.md). Stage material is retained on validation/publication
+failure for inspection. Versioned contracts and the exact retained definitions
+lock govern interpretation. Opening an archive does not rewrite its envelopes,
+definitions or pins; compatibility changes require a separately supported route.
 
 ## Storage review qualifications
 
@@ -327,7 +353,7 @@ state, pinned resolution, and zero socket attempts under a verified blocking
 audit hook. This qualifies runtime offline operation after dependencies are
 installed; it does not promise installation on an empty offline machine.
 
-## Portability and integrity (Task8)
+## Portability and integrity
 
 [Backup and restore](../how-to/backup-and-restore.md) defines the offline folder
 workflow and recovery policy. [Person export](../how-to/export-records.md) defines
@@ -340,10 +366,10 @@ The Python API exposes archive.doctor(Vault), portability.backup,
 export_person, verify_export, restore and fhir_collection. IntegrityReport counts
 verified changes, immutable resource revisions and distinct inventoried blobs.
 Orphan sidecars/blobs and incomplete staging are reported and never discarded.
-Review binding checks use Task6's retained proposal, three candidate inputs,
+Review binding checks use the retained proposal, three candidate inputs,
 validation, review and source/extraction receipts, without work or runtime caches.
 
-The combined clinical/portability distributable uses agent kit `0.1.8`. It retains
+The combined clinical/portability distributable uses agent kit `0.1.13`. It retains
 contract `0.1.0` archive pins and the separate `0.1.1` exact-issue review receipt
 contract. This new kit identity does not change existing vaults, historical kit
 content, accepted receipts or their original definition/license pins.

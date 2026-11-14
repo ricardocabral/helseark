@@ -1,6 +1,6 @@
 # Compatibility and migration contracts
 
-Applies to toolkit 0.1.2 and kit 0.1.10. Version axes are independent.
+Applies to toolkit 0.1.2 and kit 0.1.13. Version axes are independent.
 
 | Axis | Supported value | Unsupported behavior |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ Applies to toolkit 0.1.2 and kit 0.1.10. Version axes are independent.
 | FHIR | R4 4.0.1 | Separate blocked FHIR conversion report |
 | Serialization | helseark-json-1 | Explicit error |
 | Agent protocol | 1 | Explicit error |
-| Current kit | 0.1.10 | Exact retained compatible manifests required |
+| Current kit | 0.1.13 | Exact retained compatible manifests required |
 | Test-only layout | helseark-test-only-layout-0 | Requires explicit fixture opt-in; no public release status |
 
 Production archive 1 semantics are frozen for this release. New toolkit code does
@@ -93,8 +93,8 @@ coverage of the dispatched source inventory, exact old hash/size bindings, compl
 required-definition/kit inventory, and unchanged new hashes for both lossless
 operations. It never compares historical mutable work or source heads to today's
 state, requires no signature, and does not rewrite valid old receipts. Kit 0.1.8
-remains a compatible historical input; 0.1.9 is reserved for separate integration.
-New vaults use 0.1.10; existing vaults retain their exact pins and accepted history.
+remains a compatible historical input; other branch-local kit numbers are not aliases for this combined inventory.
+New vaults use 0.1.13; existing vaults retain their exact pins and accepted history.
 
 Person removal plans/results inventory retained shared receipts in
 `retainedLocalMetadata` (path, SHA-256, size, personId, sourceHead). Approval binds

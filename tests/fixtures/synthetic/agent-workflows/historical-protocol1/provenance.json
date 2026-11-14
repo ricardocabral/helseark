@@ -22,6 +22,16 @@
       "path": "schemas/0.1.0/agent-context.schema.json",
       "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
       "bytes": 10084
+    },
+    {
+      "path": "agent-kit/templates/vault-AGENTS.md",
+      "sha256": "406c16f8df255172af7f9c7c0598e3c6987692be5e1a6edb331f01bc31829969",
+      "bytes": 421
+    },
+    {
+      "path": "agent-kit/templates/vault-CLAUDE.md",
+      "sha256": "336cc4fbf19beaada7ccf9986414fa91851a8d7a07dfb3ccbe800a69eed0ab49",
+      "bytes": 11
     }
   ],
   "license": "Apache-2.0 (original repository instructions and schemas)"

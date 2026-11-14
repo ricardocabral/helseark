@@ -35,8 +35,8 @@ Its candidate digest hashes an inventory of the original artifact paths and exac
 byte digests. `validation.json` hashes the proposal; `review.json` hashes both.
 `change.json` inventories these files and every input snapshot and hashes the
 unchanged proposal. It never hashes itself. Reopening verifies all retained bytes
-without consulting work directories. Future export, backup and doctor implementations
-must preserve this complete closure; those commands are not implemented here.
+without consulting work directories. Export, backup and doctor preserve this complete retained closure without
+consulting mutable work or runtime caches.
 
 During preparation/acceptance, the original candidate path is host workflow state
 in `PreparedProposal.candidatePath` and `.runtime/prepared/<proposal digest>.json`,

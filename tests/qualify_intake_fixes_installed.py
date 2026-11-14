@@ -149,7 +149,7 @@ lesson = work / 'lesson'
 lesson.mkdir()
 text = (Path(sys.prefix) / 'share/helseark/docs/tutorials/first-archive.md').read_text()
 code = text.split('```python\n',1)[1].split('```',1)[0]
-r = subprocess.run([sys.executable, '-c', code], cwd=lesson, env=env, capture_output=True)
+r = subprocess.run([sys.executable, '-c', code], cwd=lesson, env=env, capture_output=True, input=b"SYNTHETIC\n")
 assert r.returncode == 0, (r.stdout, r.stderr)
 print('PASS installed:', helseark.__file__)
 print('PASS checkout/network/other-person denial witnesses; selected CLI review=3; mismatch=2')

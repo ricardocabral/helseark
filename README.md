@@ -9,6 +9,11 @@ A local personal and family health archive toolkit, under development.
 
 Canonical clinical records use FHIR R4, with retained source evidence, explicit human review, and immutable history. Normal archive operations are offline. No medical correctness or release readiness is claimed.
 
+[Learn with the synthetic import/query/restore lesson](docs/tutorials/first-archive.md),
+[accomplish a task](docs/index.md#accomplish-a-task),
+[look up CLI and API contracts](docs/index.md#look-up-facts), or
+[understand the design](docs/index.md#understand).
+
 ## Current implementation
 
 The current CLI supports vault initialization, explicit person creation, offline
@@ -48,6 +53,8 @@ uv run --no-sync helseark agent tasks --json
 Do not store real records in this repository or upload them to issues or CI.
 Local storage is not encryption or per-person access control. External agents
 receive the context you explicitly share with them.
+
+Read the [documentation index](docs/index.md) for supported reader routes.
 
 ## Documentation and participation
 

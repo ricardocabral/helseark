@@ -192,3 +192,32 @@ def test_incomplete_selected_publication_staging_is_quarantined(tmp_path):
     assert not staged.exists()
     restore_person_erasure(v,receipt.quarantinePath,plan.digest)
     assert (staged/'synthetic.txt').read_text()=='Synthetic staged private copy'
+
+
+def test_review_cannot_recreate_control_while_removal_lock_is_held(tmp_path):
+    from test_intake import supplied_candidate
+    from test_cli_journey import run
+    from helseark.archive import _writer_lock
+    from helseark.intake import prepare_candidate
+    from helseark.review import render_review
+    from helseark.serialization import encode_json, decode_json
+    v,p,_,_,candidate=supplied_candidate(tmp_path)
+    proposal=prepare_candidate(v,candidate)
+    view=render_review(v,proposal)
+    decision=tmp_path/'decision.json'
+    decision.write_bytes(encode_json({'confirmedPerson':True,
+        'decision':'accept-with-acknowledged-limitations','reviewerLabel':'synthetic lock regression',
+        'acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],
+            'issueId':i['issueId'],'reason':'Synthetic fixture limitation inspected.'}
+            for i in view.issues if i['severity'] in ('warning','review')]}))
+    with _writer_lock(v):
+        child=run('--vault',v.root,'candidate','review',proposal.path,'--person',p,
+                  '--decision',decision,'--json')
+    assert child.returncode==4 and b'ARCHIVE_BUSY' in child.stderr
+    assert not (proposal.path/'review.json').exists()
+    assert not (v.root/'.runtime/reviews'/f'{proposal.proposalSha256}.json').exists()
+    child=run('--vault',v.root,'candidate','review',proposal.path,'--person',p,
+              '--decision',decision,'--json')
+    assert child.returncode==0,child.stderr
+    control=decode_json((v.root/'.runtime/reviews'/f'{proposal.proposalSha256}.json').read_bytes())
+    assert control['personId']==p

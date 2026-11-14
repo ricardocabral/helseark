@@ -71,7 +71,7 @@ serialization; no slot is an expression, include, tool argument or command.
 
 Availability comes exclusively from the runtime descriptor. Implemented IDs are
 agent-discovery, agent-context, schema-export, baseline-validation, person-identity,
-raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, reviewed-source-disclosure integrity-report, correction and migration. Other declared dependencies remain
+raw-record-selection, task-instructions, pdf-intake, candidate-read, clinical-query, reviewed-publication, person-export, reviewed-source-disclosure, integrity-report, correction and migration. Other declared dependencies remain
 unavailable; skill or prompt presence does not enable them. Reviewed publication
 includes preparation/review/commit and never grants an agent commit permission.
 
@@ -137,7 +137,7 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.4: a confirmed retained PDF may draft while the descriptor still lists
+Kit 0.1.13: a confirmed retained PDF may draft while the descriptor still lists
 unavailable structured import. Human-controlled reviewed publication is available. The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.
 
