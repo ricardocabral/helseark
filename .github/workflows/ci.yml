@@ -104,6 +104,7 @@ jobs:
         with:
           name: official-validator-evidence
           path: |
+            ${{ runner.temp }}/validator/acquisition.jsonl
             ${{ runner.temp }}/official-evidence/*.json
             ${{ runner.temp }}/official-evidence/*.txt
           if-no-files-found: error
