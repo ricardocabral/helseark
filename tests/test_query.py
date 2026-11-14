@@ -302,3 +302,97 @@ def test_accepted_limitations_bind_the_original_revision(corpus):
     assert len(rows)==7
     for row in rows:
         assert 'CODING_UNVERIFIED' in {i.code for i in row.issues}
+
+
+@pytest.mark.parametrize('offset', ['+00:60', '+01:99', '+02:60', '-00:60', '-01:99', '-02:60',
+                                    '+14:01', '-14:01', '+15:00', '-15:00', '+24:00', '+1:00', '+0100'])
+def test_filter_rejects_malformed_or_out_of_range_offsets(offset):
+    _, _, Filter = api()
+    with pytest.raises(ArchiveError, match='INVALID_FILTER'):
+        Filter(fromDate='2024-02-29T00:00:00.00000001'+offset)
+
+
+@pytest.mark.parametrize('stamp', ['2023-02-29T00:00:00Z', '2024-02-30T00:00:00Z',
+                                   '2024-02-29T24:00:00Z', '2024-02-29T00:60:00Z',
+                                   '2024-02-29T00:00:60Z'])
+def test_filter_rejects_invalid_timestamp_day_or_clock(stamp):
+    _, _, Filter = api()
+    with pytest.raises(ArchiveError, match='INVALID_FILTER'):
+        Filter(toDate=stamp)
+
+
+@pytest.mark.parametrize('stamp', ['2024-02-29T14:00:00.00000001+14:00',
+                                   '2024-02-28T10:00:00.00000001-14:00',
+                                   '2024-02-28T23:01:00.00000001-00:59',
+                                   '2024-02-29T13:59:00.00000001+13:59'])
+def test_valid_offset_boundaries_preserve_inclusive_fractional_instant(stamp):
+    from helseark.query import matches_dates
+    _, _, Filter = api()
+    resource = {'effectiveDateTime': stamp}
+    assert matches_dates(resource, Filter(fromDate='2024-02-29T00:00:00.00000001Z',
+                                         toDate='2024-02-29T00:00:00.00000001Z'))
+    assert not matches_dates(resource, Filter(toDate='2024-02-29T00:00:00.000000009Z'))
+    assert not matches_dates(resource, Filter(fromDate='2024-02-29T00:00:00.000000011Z'))
+
+
+def test_context_rejects_malformed_offset_before_writing(corpus, tmp_path):
+    from helseark.contracts import ContextRequest
+    from helseark.agent_context import build_agent_context
+    v, c, _, _, _ = corpus
+    for index, offset in enumerate(('+00:60', '+01:99', '+02:60', '-00:60', '-02:60')):
+        destination = tmp_path/f'invalid-context-{index}'
+        with pytest.raises(ArchiveError, match='INVALID_FILTER'):
+            build_agent_context(v, c.personId, 'query',
+                                ContextRequest(fromDate='2024-02-29T00:00:00'+offset), destination)
+        assert not destination.exists()
+
+
+def test_query_verifies_history_once_for_eight_report_children(clinical_candidate, tmp_path):
+    import sys
+    obs, timeline, Filter = api()
+    v, c = clinical_candidate
+    template = c.bundle['entry'][0]
+    resources = []
+    for index in range(8):
+        entry = copy.deepcopy(template)
+        rid = OBS if index == 0 else str(uuid4())
+        entry['fullUrl'] = 'urn:uuid:'+rid
+        entry['resource']['id'] = rid
+        resources.append(entry)
+    report = copy.deepcopy(c.bundle['entry'][2])
+    report['resource']['result'] = [{'reference': e['fullUrl']} for e in resources]
+    enrich(v, c, [*resources, report])
+    accept_fixture(v, c, tmp_path)
+    opens = []
+    active = False
+    def count(event, args):
+        if active and event == 'open' and str(args[0]).endswith('/change.json'):
+            opens.append(str(args[0]))
+    sys.addaudithook(count)
+    for query in (lambda: list(obs(v, c.personId, Filter())), lambda: list(timeline(v, c.personId))):
+        opens.clear()
+        active = True
+        try:
+            rows = query()
+        finally:
+            active = False
+        assert rows
+        assert len(opens) == len(set(opens)) == 2
+    # A second call must verify again, including accepted payloads from genesis.
+    patient = next((v.root/'people'/c.personId/'accepted').glob('*/resources/Patient-*.json'))
+    patient.write_bytes(patient.read_bytes()+b' ')
+    with pytest.raises(ArchiveError, match='INTEGRITY'):
+        list(obs(v, c.personId, Filter()))
+
+
+def test_verified_snapshot_rejects_unknown_and_other_person_references(corpus):
+    v, c, _, base, _ = corpus
+    snapshot = archive._ResourceSnapshot(v, c.personId, base)
+    other = archive.add_person(v, PersonDraft('Synthetic unrelated person'))
+    for ref in (ResourceRef('Observation', str(uuid4())),
+                ResourceRef('Observation', OBS, str(uuid4())),
+                ResourceRef('Patient', other)):
+        with pytest.raises(ArchiveError, match='RESOURCE_NOT_FOUND'):
+            snapshot.resolve(ref)
+    with pytest.raises(ArchiveError, match='UNKNOWN_HEAD'):
+        archive._ResourceSnapshot(v, c.personId, replace(base, changeSha256='0'*64))

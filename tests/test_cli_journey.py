@@ -112,3 +112,15 @@ def test_observations_timeline_record_cli_explicit_scope(corpus,tmp_path):
     assert decode_json(record.stdout)['valueQuantity']['value'].as_tuple()==month['value']['value'].as_tuple()
     invalid=run('--vault',v.root,'observations','--person',c.personId,'--from-date','2026-02-30','--json')
     assert invalid.returncode==2 and decode_json(invalid.stderr)['code']=='INVALID_FILTER'
+
+
+
+def test_query_cli_rejects_offset_normalization(corpus):
+    from helseark.serialization import decode_json
+    v, c, _, _, _ = corpus
+    for offset in ('+00:60', '+01:99', '+02:60', '-00:60', '-02:60', '+14:01', '-14:01'):
+        result = run('--vault', v.root, 'observations', '--person', c.personId,
+                     '--from-date', '2024-02-29T00:00:00.00000001'+offset, '--json')
+        assert result.returncode == 2
+        assert decode_json(result.stderr)['code'] == 'INVALID_FILTER'
+        assert not result.stdout

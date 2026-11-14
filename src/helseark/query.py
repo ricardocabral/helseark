@@ -10,7 +10,7 @@ from fractions import Fraction
 import re
 from typing import Iterator
 
-from .archive import head, iter_current, resolve, _snapshot, _read, _json
+from .archive import _ResourceSnapshot, _read, _json
 from .contracts import (ArchiveError, EvidenceRef, Head, Issue, ObservationFilter,
                         ObservationRow, PersonId, ResourceRef, TimelineRow, Vault, uuid_string)
 from .serialization import hash_bytes
@@ -43,6 +43,12 @@ def _bounds(value, *, instant=False):
         return Fraction(start*86400),Fraction(end*86400),('year','month','day')[len(parts)-1]
     if not _TIMESTAMP.fullmatch(value):
         raise ValueError
+    # datetime.fromisoformat normalizes overflowing offset minutes on Python
+    # 3.12. Validate the source components before allowing any conversion.
+    if not value.endswith('Z'):
+        hours, minutes = map(int, value[-5:].split(':'))
+        if hours > 14 or minutes > 59 or (hours == 14 and minutes != 0):
+            raise ValueError
     fraction = re.search(r'\.([0-9]+)',value)
     raw = re.sub(r'\.[0-9]+','',value).replace('Z','+00:00')
     moment = datetime.fromisoformat(raw)
@@ -51,7 +57,8 @@ def _bounds(value, *, instant=False):
         digits = fraction.group(1)
         point += Fraction(int(digits),10**len(digits))
     if instant:
-        point -= int(moment.utcoffset().total_seconds())
+        offset = moment.utcoffset()
+        point -= offset.days*86400 + offset.seconds
     return point,point,'instant'
 
 
@@ -69,7 +76,7 @@ def _date_window(from_date, to_date):
         if low > high or (low==high and not instant):
             raise ValueError
     except (ValueError,TypeError,OverflowError):
-        raise ArchiveError('INVALID_FILTER', 'Use valid inclusive year/month/day bounds or offset timestamps, in ascending order; do not mix calendar and instant bounds.') from None
+        raise ArchiveError('INVALID_FILTER', 'Use valid inclusive year/month/day bounds or timestamps with Z or ±HH:MM offsets up to ±14:00, in ascending order; do not mix calendar and instant bounds.') from None
     return low, high, instant
 
 
@@ -152,13 +159,13 @@ def parse_reference(value):
 
 def _graph(vault, person, at):
     uuid_string(person)
-    base = at if at is not None else head(vault,person)
-    if base is None:
+    snapshot = _ResourceSnapshot(vault, person, at)
+    if not snapshot.transactions:
         raise ArchiveError('PERSON_NOT_FOUND','Selected person has no accepted identity.')
-    resources = list(iter_current(vault,person,at=base))
+    resources = snapshot.current
     by_key = {(r['resourceType'],r['id']):r for r in resources}
     evidence, issues, results = {}, {}, {}
-    for original,directory,change in _snapshot(vault,person,base):
+    for original,directory,change in snapshot.transactions:
         path = directory/'evidence.json'
         data = _read(directory,'evidence.json')
         envelope = _json(directory,'evidence.json',data=data)
@@ -183,7 +190,7 @@ def _graph(vault, person, at):
         children=[]
         for target in resource.get('result',[]):
             child = parse_reference(target['reference'])
-            exact = _ref(resolve(vault,person,child,at=base))
+            exact = _ref(snapshot.resolve(child))
             children.append(exact)
             current = by_key.get((child.resourceType,child.id))
             if current is None or _ref(current)!=exact:

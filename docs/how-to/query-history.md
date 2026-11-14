@@ -26,6 +26,12 @@ Calendar date filters include partial-date/period overlaps and undated rows. Rea
 `timeFilterRelation` and `timeBucket`: an unknown date is not evidence that the
 measurement happened within the range. Offset timestamp filters compare instants;
 date-only times cannot be assigned a timezone. Do not mix those filter modes.
+Timestamps require `YYYY-MM-DDTHH:MM:SS[.fraction]` followed by `Z` or
+`±HH:MM`. Offset minutes must be 00–59 and the magnitude must be at most
+14:00 (so ±14 requires :00), matching the clinical timestamp range. Invalid
+calendar days, clock components or offsets fail with `INVALID_FILTER` (CLI
+exit 2), including date-filtered agent contexts; they are never normalized.
+Bounds are inclusive and fractional seconds remain exact.
 Default observations omit cancelled/entered-in-error values; timeline retains their
 statuses. Neither command computes a clinical chronology from ambiguous dates.
 
