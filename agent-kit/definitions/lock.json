@@ -806,8 +806,8 @@
       "files": [
         {
           "path": "docs/how-to/query-history.md",
-          "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
-          "size": 4050
+          "sha256": "689ed4f7bc1c4a090ffbd3c5e62e9ed9ade5a33ebfcca2e939bd5033a1b35de1",
+          "size": 4277
         }
       ],
       "license": "Apache-2.0",
@@ -852,6 +852,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-backup-and-restore",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/generate-reports.md",
+          "sha256": "41876517340db2a57354b33cdfca0e1f45ae4ecdaab1d5f47f7597aa3d5abe7b",
+          "size": 3833
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-generate-reports",
       "version": "0.1.0"
     }
   ],

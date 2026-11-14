@@ -28,7 +28,7 @@ def pin():
         task['promptIds']=routes[task['id']]
         task['scenarioId']=task['promptIds'][0] if task['promptIds'] else 'inspect-routing'
         task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/reference/archive-format.md',
-            *(['docs/how-to/query-history.md'] if task['id']=='query' else [])]))
+            *(['docs/how-to/query-history.md','docs/how-to/generate-reports.md'] if task['id']=='query' else [])]))
         if task['id'] in ('export','verify'):
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
@@ -53,13 +53,13 @@ def pin():
                 if slot in ('candidate_id','person_id'): spec['pattern']='[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
                 if slot=='source_hashes': spec.update(minItems=1,uniqueItems=True)
                 specs[slot]=spec
-            prompts.append({'id':name,'version':'0.1.1' if name=='extract-report' else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
-                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.2' if task['id']=='import' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
+            prompts.append({'id':name,'version':'0.1.1' if name in ('extract-report','query-with-evidence') else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
+                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.2' if task['id']=='import' else '0.1.1' if task['id']=='query' else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
                 'outputContractIds':['urn:helseark:schema:0.1.0:candidate','urn:helseark:schema:0.1.0:evidence'] if task['id'] in ('import','correct') else [],
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.
-    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
+    references=['docs/reference/clinical-model.md','docs/reference/agent-protocol.md','docs/reference/archive-format.md','docs/reference/intake.md','docs/reference/pdf-extraction.md','docs/how-to/query-history.md','docs/how-to/generate-reports.md','docs/how-to/export-records.md','docs/how-to/backup-and-restore.md','docs/reference/review.md','docs/how-to/import-report.md','docs/tutorials/first-archive.md']
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas/0.1.0').glob('*.json'))]

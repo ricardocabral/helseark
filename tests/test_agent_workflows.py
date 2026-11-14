@@ -36,7 +36,7 @@ def test_real_manifest_routes_and_once_only_exact_json_render(tmp_path):
     result = render(context, variables(tmp_path))
     assert result.promptId == 'query-with-evidence'
     assert result.kitSha256 == vault.config.agentKitLockSha256
-    assert result.skillSha256 and result.promptVersion == '0.1.0'
+    assert result.skillSha256 and result.promptVersion == '0.1.1'
     text = result.text.split('<SOURCE_DATA_JSON>\n', 1)[1].split('\n</SOURCE_DATA_JSON>', 1)[0]
     assert '\\u003c' in text and '\\u003e' in text and '\\u0026' in text
     assert decode_json(text.encode()) == variables(tmp_path)['source_data']
@@ -144,7 +144,7 @@ def test_known_producer_provenance_is_strict_bound_and_retained(clinical_candida
     result = render(context,variables(tmp_path))
     provenance = {'provenanceVersion':1,'status':'known','promptId':result.promptId,
         'promptVersion':result.promptVersion,'promptSha256':result.promptSha256,
-        'skillSha256':result.skillSha256,'skillId':'query-history','skillVersion':'0.1.0','kitVersion':context.kitVersion,'kitSha256':result.kitSha256}
+        'skillSha256':result.skillSha256,'skillId':'query-history','skillVersion':'0.1.1','kitVersion':context.kitVersion,'kitSha256':result.kitSha256}
     metadata = decode_json((candidate.path/'candidate.json').read_bytes())
     metadata['producerProvenance'] = provenance
     candidate.evidence['producerProvenance'] = provenance

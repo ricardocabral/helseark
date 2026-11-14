@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
+    "definitionLockSha256": "110566cc4d5d7f375810d3dae09f7c0d908ff98f1e8038d3093a77d73adba8a1",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "3bb6c7c131c8f79e3d6c160ad18c868f8efa7c947ae476c9e4c1daa3fb3919f6",
-      "size": 33345
+      "sha256": "110566cc4d5d7f375810d3dae09f7c0d908ff98f1e8038d3093a77d73adba8a1",
+      "size": 33721
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
@@ -38,14 +38,19 @@
       "size": 2990
     },
     {
+      "path": "docs/how-to/generate-reports.md",
+      "sha256": "41876517340db2a57354b33cdfca0e1f45ae4ecdaab1d5f47f7597aa3d5abe7b",
+      "size": 3833
+    },
+    {
       "path": "docs/how-to/import-report.md",
       "sha256": "8e403a5c4129a02e315b34771e537b00a9e5675040b91d785bd908a7300fdc73",
       "size": 7122
     },
     {
       "path": "docs/how-to/query-history.md",
-      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
-      "size": 4050
+      "sha256": "689ed4f7bc1c4a090ffbd3c5e62e9ed9ade5a33ebfcca2e939bd5033a1b35de1",
+      "size": 4277
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -184,8 +189,8 @@
     },
     {
       "path": "prompts/query-with-evidence.md",
-      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
-      "size": 3592
+      "sha256": "e877ce764946ed8d06335124619ea2d1d3ae99d4ee155fdf0ed4130efa996902",
+      "size": 4094
     },
     {
       "path": "prompts/verify-archive.md",
@@ -274,8 +279,8 @@
     },
     {
       "path": "skills/query-history/SKILL.md",
-      "sha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
-      "size": 3140
+      "sha256": "87a3685748d55cbaf4dcf7b88d5ffd4b7a701fa7e9ef7a0739f8f4712d2bd560",
+      "size": 3645
     },
     {
       "path": "skills/verify-archive/SKILL.md",
@@ -293,7 +298,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.3",
+  "kitVersion": "0.1.4",
   "prompts": [
     {
       "id": "extract-report",
@@ -479,10 +484,10 @@
       ],
       "outputContractIds": [],
       "path": "prompts/query-with-evidence.md",
-      "sha256": "c96b819d34608f4c15dd7af855edb90331814510ded3e333f5041e2514c5bfce",
+      "sha256": "e877ce764946ed8d06335124619ea2d1d3ae99d4ee155fdf0ed4130efa996902",
       "skillId": "query-history",
-      "skillSha256": "0c4abd83689be48e71bff4d65ea1e47bd5ad7232ebb80e72e9a315bc11182752",
-      "skillVersion": "0.1.0",
+      "skillSha256": "87a3685748d55cbaf4dcf7b88d5ffd4b7a701fa7e9ef7a0739f8f4712d2bd560",
+      "skillVersion": "0.1.1",
       "taskIds": [
         "query"
       ],
@@ -527,7 +532,7 @@
           "type": "object"
         }
       },
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "id": "propose-correction",
@@ -939,10 +944,13 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "static-report-escaped-offline",
+        "per-result-context",
+        "csv-formula-neutralization"
       ],
       "id": "query",
-      "intent": "Read bounded exact revisions without clinical date filtering",
+      "intent": "Read bounded exact revisions and describe offline derived reports without changing accepted records",
       "optionalInputs": [
         "resourceRefs",
         "maxRecords",
@@ -962,7 +970,8 @@
         "docs/reference/agent-protocol.md",
         "docs/reference/clinical-model.md",
         "docs/reference/archive-format.md",
-        "docs/how-to/query-history.md"
+        "docs/how-to/query-history.md",
+        "docs/how-to/generate-reports.md"
       ],
       "requiredCapabilities": [
         "agent-context",

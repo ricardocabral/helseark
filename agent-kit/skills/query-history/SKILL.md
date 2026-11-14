@@ -41,3 +41,5 @@ An evidence binding identifies an exact accepted entry; do not copy a whole evid
 file into the model context. Keep the existing scoped evidence projection and
 host-retained construction authority. `EVIDENCE_SCOPE_REQUIRED` requires a separate
 whole-source disclosure decision; a retry is not authority to broaden the request.
+
+Static presentation is a host operation: `helseark --vault PATH report --person UUID --out ABSENT_PATH --json`. See [generate reports](../../docs/how-to/generate-reports.md). It creates escaped offline HTML and formula-neutralized CSV from accepted query rows, retaining exact values, status, comparators, per-result ranges and incompatible contexts. No grouping or unit conversion. This does not expand the agent output permission beyond `output/report.md`; no accepted edits or source blob disclosure.

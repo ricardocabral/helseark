@@ -65,3 +65,7 @@ continuation. Rendering still needs the host-retained digest; see the
 An `EVIDENCE_SCOPE_REQUIRED` failure is not permission to add a source: obtain
 explicit authority for the whole source or narrow the references. Ambiguous or
 oversized evidence fails without truncation or broader disclosure.
+
+For an offline HTML/CSV view of one accepted snapshot, use the host
+[static report workflow](generate-reports.md). It preserves per-result context
+and includes invalidated results for audit without combining them into trends.

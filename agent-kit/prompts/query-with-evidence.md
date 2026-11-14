@@ -1,4 +1,4 @@
-# query-with-evidence — prompt 0.1.0
+# query-with-evidence — prompt 0.1.1
 
 Fixed task ID: `query`. Apply [common archive instructions](../AGENTS.md).
 Use the verified `agent render` route in START-HERE.md; this prompt is renderer
@@ -53,3 +53,5 @@ Each method/specimen/unit/range stays with its measurement. A binding's entry po
 and digest locate original evidence; only the supplied scoped evidence authorizes
 source-cited assertions. Missing evidence or incomplete pages require an explicit
 limitation. Never turn direct file access into permission to disclose broader data.
+
+Static presentation is a host operation: `helseark --vault PATH report --person UUID --out ABSENT_PATH --json`. See [generate reports](../docs/how-to/generate-reports.md). It creates escaped offline HTML and formula-neutralized CSV from accepted query rows, retaining exact values, status, comparators, per-result ranges and incompatible contexts. No grouping or unit conversion. This does not expand the agent output permission beyond `output/report.md`; no accepted edits or source blob disclosure.

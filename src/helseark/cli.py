@@ -9,6 +9,7 @@ from tempfile import TemporaryDirectory
 from .archive import init_vault, open_vault, open_definitions, add_person, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .query import observations, timeline, parse_reference
+from .presentation import render_static_report
 from .archive import resolve
 from .contracts import ObservationFilter
 from .intake import add_source, build_packet, read_candidate, prepare_candidate
@@ -95,6 +96,10 @@ def main(argv=None):
             query.add_argument('--include-invalidated',action='store_true')
         if name == 'record':
             query.add_argument('--resource',required=True,help='Type/UUID or Type/UUID/_history/UUID.')
+    report = commands.add_parser('report', help='Render an offline derived HTML/CSV snapshot; no accepted writes.')
+    report.add_argument('--person', required=True)
+    report.add_argument('--out', type=Path, help='Fresh directory; default vault/derived/reports/PERSON.')
+    report.add_argument('--json', action='store_true')
     candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
     candidates = candidate.add_subparsers(dest='candidate_command', required=True)
     for verb in ('prepare','review','commit'):
@@ -221,7 +226,7 @@ def main(argv=None):
                     raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
             elif args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command in ('intake','candidate','observations','timeline','record') or (args.command == 'validate' and args.validation_command == 'candidate'):
+            elif args.command in ('intake','candidate','observations','timeline','record','report') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
@@ -231,6 +236,9 @@ def main(argv=None):
                 exit_code = 5 if any(i.severity=='error' for i in report.issues) else 3 if report.issues else 0
             elif args.command == 'backup':
                 output = document(backup(vault,args.out,includeWork=args.include_work))
+            elif args.command == 'report':
+                destination = args.out if args.out is not None else vault.root/'derived/reports'/args.person
+                output = {'path': str(render_static_report(vault, args.person, destination))}
             elif args.command == 'export':
                 output = document(export_person(vault,args.person,args.out,
                     ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources)))
