@@ -2,8 +2,9 @@
 """Maintain the pinned HL7® FHIR® R4 upstream subset (Python stdlib only).
 
 Default / --verify: offline byte, inventory, dialect and definition-closure checks.
---fetch: explicit maintenance-time acquisition; downloads only pinned URLs and
-refuses changed upstream bytes. --cache-dir stores source blobs by SHA-256 and
+--fetch: explicit maintenance-time acquisition; starts at pinned URLs, allows
+redirects only to reviewed HTTPS authorities, and refuses changed upstream bytes.
+--cache-dir stores source blobs by SHA-256 and
 can reproduce the distribution without networking when all blobs are present.
 --root selects a checkout or staging directory containing the reviewed inventory.
 
@@ -18,10 +19,13 @@ import argparse
 import hashlib
 import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import sys
 import tarfile
-from urllib.request import Request, urlopen
+import tempfile
+from urllib.parse import urlsplit
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 import zipfile
 
 INVENTORY = 'definitions/upstream-inventory.json'
@@ -32,6 +36,22 @@ SCHEMA = PREFIXES[1] + 'fhir.schema.json'
 CANONICAL = 'http://hl7.org/fhir/StructureDefinition/'
 MAX_SOURCE = 16 * 1024 * 1024
 MAX_FILE = 8 * 1024 * 1024
+APPROVED_AUTHORITIES = frozenset(('hl7.org', 'creativecommons.org'))
+
+
+def check_transport_url(url: str) -> None:
+    """Reject unreviewed transport destinations before making a request."""
+    parsed = urlsplit(url)
+    if parsed.scheme != 'https' or parsed.netloc not in APPROVED_AUTHORITIES:
+        raise ValueError(f'unapproved HTTPS authority or scheme: {url}')
+
+
+class ApprovedRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        # urllib has resolved relative Location values before this callback;
+        # the base handler dispatches only after this method returns.
+        check_transport_url(newurl)
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def digest(data: bytes) -> str:
@@ -81,6 +101,7 @@ def load_inventory(root: Path) -> dict:
         if entry['source'] not in sources:
             raise ValueError(f'unknown source: {name}')
     for s in sources.values():
+        check_transport_url(s['url'])
         if not (s['url'].startswith('https://hl7.org/fhir/R4/') or
                 s['url'] == 'https://creativecommons.org/publicdomain/zero/1.0/legalcode.en'):
             raise ValueError('only official pinned HTTPS sources allowed')
@@ -146,6 +167,34 @@ def verify_artifacts(files: dict[str, bytes], inv: dict) -> None:
     references(schema)
 
 
+def publish_missing(path: Path, data: bytes) -> None:
+    """Publish complete bytes without replacing any existing destination.
+
+    A same-directory hard link is atomic and fails if the destination exists.
+    Interruption before linking leaves only a task-owned .vendor-*.tmp file;
+    interruption after linking leaves complete destination bytes.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=path.parent, prefix='.vendor-',
+                                         suffix='.tmp', delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        try:
+            os.link(temporary, path)
+        except FileExistsError:
+            if path.is_symlink():
+                raise ValueError(f'symlink refused: {path}')
+            check_bytes(path.read_bytes(), {'size': len(data), 'sha256': digest(data)},
+                        str(path))
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def acquire(source: dict, cache: Path | None) -> bytes:
     cached = confined(cache, source['sha256']) if cache else None
     if cached and cached.exists():
@@ -153,16 +202,14 @@ def acquire(source: dict, cache: Path | None) -> bytes:
             raise ValueError(f"byte/hash mismatch: {cached}")
         data = cached.read_bytes()
     else:
+        check_transport_url(source['url'])
         request = Request(source['url'], headers={
             'User-Agent': 'Mozilla/5.0 (compatible; HelsearkDefinitionVendor/1.0)'})
-        with urlopen(request, timeout=60) as response:
-            if not response.geturl().startswith('https://'):
-                raise ValueError('non-HTTPS redirect refused')
+        with build_opener(ApprovedRedirectHandler()).open(request, timeout=60) as response:
             data = response.read(source['size'] + 1)
         check_bytes(data, source, source['url'])
         if cached:
-            cached.parent.mkdir(parents=True, exist_ok=True)
-            cached.write_bytes(data)
+            publish_missing(cached, data)
     check_bytes(data, source, source['url'])
     return data
 
@@ -204,11 +251,7 @@ def fetch(root: Path, inv: dict, cache: Path | None) -> None:
         path = confined(root, name)
         if path.exists():
             continue
-        path.parent.mkdir(parents=True, exist_ok=True)
-        # A failed run can leave a partial distribution; --verify detects it and
-        # --fetch safely resumes missing files. Existing changed files are refused.
-        with path.open('xb') as stream:
-            stream.write(data)
+        publish_missing(path, data)
 
 
 def verify(root: Path, inv: dict) -> None:
