@@ -204,3 +204,12 @@ def test_encounter_status_history_is_not_free_text(good):
     _,entries=candidate_for(vault,candidate,'Encounter')
     entries[0]['resource']['statusHistory'][0]['status']='invented-status';persist(candidate)
     assert 'FHIR_STATUS_INVALID' in {i.code for i in validate_candidate(vault,candidate).issues}
+
+
+def test_relative_age_is_not_an_invented_birth_date(good):
+    vault,candidate=good
+    _,entries=candidate_for(vault,candidate,'FamilyMemberHistory')
+    r=entries[0]['resource'];r['ageString']='Age unknown';r['bornString']='Birth date unknown';persist(candidate)
+    assert 'FAMILY_AGE_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}
+    del r['ageString'];r['estimatedAge']=True;persist(candidate)
+    assert 'FAMILY_AGE_CONFLICT' in {i.code for i in validate_candidate(vault,candidate).issues}

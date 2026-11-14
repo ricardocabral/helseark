@@ -360,3 +360,9 @@ Preserve performed choices, source status/reason, body site and outcome. Not-don
 Source assertions use `subject` for the selected Patient. Supported native fields: `identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf`. Timeline uses ('period',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
 
 Preserve class, status/statusHistory and period. Cancelled/planned encounters are not proof of a completed visit. Do not use an encounter period as an observation measurement time.
+
+### FamilyMemberHistory (profile 0.2.0)
+
+Source assertions use `patient` for the selected Patient. Supported native fields: `identifier instantiatesCanonical instantiatesUri status dataAbsentReason patient date name relationship sex bornPeriod bornDate bornString ageAge ageRange ageString estimatedAge deceasedBoolean deceasedAge deceasedRange deceasedDate deceasedString reasonCode reasonReference note condition`. Timeline uses ('date',), with unknown time retained. Every scalar needs source evidence; acceptance requires human review. Native values and qualifiers survive export/restore without inference.
+
+The patient is the selected person; relationship and condition describe a relative. Never emit the relative assertion as the selected person's Condition, or resolve another person's vault from relationship/name text. Preserve age/born/deceased choices and unknown family history without inventing dates.

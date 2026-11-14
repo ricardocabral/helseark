@@ -38,29 +38,32 @@ _BASE = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/hels
 _SLUGS = {'Patient': 'patient', 'Observation': 'observation', 'DiagnosticReport': 'diagnostic-report',
           'Specimen': 'specimen', 'DocumentReference': 'document-reference', 'Provenance': 'provenance'}
 # Added resource profiles are versioned independently of the frozen original six.
-_HISTORY = {'Encounter': 'encounter', 'Procedure': 'procedure', 'Immunization': 'immunization', 'AllergyIntolerance': 'allergy-intolerance', 'Condition': 'condition', 'MedicationRequest': 'medication-request', 'MedicationStatement': 'medication-statement'}
-_SLUGS['MedicationStatement'] = 'medication-statement'
-_SLUGS['MedicationRequest'] = 'medication-request'
-_SLUGS['Condition'] = 'condition'
-_SLUGS['AllergyIntolerance'] = 'allergy-intolerance'
-_SLUGS['Immunization'] = 'immunization'
-_SLUGS['Procedure'] = 'procedure'
-_SLUGS['Encounter'] = 'encounter'
-_PATIENT_FIELDS = {'Observation':'subject','DiagnosticReport':'subject','Specimen':'subject','DocumentReference':'subject'}
+_HISTORY = {
+    'AllergyIntolerance': 'allergy-intolerance',
+    'Condition': 'condition',
+    'Encounter': 'encounter',
+    'FamilyMemberHistory': 'family-member-history',
+    'Immunization': 'immunization',
+    'MedicationRequest': 'medication-request',
+    'MedicationStatement': 'medication-statement',
+    'Procedure': 'procedure',
+}
+_SLUGS.update(_HISTORY)
+_PATIENT_FIELDS = {
+    'Observation': 'subject',
+    'DiagnosticReport': 'subject',
+    'Specimen': 'subject',
+    'DocumentReference': 'subject',
+    'FamilyMemberHistory': 'patient',
+    'Encounter': 'subject',
+    'Procedure': 'subject',
+    'Immunization': 'patient',
+    'AllergyIntolerance': 'patient',
+    'Condition': 'subject',
+    'MedicationRequest': 'subject',
+    'MedicationStatement': 'subject',
+}
 
-_PATIENT_FIELDS['MedicationStatement'] = 'subject'
-
-_PATIENT_FIELDS['MedicationRequest'] = 'subject'
-
-_PATIENT_FIELDS['Condition'] = 'subject'
-
-_PATIENT_FIELDS['AllergyIntolerance'] = 'patient'
-
-_PATIENT_FIELDS['Immunization'] = 'patient'
-
-_PATIENT_FIELDS['Procedure'] = 'subject'
-
-_PATIENT_FIELDS['Encounter'] = 'subject'
 
 def _profile(kind):
     return _BASE + _SLUGS[kind] + ('|0.2.0' if kind in _HISTORY else '|0.1.0')
@@ -83,9 +86,11 @@ _FIELDS = {
     'Immunization': 'identifier status statusReason vaccineCode patient encounter occurrenceDateTime occurrenceString recorded primarySource reportOrigin location manufacturer lotNumber expirationDate site route doseQuantity performer note reasonCode reasonReference isSubpotent subpotentReason education programEligibility fundingSource reaction protocolApplied',
     'Procedure': 'identifier instantiatesCanonical instantiatesUri basedOn partOf status statusReason category code subject encounter performedDateTime performedPeriod performedString performedAge performedRange recorder asserter performer location reasonCode reasonReference bodySite outcome report complication complicationDetail followUp note focalDevice usedReference usedCode',
     'Encounter': 'identifier status statusHistory class classHistory type serviceType priority subject episodeOfCare basedOn participant appointment period length reasonCode reasonReference diagnosis account hospitalization location serviceProvider partOf',
+    'FamilyMemberHistory': 'identifier instantiatesCanonical instantiatesUri status dataAbsentReason patient date name relationship sex bornPeriod bornDate bornString ageAge ageRange ageString estimatedAge deceasedBoolean deceasedAge deceasedRange deceasedDate deceasedString reasonCode reasonReference note condition',
     'Bundle': 'type entry',
 }
 _STATUSES = {
+    ('FamilyMemberHistory', 'status'): 'partial completed entered-in-error health-unknown',
     ('Encounter', 'status'): 'planned arrived triaged in-progress onleave finished cancelled entered-in-error unknown',
     ('Procedure', 'status'): 'preparation in-progress not-done on-hold stopped completed entered-in-error unknown',
     ('Immunization', 'status'): 'completed entered-in-error not-done',
@@ -188,6 +193,8 @@ class DefinitionRegistry:
                     previous = self._definitions[identifier]
                     if identifier != canonical or not previous.get('version') or not value.get('version') or previous['version'] == value['version']:
                         raise ArchiveError('INVALID_DEFINITION', 'Duplicate definition identifier.')
+                    if not all(re.fullmatch(r'[0-9]+[.][0-9]+[.][0-9]+', v) for v in (previous['version'], value['version'])):
+                        raise ArchiveError('INVALID_DEFINITION', 'Profile versions must use numeric SemVer.')
                     if tuple(map(int, previous['version'].split('.'))) > tuple(map(int, value['version'].split('.'))):
                         continue
                 self._definitions[identifier] = value
@@ -536,6 +543,11 @@ class _Checks:
             for index, state in enumerate(r.get('statusHistory', [])):
                 if state.get('status') not in _STATUSES[('Encounter','status')].split():
                     self.issue('FHIR_STATUS_INVALID', '/statusHistory/' + str(index) + '/status', key)
+        if kind == 'FamilyMemberHistory':
+            has_age = any(k.startswith('age') for k in r)
+            has_born = any(k.startswith('born') for k in r)
+            if has_age and has_born or 'estimatedAge' in r and not has_age:
+                self.issue('FAMILY_AGE_CONFLICT', '/age', key)
         if kind == 'Observation':
             self.observation(r, '', key)
             for i, component in enumerate(r.get('component', [])):

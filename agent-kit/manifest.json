@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "f83edb74e3f3f4df74d7e8312a879d568bfcbe056464dadf36e39065d458f5c4",
+    "definitionLockSha256": "fe35477b2d37af20204ad06b6de7b49cffc9009326a2aa24279b4abc07ce1938",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.2.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "f83edb74e3f3f4df74d7e8312a879d568bfcbe056464dadf36e39065d458f5c4",
-      "size": 37564
+      "sha256": "fe35477b2d37af20204ad06b6de7b49cffc9009326a2aa24279b4abc07ce1938",
+      "size": 38016
     },
     {
       "path": "docs/how-to/backup-and-restore.md",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/how-to/query-history.md",
-      "sha256": "7a8a2840ffaeff21cd211540b211f78d7de1e9c284f62521ebc0f180d8c8c518",
-      "size": 4050
+      "sha256": "ce1c0a24452fd41484c86e5de0c19935b82a08c42d2c096e48cd7663d39f3c14",
+      "size": 4801
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -59,8 +59,8 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "c23d793a43f5af918c1d708f34b34f6852ee2a239fb16cbff3c2eed449abebdc",
-      "size": 27656
+      "sha256": "6a69cb00e25db20517b6d2009154cbbd5cdfc8409fae7dfc0ba8a11314d85f2b",
+      "size": 28573
     },
     {
       "path": "docs/reference/intake.md",
@@ -159,8 +159,8 @@
     },
     {
       "path": "profiles/r4/0.2.0/README.md",
-      "sha256": "5c7b9cdba6ec6b699edc49352c1cc7fb648ba41c2a0906829e7c6e06c92d1ac6",
-      "size": 3345
+      "sha256": "840a19a1e795cd923134e190a63a16bd9071dfc3752f48237ebf0aa80c189173",
+      "size": 4250
     },
     {
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
@@ -176,6 +176,11 @@
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-encounter.json",
       "sha256": "2944e1be0a7b596b116343b437e34f2ca41fbb25988f50dff2755ef384ca6c52",
       "size": 2391
+    },
+    {
+      "path": "profiles/r4/0.2.0/StructureDefinition-helseark-family-member-history.json",
+      "sha256": "10259e22473db59f1674611f9905cb95916c19915be79d6417ec76f2a158eb13",
+      "size": 2647
     },
     {
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-immunization.json",
@@ -984,7 +989,8 @@
         "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-immunization.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-procedure.json",
-        "profiles/r4/0.2.0/StructureDefinition-helseark-encounter.json"
+        "profiles/r4/0.2.0/StructureDefinition-helseark-encounter.json",
+        "profiles/r4/0.2.0/StructureDefinition-helseark-family-member-history.json"
       ],
       "skillPath": "skills/import-records/SKILL.md"
     },
@@ -1052,7 +1058,8 @@
         "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-immunization.json",
         "profiles/r4/0.2.0/StructureDefinition-helseark-procedure.json",
-        "profiles/r4/0.2.0/StructureDefinition-helseark-encounter.json"
+        "profiles/r4/0.2.0/StructureDefinition-helseark-encounter.json",
+        "profiles/r4/0.2.0/StructureDefinition-helseark-family-member-history.json"
       ],
       "skillPath": "skills/query-history/SKILL.md"
     },
