@@ -9,6 +9,9 @@ description = "Offline immutable personal health archive"
 requires-python = ">=3.12"
 dependencies = ["jsonschema==4.25.1"]
 
+[project.optional-dependencies]
+pdf = ["pypdf==7.0.0"]
+
 [project.scripts]
 helseark = "helseark.cli:main"
 
@@ -30,7 +33,7 @@ where = ["src"]
 "share/helseark/definitions/hl7.fhir.r4.core/4.0.1/package" = ["definitions/hl7.fhir.r4.core/4.0.1/package/*.json"]
 "share/helseark/definitions/docs/r4" = ["definitions/docs/r4/*.html"]
 "share/helseark/profiles/r4/0.1.0" = ["profiles/r4/0.1.0/*.json", "profiles/r4/0.1.0/README.md"]
-"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md"]
+"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md", "docs/reference/pdf-extraction.md"]
 "share/helseark/agent-kit" = ["agent-kit/START-HERE.md", "agent-kit/manifest.json", "agent-kit/AGENTS.md"]
 "share/helseark/agent-kit/templates" = ["agent-kit/templates/*.md"]
 
