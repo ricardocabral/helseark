@@ -165,6 +165,10 @@ class ReportPublication:
                     raise ArchiveError('DESTINATION_EXISTS', 'Report destination must not exist.', {'exitCode': 2})
                 raise ArchiveError('IO_ERROR', 'Atomic report publication failed.')
             published = True
+            # A pathname can change even inside the native rename call. The
+            # handles still bind publication to the original directory; do not
+            # report a now-redirected pathname as a successful result.
+            self._verify()
             os.fsync(parent)
         finally:
             if not published:

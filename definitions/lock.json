@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "docs/how-to/generate-reports.md",
-          "sha256": "bcb2552eab87c9af4923653b0b06d5457df76ce0509ab9ce5ef67dd9820c3e1f",
-          "size": 5851
+          "sha256": "4864a7ea0f9c3d714b0eca4842c74d4ce70c5b78ee0ebf230c6b0cdabb4177d0",
+          "size": 6079
         }
       ],
       "license": "Apache-2.0",

@@ -146,3 +146,56 @@ def test_temporary_root_cannot_authorize_canonical_staging(empty_vault, tmp_path
     assert result.returncode == 2 and b'INVALID_DESTINATION' in result.stderr
     assert inventory(protected) == before
     assert not (tmp_path/'report').exists()
+
+
+@pytest.mark.skipif(sys.platform != 'darwin' or shutil.which('cc') is None,
+                    reason='native macOS rename witness requires the local C compiler')
+def test_replacement_inside_native_rename_keeps_authority_and_reports_changed_path(empty_vault, tmp_path):
+    vault, person = empty_vault
+    parent = tmp_path/'parent'
+    parent.mkdir()
+    protected = vault.root/'people'/person/'accepted'
+    before = inventory(protected)
+    source = tmp_path/'witness.c'
+    source.write_text(r'''#include <dlfcn.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <errno.h>
+/* Called after Python's final ancestry check, immediately before real rename. */
+int renameatx_np(int fromfd, const char *from, int tofd, const char *to, unsigned flags) {
+    static int armed = 1;
+    int (*original)(int,const char*,int,const char*,unsigned) = dlsym(RTLD_NEXT, "renameatx_np");
+    const char *parent = getenv("NATIVE_PARENT");
+    if (armed && parent && strcmp(to,"report")==0) {
+        armed = 0;
+        if (strcmp(getenv("NATIVE_ACTION"),"compete")==0) {
+            char target[4096]; snprintf(target,sizeof(target),"%s/report",parent);
+            if (mkdir(target,0700)) _exit(91);
+        } else {
+            char moved[4096]; snprintf(moved,sizeof(moved),"%s-original",parent);
+            if (rename(parent,moved) || symlink(getenv("NATIVE_PROTECTED"),parent)) _exit(92);
+        }
+        fprintf(stderr,"NATIVE_SYSCALL_WITNESS:fromfd=%d tofd=%d flags=%u\n",fromfd,tofd,flags);
+    }
+    return original(fromfd,from,tofd,to,flags);
+}
+''')
+    library = tmp_path/'witness.dylib'
+    subprocess.run(['cc', '-dynamiclib', '-o', str(library), str(source)], check=True, capture_output=True)
+    env = {**os.environ, 'DYLD_INSERT_LIBRARIES':str(library), 'NATIVE_PARENT':str(parent),
+           'NATIVE_PROTECTED':str(protected), 'NATIVE_ACTION':'redirect',
+           'PYTHONPATH':str(Path(__file__).resolve().parents[1]/'src')}
+    result = subprocess.run([sys.executable, '-m', 'helseark.cli', '--vault', str(vault.root),
+                             'report', '--person', person, '--out', str(parent/'report'), '--json'],
+                            env=env, capture_output=True)
+    assert b'NATIVE_SYSCALL_WITNESS:' in result.stderr
+    assert inventory(protected) == before
+    assert not (protected/'report').exists()
+    # This mutation occurs after the last Python precheck. Only descriptor-based
+    # rename can publish into the original authority instead of the symlink.
+    assert set(p.name for p in (tmp_path/'parent-original/report').iterdir()) == {'index.html', 'observations.csv'}
+    assert result.returncode == 2 and b'INVALID_DESTINATION' in result.stderr
+    assert not result.stdout

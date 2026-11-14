@@ -36,7 +36,10 @@ Detected parent replacement/relocation fails with `INVALID_DESTINATION`; recover
 does not follow the output pathname or write into accepted history. Private staging
 is normally in the system temporary directory, or on the destination filesystem for
 a different mounted volume. Ordinary failures remove task-owned stage files; missing
-parent directories created for an unsuccessful request can remain empty.
+parent directories created for an unsuccessful request can remain empty. If a
+replacement races the final native rename, the command reports changed authority
+and the complete report can remain in the original directory. Preserve it for
+inspection; never follow the replacement pathname to remove it.
 
 Directory handles authorize specific directory inodes; they do not freeze their
 location. Host permissions must prevent other principals from relocating those
