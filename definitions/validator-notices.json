@@ -1,0 +1,97 @@
+[
+  {
+    "bytes": 5378,
+    "member": "LICENSE",
+    "sha256": "76479448741d7a7a3a97b6afd9ab9699d95621faafc65a1b8e9149342ea00feb"
+  },
+  {
+    "bytes": 11376,
+    "member": "LICENSE-junit.txt",
+    "sha256": "9648bb2891b9813970bddb68d4be8a5e6ec8280d0180a53dfb29236b579c55bb"
+  },
+  {
+    "bytes": 1509,
+    "member": "LICENSE.txt",
+    "sha256": "1cde867cab5c8e842929da5391cef98b4017314822270e934e8e2eef3767c666"
+  },
+  {
+    "bytes": 265,
+    "member": "META-INF/DEPENDENCIES",
+    "sha256": "68c0d7be5f21657e67cb89945e25f91cbc3d8d2619c2ab9dce18c470b0c6bf9d"
+  },
+  {
+    "bytes": 3228,
+    "member": "META-INF/FastDoubleParser-LICENSE",
+    "sha256": "59067508e44346bf93dc9c5e4d673a67ecd77988c2020bb5e0f8667eb199f396"
+  },
+  {
+    "bytes": 4578,
+    "member": "META-INF/FastDoubleParser-ThirdParty-LICENSE",
+    "sha256": "dbc36f9422a40d58d1a214080583667cfd37d61c2fae1657d981edda2a60727f"
+  },
+  {
+    "bytes": 11358,
+    "member": "META-INF/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "bytes": 316,
+    "member": "META-INF/LICENSE-notice.md",
+    "sha256": "c7d843e0faf8a251278c9220f6b5326a42a01f08b855c1ec871bcef6211a7e2a"
+  },
+  {
+    "bytes": 9303,
+    "member": "META-INF/LICENSE-univocity-parsers.md",
+    "sha256": "d25d17d20162cce14cdbb467a0f6d75a35ba488a4144637b17392eaa8042c122"
+  },
+  {
+    "bytes": 14235,
+    "member": "META-INF/LICENSE.md",
+    "sha256": "5aa4cd44c111add178d1c2e2fe36d58a484012c80167df925f826cd64d411bf0"
+  },
+  {
+    "bytes": 11359,
+    "member": "META-INF/LICENSE.txt",
+    "sha256": "b1d2870f1a00e4d7f56576e5f0870cba109e041f8af66866cf5b499478e654e7"
+  },
+  {
+    "bytes": 172,
+    "member": "META-INF/NOTICE",
+    "sha256": "a8ff0d486f1bdd29331e0e244f96245354779ef818ec25ecd60545ad335b68da"
+  },
+  {
+    "bytes": 1452,
+    "member": "META-INF/NOTICE.md",
+    "sha256": "3852834ebb4c2e04ecc18c9d099a05eab72cbd6edf35fb191390be6306019b4c"
+  },
+  {
+    "bytes": 174,
+    "member": "META-INF/NOTICE.txt",
+    "sha256": "64bc8696af3f6c770521412b85d3a733fa44b2ef5b0f4bd739e0c4d02eca492a"
+  },
+  {
+    "bytes": 1064,
+    "member": "META-INF/Schubfach-LICENSE",
+    "sha256": "12d39a6615219d73202300715e365bec2b958f858d1e837c8f2dace57f905969"
+  },
+  {
+    "bytes": 1567,
+    "member": "META-INF/licenses/ASM",
+    "sha256": "337e92fd361effe495d03978a34a3cd44681a63b8329adfd99c8996b306b2a8c"
+  },
+  {
+    "bytes": 119,
+    "member": "META-INF/services/lombok.core.runtimeDependencies.RuntimeDependencyInfo",
+    "sha256": "1ece1bc23aa905b3b027fe2f4d5c49a6ae31c02bf8f0f63ff03f40a8946c3662"
+  },
+  {
+    "bytes": 1829,
+    "member": "org/xmlresolver/notices/w3c-license.txt",
+    "sha256": "9a3ac27f4c5954a3e4afcf8311e36be7cd84c32a3681312de7563ce112b9cad0"
+  },
+  {
+    "bytes": 6050,
+    "member": "turtle/LICENSE",
+    "sha256": "f1975e42c55e3a3d6bbbfad0dca4d9e518ed70b41b7458196ce2000593c0e859"
+  }
+]

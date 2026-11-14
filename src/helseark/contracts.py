@@ -104,6 +104,7 @@ class ValidationReport:
     checkedProposalSha256: Sha256 | None
     coverage: tuple[CheckCoverage, ...]
     issues: tuple[Issue, ...]
+    officialRun: dict[str, JsonValue] | None = None
 
 
 @dataclass(frozen=True)
@@ -392,3 +393,16 @@ class TimelineRow:
     resultRefs: tuple[ResourceRef, ...]
     sourceRefs: tuple[EvidenceRef, ...]
     issues: tuple[Issue, ...]
+
+
+@dataclass(frozen=True)
+class ValidatorConfig:
+    """Explicit optional JAR, Java and closed package directory; no PATH discovery."""
+    executablePath: Path
+    executableSha256: Sha256
+    version: str
+    packageDirectory: Path
+    profileDirectory: Path
+    timeoutSeconds: int
+    requireTerminology: bool
+    javaPath: Path
