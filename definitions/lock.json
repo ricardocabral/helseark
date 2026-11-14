@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "4fa642d930c8c7880a845cae948fc53b1110b0ba476f41eaa8ba3ec4532b4139",
-          "size": 23403
+          "sha256": "8f43fca71d3d604bf3929fde9ab0da9e73524f1c3a51e207512c474272f210a2",
+          "size": 27106
         }
       ],
       "license": "Apache-2.0",
@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "a7e5c6c77c9164604ba37af2028801c7169eda5ce8249823fd843270684f2efa",
-          "size": 6801
+          "sha256": "57242db995db9e58634317c2fd1da6615e6499526c6256b271e7777f81d2ffce",
+          "size": 8487
         }
       ],
       "license": "Apache-2.0",

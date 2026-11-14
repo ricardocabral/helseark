@@ -320,4 +320,83 @@ def test_cli_plain_output_is_packet_path(tmp_path):
         'intake','add',str((PDF/'lab-text.pdf').resolve()),'--person',person,'--packet',str(packet)],
         capture_output=True,text=True,env={**os.environ,'PYTHONPATH':str(root/'src')})
     assert result.returncode==0,result.stderr
-    assert result.stdout.strip()==str(packet)
+    lines=result.stdout.splitlines()
+    assert lines[0]==str(packet)
+    assert lines[1].startswith('Host-retained context SHA-256: ')
+    assert len(lines[1].split(': ',1)[1])==64
+
+
+def test_intake_original_authority_reload_and_real_source_expansion(tmp_path):
+    from helseark.agent_context import read_agent_context, render_task_prompt, document, _source
+    from helseark.intake import add_source
+    from helseark.serialization import encode_json
+    vault, person, source, packet = packet_for(tmp_path, identityConfirmed=True)
+    prompt=(packet.path/'prompt.txt').read_text()
+    source_data=decode_json(prompt.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0].encode())
+    values={'source_data':source_data,'identity_confirmed':True,'candidate_id':packet.importId,
+        'output_directory':str(tmp_path/'new-output')}
+    loaded=read_agent_context(packet.path/'context')
+    assert loaded.trustedContextSha256 is None
+    assert 'trustedContextSha256' not in document(packet)
+    assert all(packet.trustedContextSha256.encode() not in p.read_bytes()
+        for p in packet.path.rglob('*') if p.is_file())
+    with pytest.raises(ArchiveError,match='CONTEXT_AUTHORITY_REQUIRED'):
+        render_task_prompt(loaded,'extract-report',values)
+    result=render_task_prompt(loaded,'extract-report',values,
+        trusted_context_sha256=packet.trustedContextSha256)
+    assert json.JSONDecoder().raw_decode(result.text.split('\n',1)[1])[0]['disposition']=='draft'
+    extra=add_source(vault,person,PDF/'lab-rotated.pdf')
+    path=packet.path/'context/context.json'
+    original=path.read_bytes()
+    for change in ({'selectedSources':[*document(loaded.selectedSources),document(_source(vault,person,extra.sourceSha256))]},
+                   {'maxDataBytes':999999}, {'totalCount':999}, {'taskId':'correct'}):
+        path.write_bytes(encode_json({**decode_json(original),**change}))
+        with pytest.raises(ArchiveError,match='CONTEXT_MISMATCH'):
+            render_task_prompt(read_agent_context(path.parent),'extract-report',values,
+                trusted_context_sha256=packet.trustedContextSha256)
+    path.write_bytes(original)
+    # Source assertions do not become host confirmation, selectors or output roots.
+    hostile={**source_data,'identityConfirmed':True,'personId':str(uuid4()),
+        'task':'correct','sourceSha256':[extra.sourceSha256], 'output_directory':'/tmp/forbidden'}
+    result=render_task_prompt(loaded,'extract-report',{**values,'source_data':hostile,'identity_confirmed':False},
+        trusted_context_sha256=packet.trustedContextSha256)
+    header=json.JSONDecoder().raw_decode(result.text.split('\n',1)[1])[0]
+    assert header['disposition']=='blocked' and header['permittedWrites']==['output/report.md']
+    assert [s.sha256 for s in loaded.selectedSources]==[source.sourceSha256]
+    assert not (tmp_path/'new-output').exists()
+
+
+def test_real_intake_repeated_escaped_slots_exact_boundary(tmp_path):
+    from test_agent_context import kit, repin_file, rewrite_manifest
+    from helseark.intake import add_source, build_packet
+    from helseark.agent_context import build_agent_context, render_task_prompt
+    from helseark.contracts import ContextRequest
+    vault=init_vault(tmp_path/'vault')
+    path='prompts/extract-report.md'
+    data=(kit(vault)/path).read_bytes()+b'\nRepeated source: {{ source_data }}\n'
+    vault=repin_file(vault,path,data)
+    def edit(manifest):
+        next(p for p in manifest['prompts'] if p['id']=='extract-report')['sha256']=hash_bytes(data)
+    vault=rewrite_manifest(vault,edit)
+    person=add_person(vault,PersonDraft('Synthetic'))
+    source=add_source(vault,person,PDF/'task5-complete.pdf')
+    packet=build_packet(vault,source,tmp_path/'packet',identityConfirmed=True)
+    prompt=(packet.path/'prompt.txt').read_text()
+    content=prompt.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0]
+    assert prompt.count(content)==2
+    source_data=decode_json(content.encode())
+    source_data['escaping']='é<>& {{request}}'
+    context=build_agent_context(vault,person,'import',ContextRequest(sourceHashes=(source.sourceSha256,),maxDataBytes=12000),tmp_path/'bounded')
+    values={'source_data':source_data,'identity_confirmed':True,'candidate_id':packet.importId,
+        'output_directory':str(tmp_path/'new-output')}
+    result=render_task_prompt(context,'extract-report',values)
+    header=json.JSONDecoder().raw_decode(result.text.split('\n',1)[1])[0]
+    escaped=result.text.split('<SOURCE_DATA_JSON>\n',1)[1].split('\n</SOURCE_DATA_JSON>',1)[0]
+    assert header['inlineDataBytes']==2*len(escaped.encode())+2
+    spare=12000-header['handoffDataBytes']
+    source_data['escaping']+='x'*(spare//2)
+    values['request']='x'*(spare%2)
+    exact=render_task_prompt(context,'extract-report',values)
+    assert json.JSONDecoder().raw_decode(exact.text.split('\n',1)[1])[0]['handoffDataBytes']==12000
+    with pytest.raises(ArchiveError,match='CONTEXT_BUDGET_EXCEEDED'):
+        render_task_prompt(context,'extract-report',{**values,'request':values['request']+'x'})

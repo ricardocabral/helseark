@@ -259,8 +259,6 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
         source_data = {'sourceReceipt': document(source), 'extractionReceipt': receipt,
             'extractionPath': str(extraction_path), 'artifact': pages,
             'issues': document(issues),
-            'assignment': {'kind': 'trusted-caller-decision', 'identityConfirmed': identityConfirmed,
-                           'personId': source.personId},
             'sourceAssertionsAreUntrusted': True}
         rendered = render_task_prompt(context, 'extract-report', {
             'output_directory': str(output), 'identity_confirmed': confirmed,
@@ -275,7 +273,8 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     except BaseException:
         shutil.rmtree(destination)
         raise
-    return ImportPacket(destination, candidate_id, source.personId, source)
+    return ImportPacket(destination, candidate_id, source.personId, source,
+                        context.trustedContextSha256)
 
 
 def _bounded_json(path, limits):

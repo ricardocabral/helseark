@@ -6,9 +6,7 @@ Actual source bytes, adapter, context, selector and renderer are used in both ph
 Run this script under each phase's interpreter; fixture paths are operator-supplied.
 """
 import argparse
-from dataclasses import asdict
 from pathlib import Path
-import shutil
 import subprocess
 import sys
 from uuid import uuid4
@@ -23,7 +21,7 @@ SCENARIOS = ('task5-complete.pdf', 'lab-injection.pdf', 'lab-scan.pdf',
              'lab-two-people.pdf', 'lab-rotated.pdf')
 
 
-def prepare(phase, fixtures, root):
+def prepare(phase, fixtures, root, provenance):
     root.mkdir(mode=0o700, parents=True, exist_ok=False)
     inventory=[]
     for name in SCENARIOS:
@@ -75,7 +73,8 @@ and the transcript independently. Report-only stops are not extraction failures.
 ''')
         inventory.append({'scenario':name,'personId':person,'unselectedPersonId':other,
             'sourceSha256':hash_bytes((fixtures/name).read_bytes()),'entry':str(run/'ENTRY.md'),
-            'receipt':receipt,'phase':phase})
+            'receipt':receipt,'phase':phase, 'installation':provenance,
+            'actualAgentEvaluation':'unrun', 'modelResult':None})
     return inventory
 
 
@@ -85,8 +84,24 @@ def main():
     p.add_argument('--fixtures',type=Path,required=True)
     p.add_argument('--out',type=Path,required=True)
     p.add_argument('--inventory',type=Path,required=True,help='Host-only path outside agent-visible roots.')
+    p.add_argument('--source-commit',required=True,help='Exact commit installed by the operator; not inferred from a checkout.')
+    p.add_argument('--distribution',type=Path,required=True,help='Exact installed wheel; its bytes are hashed for the handoff.')
     args=p.parse_args()
-    inventory=prepare(args.phase,args.fixtures.resolve(),args.out.absolute())
-    args.inventory.write_bytes(encode_json(inventory))
+    root=args.out.resolve()
+    inventory_path=args.inventory.resolve()
+    if root==inventory_path or root in inventory_path.parents or inventory_path.exists():
+        p.error('Inventory must be a new host-only path outside the agent-visible root.')
+    # Validate an exact Git object ID without pretending it is a SHA-256.
+    if len(args.source_commit)!=40 or any(c not in '0123456789abcdef' for c in args.source_commit):
+        p.error('source-commit must be an exact lowercase 40-character Git commit ID.')
+    import helseark
+    provenance={'operatorInstalledCommit':args.source_commit,
+        'distributionSha256':hash_bytes(args.distribution.read_bytes()),
+        'distributionPath':str(args.distribution.resolve()),
+        'interpreter':sys.executable,'packagePath':str(Path(helseark.__file__).resolve())}
+    inventory=prepare(args.phase,args.fixtures.resolve(),root,provenance)
+    with inventory_path.open('xb') as stream:
+        stream.write(encode_json(inventory))
+    inventory_path.chmod(0o600)
 
 if __name__=='__main__':main()

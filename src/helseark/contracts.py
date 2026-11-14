@@ -1,5 +1,5 @@
 """Local archive records. Clinical payloads remain FHIR JSON trees."""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from decimal import Decimal
 from pathlib import Path
 from typing import Literal, TypeAlias
@@ -122,6 +122,8 @@ class ImportPacket:
     importId: str
     personId: PersonId
     source: SourceReceipt
+    # Original context builder authority; host-only, excluded from document().
+    trustedContextSha256: Sha256 | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)
@@ -266,6 +268,8 @@ class AgentContext:
     # None only for retained pre-renderer context contracts which lack these fields.
     maxRecords: int | None = None
     maxDataBytes: int | None = None
+    # Host-only builder receipt. Never serialized into the editable packet.
+    trustedContextSha256: Sha256 | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True)

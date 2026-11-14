@@ -34,6 +34,10 @@ error even with confirmed assignment. Cue detection only recognizes multiple
 explicit Patient:/Paciente: labels; review all identity uncertainty and the original.
 PDF evidence uses retained exact pages hash/provenance and page-only locators, no
 invented boxes. Scan/blank pages request OCR_REQUIRED; no automatic OCR/install.
+The host keeps the original builder result through rendering and retains the
+CLI stdout digest outside agent-editable state for any later reload. Never
+recover rendering authority from context.json or intake.json. A template alone
+cannot grant drafting or acceptance; follow the actual renderer disposition.
 Read [intake contract](../../docs/reference/intake.md) for limits and failures.
 
 PDF extraction/candidate reading are available. Structured import and Task6

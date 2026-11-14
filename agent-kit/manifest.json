@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "6654ef0a520936540a1e6d00534c7a27bf0d1d47ffca33f5a3147776944d3958",
+    "definitionLockSha256": "63f52f62bf59b708398d185468fcef181b4717ce191cbe28d69753652b1233bc",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -19,18 +19,18 @@
     },
     {
       "path": "START-HERE.md",
-      "sha256": "507d076335d32b5e5899d66521417fb11ba7173b20b207b667c526178e876f82",
-      "size": 2132
+      "sha256": "8bb8ba774eea2628f860357e9aea650d77caa9fea6edb4d306100efcb5dc242d",
+      "size": 2587
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "6654ef0a520936540a1e6d00534c7a27bf0d1d47ffca33f5a3147776944d3958",
+      "sha256": "63f52f62bf59b708398d185468fcef181b4717ce191cbe28d69753652b1233bc",
       "size": 30747
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "4fa642d930c8c7880a845cae948fc53b1110b0ba476f41eaa8ba3ec4532b4139",
-      "size": 23403
+      "sha256": "8f43fca71d3d604bf3929fde9ab0da9e73524f1c3a51e207512c474272f210a2",
+      "size": 27106
     },
     {
       "path": "docs/reference/archive-format.md",
@@ -44,8 +44,8 @@
     },
     {
       "path": "docs/reference/intake.md",
-      "sha256": "a7e5c6c77c9164604ba37af2028801c7169eda5ce8249823fd843270684f2efa",
-      "size": 6801
+      "sha256": "57242db995db9e58634317c2fd1da6615e6499526c6256b271e7777f81d2ffce",
+      "size": 8487
     },
     {
       "path": "docs/reference/pdf-extraction.md",
@@ -224,8 +224,8 @@
     },
     {
       "path": "skills/import-records/SKILL.md",
-      "sha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
-      "size": 3533
+      "sha256": "5b1ed3922477ef30e93d95320a81bc4b78444957d6835ecc6c4f903f820d74e1",
+      "size": 3841
     },
     {
       "path": "skills/inspect-archive/SKILL.md",
@@ -280,7 +280,7 @@
       "path": "prompts/extract-report.md",
       "sha256": "ae5d206925eeda2bc03e5dd5d3feadb80b4dcc355a52faa5b6ebc4320185601d",
       "skillId": "import-records",
-      "skillSha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
+      "skillSha256": "5b1ed3922477ef30e93d95320a81bc4b78444957d6835ecc6c4f903f820d74e1",
       "skillVersion": "0.1.1",
       "taskIds": [
         "import"
@@ -366,7 +366,7 @@
       "path": "prompts/map-structured-export.md",
       "sha256": "3a096a98e9ef539f352d122287b2f70f34f9e3425cb4112f72276d4c92f893d2",
       "skillId": "import-records",
-      "skillSha256": "17a4dc72b933cbf65f01d9e5789fceec9664a2ff1cc67d373efb26a10edad1cd",
+      "skillSha256": "5b1ed3922477ef30e93d95320a81bc4b78444957d6835ecc6c4f903f820d74e1",
       "skillVersion": "0.1.1",
       "taskIds": [
         "import"

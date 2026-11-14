@@ -22,8 +22,24 @@ The packet contains ENTRY.md, prompt.txt, intake.json (packetVersion 1), and the
 unchanged context builder's context directory. Its importId is the allocated
 candidate UUID. All pinned context/selector contracts remain authoritative, including
 v2 metadata-bound generated/user-entry projections and the renderer's escaped byte
-budget. Only the selected source hash and necessary identity are requested; no
+budget, counting each actual escaped slot occurrence. Only the selected source hash and necessary identity are requested; no
 historical records or automatically broadened source permissions are added.
+
+Intake keeps the original in-memory context builder result through rendering.
+`ImportPacket.trustedContextSha256` returns that original construction digest to
+the trusted caller; `document(packet)` excludes it. `intake add --json` exposes
+it on stdout alongside the receipt; plain output prints the packet path and a
+host-retained digest line. Capture stdout directly in trusted operator/job state,
+separate from agent-editable packet files. Neither intake.json nor context.json
+contains authority. To rerender, use `read_agent_context(packet.path / 'context')`
+and pass the retained digest as `trusted_context_sha256=` (CLI:
+`agent render --trusted-context-sha256 HOST_DIGEST`). A plain reload fails
+CONTEXT_AUTHORITY_REQUIRED; edited selection/count/task/budget metadata fails
+against the original digest. Never hash a mutable packet to recover authority.
+If host state is lost, explicitly build a new packet with the original authorized
+person/source choices. Host identity confirmation and fresh output/candidate
+allocations remain separate renderer arguments, outside source_data. The digest
+proves continuity with the host construction, not human review or acceptance.
 
 Extraction pages are retained as a second content-addressed blob. An immutable
 `extraction.json` beside the original has receiptVersion, sourceSha256,
@@ -81,7 +97,8 @@ older kit may produce a blocked handoff reflecting its missing capabilities.
 ## External-agent evaluation preparation
 
 Maintainers can run `scripts/intake_agent_eval.py --phase baseline|post-kit
---fixtures ABSOLUTE_SYNTHETIC_FIXTURES --out ABSENT_PHASE_ROOT --inventory HOST_ONLY_JSON`
+--fixtures ABSOLUTE_SYNTHETIC_FIXTURES --out ABSENT_PHASE_ROOT --inventory HOST_ONLY_JSON
+--source-commit EXACT_INSTALLED_COMMIT --distribution EXACT_INSTALLED_WHEEL`
 under the respective installed committed interpreter. It prepares five identical
 bounded scenarios in each phase using actual PDF extraction/context/rendering; it
 never runs a model or supplies expected facts to it. Baseline synthetic harness
@@ -92,3 +109,9 @@ establish comparative extraction accuracy. A coordinator separately launches fre
 selected-model tabs and records actual settings, transcripts, explicit read receipts,
 errors/omissions, source-row evidence and forbidden-root observations. Empty/unrun
 samples remain unknown. Independent expected facts live outside agent-visible roots.
+
+The inventory must be new and outside the agent-visible root. It retains the
+operator-declared installed commit, actual wheel digest/interpreter/package path
+and original CLI construction digest, with modelResult null until a real run.
+Install the named wheel first; the preparation script does not verify a Git
+checkout or turn an operator declaration into an installation attestation.

@@ -18,7 +18,13 @@ Use `--confirm-person` only after you have personally confirmed the assignment.
 Omitting it still retains the source and builds a report-only handoff. The output
 root must be new, separate from the packet, and explicitly allowed by your agent
 host. Existing packets/output are never overwritten. Intake does not launch an
-agent or choose a provider. It returns the source receipt and packet path.
+agent or choose a provider. It returns the source receipt, packet path and original builder's
+trustedContextSha256. Retain this stdout digest in trusted host state outside
+agent-editable files if later rendering is needed. Intake uses the original
+in-memory result for the initial rendering. A reloaded context cannot authorize
+itself: pass the retained digest to `agent render --trusted-context-sha256`.
+Never derive authority by hashing packet files; lost host state requires a new
+explicit build with the same authorized person/source scope.
 
 Read `new-packet/ENTRY.md`, `prompt.txt` and `context/context.json`. Give that entry
 to your separately selected text-capable agent. Restrict its filesystem and tools
