@@ -9,8 +9,8 @@
         },
         {
           "path": "schemas/0.1.0/change.schema.json",
-          "sha256": "812e96fdbc96920334f06c37c25d681a243533dec8a8f9322ec79224b72f8c1b",
-          "size": 4690
+          "sha256": "cb4f582de9d47719f99f0039d77859d4734b05445fca564345a7df27f34614ff",
+          "size": 4876
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
@@ -19,8 +19,8 @@
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
-          "sha256": "8b4c4c11b808a2d5f2753327618c09d675ad712128048b10b6a3756cf63e021f",
-          "size": 5030
+          "sha256": "9c29c90e155804325dae1bf7b4cf9b4d04adc16b6391613cc566c9886914c2bb",
+          "size": 5216
         },
         {
           "path": "schemas/0.1.0/review.schema.json",
@@ -34,8 +34,18 @@
         },
         {
           "path": "schemas/0.1.0/vault.schema.json",
-          "sha256": "cd7714250b58b651f7549f66f3fce4c74a94704413b47e361ca28b138336b787",
-          "size": 1055
+          "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e",
+          "size": 1209
+        },
+        {
+          "path": "schemas/0.1.0/agent-kit.schema.json",
+          "sha256": "3378bc9efb5cc5a73ff99500c52584cb86c53d22ccf7605bd0bc27c62be3dfe7",
+          "size": 8686
+        },
+        {
+          "path": "schemas/0.1.0/agent-context.schema.json",
+          "sha256": "c1df384fc0fb54766441c4bf1bfc9b0a383d589b0e4f79e0722a21a111cef530",
+          "size": 10084
         }
       ],
       "license": "Apache-2.0",
@@ -686,6 +696,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-clinical-reference",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/reference/agent-protocol.md",
+          "sha256": "0cb40078af6e28c555b91c8545be4d19579988f61932a993f2091efc52541376",
+          "size": 10191
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-agent-reference",
       "version": "0.1.0"
     }
   ],
