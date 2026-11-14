@@ -72,6 +72,24 @@ uncompressed file. Source SHA-256 covers the entire original compressed archive,
 including metadata not represented in member inventories. Both checks are needed.
 The verifier checks outer membership and hashes, source hashes, recomputes every
 inner member hash/summary, compares full inventories and retained license bytes.
+Version 1 requires exactly six source roles: `core` (tar.gz), `specification`
+(ZIP), `schema` (ZIP), and raw `downloads`, `hl7-license`, `cc0` pages. Every
+archive must contain nonempty regular-file content; the core package identity,
+R4 version and CC0 license are checked on both build and verify. Empty pins or
+omitted core/specification sources cannot describe a complete bundle. Exact
+source bytes and complete inventories must still match independently reviewed
+pins; structural checks do not authenticate a publisher or prove that arbitrary
+replacement pins contain the genuine full release.
+
+The verifier also enforces the versioned structure independently of the
+self-declared manifest: README, standalone builder, this reference, embedded
+pins, all six blobs, all three inventories and four notices. The required notices
+are `licenses/core-package.json` from `core:package/package.json`,
+`licenses/specification-license.html` from `specification:site\license.html`,
+and the exact raw pages in `licenses/hl7-license.html` and `licenses/cc0.html`.
+Support files must be nonempty and fit the metadata limit. Removing support or
+notices and rewriting the inventory does not make an acceptable archive.
+
 The manifest omits itself to avoid a circular digest. Obtain the outer ZIP digest
 from the independently retained release record; a manifest alone does not prove
 authenticity against a malicious replacement.
@@ -86,6 +104,19 @@ size to 2 GiB per archive; membership to 100,000; metadata to 32 MiB. Decompress
 (including padding and extended headers) are additionally bounded to 2 GiB plus
 100,000 KiB before parsing. Inputs are
 streamed and all member payloads checked, never silently truncated to fit limits.
+Before Python constructs a `ZipFile` (which eagerly allocates its entire central
+directory), preflight caps the compressed file at 512 MiB, directory at 32 MiB,
+count at 100,000, each expanded member at 256 MiB and total expansion at 2 GiB.
+A bounded end-record read and streamed central-record scan check the actual count,
+record bounds and declared sizes rather than trusting only the end-record count.
+This applies to upstream ZIPs and the outer bundle. Single-disk classic ZIP
+directories are supported; ZIP64 end records/locators, sentinel counts/offsets/
+sizes and ZIP64 central extra fields fail explicitly before eager parsing. None
+of the actual pinned sources or generated outer bundle requires these directory
+extensions. ZIP64 local size headers used by the deterministic writer are allowed;
+they do not control directory allocation. Future inputs needing ZIP64 directories
+require an explicitly reviewed bounded implementation, not truncated fallbacks.
+
 These conservative bounds accommodate the full pinned specification (about
 1.8 GB expanded); future releases exceeding them need explicit review.
 
@@ -110,6 +141,19 @@ current time, filesystem ownership, temporary path or compression-library output
 enters the ZIP. Identical pins, script, reference documentation and source blobs
 produce identical bytes. Changing this documentation or script changes the
 bundle checksum, intentionally. No network is attempted without `--fetch`.
+
+Exception cleanup and no-overwrite publication are covered by small interrupted
+copy/download and competing-publisher tests. Hard-link atomic publication does
+not establish power-loss durability: there is no fsync protocol or crash recovery
+qualification. Keep cache/source files unchanged during build and verification;
+these maintenance tools do not defend against concurrent hostile local mutation.
+Before release automation, measure peak resident memory and temporary-disk use
+for the actual pinned build and verify on the release platform. Count temporary
+tar envelopes as well as staged source copies/output; limits are acceptance caps,
+not a promise of small peak RAM (tar extended headers can also allocate memory).
+Retain the command, platform, input hashes and observed sample/window with release
+evidence. Measurements in one environment do not qualify other filesystems or
+establish a universal upper bound.
 
 To browse the upstream specification, copy its source blob to `fhir-spec.zip`
 and use a trusted ZIP tool in a fresh directory that understands Windows ZIP

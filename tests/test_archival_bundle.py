@@ -5,6 +5,7 @@ import io
 import json
 from pathlib import Path
 import socket
+import struct
 import tarfile
 import zipfile
 
@@ -54,7 +55,10 @@ def inputs(tmp_path):
     sources = []
     for name, fmt, data in [
         ('core', 'tar.gz', tar_bytes([('package/package.json', b'{"name":"hl7.fhir.r4.core","version":"4.0.1","license":"CC0-1.0"}'), ('package/extra.json', b'untouched')])),
-        ('specification', 'zip', zip_bytes([('index.html', b'offline'), ('license.html', b'CC0; trademarks; third-party terms'), ('assets/style.css', b'body {}')])),
+        ('specification', 'zip', zip_bytes([('index.html', b'offline'), ('site\\license.html', b'CC0; trademarks; third-party terms'), ('assets/style.css', b'body {}')])),
+        ('schema', 'zip', zip_bytes([('fhir.schema.json', b'{"synthetic":true}')])),
+        ('downloads', 'raw', b'downloads page'),
+        ('hl7-license', 'raw', b'HL7 license page'),
         ('cc0', 'raw', b'license text'),
     ]:
         path = cache / sha(data)
@@ -66,8 +70,10 @@ def inputs(tmp_path):
             entry['membership'] = archival.membership_summary(members)
         sources.append(entry)
     pins = dict(bundleVersion=1, fhirVersion='4.0.1', sources=sources,
-                retain=[dict(source='specification', member='license.html', path='licenses/hl7.html'),
-                        dict(source='cc0', path='licenses/cc0.html')])
+                retain=[dict(source='specification', member='site\\license.html', path='licenses/specification-license.html'),
+                        dict(source='cc0', path='licenses/cc0.html'),
+                        dict(source='core', member='package/package.json', path='licenses/core-package.json'),
+                        dict(source='hl7-license', path='licenses/hl7-license.html')])
     manifest = tmp_path / 'pins.json'
     manifest.write_text(json.dumps(pins))
     return manifest, cache
@@ -88,8 +94,8 @@ def test_complete_sources_and_reproducible_offline_bundle(inputs, tmp_path, monk
         for source in lock['sources']:
             assert bundle.read('sources/' + source['sha256']) == (cache / source['sha256']).read_bytes()
         inventory = json.loads(bundle.read('inventories/specification.json'))
-        assert {m['path'] for m in inventory} == {'index.html', 'license.html', 'assets/style.css'}
-        assert bundle.read('licenses/hl7.html') == b'CC0; trademarks; third-party terms'
+        assert {m['path'] for m in inventory} == {'index.html', 'site\\license.html', 'assets/style.css'}
+        assert bundle.read('licenses/specification-license.html') == b'CC0; trademarks; third-party terms'
         assert 'scripts/build_archival_bundle.py' in bundle.namelist()
 
 
@@ -327,3 +333,228 @@ def test_symlink_output_parent_refused(inputs, tmp_path):
     with pytest.raises(ValueError, match='symlink'):
         archival.build(pins, cache, link / 'output.zip')
     assert not (real / 'output.zip').exists()
+
+
+def rewrite_bundle(original, output, *, omit=(), change_pins=None, replacements=None):
+    # Recompute the manifest, so acceptance cannot rely only on self-consistency.
+    with zipfile.ZipFile(original) as archive:
+        files = {n: archive.read(n) for n in archive.namelist()
+                 if n not in (*omit, 'manifest.json')}
+    if change_pins:
+        pins = json.loads(files[archival.PINS])
+        change_pins(pins)
+        files[archival.PINS] = archival.canonical(pins)
+    files.update(replacements or {})
+    manifest = dict(bundleVersion=1, fhirVersion='4.0.1', files=[
+        dict(path=n, size=len(data), sha256=sha(data)) for n, data in sorted(files.items())])
+    files['manifest.json'] = archival.canonical(manifest)
+    with zipfile.ZipFile(output, 'w') as archive:
+        for name, data in files.items():
+            archive.writestr(name, data)
+
+
+@pytest.mark.parametrize('missing', ['README.md', 'scripts/build_archival_bundle.py',
+    'docs/reference/archival-bundle.md', 'licenses/cc0.html',
+    'licenses/specification-license.html', 'licenses/core-package.json',
+    'licenses/hl7-license.html', 'inventories/core.json', 'inventories/specification.json'])
+def test_verify_requires_support_even_with_consistent_manifest(inputs, tmp_path, missing):
+    pins, cache = inputs
+    good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
+    archival.build(pins, cache, good)
+    rewrite_bundle(good, bad, omit=[missing])
+    with pytest.raises(ValueError, match='required|structure'):
+        archival.verify(bad)
+
+
+@pytest.mark.parametrize('role', ['core', 'specification', 'schema', 'downloads', 'hl7-license', 'cc0', 'all'])
+def test_build_requires_versioned_source_roles(inputs, tmp_path, role):
+    pins, cache = inputs
+    lock = json.loads(pins.read_bytes())
+    lock['sources'] = [s for s in lock['sources'] if role != 'all' and s['id'] != role]
+    lock['retain'] = [r for r in lock['retain'] if role != 'all' and r['source'] != role]
+    pins.write_bytes(archival.canonical(lock))
+    output = tmp_path / 'bad.zip'
+    with pytest.raises(ValueError, match='required|role'):
+        archival.build(pins, cache, output)
+    assert not output.exists()
+
+
+def test_verify_rejects_empty_pins_and_self_consistent_bundle(inputs, tmp_path):
+    pins, cache = inputs
+    good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
+    archival.build(pins, cache, good)
+    rewrite_bundle(good, bad, change_pins=lambda p: p.update(sources=[], retain=[]))
+    with pytest.raises(ValueError, match='required|role'):
+        archival.verify(bad)
+
+
+@pytest.mark.parametrize('role', ['core', 'specification', 'schema'])
+def test_empty_archive_is_not_a_complete_role(inputs, tmp_path, role):
+    pins, cache = inputs
+    lock = json.loads(pins.read_bytes())
+    source = next(s for s in lock['sources'] if s['id'] == role)
+    data = tar_bytes([]) if role == 'core' else zip_bytes([])
+    path = cache / sha(data)
+    path.write_bytes(data)
+    source.update(size=len(data), sha256=sha(data),
+                  membership=archival.membership_summary(archival.archive_inventory(path, source['format'])))
+    pins.write_bytes(archival.canonical(lock))
+    with pytest.raises(ValueError, match='empty|required'):
+        archival.build(pins, cache, tmp_path / 'bad.zip')
+
+
+@pytest.mark.parametrize('limit', ['MAX_MEMBERS', 'MAX_METADATA', 'MAX_SOURCE'])
+@pytest.mark.parametrize('operation', ['inspect', 'verify'])
+def test_zip_limits_precede_eager_directory_allocation(tmp_path, monkeypatch, limit, operation):
+    path = tmp_path / 'tiny.zip'
+    path.write_bytes(zip_bytes([('one', b'12'), ('two', b'34')]))
+    monkeypatch.setattr(archival, limit, 1)
+    # The boundary spy deliberately fails if any ZipInfo allocation can occur.
+    monkeypatch.setattr(zipfile, 'ZipFile', lambda *a, **k: pytest.fail('eager ZIP allocation reached'))
+    with pytest.raises(ValueError, match='limit'):
+        archival.verify(path) if operation == 'verify' else archival.archive_inventory(path, 'zip')
+
+
+@pytest.mark.parametrize('mutation', ['understated-count', 'bad-offset', 'multidisk', 'zip64-sentinel', 'zip64-locator'])
+def test_zip_inconsistent_directory_rejected_before_allocation(tmp_path, monkeypatch, mutation):
+    data = bytearray(zip_bytes([('one', b'1'), ('two', b'2')]))
+    end = len(data) - 22
+    if mutation == 'understated-count':
+        struct.pack_into('<HH', data, end + 8, 1, 1)
+    elif mutation == 'bad-offset':
+        struct.pack_into('<I', data, end + 16, 0)
+    elif mutation == 'multidisk':
+        struct.pack_into('<H', data, end + 4, 1)
+    elif mutation == 'zip64-sentinel':
+        struct.pack_into('<HH', data, end + 8, 65535, 65535)
+    else:
+        data[end:end] = struct.pack('<4sIQI', b'PK\x06\x07', 0, 0, 1)
+    path = tmp_path / 'bad.zip'
+    path.write_bytes(data)
+    monkeypatch.setattr(zipfile, 'ZipFile', lambda *a, **k: pytest.fail('eager ZIP allocation reached'))
+    with pytest.raises(ValueError, match='ZIP|directory'):
+        archival.archive_inventory(path, 'zip')
+
+
+@pytest.mark.parametrize('change', ['wrong-format', 'missing-notice', 'redirected-notice'])
+def test_build_and_verify_enforce_roles_and_notice_mapping(inputs, tmp_path, change):
+    pins, cache = inputs
+    good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
+    archival.build(pins, cache, good)
+    def mutate(lock):
+        if change == 'wrong-format':
+            lock['sources'][0]['format'] = 'raw'
+        elif change == 'missing-notice':
+            lock['retain'].pop()
+        else:
+            lock['retain'][0]['member'] = 'index.html'
+    rewrite_bundle(good, bad, change_pins=mutate)
+    lock = json.loads(pins.read_bytes())
+    mutate(lock)
+    pins.write_bytes(archival.canonical(lock))
+    with pytest.raises(ValueError, match='required'):
+        archival.build(pins, cache, tmp_path / 'new.zip')
+    with pytest.raises(ValueError, match='required'):
+        archival.verify(bad)
+
+
+@pytest.mark.parametrize('operation', ['inspect', 'verify'])
+@pytest.mark.parametrize('limit', ['MAX_MEMBER', 'MAX_EXPANDED'])
+def test_zip_expanded_bounds_precede_allocation(tmp_path, monkeypatch, operation, limit):
+    path = tmp_path / 'small.zip'
+    path.write_bytes(zip_bytes([('one', b'12'), ('two', b'34')]))
+    monkeypatch.setattr(archival, limit, 1)
+    monkeypatch.setattr(zipfile, 'ZipFile', lambda *a, **k: pytest.fail('eager ZIP allocation reached'))
+    with pytest.raises(ValueError, match='limit'):
+        archival.verify(path) if operation == 'verify' else archival.archive_inventory(path, 'zip')
+
+
+@pytest.mark.parametrize('kind', ['central-sentinel', 'central-extra', 'bad-extra', 'overstated-count'])
+def test_zip_central_consistency_precedes_allocation(tmp_path, monkeypatch, kind):
+    data = bytearray(zip_bytes([('one', b'1')]))
+    central = data.index(b'PK\x01\x02')
+    end = len(data) - 22
+    if kind == 'central-sentinel':
+        struct.pack_into('<I', data, central + 24, 0xffffffff)
+    elif kind == 'overstated-count':
+        struct.pack_into('<HH', data, end + 8, 2, 2)
+    else:
+        extra = struct.pack('<HH', 1 if kind == 'central-extra' else 2, 8)
+        struct.pack_into('<H', data, central + 30, len(extra))
+        struct.pack_into('<I', data, end + 12, end - central + len(extra))
+        data[end:end] = extra
+    path = tmp_path / 'bad.zip'
+    path.write_bytes(data)
+    monkeypatch.setattr(zipfile, 'ZipFile', lambda *a, **k: pytest.fail('eager ZIP allocation reached'))
+    with pytest.raises(ValueError, match='ZIP|directory'):
+        archival.archive_inventory(path, 'zip')
+
+
+def test_interrupted_output_copy_removes_partial_staging(inputs, tmp_path, monkeypatch):
+    pins, cache = inputs
+    output = tmp_path / 'published' / 'bundle.zip'
+    def interrupted(source, target, *args):
+        target.write(source.read(3))
+        raise OSError('injected disk failure after partial copy')
+    monkeypatch.setattr(archival.shutil, 'copyfileobj', interrupted)
+    with pytest.raises(OSError, match='injected disk failure'):
+        archival.build(pins, cache, output)
+    assert list(output.parent.iterdir()) == []
+
+
+def test_interrupted_download_removes_partial_cache(inputs, tmp_path, monkeypatch):
+    pins, cache = inputs
+    source = json.loads(pins.read_bytes())['sources'][-1]
+    blob = cache / source['sha256']
+    data = blob.read_bytes()
+    blob.unlink()
+    before = set(cache.iterdir())
+    class Response(io.BytesIO):
+        url = source['url']
+        def read(self, size=-1):
+            if self.tell():
+                raise ConnectionResetError('injected connection reset')
+            return super().read(3)
+    class Opener:
+        def open(self, *args, **kwargs):
+            return Response(data)
+    monkeypatch.setattr(archival, 'build_opener', lambda *a: Opener())
+    with pytest.raises(ConnectionResetError, match='injected connection reset'):
+        archival.build(pins, cache, tmp_path / 'output.zip', fetch=True)
+    assert set(cache.iterdir()) == before
+    assert not (tmp_path / 'output.zip').exists()
+
+
+def test_publication_race_preserves_competing_output(inputs, tmp_path, monkeypatch):
+    pins, cache = inputs
+    output = tmp_path / 'published' / 'bundle.zip'
+    link = archival.os.link
+    def race(source, destination):
+        if destination == output:
+            output.write_bytes(b'competing publisher')
+        return link(source, destination)
+    monkeypatch.setattr(archival.os, 'link', race)
+    with pytest.raises(FileExistsError):
+        archival.build(pins, cache, output)
+    assert output.read_bytes() == b'competing publisher'
+    assert list(output.parent.iterdir()) == [output]
+
+
+@pytest.mark.parametrize('name', ['README.md', 'scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md'])
+def test_verify_rejects_empty_mandatory_support(inputs, tmp_path, name):
+    pins, cache = inputs
+    good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
+    archival.build(pins, cache, good)
+    rewrite_bundle(good, bad, replacements={name: b''})
+    with pytest.raises(ValueError, match='empty'):
+        archival.verify(bad)
+
+
+def test_verify_rejects_missing_blob_even_with_consistent_manifest(inputs, tmp_path):
+    pins, cache = inputs
+    good, bad = tmp_path / 'good.zip', tmp_path / 'bad.zip'
+    archival.build(pins, cache, good)
+    source = json.loads(pins.read_bytes())['sources'][0]
+    rewrite_bundle(good, bad, omit=['sources/' + source['sha256']])
+    with pytest.raises(ValueError, match='structure'):
+        archival.verify(bad)

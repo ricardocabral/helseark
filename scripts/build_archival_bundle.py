@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import shutil
 import stat
+import struct
 import sys
 import tarfile
 import tempfile
@@ -33,6 +34,16 @@ CHUNK = 1024 * 1024
 ROOT = Path(__file__).resolve().parents[1]
 PINS = 'definitions/archival-sources.json'
 TOOLS = ('scripts/build_archival_bundle.py', 'docs/reference/archival-bundle.md')
+# Version 1 is a complete, standalone R4 preservation contract. These roles and
+# notices are defined by the verifier, never inferred from untrusted inventory.
+SOURCE_ROLES = dict(core='tar.gz', specification='zip', schema='zip',
+                    downloads='raw', **{'hl7-license': 'raw', 'cc0': 'raw'})
+REQUIRED_RETAIN = (
+    dict(source='core', member='package/package.json', path='licenses/core-package.json'),
+    dict(source='specification', member='site\\license.html', path='licenses/specification-license.html'),
+    dict(source='hl7-license', path='licenses/hl7-license.html'),
+    dict(source='cc0', path='licenses/cc0.html'),
+)
 README = b'''# Helseark archival definitions bundle\n\nComplete pinned HL7(R) FHIR(R) R4 4.0.1 core and published specification.\nStart with docs/reference/archival-bundle.md. No installation or server needed.\nOriginal archives are in sources/<sha256>; names, URLs, dates and hashes are in\ndefinitions/archival-sources.json. inventories/ records EVERY archive member.\nmanifest.json hashes every other bundle file; obtain the outer ZIP checksum from\nthe release channel separately. No self-hash, signing, or authenticity claim.\n\nVerify offline after unzipping this outer bundle:\n  python3 scripts/build_archival_bundle.py --verify /path/to/original-bundle.zip\nReproduce offline (Python 3.12+):\n  python3 scripts/build_archival_bundle.py --cache-dir sources --output rebuilt.zip\nDo not put rebuilt.zip inside sources. Compare SHA-256 with the original ZIP.\nRead licenses/hl7-license.html and licenses/cc0.html, including third-party and\ntrademark caveats. The complete core is not a complete terminology service or\nJava validator installation. Runtime/wheel integration remains separate work.\n'''
 
 
@@ -77,6 +88,75 @@ def file_record(path):
     return dict(size=size, sha256=digest)
 
 
+def preflight_zip(path):
+    """Bound eager ZipFile allocation using a fixed tail and streamed directory.
+
+    Only single-disk classic directories are supported. ZIP64 end records,
+    sentinels and central-entry extensions are rejected, not interpreted with
+    truncated classic values. ZIP64 *local* size headers remain supported (our
+    writer uses them); none of the pinned inputs need ZIP64 directories.
+    """
+    with path.open('rb') as stream:
+        size = stream.seek(0, os.SEEK_END)
+        if size > MAX_SOURCE:
+            raise ValueError('ZIP source size limit exceeded')
+        stream.seek(max(0, size - (22 + 65535 + 20)))
+        tail = stream.read(22 + 65535 + 20)
+        end = tail.rfind(b'PK\x05\x06')
+        if end < 0 or len(tail) - end < 22:
+            raise ValueError('invalid ZIP end directory')
+        _, disk, start_disk, disk_count, count, directory_size, offset, comment = struct.unpack_from('<4s4H2IH', tail, end)
+        if end + 22 + comment != len(tail):
+            raise ValueError('invalid ZIP end/comment boundary')
+        if (count == 65535 or disk_count == 65535
+                or directory_size == 0xffffffff or offset == 0xffffffff
+                or tail[max(0, end - 20):end - 16] == b'PK\x06\x07'):
+            raise ValueError('ZIP64 directory unsupported')
+        if disk or start_disk or disk_count != count:
+            raise ValueError('multi-disk/inconsistent ZIP directory unsupported')
+        if count > MAX_MEMBERS or directory_size > MAX_METADATA:
+            raise ValueError('ZIP directory count/size limit exceeded')
+        end_offset = size - len(tail) + end
+        if offset + directory_size != end_offset:
+            raise ValueError('inconsistent ZIP directory bounds')
+        stream.seek(offset)
+        total, actual = 0, 0
+        # Do not trust the EOCD count: Python itself parses until directory_size.
+        while stream.tell() < end_offset:
+            header = stream.read(min(46, end_offset - stream.tell()))
+            if len(header) != 46 or header[:4] != b'PK\x01\x02':
+                raise ValueError('invalid ZIP central directory record')
+            compressed, expanded = struct.unpack_from('<II', header, 20)
+            name_len, extra_len, comment_len, member_disk = struct.unpack_from('<4H', header, 28)
+            local_offset = struct.unpack_from('<I', header, 42)[0]
+            if 0xffffffff in (compressed, expanded, local_offset) or member_disk == 65535:
+                raise ValueError('ZIP64 directory entry unsupported')
+            if member_disk:
+                raise ValueError('multi-disk ZIP directory unsupported')
+            actual += 1
+            total += expanded
+            if actual > MAX_MEMBERS or expanded > MAX_MEMBER or total > MAX_EXPANDED:
+                raise ValueError('ZIP directory member/expanded limit exceeded')
+            next_record = stream.tell() + name_len + extra_len + comment_len
+            if next_record > end_offset or not name_len:
+                raise ValueError('invalid ZIP directory entry bounds')
+            stream.seek(name_len, os.SEEK_CUR)
+            extra = stream.read(extra_len)  # At most 65535 bytes, never whole directory.
+            index = 0
+            while index < len(extra):
+                if index + 4 > len(extra):
+                    raise ValueError('invalid ZIP directory extra field')
+                kind, length = struct.unpack_from('<HH', extra, index)
+                index += 4 + length
+                if kind == 1:
+                    raise ValueError('ZIP64 directory extra unsupported')
+                if index > len(extra):
+                    raise ValueError('invalid ZIP directory extra bounds')
+            stream.seek(next_record)
+        if actual != count:
+            raise ValueError('inconsistent ZIP directory count')
+
+
 @contextmanager
 def members(path, fmt):
     """Expose regular-file streams without ever extracting upstream paths."""
@@ -99,6 +179,7 @@ def members(path, fmt):
                         yield member.name, member.isdir(), member.size, lambda m=member: archive.extractfile(m)
                 yield entries()
     elif fmt == 'zip':
+        preflight_zip(path)
         with zipfile.ZipFile(path) as archive:
             if len(archive.infolist()) > MAX_MEMBERS:
                 raise ValueError('member count limit exceeded')
@@ -209,6 +290,11 @@ def load_pins(path):
         if source['format'] not in ('zip', 'tar.gz', 'raw'):
             raise ValueError('unsupported source format')
         check_url(source['url'])
+    if {s['id']: s['format'] for s in pins['sources']} != SOURCE_ROLES:
+        raise ValueError('required version 1 source roles/formats missing or changed')
+    if (len(pins['retain']) != len(REQUIRED_RETAIN)
+            or any(r not in pins['retain'] for r in REQUIRED_RETAIN)):
+        raise ValueError('required version 1 retained notices missing or changed')
     paths = set()
     for retained in pins['retain']:
         name = safe_name(retained['path'])
@@ -231,9 +317,15 @@ def inspect_sources(pins, cache, fetch=False):
         check_blob(path, source)
         if source['format'] != 'raw':
             records = archive_inventory(path, source['format'])
+            if not any(r['type'] == 'file' and r['size'] > 0 for r in records):
+                raise ValueError('empty required source archive')
             if membership_summary(records) != source['membership']:
                 raise ValueError(f'archive membership mismatch: {source["id"]}')
             inventories[source['id']] = records
+    sources = {s['id']: s for s in pins['sources']}
+    metadata = json.loads(retained_bytes(sources['core'], cache, 'package/package.json'))
+    if any(metadata.get(k) != v for k, v in dict(name='hl7.fhir.r4.core', version='4.0.1', license='CC0-1.0').items()):
+        raise ValueError('core package identity/license mismatch')
     return inventories
 
 
@@ -261,10 +353,6 @@ def build(pins_path, cache, output, fetch=False):
     cache.mkdir(parents=True, exist_ok=True)
     inventories = inspect_sources(pins, cache, fetch)
     sources = {s['id']: s for s in pins['sources']}
-    if 'core' in sources:
-        metadata = json.loads(retained_bytes(sources['core'], cache, 'package/package.json'))
-        if any(metadata.get(k) != v for k, v in dict(name='hl7.fhir.r4.core', version='4.0.1', license='CC0-1.0').items()):
-            raise ValueError('core package identity/license mismatch')
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=output.parent) as temp:
         stage = Path(temp)
@@ -319,6 +407,16 @@ def verify(bundle):
         pin_path = stage / 'pins.json'
         pin_path.write_bytes(pin_bytes)
         pins = load_pins(pin_path)
+        required = {PINS, 'README.md', 'manifest.json', *TOOLS}
+        required.update(r['path'] for r in REQUIRED_RETAIN)
+        required.update('sources/' + s['sha256'] for s in pins['sources'])
+        required.update(f'inventories/{s["id"]}.json' for s in pins['sources'] if s['format'] != 'raw')
+        if set(archive.namelist()) != required:
+            raise ValueError('required version 1 bundle structure mismatch')
+        for name in required - {'manifest.json'}:
+            info = archive.getinfo(name)
+            if not info.file_size or (not name.startswith('sources/') and info.file_size > MAX_METADATA):
+                raise ValueError('required bundle support empty or metadata limit exceeded')
         cache = stage / 'cache'
         cache.mkdir()
         for source in pins['sources']:
