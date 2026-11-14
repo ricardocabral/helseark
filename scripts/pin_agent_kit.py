@@ -69,7 +69,7 @@ def pin():
     for name in references:
         if not any(f['path']==name for a in lock['artifacts'] for f in a['files']):
             version=Path(name).parent.name if name.startswith('schemas/') else '0.1.0'
-            lock['artifacts'].append({'packageId':'helseark-reference-'+Path(name).stem,'version':version,'license':'Apache-2.0','origin':'repository-authored','files':[{'path':name}]})
+            lock['artifacts'].append({'packageId':'helseark-reference-'+Path(name).stem,'version':version,'license':'MIT','origin':'repository-authored','files':[{'path':name}]})
     for artifact in lock['artifacts']:
         for entry in artifact['files']:
             data=(ROOT/entry['path']).read_bytes(); entry.update(sha256=digest(data),size=len(data))

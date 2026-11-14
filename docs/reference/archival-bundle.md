@@ -37,6 +37,10 @@ moving package registries. Pins must be reviewed and updated explicitly if an
 official download changes. Recorded HTTP Last-Modified is server metadata, not
 proof of the original release date or a cryptographic publisher signature.
 
+New bundles include the project MIT license. Verification also accepts original
+version-1 bundles without that added file; existing archives are not rewritten.
+When present, the license is covered by the manifest and nonempty-file checks.
+
 ## Contents and completeness
 
 | Bundle path | Meaning |
@@ -48,6 +52,7 @@ proof of the original release date or a cryptographic publisher signature.
 | `licenses/specification-license.html` | Exact license page inside the whole specification ZIP |
 | `licenses/core-package.json` | Exact core package identity/version/license declaration |
 | `licenses/cc0.html` | Exact CC0 1.0 legal text |
+| `LICENSE` | MIT license for the bundled Helseark builder/docs; present in new bundles |
 | `manifest.json` | Size/SHA-256 of every other bundle file |
 | `README.md`, `docs/reference/archival-bundle.md`, `scripts/build_archival_bundle.py` | Offline instructions and the standalone builder/verifier |
 
@@ -179,9 +184,9 @@ Java runtime, IG packages or transitive validator dependencies are added here.
 This bundle is complete for the named core/specification source archives; it
 is not a self-contained general terminology validation environment. Separate
 licensing and offline qualification are required before adding such dependencies.
-The upstream content retains its own licenses. The project design proposes
-Apache-2.0 for Helseark's own code/docs; this bundle does not grant a new license
-to third-party material or establish project-wide licensing.
+The upstream content retains its own licenses. Helseark's own code/docs use
+the [MIT License](../../LICENSE); this bundle does not grant a new license to
+third-party material. Retained upstream notices remain authoritative for those materials.
 
 Sources reviewed on 2026-11-14: [official R4 downloads](https://hl7.org/fhir/R4/downloads.html),
 [R4 license and legal terms](https://hl7.org/fhir/R4/license.html),

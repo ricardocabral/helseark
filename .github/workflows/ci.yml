@@ -9,14 +9,15 @@ permissions:
 
 jobs:
   test-and-build:
-    name: Python 3.12 / ${{ matrix.os }}
+    name: Python 3.12 / ${{ matrix.os }} / ${{ matrix.test-group }}
     runs-on: ${{ matrix.os }}
-    # The full suite exceeded 25 minutes on hosted Ubuntu; keep all tests and builds.
-    timeout-minutes: 45
+    # Partition the full suite so archive I/O stays within a bounded job window.
+    timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
+        test-group: [agent, core]
     steps:
       - name: Check out repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -37,11 +38,21 @@ jobs:
         run: |
           uv run --no-sync python -c "import importlib.metadata, pypdf; assert importlib.metadata.version('pypdf') == pypdf.__version__ == '7.0.0'"
 
-      - name: Run full test suite
-        run: uv run --no-sync pytest
+      - name: Run agent context and workflow tests
+        if: matrix.test-group == 'agent'
+        run: uv run --no-sync pytest tests/test_agent_context.py tests/test_agent_workflows.py
+
+      - name: Run all remaining tests
+        if: matrix.test-group == 'core'
+        run: uv run --no-sync pytest --ignore=tests/test_agent_context.py --ignore=tests/test_agent_workflows.py
 
       - name: Build source distribution and wheel
+        if: matrix.test-group == 'core'
         run: uv build --no-sources
+
+      - name: Verify built distribution licensing
+        if: matrix.test-group == 'core'
+        run: uv run --no-sync python tests/qualify_distribution.py dist
 
   base-optionality:
     name: Base-only PDF optionality / ${{ matrix.os }}

@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "ffd3947fa49008e128ef3f77a202339148239af38609d1eadb21286c157c0bf6",
+    "definitionLockSha256": "8e5a8c3abb25f4875602ad89629d2d1813cbdb7b489365429dc9ff7dbf766b38",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "ffd3947fa49008e128ef3f77a202339148239af38609d1eadb21286c157c0bf6",
-      "size": 32595
+      "sha256": "8e5a8c3abb25f4875602ad89629d2d1813cbdb7b489365429dc9ff7dbf766b38",
+      "size": 32830
     },
     {
       "path": "docs/how-to/import-report.md",
@@ -144,8 +144,8 @@
     },
     {
       "path": "profiles/r4/0.1.0/package.json",
-      "sha256": "35e2ed6a403dcca342b5d7553e7e0dd1b0a5dfe4cd06d92f3a1c63ea6cae723c",
-      "size": 402
+      "sha256": "d956741803826333dae2812372489683c4fba0df6819834df18370dd2f2a142a",
+      "size": 395
     },
     {
       "path": "prompts/extract-report.md",
@@ -283,7 +283,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.5",
+  "kitVersion": "0.1.6",
   "prompts": [
     {
       "id": "extract-report",
