@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "18e43f21b61c9a809b64340dfd9d2e9b324561dbac69912076d8fd8a2427ddd0",
-          "size": 16569
+          "sha256": "b3c55ba9adeb8f51a498240cedc6a95955a7d0761fb4b29e0926c1c0b81d6f09",
+          "size": 16947
         }
       ],
       "license": "Apache-2.0",
