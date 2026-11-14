@@ -1,4 +1,199 @@
 {
+  "$defs": {
+    "officialValidationAuthority": {
+      "additionalProperties": false,
+      "description": "Host-created original execution binding, retained by human review. Never adopted from editable report or producer metadata.",
+      "properties": {
+        "authorityVersion": {
+          "const": 1
+        },
+        "baseChangeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "baselineSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "bundleSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "candidateSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "definitionLockSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "executionId": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "officialRunSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "outcomeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "personId": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        },
+        "proposalSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "reportSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "requestSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "requireTerminology": {
+          "type": "boolean"
+        },
+        "runtimeInputs": {
+          "additionalProperties": false,
+          "properties": {
+            "configuration": {
+              "additionalProperties": false,
+              "properties": {
+                "executablePath": {
+                  "type": "string"
+                },
+                "executableSha256": {
+                  "pattern": "^[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                "javaPath": {
+                  "type": "string"
+                },
+                "packageDirectory": {
+                  "type": "string"
+                },
+                "profileDirectory": {
+                  "type": "string"
+                },
+                "requireTerminology": {
+                  "type": "boolean"
+                },
+                "timeoutSeconds": {
+                  "maximum": 600,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "version": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "executablePath",
+                "executableSha256",
+                "version",
+                "packageDirectory",
+                "profileDirectory",
+                "timeoutSeconds",
+                "requireTerminology",
+                "javaPath"
+              ],
+              "type": "object"
+            },
+            "files": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "artifact": {
+                    "enum": [
+                      "validator",
+                      "package",
+                      "profile",
+                      "java-runtime"
+                    ]
+                  },
+                  "kind": {
+                    "enum": [
+                      "file",
+                      "symlink"
+                    ]
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "pattern": "^[0-9a-f]{64}$",
+                    "type": "string"
+                  },
+                  "size": {
+                    "minimum": 0,
+                    "type": "integer"
+                  },
+                  "target": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "artifact",
+                  "path",
+                  "kind"
+                ],
+                "type": "object"
+              },
+              "maxItems": 11000,
+              "minItems": 1,
+              "type": "array"
+            }
+          },
+          "required": [
+            "configuration",
+            "files"
+          ],
+          "type": "object"
+        },
+        "runtimeInputsSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "sourceInventorySha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "vaultId": {
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "authorityVersion",
+        "executionId",
+        "vaultId",
+        "personId",
+        "proposalSha256",
+        "candidateSha256",
+        "baseChangeSha256",
+        "definitionLockSha256",
+        "reportSha256",
+        "officialRunSha256",
+        "outcomeSha256",
+        "bundleSha256",
+        "requestSha256",
+        "baselineSha256",
+        "sourceInventorySha256",
+        "runtimeInputsSha256",
+        "requireTerminology",
+        "runtimeInputs"
+      ],
+      "type": "object"
+    }
+  },
   "$id": "urn:helseark:schema:0.1.0:review",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
@@ -56,6 +251,9 @@
         "accept",
         "accept-with-acknowledged-limitations"
       ]
+    },
+    "officialValidationAuthority": {
+      "$ref": "#/$defs/officialValidationAuthority"
     },
     "personId": {
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",

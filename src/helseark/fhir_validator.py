@@ -53,7 +53,15 @@ def _artifacts(config, home):
         _error('INVALID_INPUT', 'Validator deadline must be 1–600 seconds and terminology policy boolean.')
     if not Path(config.javaPath).is_file() or not os.access(config.javaPath, os.X_OK):
         _error('VALIDATOR_UNAVAILABLE', 'Explicit local Java executable is unavailable.')
-    (home.parent/'validator.jar').write_bytes(jar_data)
+    # A private pathname isolates manifest Class-Path resolution. An immutable
+    # same-filesystem hardlink avoids another 200 MB copy; never overwrite it.
+    relocated=home.parent/'validator.jar'
+    try:
+        os.link(config.executablePath,relocated)
+    except OSError:
+        if relocated.exists() or relocated.is_symlink():
+            _error('VALIDATOR_MISSING_ARTIFACT','Private validator pathname already exists.')
+        with relocated.open('xb') as stream:stream.write(jar_data)
     directory = Path(config.packageDirectory)
     expected = {p['filename'] for p in lock['packages']}
     if directory.is_symlink() or not directory.is_dir() or {p.name for p in directory.iterdir()} != expected:
@@ -168,7 +176,13 @@ def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorCon
     """
     if config is None:
         _error('VALIDATOR_UNAVAILABLE', 'Required full check has no explicit validator configuration.')
+    _preparation_control(vault,proposal)
+    from .archive import _json
+    if 'officialValidationAuthority' not in _json(vault.root,'definitions/schemas/0.1.0/review.schema.json')['properties']:
+        _error('UNSUPPORTED_VERSION','Pinned review contract cannot retain authenticated executions; preserve old pins and use a compatible workflow.')
     baseline, bundle, mapping = _context(vault, proposal)
+    execution_id=_begin_execution(vault,proposal,config)
+    runtime_inputs=_runtime_inputs(config)
     issues, counts, run = _run_bundle(vault, bundle, mapping, config)
     coverage = tuple(c for c in baseline.coverage if c.family not in ('full-fhir','terminology')) + (
         CheckCoverage('full-fhir','failed' if counts['errors'] else 'passed',
@@ -181,6 +195,9 @@ def validate_with_official_tool(proposal: PreparedProposal, config: ValidatorCon
     from .archive import _schema
     from .agent_context import document
     _schema(vault,'validation',document(report))
+    if runtime_inputs!=_runtime_inputs(config):
+        _error('VALIDATOR_RUNTIME_CHANGED','Execution inputs changed while the actual validator ran.')
+    _retain_execution(vault,proposal,report,runtime_inputs,baseline,execution_id)
     return report
 
 
@@ -198,11 +215,13 @@ def _run_bundle(vault, bundle, mapping, config):
                    '-jar', str(root/'validator.jar'), str(source), '-version','4.0.1',
                    '-ig',str(profiles), '-tx','n/a', '-txCache',str(root/'tx'),
                    '-no-http-access','-disable-default-resource-fetcher','-output',str(output)]
+        environment={'PATH':'/usr/bin:/bin','HOME':str(home),'LANG':'C.UTF-8'}
+        process_command=_network_command(command)
         started = time.monotonic()
         try:
             with (root/'process.log').open('wb') as log:
-                result = subprocess.run(_network_command(command), cwd=root,
-                    env={'PATH':'/usr/bin:/bin','HOME':str(home),'LANG':'C.UTF-8'},
+                result = subprocess.run(process_command, cwd=root,
+                    env=environment,
                     stdout=log, stderr=subprocess.STDOUT, timeout=config.timeoutSeconds, check=False)
             if not output.is_file():
                 _error('VALIDATOR_PROCESS_FAILED', 'Validator failed before producing its machine outcome (check Java and OS confinement).')
@@ -221,7 +240,7 @@ def _run_bundle(vault, bundle, mapping, config):
                'outcomeSha256':hash_bytes(encode_json(decode_json(data))),
                'operationOutcome':decode_json(data), 'counts':counts,
                'networkPolicy':'macOS sandbox deny network*' if sys.platform == 'darwin' else 'Linux isolated network namespace',
-               'command':command, 'javaRelease':_bytes(Path(config.javaPath).parent.parent/'release',16384).decode('utf-8'),
+               'command':command, 'processCommand':process_command, 'environment':environment, 'javaRelease':_bytes(Path(config.javaPath).parent.parent/'release',16384).decode('utf-8'),
                'arguments':['-version','4.0.1','-ig','<pinned-profiles>','-tx','n/a','-no-http-access','-disable-default-resource-fetcher'],
                'resourceCount':len(bundle['entry']), 'requireTerminology':config.requireTerminology}
     return issues, counts, run
@@ -229,6 +248,7 @@ def _run_bundle(vault, bundle, mapping, config):
 
 def verify_recorded_run(vault, proposal):
     """Rebind retained tool evidence without rerunning Java or changing elapsed time."""
+    verify_pending_execution(vault,proposal)
     baseline, bundle, mapping = _context(vault, proposal)
     run = proposal.validation.officialRun
     if run['bundleSha256'] != hash_bytes(encode_json(bundle)) or run['mapping'] != mapping or run['version'] != _lock()['version'] or run['executableSha256'] != _lock()['executableSha256']:
@@ -274,3 +294,202 @@ def load_validator_config(path: Path) -> ValidatorConfig:
         return ValidatorConfig(**value)
     except (ValueError, TypeError, KeyError):
         _error('INVALID_INPUT', 'Validator configuration requires exact documented fields and absolute paths.')
+
+
+def _runtime_inputs(config: ValidatorConfig) -> dict:
+    """Read-only identity of configured inputs, including the complete JRE."""
+    from .agent_context import document
+    import hashlib
+    files, total = [], 0
+    def retain(artifact, root, relative):
+        nonlocal total
+        path = root/relative
+        if path.is_symlink():
+            if not path.resolve().is_relative_to(root.resolve()):
+                _error('VALIDATOR_RUNTIME_CHANGED','Runtime symlink leaves the selected runtime.')
+            files.append({'artifact':artifact,'path':relative,'kind':'symlink','target':os.readlink(path)})
+            return
+        if not path.is_file() or path.stat().st_size > 256*1024*1024:
+            _error('VALIDATOR_RUNTIME_CHANGED','Configured runtime input is missing or unsafe.')
+        digest = hashlib.sha256(); size = 0
+        with path.open('rb') as stream:
+            while block := stream.read(1024*1024):
+                size += len(block); total += len(block)
+                if size > 256*1024*1024 or total > 1024*1024*1024:
+                    _error('VALIDATOR_RUNTIME_CHANGED','Runtime input inventory exceeds supported bounds.')
+                digest.update(block)
+        files.append({'artifact':artifact,'path':relative,'kind':'file','sha256':digest.hexdigest(),'size':size})
+    jar=Path(config.executablePath).absolute()
+    retain('validator',jar.parent,jar.name)
+    packages=Path(config.packageDirectory)
+    if packages.is_symlink() or not packages.is_dir() or {p.name for p in packages.iterdir()} != {p['filename'] for p in _lock()['packages']}:
+        _error('VALIDATOR_RUNTIME_CHANGED','Configured package directory no longer has the exact artifact closure.')
+    for pin in _lock()['packages']:
+        retain('package',packages,pin['filename'])
+    profiles=Path(config.profileDirectory)
+    for path in sorted(profiles.glob('StructureDefinition-*.json')):
+        retain('profile',profiles,path.name)
+    home=Path(config.javaPath).absolute().parent.parent
+    if not (home/'release').is_file():
+        _error('VALIDATOR_RUNTIME_CHANGED','Selected Java home has no release metadata.')
+    if not os.access(config.javaPath,os.X_OK):
+        _error('VALIDATOR_RUNTIME_CHANGED','Configured Java executable is unavailable.')
+    runtime_root=home.parent.parent if home.name=='Home' and home.parent.name=='Contents' else home
+    count=0
+    def unreadable(error):
+        _error('VALIDATOR_RUNTIME_CHANGED','Java runtime inventory cannot be read completely.')
+    for directory, dirs, names in os.walk(runtime_root,followlinks=False,onerror=unreadable):
+        count+=len(dirs)+len(names)
+        if count>10000:
+            _error('VALIDATOR_RUNTIME_CHANGED','Java runtime inventory exceeds supported bounds.')
+        for name in sorted([*dirs,*names]):
+            path=Path(directory)/name
+            if path.is_symlink() or path.is_file():
+                retain('java-runtime',runtime_root,path.relative_to(runtime_root).as_posix())
+    return {'configuration':document(config),'files':sorted(files,key=lambda f:(f['artifact'],f['path']))}
+
+
+def _preparation_control(vault, proposal):
+    from .archive import _safe,_json
+    path=_safe(vault.root,f'.runtime/prepared/{proposal.proposalSha256}.json')
+    if not path.is_file():
+        _error('VALIDATOR_AUTHORITY_REQUIRED','Original host preparation authority is missing; prepare and review again.')
+    value=_json(path.parent,path.name)
+    if value.get('validationAuthorityVersion')!=1 or set(value) != {'candidatePath','validationAuthorityVersion','baselineValidationSha256','officialExecutionId','officialRequestSha256'}:
+        _error('VALIDATOR_AUTHORITY_REQUIRED','Legacy or ambiguous pending workflow requires fresh preparation; no execution was attested.')
+    return path,value
+
+
+def _execution_scope(vault, proposal_value):
+    selected={k:proposal_value.get(k) for k in ('resources','assets','inputs','evidenceSha256','importReview')}
+    return {'vaultId':vault.config.vaultId,'personId':proposal_value['personId'],
+            'proposalSha256':hash_bytes(encode_json(proposal_value)),
+            'candidateSha256':proposal_value['candidateSha256'],
+            'baseChangeSha256':proposal_value['baseChangeSha256'],
+            'definitionLockSha256':vault.config.definitionLockSha256,
+            'sourceInventorySha256':hash_bytes(encode_json(selected))}
+
+
+def verify_retained_execution(vault, proposal_value, validation, authority, *, allow_legacy=False):
+    """Check immutable receipt binding without work, current tools or Java.
+
+    Only verified accepted history may permit a readonly legacy report whose
+    original pinned schema predates execution authority. No attestation is made.
+    """
+    from .archive import _json,_schema
+    run=validation.get('officialRun')
+    if run is None:
+        if authority is not None:
+            _error('VALIDATOR_AUTHORITY_MISMATCH','Execution authority cannot be detached from its original report.')
+        return False
+    if authority is None:
+        schema=_json(vault.root,'definitions/schemas/0.1.0/review.schema.json')
+        if allow_legacy and 'officialValidationAuthority' not in schema['properties']:
+            return False
+        _error('VALIDATOR_AUTHORITY_REQUIRED','Original official execution authority is missing.')
+    _schema(vault,'official-validation-authority',authority)
+    expected={**_execution_scope(vault,proposal_value),
+              'requestSha256':hash_bytes(encode_json(authority['runtimeInputs']['configuration'])),
+              'reportSha256':hash_bytes(encode_json(validation)),
+              'officialRunSha256':hash_bytes(encode_json(run)),
+              'outcomeSha256':hash_bytes(encode_json(run['operationOutcome'])),
+              'bundleSha256':run['bundleSha256'],'requireTerminology':run['requireTerminology']}
+    if any(authority.get(k)!=v for k,v in expected.items()) or authority['runtimeInputsSha256'] != hash_bytes(encode_json(authority['runtimeInputs'])):
+        _error('VALIDATOR_AUTHORITY_MISMATCH','Report, execution inputs, policy or proposal scope differ from original host authority.')
+    config=authority['runtimeInputs']['configuration']
+    if (config['requireTerminology']!=run['requireTerminology'] or config['timeoutSeconds']!=run['timeoutSeconds'] or
+            config['executableSha256']!=run['executableSha256'] or config['version']!=run['version']):
+        _error('VALIDATOR_AUTHORITY_MISMATCH','Required execution policy or runtime identity changed.')
+    return True
+
+
+def verify_pending_execution(vault, proposal):
+    """Authenticate pending reports against independently host-held state."""
+    from .archive import _safe,_json
+    from .agent_context import document
+    _,control=_preparation_control(vault,proposal)
+    path=_safe(vault.root,f'.runtime/official-validation/{proposal.proposalSha256}.json')
+    if control['officialExecutionId'] is None and control['officialRequestSha256'] is None and not path.exists():
+        if proposal.validation.officialRun is not None:
+            _error('VALIDATOR_AUTHORITY_REQUIRED','An old report cannot supply original execution authority; rerun the actual tool.')
+        if hash_bytes(encode_json(document(proposal.validation)))!=control['baselineValidationSha256']:
+            _error('VALIDATOR_AUTHORITY_MISMATCH','Baseline report differs from original host preparation.')
+        return None
+    if not path.is_file():
+        _error('VALIDATOR_AUTHORITY_REQUIRED','Original host official execution authority is missing.')
+    authority=_json(path.parent,path.name)
+    if authority.get('executionId')!=control['officialExecutionId'] or authority.get('requestSha256')!=control['officialRequestSha256']:
+        _error('VALIDATOR_AUTHORITY_MISMATCH','Host execution generation changed or was only partially retained.')
+    verify_retained_execution(vault,_json(proposal.path,'proposal.json'),document(proposal.validation),authority)
+    config=dict(authority['runtimeInputs']['configuration'])
+    for field in ('executablePath','packageDirectory','profileDirectory','javaPath'):
+        config[field]=Path(config[field])
+    try:
+        inputs=_runtime_inputs(ValidatorConfig(**config))
+    except (OSError,ArchiveError):
+        _error('VALIDATOR_RUNTIME_CHANGED','Original pending execution inputs are unavailable or changed.')
+    if inputs!=authority['runtimeInputs']:
+        _error('VALIDATOR_RUNTIME_CHANGED','Configured tool, complete Java runtime, packages, profiles or policy changed after execution.')
+    if (proposal.path/'review.json').exists():
+        review=_json(proposal.path,'review.json')
+        if review.get('officialValidationAuthority')!=authority:
+            _error('VALIDATOR_AUTHORITY_MISMATCH','Execution changed after the human decision; prepare and review again.')
+    return authority
+
+
+def _retain_execution(vault, proposal, report, runtime_inputs, baseline, execution_id):
+    """Host-only post-execution checkpoint; never adopts an existing report."""
+    from .archive import _safe,_json,_schema,_writer_lock
+    from .agent_context import document
+    from .validation import verify_baseline_reconciliation
+    with _writer_lock(vault):
+        _,control=_preparation_control(vault,proposal)
+        request_sha=hash_bytes(encode_json(runtime_inputs['configuration']))
+        if control['officialExecutionId']!=execution_id or control['officialRequestSha256']!=request_sha:
+            _error('VALIDATOR_AUTHORITY_MISMATCH','A newer execution request superseded this result.')
+        fresh,bundle,_=_context(vault,proposal)
+        verify_baseline_reconciliation(fresh,report)
+        if hash_bytes(encode_json(bundle))!=report.officialRun['bundleSha256'] or fresh!=baseline:
+            _error('VALIDATOR_AUTHORITY_MISMATCH','Inputs or baseline changed during actual validation.')
+        authority={'authorityVersion':1,'executionId':execution_id,'requestSha256':request_sha,
+                   **_execution_scope(vault,_json(proposal.path,'proposal.json')),
+                   'reportSha256':hash_bytes(encode_json(document(report))),
+                   'officialRunSha256':hash_bytes(encode_json(report.officialRun)),
+                   'outcomeSha256':report.officialRun['outcomeSha256'],
+                   'bundleSha256':report.officialRun['bundleSha256'],
+                   'baselineSha256':hash_bytes(encode_json(document(baseline))),
+                   'requireTerminology':report.officialRun['requireTerminology'],
+                   'runtimeInputs':runtime_inputs,'runtimeInputsSha256':hash_bytes(encode_json(runtime_inputs))}
+        _schema(vault,'official-validation-authority',authority)
+        path=_safe(vault.root,f'.runtime/official-validation/{proposal.proposalSha256}.json')
+        path.parent.mkdir(parents=True,exist_ok=True,mode=0o700)
+        _replace_host_control(path,authority)
+
+
+def _replace_host_control(target, value):
+    """Atomic durable host checkpoints; interrupted multi-file state fails closed."""
+    from tempfile import NamedTemporaryFile
+    from .archive import _sync_directory
+    temporary=None
+    try:
+        with NamedTemporaryFile(dir=target.parent,delete=False) as stream:
+            temporary=Path(stream.name);stream.write(encode_json(value));stream.flush();os.fsync(stream.fileno())
+        os.replace(temporary,target);_sync_directory(target.parent)
+    except OSError:
+        _error('IO_ERROR','Original execution authority could not be retained; no result was authorized.')
+    finally:
+        if temporary is not None:temporary.unlink(missing_ok=True)
+
+
+def _begin_execution(vault, proposal, config):
+    """Invalidate prior review authority before a new tool/policy request starts."""
+    from uuid import uuid4
+    from .archive import _writer_lock
+    from .agent_context import document
+    execution_id=str(uuid4())
+    with _writer_lock(vault):
+        path,control=_preparation_control(vault,proposal)
+        control['officialExecutionId']=execution_id
+        control['officialRequestSha256']=hash_bytes(encode_json(document(config)))
+        _replace_host_control(path,control)
+    return execution_id

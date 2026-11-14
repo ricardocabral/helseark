@@ -146,6 +146,26 @@
           "minimum": 0,
           "type": "number"
         },
+        "environment": {
+          "additionalProperties": false,
+          "properties": {
+            "HOME": {
+              "type": "string"
+            },
+            "LANG": {
+              "type": "string"
+            },
+            "PATH": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "PATH",
+            "HOME",
+            "LANG"
+          ],
+          "type": "object"
+        },
         "executableSha256": {
           "pattern": "^[0-9a-f]{64}$",
           "type": "string"
@@ -205,6 +225,13 @@
           "minItems": 9,
           "type": "array"
         },
+        "processCommand": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
         "profiles": {
           "items": {
             "type": "object"
@@ -248,7 +275,9 @@
         "operationOutcome",
         "requireTerminology",
         "command",
-        "javaRelease"
+        "javaRelease",
+        "processCommand",
+        "environment"
       ],
       "type": "object"
     }

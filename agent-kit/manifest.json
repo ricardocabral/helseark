@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d",
+    "definitionLockSha256": "4f52ba6bf7a7116b2852fdc598570992078207cbb6da7eb6ad16562dc2e6c18e",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -29,8 +29,8 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "b94354f602aa460edfe172aaec07953be8351548928069be611f5367f84e0d4d",
-      "size": 34826
+      "sha256": "4f52ba6bf7a7116b2852fdc598570992078207cbb6da7eb6ad16562dc2e6c18e",
+      "size": 35246
     },
     {
       "path": "definitions/validator-lock.json",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/how-to/run-offline-validator.md",
-      "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9",
-      "size": 7174
+      "sha256": "461ea9d481f9bd69949c2df128f715b98e3ad819b0637df44ff20f2fe8b141a1",
+      "size": 9727
     },
     {
       "path": "docs/reference/agent-protocol.md",
@@ -94,8 +94,8 @@
     },
     {
       "path": "docs/reference/review.md",
-      "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c",
-      "size": 7113
+      "sha256": "bdea63687a2de7d08a77e043bff0d5df0b85ec8b096fb60cec91fe60415045c8",
+      "size": 8754
     },
     {
       "path": "docs/tutorials/first-archive.md",
@@ -248,19 +248,24 @@
       "size": 4012
     },
     {
+      "path": "schemas/0.1.0/official-validation-authority.schema.json",
+      "sha256": "400f5b590a0c9189c1e0f9b8c1cce409cc5b8c1445a730af451102467552573a",
+      "size": 4823
+    },
+    {
       "path": "schemas/0.1.0/proposal.schema.json",
       "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
       "size": 7165
     },
     {
       "path": "schemas/0.1.0/review.schema.json",
-      "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca",
-      "size": 2184
+      "sha256": "c351c814abaf6c6993b3098adc0b8050f2c4bd5edd73519c909be1f9fcda4714",
+      "size": 7795
     },
     {
       "path": "schemas/0.1.0/validation.schema.json",
-      "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38",
-      "size": 5779
+      "sha256": "1bc9ec42bffebbc4b34775aa5891a45481f4e048cfc5ce9c87847d8161e2ba6f",
+      "size": 6423
     },
     {
       "path": "schemas/0.1.0/vault.schema.json",

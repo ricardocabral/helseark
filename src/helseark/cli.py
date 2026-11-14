@@ -22,6 +22,7 @@ from .agent_context import list_agent_tasks, build_agent_context, _vault_kit, do
 from .validation import schema_packet, validate_candidate, validate_proposal
 
 _EXIT = {
+    "VALIDATOR_AUTHORITY_REQUIRED": 3, "VALIDATOR_AUTHORITY_MISMATCH": 3, "VALIDATOR_RUNTIME_CHANGED": 5,
     "VALIDATOR_UNAVAILABLE": 6, "VALIDATOR_MISSING_ARTIFACT": 6,
     "VALIDATOR_NETWORK_POLICY": 6, "VALIDATOR_DIGEST_MISMATCH": 5,
     "VALIDATOR_PACKAGE_MISMATCH": 5, "VALIDATOR_PROFILE_MISMATCH": 5,

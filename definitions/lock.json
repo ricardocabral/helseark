@@ -24,13 +24,13 @@
         },
         {
           "path": "schemas/0.1.0/review.schema.json",
-          "sha256": "47e2f41505eccca45c2c705a2081ed2c2fa01afc83e900bdbe410264ae56c2ca",
-          "size": 2184
+          "sha256": "c351c814abaf6c6993b3098adc0b8050f2c4bd5edd73519c909be1f9fcda4714",
+          "size": 7795
         },
         {
           "path": "schemas/0.1.0/validation.schema.json",
-          "sha256": "c4be81a7ae7d8b42fc53ac2d0c151b9a826e25c172dc6b0af0c2b6ffbc296d38",
-          "size": 5779
+          "sha256": "1bc9ec42bffebbc4b34775aa5891a45481f4e048cfc5ce9c87847d8161e2ba6f",
+          "size": 6423
         },
         {
           "path": "schemas/0.1.0/vault.schema.json",
@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "25d32aaa45f3e12001717bb74d8e939b1f83684399726dae775ce6e69e7c8d5c",
-          "size": 7113
+          "sha256": "bdea63687a2de7d08a77e043bff0d5df0b85ec8b096fb60cec91fe60415045c8",
+          "size": 8754
         }
       ],
       "license": "Apache-2.0",
@@ -858,8 +858,8 @@
       "files": [
         {
           "path": "docs/how-to/run-offline-validator.md",
-          "sha256": "3efee3de29210d697178e1c15a93c0397434cf75617da0535264750cbb9087a9",
-          "size": 7174
+          "sha256": "461ea9d481f9bd69949c2df128f715b98e3ad819b0637df44ff20f2fe8b141a1",
+          "size": 9727
         }
       ],
       "license": "Apache-2.0",
@@ -904,6 +904,19 @@
       "license": "Apache-2.0",
       "origin": "repository-authored",
       "packageId": "helseark-reference-NOTICE",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/official-validation-authority.schema.json",
+          "sha256": "400f5b590a0c9189c1e0f9b8c1cce409cc5b8c1445a730af451102467552573a",
+          "size": 4823
+        }
+      ],
+      "license": "Apache-2.0",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-official-validation-authority.schema",
       "version": "0.1.0"
     }
   ],

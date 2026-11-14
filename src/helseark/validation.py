@@ -972,3 +972,22 @@ def validate_proposal(vault: Vault, proposalDirectory: Path, *,
     except (TypeError, KeyError, ValueError, IndexError, AttributeError):
         checks.issue('INVALID_ENVELOPE')
     return checks.report(digest)
+
+
+def verify_baseline_reconciliation(fresh: ValidationReport, recorded: ValidationReport) -> None:
+    """Require complete baseline evidence; never fill absent displayed coverage.
+
+    Only the official full-fhir/terminology families may be substituted. This
+    comparison is required even after authenticating the complete tool report.
+    """
+    from collections import Counter
+    substituted = {'full-fhir','terminology'} if recorded.officialRun is not None else set()
+    if (fresh.checkedProposalSha256 != recorded.checkedProposalSha256 or
+            Counter(c for c in fresh.coverage if c.family not in substituted) !=
+            Counter(c for c in recorded.coverage if c.family not in substituted) or
+            substituted and Counter(c.family for c in recorded.coverage if c.family in substituted) != Counter(substituted)):
+        raise ArchiveError('REVIEW_MISMATCH','Complete baseline coverage differs from the reviewed report.')
+    issues = tuple(i for i in recorded.issues if not substituted or
+                   not (i.code.startswith('OFFICIAL_FHIR_') or i.code == 'TERMINOLOGY_UNAVAILABLE'))
+    if fresh.issues != issues:
+        raise ArchiveError('REVIEW_MISMATCH','Baseline limitations differ from the reviewed report.')

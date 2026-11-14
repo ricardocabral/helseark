@@ -121,3 +121,42 @@ surface. Process-error fakes make no conformance claim.
 Sources: [official R4 validation scope and limits](https://hl7.org/fhir/R4/validation.html),
 [qualified validator release](https://github.com/hapifhir/org.hl7.fhir.core/releases/tag/7.0.5),
 [pinned loader source](https://github.com/hapifhir/org.hl7.fhir.core/blob/7.0.5/org.hl7.fhir.validation/src/main/java/org/hl7/fhir/validation/service/ValidationService.java).
+
+## Execution authority and compatibility
+
+The corrected reader records a fresh host execution request outside editable
+proposals, before Java starts. A failed or superseding runtime/policy request
+invalidates the prior result. Only an actual completed validator run can retain
+the original complete report, outcome, coverage and runtime/policy binding.
+A report digest supplied inside the report is never execution authority.
+
+Host workflow state is under `.runtime/prepared` and `.runtime/official-validation`.
+These directories belong to the approved host, outside agent-writable candidate
+and proposal output. The enforced threat boundary permits edits to proposals and
+reports, not these host controls. File mode alone is not a hostile-host sandbox;
+someone able to rewrite all host controls and the whole archive remains outside
+this integrity guarantee. No signature or verified human identity is asserted.
+
+Human review retains `officialValidationAuthority` in its digest-bound receipt;
+accepted history then needs neither work controls nor installed Java to verify
+that original binding. Missing or changed pending authority, scope, report,
+command, environment, complete JRE (including macOS bundle files), packages,
+profiles or required policy blocks review/commit. Every nonofficial baseline
+family, result, reason and multiplicity must still match fresh validation.
+Only `full-fhir` and `terminology` can be substituted by the authenticated result.
+Extraction accuracy and clinical correctness remain unverified.
+
+New pending preparations record their original baseline report and authority
+version. Older ambiguous pending controls are rejected; prepare and explicitly
+review again. Older pinned schemas that cannot retain execution authority block
+new official runs, without automatic repinning. Existing accepted reports retain
+their exact original bytes and pins. When they lack original execution authority,
+readonly review labels their coverage `not-checked`/unattested, preserving stored
+results and limitations in the explanation. It never invents a retrospective
+execution attestation. Use the corrected reader for this guarantee.
+
+The JAR gets a private temporary pathname so adjacent manifest Class-Path files
+cannot be loaded. On the same filesystem this uses a hardlink to the verified
+immutable JAR, otherwise an exclusive byte copy. Original input byte inventories
+are checked before/after execution; reference tools are not rewritten. Runtime
+and terminology byte pins and acquisition URLs are unchanged by this correction.

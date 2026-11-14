@@ -294,7 +294,7 @@ def _verify_inputs(directory: Path, proposal: dict):
         raise ArchiveError('REVIEW_MISMATCH','Retained candidate digest or person differs.')
 
 
-def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None):
+def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None, *, accepted=False):
     with _stored_location(vault, directory):
         proposal = _json(directory, "proposal.json")
         evidence = _json(directory, "evidence.json")
@@ -321,6 +321,8 @@ def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | Non
                 raise ArchiveError("REVIEW_MISMATCH", "Reviewed payload digests do not match.", {"path": path})
         if any(issue["severity"] == "error" for issue in validation["issues"]) or any(c["result"] == "failed" for c in validation["coverage"]):
             raise ArchiveError("VALIDATION_BLOCKED", "Failed checks cannot be accepted.", {"path": "validation.json"})
+        from .fhir_validator import verify_retained_execution
+        verify_retained_execution(vault,proposal,validation,review.get('officialValidationAuthority'),allow_legacy=accepted)
         _verify_inputs(directory, proposal)
         expected_files = set(_ENVELOPES)
         seen = set()
@@ -383,7 +385,7 @@ def _history(vault: Vault, person: str):
                     or change["personId"] != person or change["versions"] != _versions(vault)
                     or change["previousChangeSha256"] != (base.changeSha256 if base else None)):
                 raise ArchiveError("INTEGRITY", "Accepted chain sequence, identity or parent mismatch.", {"path": directory.relative_to(vault.root).as_posix()})
-            proposal = _verify_payload(vault, person, directory, base)
+            proposal = _verify_payload(vault, person, directory, base, accepted=True)
             if (change["preparedContentSha256"] != hash_bytes(_read(directory, "proposal.json"))
                     or change["resources"] != proposal["resources"] or change["assets"] != proposal["assets"]
                     or change["transactionId"] != proposal["transactionId"]

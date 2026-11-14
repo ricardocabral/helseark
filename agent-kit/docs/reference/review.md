@@ -107,3 +107,29 @@ without rerunning Java or changing elapsed time. Existing reports with no
 `officialRun` preserve their original byte representation. A requested full tool
 that is absent blocks; required terminology blocks in the qualified `-tx n/a`
 mode. See [offline validator](../how-to/run-offline-validator.md).
+
+## Original official-execution authority
+
+A pending report is compared with its independently retained host execution
+checkpoint before review or commit. The checkpoint binds the entire report,
+outcome, original coverage, effective command/environment, complete selected Java
+runtime and other inputs, source inventory, person, vault, proposal and base, and
+required terminology policy. Starting another request supersedes the previous
+checkpoint even when that request fails. Partial or missing host state fails
+closed; mutable producer fields, report hashes or a `change.json` pathname cannot
+create authority.
+
+Human `review.json` retains the checked `officialValidationAuthority`; the ordinary
+immutable change inventory binds that receipt. Work/runtime controls may then be
+removed without losing the original binding. Accepted legacy receipts without it
+remain readable under their unchanged schema pins, with explicit unattested
+coverage in readonly review. Unaccepted legacy workflows require fresh preparation
+and an actual tool rerun where compatible schemas support it. No automatic repin,
+retrospective attestation or general clinical-correctness claim occurs.
+
+Reconciliation compares complete baseline family identities, multiplicities,
+results and reasons. It rejects omissions, duplicates and invented passing
+families, including `medical-diagnosis`; it never fills missing limitations from
+a fresh report for display. Only authenticated official `full-fhir`/`terminology`
+results replace those two baseline families. Host execution authority is a
+separate requirement and does not make incorrect reconciliation acceptable.

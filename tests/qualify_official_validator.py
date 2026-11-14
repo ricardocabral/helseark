@@ -19,6 +19,43 @@ from helseark.fhir_validator import (_lock, _run_bundle, _artifacts,
 from helseark.portability import fhir_collection
 
 
+def network_denial_witness(output):
+    """Reachable host listener first; prove the same confined request is denied."""
+    import errno,json,os,socket,subprocess,sys
+    from helseark.fhir_validator import _network_command
+    listener=socket.socket();listener.settimeout(3)
+    try:
+        listener.bind(('127.0.0.1',0));listener.listen()
+        address=listener.getsockname()
+        code="""import json,os,socket,sys
+namespace=os.readlink('/proc/self/ns/net') if os.path.exists('/proc/self/ns/net') else None
+try:
+ c=socket.create_connection(ADDRESS,timeout=2);c.close()
+except OSError as error:
+ print(json.dumps({'connected':False,'errno':error.errno,'exception':type(error).__name__,'networkNamespace':namespace}));sys.exit(17)
+print(json.dumps({'connected':True,'networkNamespace':namespace}))
+""".replace('ADDRESS',repr(address))
+        command=[sys.executable,'-c',code]
+        positive=subprocess.run(command,capture_output=True,timeout=5)
+        assert positive.returncode==0,(positive.stdout,positive.stderr)
+        control=json.loads(positive.stdout);assert control['connected'] is True
+        connection,_=listener.accept();connection.close()
+        denied=subprocess.run(_network_command(command),capture_output=True,timeout=5)
+        assert denied.returncode==17,(denied.stdout,denied.stderr)
+        confined=json.loads(denied.stdout)
+        assert confined['connected'] is False
+        if sys.platform=='darwin':
+            assert confined['exception']=='PermissionError' and confined['errno'] in (errno.EPERM,errno.EACCES)
+        else:
+            assert control['networkNamespace'] and confined['networkNamespace']!=control['networkNamespace']
+            assert confined['errno'] in (errno.ENETUNREACH,errno.EHOSTUNREACH,errno.ECONNREFUSED,errno.EPERM,errno.EACCES)
+        value={'positiveControl':control,'identicalConfinedRequest':confined}
+        (output/'network-witness.json').write_text(json.dumps(value,indent=2)+'\n')
+        return value
+    finally:
+        listener.close()
+
+
 def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--artifacts',type=Path,required=True)
@@ -31,13 +68,7 @@ def main():
     pins=_lock()
     config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
                            args.artifacts/'packages',root/'profiles/r4/0.1.0',args.timeout_seconds,False,args.java)
-    # Witness the enclosing OS confinement, not just Python socket monkeypatches.
-    from helseark.fhir_validator import _network_command
-    import subprocess,sys
-    witness=subprocess.run(_network_command([sys.executable,'-c',
-        "import socket; socket.create_connection(('1.1.1.1',443),timeout=2)"]),capture_output=True)
-    assert witness.returncode != 0, 'OS network denial witness unexpectedly connected'
-    (args.output/'network-witness.txt').write_bytes(witness.stderr)
+    network_denial_witness(args.output)
     vault=init_vault(args.output/'vault')
     person=add_person(vault,PersonDraft('Synthetic official corpus'))
     initial_head=head(vault,person)
@@ -96,17 +127,17 @@ def main():
     v,p,source,packet,candidate=supplied_candidate(args.output/'workflow')
     proposal=prepare(v,candidate)
     source_bytes=source.assetPath.read_bytes()
-    report=validate_with_official_tool(proposal,config,vault=v)
-    assert b'UNSELECTED SECRET' not in encode_json(report.officialRun)
-    (args.output/'prepared-report.json').write_bytes(encode_json(document(report)))
-    assert next(c.result for c in report.coverage if c.family=='full-fhir')=='passed'
-    assert next(c.result for c in report.coverage if c.family=='terminology')=='not-checked'
     required=validate_with_official_tool(proposal,replace(config,requireTerminology=True),vault=v)
     assert next(c.result for c in required.coverage if c.family=='terminology')=='failed'
     from helseark.review import _blocked
     try: _blocked(required)
     except ArchiveError as error: assert error.code=='VALIDATION_BLOCKED'
     else: raise AssertionError('Required terminology absence did not block')
+    report=validate_with_official_tool(proposal,config,vault=v)
+    assert b'UNSELECTED SECRET' not in encode_json(report.officialRun)
+    (args.output/'prepared-report.json').write_bytes(encode_json(document(report)))
+    assert next(c.result for c in report.coverage if c.family=='full-fhir')=='passed'
+    assert next(c.result for c in report.coverage if c.family=='terminology')=='not-checked'
     (proposal.path/'validation.json').write_bytes(encode_json(document(report)))
     prepared=read_prepared(v,proposal.path)
     receipt=approve(v,prepared)
