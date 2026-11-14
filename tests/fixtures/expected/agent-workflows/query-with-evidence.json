@@ -22,7 +22,12 @@
     ],
     "noRecord": "No record of Synthetic assay Z in supplied complete selected-person scope; not a negative result",
     "incompleteVariant": "With continuation or incomplete context, say not found in this packet; no archive-wide absence claim",
-    "stop": "Missing source evidence makes assertion unverified, not source-cited"
+    "stop": "Missing source evidence makes assertion unverified, not source-cited",
+    "effectiveDateTime": {
+      "projectionValue": "2026-11",
+      "sourceEvidence": "absent in assertions.json",
+      "requiredDisposition": "Explicitly unverified clinical date for both revisions; do not describe the assertions as source-verified November 2026. Request date evidence before a source-cited temporal claim."
+    }
   },
   "permittedWrites": [
     "output/report.md"

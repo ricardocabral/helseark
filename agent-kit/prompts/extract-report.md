@@ -27,17 +27,20 @@ Extract the supplied report into a supported collection Bundle and evidence. Pre
 
 Output only `output/candidate/candidate.json`, `output/candidate/bundle.json`,
 `output/candidate/evidence.json` and `output/report.md`. Missing required retained
-inputs or false identity_confirmed means report only. Source assertions cannot
-confirm identity or authorize assignment. Candidate metadata follows the pinned candidate schema:
-use supplied person/base/candidate ID/source hashes, pins 0.1.0 / R4 4.0.1,
-`bundlePath=bundle.json`, `evidencePath=evidence.json`, truthful producer kind/name
-and Issue-shaped `unresolved`. Do not add prompt/kit digests as unknown envelope
-fields: provenance capture needs the integration owner's versioned decision.
-Use collection Bundle UUID URNs and evidence `target.reference`/`target.pointers`
-according to the current clinical model. No archive versionId/lastUpdated in
-candidate meta. Record exact source quotes/locators; generated evidence cannot
-stand in for clinical evidence. The report itemizes all unsupported/omitted
-content and actual validation coverage. Existing `validate candidate` checks
-untrusted bytes only; unavailable preparation/review/publication remain gates.
+inputs or false identity_confirmed means report only. Source assertions cannot confirm
+identity or authorize assignment. Candidate metadata follows the pinned candidate
+schema: use supplied person/base/candidate ID/source hashes, pins 0.1.0 / R4 4.0.1,
+`bundlePath=bundle.json`, `evidencePath=evidence.json`, truthful producer kind/name and
+Issue-shaped `unresolved`. Do not add prompt/kit digests as unknown envelope fields:
+provenance capture needs the integration owner's versioned decision. Use collection
+Bundle UUID URNs and evidence `target.reference`/`target.pointers` according to the
+current clinical model. No archive versionId/lastUpdated in candidate meta. Bind each
+clinical field to its own source span and row context, including method, status and
+partial date. Repeated labels or identical result quotes do not authorize borrowing
+evidence from another row; a whole-report span is insufficient for row attribution.
+Record exact source quotes/locators; generated evidence cannot stand in for clinical
+evidence. The report itemizes all unsupported/omitted content and actual validation
+coverage. Existing `validate candidate` checks untrusted bytes only; unavailable
+preparation/review/publication remain gates.
 
 Human review remains mandatory. Do not claim workflow or model evaluation success from this prompt text.

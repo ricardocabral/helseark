@@ -11,6 +11,6 @@
     "severity": "review",
     "pointer": null,
     "resourceRef": null,
-    "message": "/unsupported ImagingStudy remains only in retained original; full structured import is not claimed."
+    "message": "/unsupported ImagingStudy remains only in retained original; report it as omitted/not structured, with no complete import claim. This review issue cannot waive unsupported fields emitted in the Bundle or any validation error."
   }
 ]

@@ -25,3 +25,12 @@ resolve all query citations and ensure accepted bytes remain unchanged. Exercise
 adversarial delimiter/slot text, wrong-person data, stale heads, omitted facts,
 unsafe outputs, unavailable commands and continuation. Markdown/frontmatter/link
 checks establish content hygiene only, not agent behavior or extraction quality.
+
+The extraction oracles require exact field/span/quote associations, including
+method evidence only where the source supplies a method. The repeated-label
+fixture includes a same-quote wrong-row counterexample; successful quote/token
+validation does not satisfy that independent row oracle. The query example marks
+its projected month unverified because its raw assertions have no date evidence.
+See the [fixture notes](../../tests/fixtures/synthetic/agent-workflows/README.md)
+for supported-subset coverage and the distinction between omitted incoming
+content and unsupported emitted structured fields.

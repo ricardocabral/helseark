@@ -13,4 +13,7 @@ Contracts: [clinical model](../../../docs/reference/clinical-model.md#identity-r
 
 Prompt routes: [`verify-archive`](../../prompts/verify-archive.md).
 
-Capability dependencies: `agent-context`, `integrity-report`. At base `1b91620`, only `schema-export` and `baseline-validation` exist; dependencies outside that set are unavailable. This skill is draft-only until those dependencies are implemented and evaluated. Existing validation can check an already supplied candidate, but does not provide intake, preparation or publication.
+Capability dependencies: `agent-context`, `integrity-report`. Check availability in the
+[common capability section](../../AGENTS.md#capability-availability), then the trusted
+runtime registry; this dependency list does not establish availability. This skill is
+draft-only until those dependencies are implemented and evaluated.

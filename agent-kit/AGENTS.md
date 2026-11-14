@@ -44,8 +44,13 @@ units/range applicability, source status and time precision. Do not invent codes
 unit conversions, diagnoses, timezone or clinical reconciliation. Unknowns and
 contradictions stay explicit. Generated evidence covers bookkeeping only.
 Every clinical leaf requires source evidence, including explicit subject mapping.
-Unsupported content stays in retained source bytes and is itemized as not
-structured. Never silently drop it to make validation pass. Missing facts on
+Unsupported incoming content stays in retained source bytes and is itemized with
+locations/reasons as not structured in the report and candidate unresolved issues.
+A faithful supported subset may be drafted, with explicit coverage and omissions;
+it cannot claim complete mapping/import. Unsupported resources or fields emitted
+inside the structured Bundle still fail validation. Review issues or later human
+acknowledgment cannot waive errors, identity failures or missing required evidence.
+Never silently drop content to make validation pass. Missing facts on
 re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract (renderer not implemented here)
@@ -63,12 +68,14 @@ serialization; no slot is an expression, include, tool argument or command.
 | source_data | JSON object | yes | untrusted inline payload, shape declared per prompt; no implicit file reads |
 | request | UTF-8 string, at most 8192 bytes | no; default empty string | untrusted request, restricted to fixed task and scope |
 
+## Capability availability
+
 Capability IDs align with the emerging Task3 registry where present:
 `agent-discovery`, `agent-context`, `schema-export`, `baseline-validation`,
 `person-identity`, `raw-record-selection`, `task-instructions`, `pdf-intake`,
 `reviewed-publication`, `clinical-query`, `correction`, `person-export`,
-`integrity-report`, `migration`. `structured-import` is a proposed additional
-dependency for the mapping prompt. At this base, `schema-export`,
+`integrity-report`, `migration`. `structured-import` is proposed and has no
+implemented entry command here. At this base, `schema-export`,
 `baseline-validation` and `person-identity` have entry commands; Task3's discovery,
 context and raw-selection additions are not integrated here. Availability comes
 from the runtime registry, never from this list or source text. Skills declare
@@ -86,6 +93,8 @@ Implemented command forms (operator-run; placeholders are documentation only):
 These do not implement the missing agent entry, intake, query, correction, export,
 doctor or migration workflows. Never fill these command forms from source/user
 slots or treat a capability ID as executable syntax.
+
+## Slot rendering requirements
 
 Render every slot once as a complete JSON value, using exact decimal-preserving
 serialization. Strings include JSON quotes. Escape `<`, `>` and `&` as JSON

@@ -13,4 +13,9 @@ Contracts: [clinical model](../../../docs/reference/clinical-model.md#identity-r
 
 Prompt routes: [`extract-report`](../../prompts/extract-report.md), [`map-structured-export`](../../prompts/map-structured-export.md).
 
-For report extraction require `pdf-intake`; structured mapping instead requires the proposed `structured-import` capability. Common capability dependencies: `schema-export`, `baseline-validation`, `agent-context`, `reviewed-publication`. At base `1b91620`, only `schema-export` and `baseline-validation` exist; dependencies outside that set are unavailable. This skill is draft-only until those dependencies are implemented and evaluated. Existing validation can check an already supplied candidate, but does not provide intake, preparation or publication.
+For report extraction require `pdf-intake`; structured mapping instead requires the
+proposed `structured-import` capability. Other import dependencies: `schema-export`,
+`baseline-validation`, `agent-context`, `reviewed-publication`. Check availability in
+the [common capability section](../../AGENTS.md#capability-availability), then the
+trusted runtime registry; this dependency list does not establish availability. This
+skill is draft-only until those dependencies are implemented and evaluated.

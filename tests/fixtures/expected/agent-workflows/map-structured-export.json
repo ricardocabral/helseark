@@ -6,12 +6,84 @@
     "structured-export.json"
   ],
   "expected": {
-    "sameFactsAs": "extract-report",
+    "quantity": {
+      "valueLexeme": "0.05",
+      "comparator": "<",
+      "unit": "mg/L"
+    },
+    "referenceText": "Women: 0,00–0,50 mg/L; Men: 0,00–0,70 mg/L",
+    "effectiveDateTime": "2026-11",
+    "clockEvidence": "2026-11-10 10:30; timezone not stated",
+    "status": "final",
+    "label": "Synthetic CRP",
+    "method": {
+      "sourcePresence": "absent",
+      "emittedField": "omit /method",
+      "forbiddenValue": "Synthetic assay M1",
+      "reason": "This source supplies no method; report.txt is a separate input, never inherited."
+    },
     "requiredEvidence": [
-      "JSON pointers /result, /referenceText, /collectionMonth, /printedClock"
+      {
+        "targetPointers": [
+          "/valueQuantity/value",
+          "/valueQuantity/comparator",
+          "/valueQuantity/unit"
+        ],
+        "locator": {
+          "kind": "json-pointer",
+          "pointer": "/result"
+        },
+        "quote": "<0,05 mg/L"
+      },
+      {
+        "targetPointers": [
+          "/referenceRange/0/text"
+        ],
+        "locator": {
+          "kind": "json-pointer",
+          "pointer": "/referenceText"
+        },
+        "quote": "Women: 0,00–0,50 mg/L; Men: 0,00–0,70 mg/L"
+      },
+      {
+        "targetPointers": [
+          "/effectiveDateTime"
+        ],
+        "locator": {
+          "kind": "json-pointer",
+          "pointer": "/collectionMonth"
+        },
+        "quote": "2026-11"
+      },
+      {
+        "reportField": "clockEvidence",
+        "locator": {
+          "kind": "json-pointer",
+          "pointer": "/printedClock"
+        },
+        "quote": "2026-11-10 10:30; timezone not stated"
+      }
     ],
-    "unsupported": "ImagingStudy retained as source; do not silently drop or claim full import",
-    "stop": "Unsupported content blocks a complete structured-import claim"
+    "requiredIssues": [
+      "DATE_TIMEZONE_UNKNOWN",
+      "UNSUPPORTED_CONTENT"
+    ],
+    "unsupported": {
+      "sourcePointer": "/unsupported",
+      "resourceType": "ImagingStudy",
+      "disposition": "Retain original bytes; itemize as not structured in unresolved issue and report. A faithful supported subset may be drafted; no complete import claim."
+    },
+    "emittedUnsupportedVariant": "Adding an unsupported resource or element to the Bundle must fail validation even with a review-level UNSUPPORTED_CONTENT issue; acknowledgment cannot waive errors.",
+    "stop": "Missing identity/retained metadata blocks handoff; unsupported incoming content blocks a complete mapping claim.",
+    "sourceSha256": "21badf7752122961b26624c982f4fd28c0a367bac3f388564079ce7ab75f63e2",
+    "noInvented": [
+      "method",
+      "timezone",
+      "sex applicability selection",
+      "coding",
+      "conversion",
+      "diagnosis"
+    ]
   },
   "permittedWrites": [
     "output/candidate/candidate.json",

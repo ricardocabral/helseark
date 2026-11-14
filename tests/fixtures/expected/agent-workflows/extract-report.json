@@ -26,14 +26,110 @@
       "diagnosis"
     ],
     "requiredEvidence": [
-      "result quote and exact locator",
-      "range applicability text",
-      "method",
-      "status",
-      "partial date",
-      "identity confirmation"
+      {
+        "targetPointers": [
+          "/subject/reference"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 49,
+          "end": 67
+        },
+        "quote": "Synthetic Person A"
+      },
+      {
+        "targetPointers": [
+          "/status"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 108,
+          "end": 113
+        },
+        "quote": "final"
+      },
+      {
+        "targetPointers": [
+          "/code/text"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 123,
+          "end": 136
+        },
+        "quote": "Synthetic CRP"
+      },
+      {
+        "targetPointers": [
+          "/valueQuantity/value",
+          "/valueQuantity/comparator",
+          "/valueQuantity/unit"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 145,
+          "end": 155
+        },
+        "quote": "<0,05 mg/L"
+      },
+      {
+        "targetPointers": [
+          "/referenceRange/0/text"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 181,
+          "end": 223
+        },
+        "quote": "Women: 0,00–0,50 mg/L; Men: 0,00–0,70 mg/L"
+      },
+      {
+        "targetPointers": [
+          "/effectiveDateTime"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 242,
+          "end": 249
+        },
+        "quote": "2026-11"
+      },
+      {
+        "targetPointers": [
+          "/method/text"
+        ],
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 311,
+          "end": 329
+        },
+        "quote": "Synthetic assay M1"
+      },
+      {
+        "reportField": "clockEvidence",
+        "locator": {
+          "kind": "text-span",
+          "extractionSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+          "start": 265,
+          "end": 302
+        },
+        "quote": "2026-11-10 10:30; timezone not stated"
+      }
     ],
-    "stop": "Unconfirmed identity or missing retained asset/evidence context blocks candidate handoff"
+    "stop": "Unconfirmed identity or missing retained asset/evidence context blocks candidate handoff",
+    "method": "Synthetic assay M1",
+    "status": "final",
+    "label": "Synthetic CRP",
+    "sourceSha256": "bf8c2a6d6b9c14aa749011568aad1daea28d1cc46785dcd6d3431f058bc59255",
+    "identityConfirmation": "Source person-label span is only a cue; trusted human assignment remains required and cannot be inferred from the quote.",
+    "evidenceScoring": "Check each expected field, exact half-open Unicode code-point span, digest and quote independently of schema/validator success. Whole-report spans do not satisfy this oracle; missing method evidence fails even if JSON is valid."
   },
   "permittedWrites": [
     "output/candidate/candidate.json",
