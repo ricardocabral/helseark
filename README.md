@@ -25,6 +25,10 @@ are not proof of a supported command. No model provider is required or invoked.
 [Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)
 or follow the [synthetic first-intake lesson](https://github.com/ricardocabral/helseark/blob/main/docs/tutorials/first-archive.md).
 Intake produces untrusted drafts; it does not authorize publication.
+Committing a newly prepared proposal before recording a decision returns
+`REVIEW_REQUIRED` (exit 3). Use `candidate review` with `--person` and an explicit
+`--decision` file before committing. Missing receipts in accepted history remain
+integrity failures; damaged review records do not authorize publication.
 
 ## Try a synthetic archive
 

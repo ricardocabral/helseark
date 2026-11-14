@@ -225,13 +225,19 @@ def record_review(vault: Vault, proposal: PreparedProposal, decision: ReviewDeci
 def read_receipt(vault: Vault, proposal: PreparedProposal) -> ReviewReceipt:
     """Reload the recorded human decision using original host/accepted authority."""
     from .archive import _history
-    value=_json(proposal.path,'review.json'); _schema(vault,'review',value)
     accepted=next((change for _,_,change in _history(vault,proposal.personId)
                    if change['preparedContentSha256']==proposal.proposalSha256),None)
     if accepted is not None:
         digest=accepted['payload']['review.json']
     else:
         control=_safe(vault.root,f'.runtime/reviews/{proposal.proposalSha256}.json')
+        receipt=_safe(proposal.path,'review.json')
+        # Only an unaccepted proposal with neither decision artifact is unreviewed.
+        # Missing retained history or a partially lost decision remains corruption.
+        if not receipt.exists() and not control.exists():
+            raise ArchiveError('REVIEW_REQUIRED','No review decision recorded. Run candidate review with --person and --decision before candidate commit.')
+    value=_json(proposal.path,'review.json'); _schema(vault,'review',value)
+    if accepted is None:
         if not control.exists():
             raise ArchiveError('REVIEW_MISMATCH','Original host review digest is missing.')
         digest=_json(control.parent,control.name).get('receiptSha256')
