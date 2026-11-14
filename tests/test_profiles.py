@@ -98,6 +98,39 @@ def test_profiles_are_upstream_structures_with_narrowing_differentials(schema, k
     assert any(c['severity'] == 'error' for e in elements for c in e.get('constraint', []))
 
 
+@pytest.mark.parametrize('kind,slug', NAMES.items())
+def test_differential_order_uses_upstream_snapshots_and_datatype_expansion(kind, slug):
+    elements = read(PROFILES / f'StructureDefinition-helseark-{slug}.json')['differential']['element']
+    snapshot = read(CORE / f'StructureDefinition-{kind}.json')['snapshot']['element']
+    metadata = {e['path']: e for e in snapshot}
+    order = {e['path']: (i,) for i, e in enumerate(snapshot)}
+    # Expand only ancestors needed by this differential. Tuple prefixes put
+    # datatype children after their parent and before the next resource element.
+    needed = {'.'.join(e['path'].split('.')[:depth]) for e in elements
+              for depth in range(1, len(e['path'].split('.')) + 1)}
+    for path in sorted(needed, key=lambda p: (p.count('.'), p)):
+        if path in metadata:
+            continue
+        parent, child = path.rsplit('.', 1)
+        types = metadata[parent]['type']
+        assert len(types) == 1, f'Ambiguous datatype expansion: {parent}'
+        datatype = types[0]['code']
+        children = read(CORE / f'StructureDefinition-{datatype}.json')['snapshot']['element']
+        index, base = next((i, e) for i, e in enumerate(children)
+                           if e['path'] == datatype + '.' + child)
+        metadata[path] = base
+        order[path] = order[parent] + (index,)
+    actual = [order[e['path']] for e in elements]
+    assert actual == sorted(actual), f'{kind}: differential reverses inherited order'
+    if kind == 'DocumentReference':
+        # Reproduce F1 against the same genuine metadata; this must detect it.
+        paths = [e['path'] for e in elements]
+        url = paths.index('DocumentReference.content.attachment.url')
+        title = paths.index('DocumentReference.content.attachment.title')
+        actual[url], actual[title] = actual[title], actual[url]
+        assert actual != sorted(actual)
+
+
 def test_package_exact_release_dependencies():
     package = read(PROFILES / 'package.json')
     assert package['version'] == '0.1.0'
@@ -231,3 +264,14 @@ def test_specific_profile_constraints_are_present():
                 assert constraint['source'] == profile['url']
                 assert constraint['severity'] == 'error'
                 assert constraint['human'] and constraint['expression']
+
+
+@pytest.mark.parametrize('case', read(FIXTURES / 'semantic-cases.json'), ids=lambda c: c['id'])
+def test_semantic_cases_against_genuine_upstream_schema(schema, case):
+    # expectedBaseline/unexecutedObligation document integration targets only.
+    # A schema success, including each rejection case, is never a semantic pass.
+    errors = list(schema.iter_errors(case['resource']))
+    if case['schemaValid']:
+        assert not errors, errors
+    else:
+        assert errors

@@ -43,11 +43,22 @@ is not a declaration that every extension or referenced resource is supported.
 | Profile | Added constraints | Native information retained |
 | --- | --- | --- |
 | Patient | Common identity/interpretation constraints | Name, optional birth-date precision, source identifiers and other native demographics; no required DOB or government ID |
-| Observation | Explicit Patient subject and literal reference; specimen targets Specimen; hasMember targets Observation; derivedFrom targets Observation/DocumentReference; value choices exclude SampledData; component value/absence exclusion | Quantity/comparator, CodeableConcept/string, boolean/integer, Range/Ratio, time/dateTime/Period, components, panel children, method, ranges and applicability, interpretation, notes and effective times |
-| DiagnosticReport | Explicit Patient subject; literal result/specimen references target the corresponding local profiles | Inherited status/code, conclusions, report effective time, issuer, optional issued instant and original report content |
+| Observation | Explicit Patient subject and reference cardinality; specimen targets Specimen; hasMember targets Observation; derivedFrom targets Observation/DocumentReference; value choices exclude SampledData; component value/absence exclusion | Quantity/comparator, CodeableConcept/string, boolean/integer, Range/Ratio, time/dateTime/Period, components, panel children, method, ranges and applicability, interpretation, notes and effective times |
+| DiagnosticReport | Explicit Patient subject; result/specimen reference cardinalities and targets use the corresponding local profiles | Inherited status/code, conclusions, report effective time, issuer, optional issued instant and original report content |
 | Specimen | Explicit Patient subject; parent references target local Specimens | Source type, collection, processing, received time and optional source status |
 | DocumentReference | Explicit Patient subject; each content attachment requires media type, title and URL; inline data excluded; URL prefix/suffix invariant | Document status/docStatus, authors, dates and other source metadata |
-| Provenance | Literal targets and entity references restricted to the six profiles; at least one source entity; source resolves to DocumentReference; agent.who requires reference or identifier | Inherited recorded time and agent, activity, source/revision roles, generation/correction context |
+| Provenance | Target/entity reference cardinalities and targets restricted to the six profiles; at least one source entity; source resolves to DocumentReference; agent.who requires reference or identifier | Inherited recorded time and agent, activity, source/revision roles, generation/correction context |
+
+Cardinality is not a literal-value guarantee. A FHIR primitive with extensions
+and no literal value can satisfy `min=1`. Required subject/result/specimen/parent/
+derivedFrom/target/entity reference strings, local actor identifier values, and
+attachment title/media type/URL literals must be enforced by the runtime. The
+same distinction applies to generated IDs/meta and required status values. The
+differentials' cardinalities and unqualified FHIRPath expressions do not prove
+these literal requirements execute. No new literal-presence invariant is claimed
+here; qualified invariant execution remains an integration gate. Do not extend
+these bookkeeping requirements to unknown clinical facts: optional clinical
+primitives may remain absent or honestly unknown under their native rules.
 
 FHIR statuses and required terminology bindings are inherited from upstream;
 archive acceptance never substitutes for a clinical status. Specimen.status is
@@ -76,8 +87,8 @@ The baseline upstream schema uses **draft-06**, not 2020-12. The following check
 are obligations beyond that schema (some are expressible in FHIRPath but still
 need execution):
 
-- Enforce inherited cardinality, required primitive presence, primitive extension
-  rules, value choice exclusivity, `obs-6`, `obs-7`, component absence exclusion,
+- Enforce inherited cardinality, required literal bookkeeping/status values,
+  primitive extension rules, value choice exclusivity, `obs-6`, `obs-7`, component absence exclusion,
   SimpleQuantity restrictions on range bounds, profile membership, targetProfile
   and all supported profile invariants. Upstream schema allows missing statuses,
   simultaneous choices and Quantity comparators in SimpleQuantity positions.
@@ -137,7 +148,14 @@ on 2026-11-14:
 six `StructureDefinition-<Type>.json` files under
 `definitions/hl7.fhir.r4.core/4.0.1/package/` supply genuine base snapshots and
 inherited constraints. The retained subset is not the complete core package:
-notably SimpleQuantity and broader target/terminology closure are not retained.
+SimpleQuantity and broader target/terminology closure need integration.
+SimpleQuantity resolution/enforcement is a mandatory Task 2 baseline gate, not
+work deferred solely to Task 10: reject comparators on referenceRange.low/high,
+valueRange.low/high and component equivalents while preserving comparator-bearing
+result Quantity and textual non-inclusive reference intervals. Require pinned
+SimpleQuantity bytes (or explicitly supported equivalent rules backed by them),
+local `type.profile` resolution, missing-definition failure and no attempted
+network access. This artifact slice supplies none of that runtime evidence.
 Task 10 must qualify complete pinned dependencies, snapshot generation,
 FHIRPath evaluation (including resolve), official-validator profile/example
 validation and offline execution. **Full official-validator qualification has
@@ -151,7 +169,7 @@ uv run --locked pytest tests/test_profiles.py -q
 ```
 
 They use the actual upstream Draft6Validator, test concrete malformed resources,
-check differential path/type/cardinality compatibility against real base
-metadata, and expose schema blind spots. They do not implement a fake profile
-validator or establish semantic FHIR conformance. Independent review, runtime
+check differential path/type/cardinality compatibility and inherited order
+against real resource snapshots with datatype expansion, and expose schema blind
+spots. They do not implement a fake profile validator or establish semantic FHIR conformance. Independent review, runtime
 integration, lock/package integration and Task 10 remain release gates.
