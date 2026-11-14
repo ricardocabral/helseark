@@ -62,6 +62,9 @@
         "accept-with-acknowledged-limitations"
       ]
     },
+    "officialValidationAuthority": {
+      "$ref": "#/$defs/officialValidationAuthority"
+    },
     "personId": {
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
       "type": "string"

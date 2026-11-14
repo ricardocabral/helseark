@@ -14,7 +14,7 @@ from .contracts import (ArchiveError, PreparedProposal, ReviewDecision, ReviewRe
 from .serialization import decode_json, encode_json, hash_bytes
 from .archive import _read, _json, _schema, _safe, head, resolve
 from .contracts import ResourceRef
-from .validation import validate_proposal
+from .validation import validate_proposal, verify_baseline_reconciliation
 from .agent_context import document
 
 
@@ -43,20 +43,27 @@ def _review_issues(report: ValidationReport) -> tuple[dict, ...]:
     return tuple(unique.values())
 
 
+def _accepted_change(vault, directory, digest, person):
+    """Only verified canonical history grants readonly accepted/legacy status."""
+    from .archive import _history
+    return next((change for _,path,change in _history(vault,person)
+                 if path.absolute()==Path(directory).absolute() and change['preparedContentSha256']==digest),None)
+
+
 def read_prepared(vault, directory, *, candidate_path=None, base=None):
     """Reload exact prepared content; live candidate path comes only from host control."""
     directory=Path(directory).absolute()
     value=_json(directory,'proposal.json'); _schema(vault,'proposal',value)
     digest=hash_bytes(_read(directory,'proposal.json'))
     report=_json(directory,'validation.json'); _schema(vault,'validation',report)
-    validation=ValidationReport(report['checkedProposalSha256'],tuple(CheckCoverage(**c) for c in report['coverage']),tuple(Issue(**i) for i in report['issues']))
+    validation=ValidationReport(report['checkedProposalSha256'],tuple(CheckCoverage(**c) for c in report['coverage']),tuple(Issue(**i) for i in report['issues']),report.get('officialRun'))
     if base is None and value['baseChangeSha256'] is not None:
         from .archive import _history
         base=next((h for h,_,_ in _history(vault,value['personId']) if h.changeSha256==value['baseChangeSha256']),None)
         if base is None: raise ArchiveError('STALE_BASE','Prepared base is not in selected-person history.')
     if candidate_path is None:
         control=_safe(vault.root,f'.runtime/prepared/{digest}.json')
-        if not (directory/'change.json').exists():
+        if _accepted_change(vault,directory,digest,value['personId']) is None:
             if not control.exists():
                 raise ArchiveError('REVIEW_MISMATCH','Original host preparation control is missing.')
             candidate_path=Path(decode_json(_read(control.parent,control.name))['candidatePath'])
@@ -95,15 +102,19 @@ def _verify_prepared(vault, proposal, *, current=True):
         raise ArchiveError('REVIEW_MISMATCH','Validation report changed.')
     _blocked(proposal.validation)
     if current:
-        report=validate_proposal(vault,proposal.path)
+        from .fhir_validator import verify_pending_execution, verify_recorded_run
+        if proposal.validation.officialRun is not None:
+            report=verify_recorded_run(vault,proposal)
+        else:
+            verify_pending_execution(vault,proposal)
+            report=validate_proposal(vault,proposal.path)
         _blocked(report)
-        if encode_json(document(report))!=raw:
-            raise ArchiveError('REVIEW_MISMATCH','Fresh validation differs from reviewed report.')
+        verify_baseline_reconciliation(report,proposal.validation)
     return value
 
 
 def render_review(vault: Vault, proposal: PreparedProposal) -> ReviewView:
-    accepted=(proposal.path/'change.json').exists()
+    accepted=_accepted_change(vault,proposal.path,proposal.proposalSha256,proposal.personId) is not None
     value=_verify_prepared(vault,proposal,current=not accepted)
     resources=[_json(proposal.path,i['path']) for i in value['resources']]
     info=value.get('importReview',{})
@@ -148,6 +159,15 @@ def render_review(vault: Vault, proposal: PreparedProposal) -> ReviewView:
     sources.extend(e for old in previous.values() for e in old['evidence'])
     legacy=accepted and _json(proposal.path,'review.json')['contractVersion']=='0.1.0'
     patient=resolve(vault,proposal.personId,ResourceRef('Patient',proposal.personId),at=proposal.base)
+    coverage=list(proposal.validation.coverage)
+    if accepted and proposal.validation.officialRun is not None:
+        authority=_json(proposal.path,'review.json').get('officialValidationAuthority')
+        if authority is None:
+            coverage=[CheckCoverage(c.family,'not-checked',
+                f'Unattested legacy accepted report (stored {c.result}); original execution authority unavailable. '+(c.reason or '')) for c in coverage]
+        coverage.append(CheckCoverage('official-execution-authority','passed' if authority is not None else 'not-checked',
+            'Original host execution binding retained by human review.' if authority is not None else
+            'Legacy history remains readable; no execution attestation was invented.'))
     return ReviewView({'personId':proposal.personId,'patient':patient,'base':asdict(proposal.base) if proposal.base else None,
                        'acceptanceStatus':'accepted' if accepted else 'prepared-unaccepted',
                        'acknowledgmentBinding':'legacy-code-resourceRef' if legacy else 'exact-issue-v1',
@@ -156,7 +176,7 @@ def render_review(vault: Vault, proposal: PreparedProposal) -> ReviewView:
         tuple(revisions),
         tuple(info.get('omissions',[])),tuple(info.get('duplicateCandidates',[])),
         tuple({encode_json(e):e for e in sources}.values()),
-        _review_issues(proposal.validation),tuple(asdict(c) for c in proposal.validation.coverage),
+        _review_issues(proposal.validation),tuple(asdict(c) for c in coverage),
         tuple(comparisons),omitted)
 
 
@@ -212,6 +232,10 @@ def record_review(vault: Vault, proposal: PreparedProposal, decision: ReviewDeci
         'decision':decision.decision,'reviewer':{'kind':'local-user','label':decision.reviewerLabel},
         'reviewedAt':instant.astimezone(timezone.utc).isoformat().replace('+00:00','Z'),
         'confirmedPerson':decision.confirmedPerson,'acknowledgedIssues':acknowledgments}
+    from .fhir_validator import verify_pending_execution
+    authority=verify_pending_execution(vault,proposal)
+    if authority is not None:
+        value['officialValidationAuthority']=authority
     _schema(vault,'review',value)
     path=proposal.path/'review.json'; data=encode_json(value)
     _write(path,data)

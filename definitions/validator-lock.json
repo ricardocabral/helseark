@@ -1,0 +1,118 @@
+{
+  "ciJava": {
+    "bytes": 46726088,
+    "filename": "OpenJDK17U-jre_x64_linux_hotspot_17.0.21_9.tar.gz",
+    "sha256": "9f41bf88c7900c7097444a1bdeb84146ae692bc08842490ab098063c74bf9a8a",
+    "url": "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.21%2B9/OpenJDK17U-jre_x64_linux_hotspot_17.0.21_9.tar.gz",
+    "version": "17.0.21+9"
+  },
+  "executableSha256": "9dfe9f305b0f9389eceade2a4a1c9a2740d7b0e614066fdf07a78b571c76d92f",
+  "formatVersion": 1,
+  "packages": [
+    {
+      "bytes": 4531911,
+      "filename": "hl7.fhir.r4.core-4.0.1.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.r4.core",
+      "sha256": "b090bf929e1f665cf2c91583720849695bc38d2892a7c5037c56cb00817fb091",
+      "url": "https://packages.fhir.org/hl7.fhir.r4.core/4.0.1",
+      "version": "4.0.1"
+    },
+    {
+      "bytes": 17057450,
+      "dependencies": {},
+      "filename": "hl7.fhir.r5.core-5.0.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.r5.core",
+      "sha256": "74b27cd1bfce9e80eaceac431edf230b0945a443564fbf5512f82e5fa50a80d4",
+      "url": "https://packages.fhir.org/hl7.fhir.r5.core/5.0.0",
+      "version": "5.0.0"
+    },
+    {
+      "bytes": 1093086,
+      "dependencies": {
+        "hl7.terminology.r5": "6.2.0"
+      },
+      "filename": "hl7.fhir.uv.extensions-5.2.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.uv.extensions",
+      "sha256": "98624befeea2aee003393f95a4b718c6c28a9f8bf0f11d7e568509c56c278987",
+      "url": "https://packages.fhir.org/hl7.fhir.uv.extensions/5.2.0",
+      "version": "5.2.0"
+    },
+    {
+      "bytes": 1302452,
+      "dependencies": {
+        "hl7.fhir.r4.core": "4.0.1"
+      },
+      "filename": "hl7.fhir.uv.extensions.r4-5.2.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.uv.extensions.r4",
+      "sha256": "b406e75575f05676559d0759770c5939d023ee72fb2ef38e0b3259328487720a",
+      "url": "https://packages.fhir.org/hl7.fhir.uv.extensions.r4/5.2.0",
+      "version": "5.2.0"
+    },
+    {
+      "bytes": 3215595,
+      "dependencies": {
+        "hl7.fhir.r5.core": "5.0.0"
+      },
+      "filename": "hl7.fhir.uv.extensions.r5-5.1.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.uv.extensions.r5",
+      "sha256": "493de27b4081903a69e182e29e6d30a19390c27d168c9fca95fbb04c1898292c",
+      "url": "https://packages.fhir.org/hl7.fhir.uv.extensions.r5/5.1.0",
+      "version": "5.1.0"
+    },
+    {
+      "bytes": 183877,
+      "dependencies": {
+        "hl7.fhir.r4.core": "4.0.1"
+      },
+      "filename": "hl7.fhir.xver-extensions-0.1.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.fhir.xver-extensions",
+      "sha256": "f3bb9fa2083402e88a02b41f433655274e8a1cca563211c8f7ba6fd0badf537a",
+      "url": "https://packages.fhir.org/hl7.fhir.xver-extensions/0.1.0",
+      "version": "0.1.0"
+    },
+    {
+      "bytes": 5018042,
+      "dependencies": {
+        "hl7.fhir.uv.extensions.r5": "5.1.0"
+      },
+      "filename": "hl7.terminology-6.2.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.terminology",
+      "sha256": "33812712a778100539b4f848a1d62c2a8e05357b550332ae8001eee56b34fde0",
+      "url": "https://packages.fhir.org/hl7.terminology/6.2.0",
+      "version": "6.2.0"
+    },
+    {
+      "bytes": 5661217,
+      "dependencies": {
+        "hl7.fhir.r4.core": "4.0.1"
+      },
+      "filename": "hl7.terminology.r4-6.2.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.terminology.r4",
+      "sha256": "79404c9cc95491fc0155627cd039c401a6eb4748175328131e91b709a41300e2",
+      "url": "https://packages.fhir.org/hl7.terminology.r4/6.2.0",
+      "version": "6.2.0"
+    },
+    {
+      "bytes": 5660184,
+      "dependencies": {
+        "hl7.fhir.r5.core": "5.0.0"
+      },
+      "filename": "hl7.terminology.r5-6.2.0.tgz",
+      "license": "CC0-1.0",
+      "name": "hl7.terminology.r5",
+      "sha256": "4b492a0721d96f8c848142b581b1c87b58d427c358ec4b04be059d1b13d0d894",
+      "url": "https://packages.fhir.org/hl7.terminology.r5/6.2.0",
+      "version": "6.2.0"
+    }
+  ],
+  "url": "https://github.com/hapifhir/org.hl7.fhir.core/releases/download/7.0.5/validator_cli.jar",
+  "version": "7.0.5"
+}

@@ -155,3 +155,48 @@ query, explicit re-extraction, exact historical report children and retry after
 work/runtime removal. It invokes no model and establishes no extraction accuracy
 or clinical approval. Independent combined-artifact review and remote CI remain
 release gates. Backup/export and broader corrections remain separate tasks.
+
+## Optional official validation before review
+
+`validate proposal --official-config PATH` replaces only the unreviewed
+`validation.json`. The exact OperationOutcome, count summary, package/profile
+pins and shared revision/fullUrl mapping remain in `officialRun`. The proposal
+never hashes this report; human review hashes both unchanged proposal and report.
+Review/commit recheck baseline/source scope and the derived context binding,
+without rerunning Java or changing elapsed time. Existing reports with no
+`officialRun` preserve their original byte representation. A requested full tool
+that is absent blocks; required terminology blocks in the qualified `-tx n/a`
+mode. See [offline validator](../how-to/run-offline-validator.md).
+
+## Original official-execution authority
+
+A pending report is compared with its independently retained host execution
+checkpoint before review or commit. The checkpoint binds the entire report,
+outcome, original coverage, effective command/environment, complete selected Java
+runtime and other inputs, source inventory, person, vault, proposal and base, and
+required terminology policy. Starting another request supersedes the previous
+checkpoint once its exact authorized pending proposal is resolved, before
+configuration loading, baseline checks or runtime checks. Missing/invalid
+configuration leaves an explicit failed request without a configuration digest.
+Render, review and commit reject the previous result until a fresh actual
+successful execution. Copied or mismatched paths cannot revoke another pending
+proposal, and accepted history remains immutable. Partial or missing host state fails
+closed; mutable producer fields, report hashes or a `change.json` pathname cannot
+create authority.
+
+Human `review.json` retains the checked `officialValidationAuthority`; the ordinary
+immutable change inventory binds that receipt. Work/runtime controls may then be
+removed without losing the original binding. Accepted legacy receipts without it
+remain readable under their unchanged schema pins, with explicit unattested
+coverage in readonly review. Unaccepted legacy workflows require fresh preparation
+and an actual tool rerun where compatible schemas support it. No automatic repin,
+retrospective attestation or general clinical-correctness claim occurs.
+
+Reconciliation compares complete baseline family identities, multiplicities,
+results and reasons. It rejects omissions, duplicates and invented passing
+families, including `medical-diagnosis`; it never fills missing limitations from
+a fresh report for display. Only authenticated official `full-fhir`/`terminology`
+results replace those two baseline families. Host execution authority is a
+separate requirement and does not make incorrect reconciliation acceptable.
+
+New official reports use the separately pinned 0.1.1 validation schema. The 0.1.0 schemas and existing vault pins stay unchanged. Exact-issue 0.1.1 human receipts retain the execution binding as well as individual acknowledgments.

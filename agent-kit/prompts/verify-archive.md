@@ -34,3 +34,13 @@ Implemented host commands and limitations: [portability guide](../docs/how-to/ba
 Use the actual doctor report: retain successfully checked counts and exact issue paths/actions, including UNKNOWN_PATH and unsafe staging entries. Preserve unknown files and symlinks without following or deleting them; unresolved unknown material blocks backups and both person export modes. Never label unlisted support files accepted or person-scoped.
 
 A failed directory enumeration or entry stat is IO_ERROR, not an empty successful read. Retain verified counts and the confined path/action; block all backup/person outputs until inspection is possible. Never change access or quarantine material automatically.
+
+Optional official R4 validation is an explicit host operation over a prepared
+proposal, using pinned local Java/JAR/packages and OS network confinement.
+Its report states exact resource/error/warning counts and supported-profile
+coverage. It never establishes clinical correctness. Terminology is not checked
+in the qualified `-tx n/a` mode; requiring terminology blocks. Tool absence never
+blocks baseline use, but an explicit required full-check policy does block.
+See [offline validator](../docs/how-to/run-offline-validator.md).
+
+An explicit official-validator request requires host-selected pinned configuration. Its complete actual execution authority must match at render, human review and publication. A failed or superseding request revokes prior authority; only a fresh successful actual run restores it. Optional baseline use needs no Java. Required official or terminology policy fails closed. Accepted legacy unattested reports remain readable without inventing attestation. See [offline validator](../../docs/how-to/run-offline-validator.md).

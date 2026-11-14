@@ -61,7 +61,11 @@ def _schema(vault: Vault, name: str, value):
     # Review receipts evolve independently; historical vault contracts stay pinned.
     version = value.get('contractVersion') if isinstance(value, dict) else None
     review_v1 = name == 'review' and version == '0.1.1'
-    relative = f"schemas/{'0.1.1' if review_v1 else '0.1.0'}/{name}.schema.json"
+    official_report = name == 'validation' and isinstance(value, dict) and value.get('officialRun') is not None
+    lock = _json(vault.root, "definitions/lock.json", data=lock_data)
+    official_v1 = official_report and any(entry['path'] == 'schemas/0.1.1/validation.schema.json'
+        for artifact in lock['artifacts'] for entry in artifact['files'])
+    relative = f"schemas/{'0.1.1' if review_v1 or official_v1 else '0.1.0'}/{name}.schema.json"
     lock = _json(vault.root, "definitions/lock.json", data=lock_data)
     entries = [entry for artifact in lock["artifacts"] for entry in artifact["files"] if entry["path"] == relative]
     schema_data = _read(vault.root, "definitions/" + relative)
@@ -298,7 +302,7 @@ def _verify_inputs(directory: Path, proposal: dict):
         raise ArchiveError('REVIEW_MISMATCH','Retained candidate digest or person differs.')
 
 
-def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None):
+def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None, *, accepted=False):
     with _stored_location(vault, directory):
         proposal = _json(directory, "proposal.json")
         evidence = _json(directory, "evidence.json")
@@ -329,8 +333,10 @@ def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | Non
             from .review import _decision
             from .contracts import ReviewDecision, ValidationReport, CheckCoverage, Issue
             _decision(ValidationReport(validation['checkedProposalSha256'],
-                tuple(CheckCoverage(**c) for c in validation['coverage']), tuple(Issue(**i) for i in validation['issues'])),
+                tuple(CheckCoverage(**c) for c in validation['coverage']), tuple(Issue(**i) for i in validation['issues']), validation.get('officialRun')),
                 ReviewDecision(review['confirmedPerson'],review['decision'],tuple(review['acknowledgedIssues']),review['reviewer']['label']))
+        from .fhir_validator import verify_retained_execution
+        verify_retained_execution(vault,proposal,validation,review.get('officialValidationAuthority'),allow_legacy=accepted and review['contractVersion'] == '0.1.0')
         _verify_inputs(directory, proposal)
         expected_files = set(_ENVELOPES)
         seen = set()
@@ -393,7 +399,7 @@ def _history(vault: Vault, person: str):
                     or change["personId"] != person or change["versions"] != _versions(vault)
                     or change["previousChangeSha256"] != (base.changeSha256 if base else None)):
                 raise ArchiveError("INTEGRITY", "Accepted chain sequence, identity or parent mismatch.", {"path": directory.relative_to(vault.root).as_posix()})
-            proposal = _verify_payload(vault, person, directory, base)
+            proposal = _verify_payload(vault, person, directory, base, accepted=True)
             if (change["preparedContentSha256"] != hash_bytes(_read(directory, "proposal.json"))
                     or change["resources"] != proposal["resources"] or change["assets"] != proposal["assets"]
                     or change["transactionId"] != proposal["transactionId"]
@@ -563,7 +569,8 @@ def _patient(details: PersonDraft, person: str, revision: str, now: str):
     if (not isinstance(details.displayName, str) or not details.displayName.strip()
             or len(details.displayName) > 1024 or (details.note is not None and (not isinstance(details.note, str) or len(details.note) > 1048576))):
         raise ArchiveError("INVALID_PERSON", "Person name or note is invalid.")
-    patient = {"resourceType": "Patient", "id": person, "meta": {"versionId": revision, "lastUpdated": now},
+    patient = {"resourceType": "Patient", "id": person, "meta": {"versionId": revision, "lastUpdated": now,
+                   "profile": ["https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"]},
                "name": [{"text": details.displayName}]}
     if details.birthDate is not None:
         value = details.birthDate

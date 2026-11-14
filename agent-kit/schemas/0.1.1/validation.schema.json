@@ -1,0 +1,291 @@
+{
+  "$id": "urn:helseark:schema:0.1.1:validation",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "Coverage and issues for exactly checkedProposalSha256; report digest is bound by human review. Errors or failed coverage cannot be acknowledged.",
+  "properties": {
+    "checkedProposalSha256": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}(?![\\s\\S])",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "coverage": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "result": {
+            "enum": [
+              "passed",
+              "failed",
+              "not-checked"
+            ]
+          }
+        },
+        "required": [
+          "family",
+          "result",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "issues": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "pointer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resourceRef": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severity": {
+            "enum": [
+              "error",
+              "review",
+              "warning",
+              "info"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "pointer",
+          "resourceRef",
+          "message"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "officialRun": {
+      "additionalProperties": false,
+      "properties": {
+        "arguments": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "bundleSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "command": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "counts": {
+          "additionalProperties": false,
+          "properties": {
+            "errors": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "information": {
+              "minimum": 0,
+              "type": "integer"
+            },
+            "warnings": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "errors",
+            "warnings",
+            "information"
+          ],
+          "type": "object"
+        },
+        "elapsedSeconds": {
+          "minimum": 0,
+          "type": "number"
+        },
+        "environment": {
+          "additionalProperties": false,
+          "properties": {
+            "HOME": {
+              "type": "string"
+            },
+            "LANG": {
+              "type": "string"
+            },
+            "PATH": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "PATH",
+            "HOME",
+            "LANG"
+          ],
+          "type": "object"
+        },
+        "executableSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "exitCode": {
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "javaRelease": {
+          "maxLength": 16384,
+          "type": "string"
+        },
+        "javaSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "mapping": {
+          "items": {
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "networkPolicy": {
+          "enum": [
+            "macOS sandbox deny network*",
+            "Linux isolated network namespace"
+          ]
+        },
+        "operationOutcome": {
+          "properties": {
+            "issue": {
+              "minItems": 1,
+              "type": "array"
+            },
+            "resourceType": {
+              "const": "OperationOutcome"
+            }
+          },
+          "required": [
+            "resourceType",
+            "issue"
+          ],
+          "type": "object"
+        },
+        "outcomeSha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        "packages": {
+          "items": {
+            "type": "object"
+          },
+          "maxItems": 9,
+          "minItems": 9,
+          "type": "array"
+        },
+        "processCommand": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "profiles": {
+          "items": {
+            "type": "object"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "type": "array"
+        },
+        "requireTerminology": {
+          "type": "boolean"
+        },
+        "resourceCount": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "timeoutSeconds": {
+          "maximum": 600,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "executableSha256",
+        "javaSha256",
+        "bundleSha256",
+        "outcomeSha256",
+        "elapsedSeconds",
+        "timeoutSeconds",
+        "exitCode",
+        "networkPolicy",
+        "resourceCount",
+        "arguments",
+        "packages",
+        "profiles",
+        "mapping",
+        "counts",
+        "operationOutcome",
+        "requireTerminology",
+        "command",
+        "javaRelease",
+        "processCommand",
+        "environment"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "checkedProposalSha256",
+    "coverage",
+    "issues"
+  ],
+  "type": "object"
+}
