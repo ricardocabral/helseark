@@ -1,6 +1,10 @@
 """Offline installed public CLI qualification using explicitly SYNTHETIC decisions.
 
 Run a copy outside checkout: python qualify.py WORK EXISTING_TWO_PERSON_BACKUP CHECKOUT.
+Input is the --portability backup from qualify_clinical_integration_installed.py:
+two people, four changes, ten revisions, and its retained synthetic corrected
+candidate inputs. The stale-Head probe reuses that authored Bundle/evidence for
+the exact same source, bound to a fresh intake; it does not extract arbitrary PDFs.
 No real-user approval, model run or clinical/redaction quality claim is produced.
 """
 from pathlib import Path
@@ -144,9 +148,26 @@ assert failed['code']=='INTEGRITY';source_blob.write_bytes(raw)
 # All decisions below are explicitly SYNTHETIC test acknowledgments.
 packet=work/'new-packet';candidate=work/'new-candidate'
 command('--vault',vault,'intake','add',source_blob,'--person',person,'--packet',packet,'--confirm-person')
-kit=next((vault/'agent-kit').iterdir())
-child=subprocess.run([sys.executable,str(kit/'examples/task5-example.py'),str(packet),str(candidate)],cwd=work,env=env,capture_output=True)
-assert child.returncode==0,child.stderr
+intake=decode_json((packet/'intake.json').read_bytes())
+context=decode_json((packet/'context/context.json').read_bytes())
+assert intake['identityConfirmed'] and intake['personId']==person
+assert context['base']==scope['head']
+# The fixed Task5 example deliberately accepts only its uncorrected PDF. Keep
+# that guard intact: this clinical backup retains its own explicitly synthetic
+# corrected candidate, including exact source quotes and extraction bindings.
+head=scope['head']
+inputs=vault/'people'/person/'accepted'/f"{head['sequence']:08d}-{head['transactionId']}"/'inputs'
+values={name:decode_json((inputs/(name+'.json')).read_bytes()) for name in ('candidate','bundle','evidence')}
+assert values['candidate']['personId']==person
+assert values['candidate']['sourceSha256']==[intake['source']['sourceSha256']]==[pdf['sha256']]
+for entry in values['evidence']['entries']:
+    if entry['kind']=='source':
+        assert entry['sourceSha256']==pdf['sha256']
+        assert entry['locator']['extractionSha256']==intake['extraction']['pagesSha256']
+values['candidate'].update(candidateId=intake['importId'],baseChangeSha256=context['base']['changeSha256'],
+                           unresolved=intake['issues'])
+candidate.mkdir()
+for name,value2 in values.items():(candidate/(name+'.json')).write_bytes(encode_json(value2))
 # Distinguish this synthetic re-extraction from prior identical-content imports
 # using generated-evidence metadata only. Clinical values and source quotes stay exact.
 synthetic_evidence=decode_json((candidate/'evidence.json').read_bytes())
@@ -168,14 +189,22 @@ decision=dict(confirmedPerson=True,decision='accept-with-acknowledged-limitation
               reviewerLabel='SYNTHETIC installed stale-Head qualification only')
 path=work/'synthetic-import-decision.json';path.write_bytes(encode_json(decision))
 command('--vault',vault,'candidate','review',proposal,'--person',person,'--decision',path)
-command('--vault',vault,'candidate','commit',proposal,'--person',person)
-assert command('--vault',vault,'export','--person',person,'--review',folder,'--out',work/'denied-new-head',expect=3)['code']=='REVIEW_MISMATCH'
+committed=command('--vault',vault,'candidate','commit',proposal,'--person',person)
+assert committed['disposition']=='committed'
+assert committed['head']['sequence']==head['sequence']+1
+assert committed['head']['changeSha256']!=head['changeSha256']
+for old_plan,mode,name in [(folder,'full-person','original'),(dfolder,'selected-current','derivative')]:
+    destination=work/('denied-new-head-'+name)
+    assert command('--vault',vault,'export','--person',person,'--mode',mode,'--review',old_plan,'--out',destination,expect=3)['code']=='REVIEW_MISMATCH'
+    assert not destination.exists()
+assert all((vault/path).read_bytes()==data for path,data in before.items())
 # Installed distribution assets must initialize a fresh vault, independent of historical pins.
 command('init',work/'installed-assets')
 result=dict(baseline=report,people=2,acceptedPersonFiles=len(before),fullPerson=verified,
             snapshotRevisions=dmanifest['counts']['resources'],derivatives=dmanifest['counts']['assets'],
             originalSources=len(scope['originalSources']),sourceFiles=len(scope['sourceFiles']),
             sourceBytes=sum(s['size'] for s in scope['sourceFiles']),observations=len(facts[person]),
-            commands=len(commands),denialWitnesses=4,python=sys.version,
+            commands=len(commands),denialWitnesses=4,oldHead=head,newHead=committed['head'],
+            exactIssueAcknowledgments=len(decision['acknowledgedIssues']),originalPersonFilesUnchanged=len(before),python=sys.version,
             runtime=__import__('helseark').__file__,syntheticDecisionsOnly=True)
 (work/'result.json').write_bytes(encode_json(result));print(encode_json(result).decode(),flush=True)

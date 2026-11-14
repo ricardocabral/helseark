@@ -283,9 +283,11 @@ def test_bounded_derivative_and_changed_during_capture(tmp_path,monkeypatch):
 
 
 @pytest.mark.parametrize('operation', ['export-plan', 'export-review'])
-@pytest.mark.parametrize('boundary', ['leaf', 'ancestor', 'oversize'])
+@pytest.mark.parametrize('boundary', ['leaf', 'ancestor', 'oversize', 'fifo', 'directory', 'traversal'])
 def test_cli_disclosure_json_inputs_are_bounded_and_no_follow(tmp_path, operation, boundary):
-    from test_cli_journey import run
+    import os
+    import subprocess
+    import sys
     from helseark.source_disclosure import DISCLOSURE_BYTES
     v=init_vault(tmp_path/'vault'); p=add_person(v,PersonDraft('Synthetic input boundary'))
     directory=tmp_path/'input'; directory.mkdir()
@@ -296,14 +298,24 @@ def test_cli_disclosure_json_inputs_are_bounded_and_no_follow(tmp_path, operatio
     elif boundary=='ancestor':
         alias=tmp_path/'alias'; alias.symlink_to(directory,target_is_directory=True)
         supplied=alias/'input.json'
-    else:
+    elif boundary=='oversize':
         with actual.open('wb') as stream:stream.truncate(DISCLOSURE_BYTES+1)
+    elif boundary=='fifo':
+        supplied=directory/'input.fifo'; os.mkfifo(supplied)
+    elif boundary=='directory':
+        supplied=directory
+    elif boundary=='traversal':
+        supplied=directory/'..'/'input'/'input.json'
     if operation=='export-plan':
         args=('export-plan','--person',p,'--out',tmp_path/'plan','--derivatives',supplied)
     else:
         args=('export-review','--plan',tmp_path/'missing-plan','--decision',supplied)
-    result=run('--vault',v.root,*args,'--json')
+    # A blocking FIFO open must fail this test rather than hang the test runner.
+    result=subprocess.run([sys.executable,'-m','helseark.cli','--vault',str(v.root),*map(str,args),'--json'],
+                          capture_output=True,timeout=10)
     assert result.returncode==2,result.stderr
+    assert result.stdout==b''
     assert decode_json(result.stderr)['code']==('SOURCE_TOO_LARGE' if boundary=='oversize' else 'UNSAFE_PATH')
     assert not (tmp_path/'plan').exists()
     assert not (tmp_path/'missing-plan').exists()
+    assert not list(tmp_path.glob('.helseark-disclosure-*'))

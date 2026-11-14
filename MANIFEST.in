@@ -1,0 +1,3 @@
+# Retain the corrected installed oracle and its focused regressions in the sdist.
+include tests/qualify_source_disclosure_installed.py
+include tests/test_source_disclosure.py
