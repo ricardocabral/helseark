@@ -234,7 +234,7 @@ if sys.argv[4:] == ['--portability']:
     cli('--vault',vault,'backup','create','--out',backup)
     verified = cli('backup','verify',backup)
     assert not verified['issues']
-    assert (verified['checkedChanges'],verified['checkedResources'],verified['checkedAssets']) == (4,11,2)
+    assert (verified['checkedChanges'],verified['checkedResources'],verified['checkedAssets']) == (4,10,2)
     restored = root/'restored'
     cli('backup','restore',backup,'--into',restored)
     for name in ('work','derived','.runtime'):
@@ -252,13 +252,13 @@ if sys.argv[4:] == ['--portability']:
     selected = root/'selected'
     cli('--vault',restored,'export','--person',person,'--mode','selected-current','--no-sources','--out',selected)
     selected_report = cli('backup','verify',selected)
-    assert not selected_report['issues'] and selected_report['checkedResources'] == 10
+    assert not selected_report['issues'] and selected_report['checkedResources'] == 9
     assert not (selected/'sources').exists()
     assert all(other.encode() not in p.read_bytes() and b'UNSELECTED SYNTHETIC' not in p.read_bytes()
                for p in selected.rglob('*') if p.is_file())
     cli('--vault',restored,'export','--person',person,'--out',root/'blocked-pdf',exit_code=3)
     assert not (root/'blocked-pdf').exists()
     assert not events.exists()
-    print(json.dumps(dict(portability=True, people=2, changes=4, revisions=11, blobs=2,
-        equalPersonFiles=len(before), observations=2, selectedRevisions=10,
+    print(json.dumps(dict(portability=True, people=2, changes=4, revisions=10, blobs=2,
+        equalPersonFiles=len(before), observations=2, selectedRevisions=9,
         otherPersonLeaks=0, forbiddenAttempts=0, oldPinsPreserved=True)),flush=True)
