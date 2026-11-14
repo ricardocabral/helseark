@@ -112,3 +112,45 @@ def test_observations_timeline_record_cli_explicit_scope(corpus,tmp_path):
     assert decode_json(record.stdout)['valueQuantity']['value'].as_tuple()==month['value']['value'].as_tuple()
     invalid=run('--vault',v.root,'observations','--person',c.personId,'--from-date','2026-02-30','--json')
     assert invalid.returncode==2 and decode_json(invalid.stderr)['code']=='INVALID_FILTER'
+def test_candidate_prepare_human_review_commit_cli(tmp_path):
+    from test_intake import supplied_candidate
+    from helseark.serialization import decode_json, encode_json
+    from helseark.archive import head
+    vault,person,_,_,candidate=supplied_candidate(tmp_path)
+    prepared=run('--vault',vault.root,'candidate','prepare',candidate.path,'--person',person,'--json')
+    assert prepared.returncode==0,prepared.stderr
+    path=json.loads(prepared.stdout)['path']
+    view=run('--vault',vault.root,'candidate','review',path,'--person',person,'--json')
+    assert view.returncode==0,view.stderr
+    issues=json.loads(view.stdout)['issues']
+    decision=tmp_path/'human-decision.json'
+    decision.write_bytes(encode_json({'confirmedPerson':True,'decision':'accept-with-acknowledged-limitations',
+        'reviewerLabel':'synthetic human','acknowledgedIssues':[{'code':i['code'],'resourceRef':i['resourceRef'],'reason':'Checked original synthetic report'} for i in issues if i['severity'] in ('review','warning')]}))
+    approved=run('--vault',vault.root,'candidate','review',path,'--person',person,'--decision',decision,'--json')
+    assert approved.returncode==0,approved.stderr
+    from pathlib import Path
+    receipt_path=Path(path)/'review.json'; original_receipt=receipt_path.read_bytes()
+    receipt_path.write_bytes(original_receipt+b' ')
+    altered=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+    assert altered.returncode==3,altered.stderr
+    receipt_path.write_bytes(original_receipt)
+    wrong=run('--vault',vault.root,'candidate','commit',path,'--person','00000000-0000-4000-8000-000000000001','--json')
+    assert wrong.returncode==2 and head(vault,person).sequence==1
+    for expected in ('committed','already-accepted'):
+        committed=run('--vault',vault.root,'candidate','commit',path,'--person',person,'--json')
+        assert committed.returncode==0,committed.stderr
+        assert json.loads(committed.stdout)['disposition']==expected
+    retry=run('--vault',vault.root,'candidate','prepare',candidate.path,'--person',person,'--json')
+    assert retry.returncode==0,retry.stderr
+    assert json.loads(retry.stdout)['disposition']=='already-accepted'
+
+
+@pytest.mark.parametrize('verb,filename',[('prepare','candidate.json'),('review','proposal.json'),('commit','proposal.json')])
+def test_candidate_commands_fail_closed_on_non_object(tmp_path,verb,filename):
+    from helseark.archive import init_vault, add_person
+    from helseark.contracts import PersonDraft
+    vault=init_vault(tmp_path/'vault');person=add_person(vault,PersonDraft('Synthetic'))
+    path=tmp_path/'invalid';path.mkdir();(path/filename).write_text('[]\n')
+    result=run('--vault',vault.root,'candidate',verb,path,'--person',person,'--json')
+    assert result.returncode==2,result.stderr
+    assert b'Traceback' not in result.stderr and not result.stdout

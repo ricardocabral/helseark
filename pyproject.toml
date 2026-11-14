@@ -33,7 +33,7 @@ where = ["src"]
 "share/helseark/definitions/hl7.fhir.r4.core/4.0.1/package" = ["definitions/hl7.fhir.r4.core/4.0.1/package/*.json"]
 "share/helseark/definitions/docs/r4" = ["definitions/docs/r4/*.html"]
 "share/helseark/profiles/r4/0.1.0" = ["profiles/r4/0.1.0/*.json", "profiles/r4/0.1.0/README.md"]
-"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md", "docs/reference/pdf-extraction.md", "docs/reference/intake.md"]
+"share/helseark/docs/reference" = ["docs/reference/clinical-model.md", "docs/reference/agent-protocol.md", "docs/reference/archive-format.md", "docs/reference/pdf-extraction.md", "docs/reference/intake.md", "docs/reference/review.md"]
 "share/helseark/agent-kit" = ["agent-kit/START-HERE.md", "agent-kit/manifest.json", "agent-kit/AGENTS.md"]
 "share/helseark/agent-kit/templates" = ["agent-kit/templates/*.md"]
 
@@ -55,6 +55,9 @@ where = ["src"]
 
 "share/helseark/docs/how-to" = ["docs/how-to/import-report.md", "docs/how-to/query-history.md"]
 "share/helseark/docs/tutorials" = ["docs/tutorials/first-archive.md"]
+
+"share/helseark/agent-kit/docs/how-to" = ["agent-kit/docs/how-to/*.md"]
+"share/helseark/agent-kit/docs/tutorials" = ["agent-kit/docs/tutorials/*.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

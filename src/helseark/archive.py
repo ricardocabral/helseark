@@ -17,7 +17,7 @@ from typing import Iterator
 
 from jsonschema import Draft202012Validator
 
-from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, uuid_string
+from .contracts import ArchiveError, VaultConfig, Vault, PersonDraft, Head, ResourceRef, FHIRResource, PreparedProposal, ReviewReceipt, CommitResult, uuid_string
 from .serialization import encode_json, decode_canonical_json, hash_bytes
 
 _ENVELOPES = ("proposal.json", "evidence.json", "review.json", "validation.json")
@@ -276,6 +276,24 @@ def _files(root: Path) -> set[str]:
     return result
 
 
+def _verify_inputs(directory: Path, proposal: dict):
+    """Verify the original candidate digest through its retained exact-byte closure."""
+    if 'importReview' not in proposal:
+        return
+    inputs = proposal.get('inputs', [])
+    if {i['path'] for i in inputs} != {'inputs/candidate.json','inputs/bundle.json','inputs/evidence.json'} or len(inputs) != 3:
+        raise ArchiveError('INTEGRITY', 'Import must retain exactly three candidate inputs.')
+    for item in inputs:
+        if hash_bytes(_read(directory,item['path'])) != item['sha256']:
+            raise ArchiveError('REVIEW_MISMATCH','Retained candidate input changed.')
+    metadata = _json(directory,'inputs/candidate.json')
+    names = ('candidate.json',metadata['bundlePath'],metadata['evidencePath'])
+    snapshots = ('inputs/candidate.json','inputs/bundle.json','inputs/evidence.json')
+    digest = hash_bytes(encode_json([{'path':n,'sha256':hash_bytes(_read(directory,p))} for n,p in zip(names,snapshots)]))
+    if digest != proposal['candidateSha256'] or metadata['personId'] != proposal['personId']:
+        raise ArchiveError('REVIEW_MISMATCH','Retained candidate digest or person differs.')
+
+
 def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | None):
     with _stored_location(vault, directory):
         proposal = _json(directory, "proposal.json")
@@ -303,6 +321,7 @@ def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | Non
                 raise ArchiveError("REVIEW_MISMATCH", "Reviewed payload digests do not match.", {"path": path})
         if any(issue["severity"] == "error" for issue in validation["issues"]) or any(c["result"] == "failed" for c in validation["coverage"]):
             raise ArchiveError("VALIDATION_BLOCKED", "Failed checks cannot be accepted.", {"path": "validation.json"})
+        _verify_inputs(directory, proposal)
         expected_files = set(_ENVELOPES)
         seen = set()
         for entry in proposal["resources"]:
@@ -329,6 +348,17 @@ def _verify_payload(vault: Vault, person: str, directory: Path, base: Head | Non
             data = _read(vault.root, f"people/{person}/{asset['path']}")
             if hash_bytes(data) != asset["sha256"] or len(data) != asset["size"]:
                 raise ArchiveError("INTEGRITY", "Asset checksum mismatch.", {"path": f"people/{person}/{asset['path']}"})
+        for item in proposal.get("inputs", []):
+            if not re.fullmatch(r"inputs/[a-z-]+[.]json", item["path"]) or item["path"] in expected_files:
+                raise ArchiveError("INTEGRITY", "Invalid retained input inventory.")
+            expected_files.add(item["path"])
+            if hash_bytes(_read(directory, item["path"])) != item["sha256"]:
+                raise ArchiveError("REVIEW_MISMATCH", "Retained review input changed.")
+        for item in proposal.get("importReview", {}).get("bindings", []):
+            if not re.fullmatch(r"assets/sha256/[0-9a-f]{64}/(?:source|extraction)[.]json", item["path"]):
+                raise ArchiveError("UNSAFE_PATH", "Invalid source receipt inventory.")
+            if hash_bytes(_read(vault.root, f"people/{person}/{item['path']}")) != item["sha256"]:
+                raise ArchiveError("INTEGRITY", "Retained source receipt changed.")
         actual = _files(directory) - {"change.json"}
         if actual != expected_files or not proposal["resources"]:
             raise ArchiveError("INTEGRITY", "Payload inventory is incomplete or contains extra files.")
@@ -356,7 +386,7 @@ def _history(vault: Vault, person: str):
             if (change["preparedContentSha256"] != hash_bytes(_read(directory, "proposal.json"))
                     or change["resources"] != proposal["resources"] or change["assets"] != proposal["assets"]
                     or change["transactionId"] != proposal["transactionId"]
-                    or change["payload"] != {n: hash_bytes(_read(directory, n)) for n in _ENVELOPES}):
+                    or change["payload"] != {n: hash_bytes(_read(directory, n)) for n in (*_ENVELOPES, *(i["path"] for i in proposal.get("inputs", [])))}):
                 raise ArchiveError("INTEGRITY", "Change inventory differs from reviewed payload.", {"path": "change.json"})
             for entry in change["resources"]:
                 key = (entry["type"], entry["id"])
@@ -431,7 +461,7 @@ def _publish_locked(vault: Vault, person: str, payloadDirectory: Path, expectedB
               "sequence": sequence, "previousChangeSha256": current.changeSha256 if current else None,
               "versions": _versions(vault), "preparedContentSha256": hash_bytes(_read(stage, "proposal.json")),
               "resources": proposal["resources"], "assets": proposal["assets"],
-              "payload": {n: hash_bytes(_read(stage, n)) for n in _ENVELOPES}}
+              "payload": {n: hash_bytes(_read(stage, n)) for n in (*_ENVELOPES, *(i["path"] for i in proposal.get("inputs", [])))}}
     _write(stage / "change.json", encode_json(change))
     # Validate the revision chain before the commit point without exposing staging.
     prior = _history(vault, person)
@@ -546,3 +576,29 @@ def add_person(vault: Vault, details: PersonDraft, *, clock=None, uuid_factory=N
     finally:
         if temporary.exists():
             shutil.rmtree(temporary)
+
+
+def commit_candidate(vault: Vault, proposal: "PreparedProposal", receipt: "ReviewReceipt") -> "CommitResult":
+    """Publish exactly one human-reviewed import through the private atomic writer."""
+    from .review import _verify_prepared, _decision
+    from .contracts import CommitResult, ReviewDecision
+    def verify_receipt(directory):
+        data=_read(directory,'review.json')
+        if (receipt.path != proposal.path/'review.json' or receipt.proposalSha256!=proposal.proposalSha256 or
+            receipt.validationSha256!=hash_bytes(_read(directory,'validation.json')) or receipt.base!=proposal.base or
+            receipt.receiptSha256 is None or hash_bytes(data)!=receipt.receiptSha256):
+            raise ArchiveError('REVIEW_MISMATCH','Receipt no longer binds the prepared bytes.')
+        value=_json(directory,'review.json'); _schema(vault,'review',value)
+        _decision(proposal.validation,ReviewDecision(value['confirmedPerson'],value['decision'],tuple(value['acknowledgedIssues']),value['reviewer']['label']))
+    with _writer_lock(vault):
+        history=_history(vault,proposal.personId)
+        # Retry after success (including a crash after rename) resolves the retained target.
+        for accepted,directory,change in history:
+            if change['preparedContentSha256']==proposal.proposalSha256:
+                verify_receipt(directory)
+                return CommitResult('already-accepted',accepted,tuple(ResourceRef(i['type'],i['id'],i['versionId']) for i in change['resources']))
+        value=_verify_prepared(vault,proposal)
+        verify_receipt(proposal.path)
+        # Existing primitive copies and verifies under this same writer lock.
+        result=_publish_locked(vault,proposal.personId,proposal.path,proposal.base)
+        return CommitResult('committed',result,tuple(ResourceRef(i['type'],i['id'],i['versionId']) for i in value['resources']))

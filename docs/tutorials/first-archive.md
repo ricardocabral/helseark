@@ -5,7 +5,7 @@ actual import handoff and validates the supplied candidate. It needs Python 3.12
 an installed Helseark distribution with the pinned `pdf` extra, and an empty working
 directory. No model account, repository discovery or network is needed after setup.
 The supplied candidate is manually authored, not a model result. Nothing clinical
-is accepted in this lesson; mandatory human review/publication belongs Task6.
+is accepted in this lesson; use the human review steps below to accept it explicitly.
 
 Save the following as `first-intake.py` in an empty directory and run
 `python first-intake.py` with the interpreter where Helseark is installed:
@@ -64,22 +64,8 @@ The draft also preserves the original range text, method M1, month precision and
 qualitative result, without inventing a standardized code. These are examples of
 fields to inspect beside the original source, not medical interpretation.
 
-This lesson stops at Task5. Candidate preparation, a review view, a bound human
-receipt and accepted clinical records depend on Task6 publication. After reviewed
-acceptance, use [query accepted history](../how-to/query-history.md); query
-commands never read the draft. Backup/restore lessons remain separate.
-Never copy candidate files into accepted history. Use [import a report](../how-to/import-report.md)
-for a separately run external agent and the [intake reference](../reference/intake.md)
-for exact limits. Toolkit tests and supplied examples do not measure model accuracy.
-
-On this lesson's vault, an accepted-only query has no observations:
-
-```sh
-helseark --vault lesson-vault observations --person UUID_FROM_LESSON --json
-helseark --vault lesson-vault timeline --person UUID_FROM_LESSON --json
-```
-
-Expect `[]` from observations and one Patient timeline row in the unknown-time
-bucket. This is absence of accepted records, not a negative clinical result.
-After Task6 review/acceptance, repeat these commands and follow each row's exact
-revision and evidence bindings. Never copy draft files into accepted history.
+This deterministic script stops at a validated draft. Continue with the explicit
+human preparation/review/commit commands in [import a report](../how-to/import-report.md#prepare-and-accept-the-exact-human-reviewed-proposal),
+using lesson-vault, lesson-candidate and the personId field in lesson-packet/intake.json.
+Read every result beside the original PDF and provide your own per-issue reasons.
+Use [query accepted history](../how-to/query-history.md) after acceptance.

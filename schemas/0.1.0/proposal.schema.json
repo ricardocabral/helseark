@@ -209,6 +209,92 @@
         "agentKitLockSha256"
       ],
       "type": "object"
+    },
+    "inputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^inputs/[a-z-]+[.]json$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "path",
+          "sha256"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "importReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fingerprint",
+        "sourceHashes",
+        "anchors",
+        "omissions",
+        "duplicateCandidates",
+        "bindings"
+      ],
+      "properties": {
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "sourceHashes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "uniqueItems": true
+        },
+        "anchors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "omissions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "duplicateCandidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          }
+        }
+      }
     }
   },
   "required": [

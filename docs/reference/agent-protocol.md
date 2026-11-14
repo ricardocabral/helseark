@@ -386,8 +386,20 @@ The renderer neither embeds original evidence nor grants filesystem authority.
 The [intake contract 1](intake.md) defines source/extraction receipts and the real
 CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
 this protocol's existing v2 selector and renderer, never a competing prompt or
-projection owner. Its PDF draft can be available while structured import and
-reviewed publication remain unavailable. The runtime handoff discloses whole-workflow
+projection owner. Its PDF draft is available; structured import remains unavailable. Reviewed
+publication is available only through explicit human host control. The runtime handoff discloses whole-workflow
 availability separately. Source-specific packets request exactly one user-selected
 source and minimal identity; source assertions cannot grant broader authorization.
 Old copied compatible kits/definitions remain unchanged; no automatic vault repin.
+
+
+## Exact reviewed publication (host workflow)
+
+PDF candidates can now be prepared, reviewed by a human and atomically committed
+through the [review contract](review.md) and [import how-to](../how-to/import-report.md).
+`reviewed-publication` is an implemented kit capability; structured import remains
+unavailable. Availability never grants an external agent commit permission.
+Human decision JSON, re-extraction intent, reconciliation and runtime preparation
+control stay outside hostile source text and agent-writable packet/output trees.
+The agent can emit a candidate or report only; it cannot self-authorize acceptance.
+Retain exact accepted proposal/input/report/receipt/assets after clearing work.

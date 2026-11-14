@@ -61,7 +61,13 @@
         "review.json",
         "validation.json"
       ],
-      "type": "object"
+      "type": "object",
+      "patternProperties": {
+        "^inputs/[a-z-]+[.]json$": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
     },
     "personId": {
       "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
