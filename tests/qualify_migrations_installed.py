@@ -42,7 +42,8 @@ def run(*args,code=0):
     global commands
     child=subprocess.run([str(console),*map(str,args),'--json'],cwd=work,env=env,capture_output=True)
     commands+=1
-    assert child.returncode==code,(args,child.returncode,child.stderr)
+    assert child.returncode==code,{'command':child.args,'status':child.returncode,
+                                  'stdout':child.stdout,'stderr':child.stderr}
     return decode_json(child.stdout if child.stdout else child.stderr)
 for probe in ['import socket;socket.socket()',f'open({str(checkout/"pyproject.toml")!r}).read()']:
     child=subprocess.run([sys.executable,'-c',probe],cwd=work,env=env,capture_output=True)
