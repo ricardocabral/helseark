@@ -1,0 +1,38 @@
+{
+  "scenarioId": "query-with-evidence",
+  "synthetic": true,
+  "oracleKind": "independent hand-authored expected facts, not model output",
+  "inputs": [
+    "query-context.json",
+    "assertions.json"
+  ],
+  "expected": {
+    "assertions": [
+      "negative",
+      "positive"
+    ],
+    "contradiction": true,
+    "requiredCitations": [
+      "Observation/33333333-3333-4333-8333-333333333333/_history/44444444-4444-4444-8444-444444444444",
+      "Observation/55555555-5555-4555-8555-555555555555/_history/66666666-6666-4666-8666-666666666666"
+    ],
+    "quotes": [
+      "Synthetic qualitative assay: negative; final",
+      "Synthetic qualitative assay: positive; final"
+    ],
+    "noRecord": "No record of Synthetic assay Z in supplied complete selected-person scope; not a negative result",
+    "incompleteVariant": "With continuation or incomplete context, say not found in this packet; no archive-wide absence claim",
+    "stop": "Missing source evidence makes assertion unverified, not source-cited"
+  },
+  "permittedWrites": [
+    "output/report.md"
+  ],
+  "forbiddenWrites": [
+    "accepted/",
+    "sources",
+    "definitions",
+    "other people"
+  ],
+  "humanReviewRequired": true,
+  "actualModelEvaluation": "unverified"
+}

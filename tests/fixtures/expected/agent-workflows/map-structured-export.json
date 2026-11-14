@@ -1,0 +1,30 @@
+{
+  "scenarioId": "map-structured-export",
+  "synthetic": true,
+  "oracleKind": "independent hand-authored expected facts, not model output",
+  "inputs": [
+    "structured-export.json"
+  ],
+  "expected": {
+    "sameFactsAs": "extract-report",
+    "requiredEvidence": [
+      "JSON pointers /result, /referenceText, /collectionMonth, /printedClock"
+    ],
+    "unsupported": "ImagingStudy retained as source; do not silently drop or claim full import",
+    "stop": "Unsupported content blocks a complete structured-import claim"
+  },
+  "permittedWrites": [
+    "output/candidate/candidate.json",
+    "output/candidate/bundle.json",
+    "output/candidate/evidence.json",
+    "output/report.md"
+  ],
+  "forbiddenWrites": [
+    "accepted/",
+    "sources",
+    "definitions",
+    "other people"
+  ],
+  "humanReviewRequired": true,
+  "actualModelEvaluation": "unverified"
+}

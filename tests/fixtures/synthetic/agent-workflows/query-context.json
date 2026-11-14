@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "personId": "11111111-1111-4111-8111-111111111111",
+  "snapshot": "synthetic snapshot, not an accepted head",
+  "complete": true,
+  "returnedCount": 2,
+  "continuation": null,
+  "records": [
+    {
+      "reference": "Observation/33333333-3333-4333-8333-333333333333/_history/44444444-4444-4444-8444-444444444444",
+      "personId": "11111111-1111-4111-8111-111111111111",
+      "status": "final",
+      "effectiveDateTime": "2026-11",
+      "code": {
+        "text": "Synthetic qualitative assay"
+      },
+      "valueCodeableConcept": {
+        "text": "negative"
+      },
+      "source": {
+        "file": "assertions.json",
+        "pointer": "/assertions/0",
+        "quote": "Synthetic qualitative assay: negative; final",
+        "sourceSha256": "0eb01ebd1d0c40bdc38367e1d9a2770957a88a80a1629a1463390f1aff38ea0a"
+      }
+    },
+    {
+      "reference": "Observation/55555555-5555-4555-8555-555555555555/_history/66666666-6666-4666-8666-666666666666",
+      "personId": "11111111-1111-4111-8111-111111111111",
+      "status": "final",
+      "effectiveDateTime": "2026-11",
+      "code": {
+        "text": "Synthetic qualitative assay"
+      },
+      "valueCodeableConcept": {
+        "text": "positive"
+      },
+      "source": {
+        "file": "assertions.json",
+        "pointer": "/assertions/1",
+        "quote": "Synthetic qualitative assay: positive; final",
+        "sourceSha256": "0eb01ebd1d0c40bdc38367e1d9a2770957a88a80a1629a1463390f1aff38ea0a"
+      }
+    }
+  ],
+  "questions": [
+    "What do the two sources assert?",
+    "Is there a record of Synthetic assay Z?"
+  ]
+}
