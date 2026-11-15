@@ -5,11 +5,22 @@
   <img src="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
 </picture>
 
-A local personal and family health archive toolkit, under development.
+A minimal starter kit for organizing personal health data: plain instructions,
+copyable extraction/query/correction templates, existing FHIR R4 schemas, and a
+complete invented example with source citations and human review guidance.
+
+**Start with the [starter kit](starter-kit/README.md).** No CLI installation,
+generated vault, prompt renderer or protocol setup is needed. See the
+[current scope and deferred work](SCOPE.md).
+
+The existing Python library/CLI and [legacy agent-kit](agent-kit/START-HERE.md)
+are preserved optional experiments with separate setup and constraints. They are
+not prerequisites for the starter kit. Their older documentation below describes
+that broader implementation, not a broad final qualification of this delivery.
 
 Canonical clinical records use FHIR R4, with retained source evidence, explicit human review, and immutable history. Normal archive operations are offline. No medical correctness or release readiness is claimed.
 
-## Current implementation
+## Optional experimental CLI
 
 The current CLI supports vault initialization, explicit person creation, offline
 schema export, bounded candidate/proposal validation, and agent task discovery,
@@ -31,7 +42,7 @@ Committing a newly prepared proposal before recording a decision returns
 `--decision` file before committing. Missing receipts in accepted history remain
 integrity failures; damaged review records do not authorize publication.
 
-## Try a synthetic archive
+## Optional CLI: try a synthetic archive
 
 Use Python 3.12 and uv. Dependency installation may need networking; the archive
 commands run locally. The directory created by `mktemp` is disposable demo data.

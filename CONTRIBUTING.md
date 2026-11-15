@@ -13,10 +13,14 @@ large changes, open an issue to align on scope and design. Keep changes focused.
 
 ## Choose the right scope
 
-The core owns durable local records, validation, evidence, explicit human review
-and immutable history. Keep source-specific extraction in adapters and clinical
-meaning in the shared FHIR contracts. Prefer existing Python/CLI contracts over a
-new framework or service. No plugin system is implied by Rikdom's conventions.
+The current core is the [minimal starter kit](starter-kit/README.md): instructions,
+three usable templates, existing FHIR R4/schema references and a complete invented
+example. Preserve precision, explicit person identity, source evidence, human
+review and accepted history. See [SCOPE.md](SCOPE.md) for deferred work. Existing
+Python/CLI and legacy agent-kit work remains optional and preserved; their setup
+is not required to use or improve the starter. Do not restart an older application
+roadmap or add infrastructure without explicit scope authorization. Keep clinical
+meaning in FHIR rather than introducing a parallel format.
 
 Public references, tests and self-contained issues describe the work. Private
 plans and coordination logs stay in ignored `docs/internal/`; contributors do
