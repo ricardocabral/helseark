@@ -439,7 +439,7 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
              'contractVersion': vault.config.contractVersion}.items() if k in metadata):
         raise ArchiveError('UNSUPPORTED_VERSION', 'Candidate version pins are unsupported.')
     registry = load_definition_registry(vault)
-    if not registry.validate('urn:helseark:schema:0.1.0:candidate', metadata):
+    if not registry.validate('urn:helseark:schema:'+('0.1.1' if vault.config.profileVersion == '0.2.0' and 'schemas/0.1.1/candidate.schema.json' in registry.files else '0.1.0')+':candidate', metadata):
         raise ArchiveError('INVALID_ENVELOPE', 'Candidate metadata violates pinned contract.')
     # Caller authority is checked before metadata can select history or assets.
     if person is not None and metadata['personId'] != person:
@@ -466,7 +466,7 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
         raise ArchiveError('INVALID_ENVELOPE', 'Expected collection Bundle entries.')
     if len(bundle['entry']) > limits.candidateResources:
         raise ArchiveError('RESOURCE_LIMIT', 'Candidate exceeds resource count limit.')
-    if not registry.validate('urn:helseark:schema:0.1.0:evidence', evidence):
+    if not registry.validate('urn:helseark:schema:'+('0.1.1' if vault.config.profileVersion == '0.2.0' and 'schemas/0.1.1/evidence.schema.json' in registry.files else '0.1.0')+':evidence', evidence):
         raise ArchiveError('INVALID_ENVELOPE', 'Evidence violates pinned contract.')
     if evidence.get('producerProvenance') != metadata['producerProvenance']:
         raise ArchiveError('PRODUCER_MISMATCH', 'Candidate and evidence producer provenance differ.')

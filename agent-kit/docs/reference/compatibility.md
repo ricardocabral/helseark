@@ -105,8 +105,14 @@ Older removal journals without this field remain restorable with their original
 digest. Applying an old plan in a vault with undisclosed local receipts requires
 a new plan and approval.
 
-Current review and validator-authority schemas are 0.1.1; unrelated envelope
-schemas remain 0.1.0. The 0.2.0 profile set adds eight history families and current
+Current review and validator-authority schemas are 0.1.1; new profile-set 0.2.0
+vaults also select the additive envelope schemas described below. The 0.2.0 profile set adds eight history families and current
 Provenance; six original profiles and all frozen 0.1.0 contract bytes remain.
 Identity migration keeps the source profile set, kit and definition bytes. It
 does not upgrade 0.1.0 vaults to 0.2.0.
+
+New profile-set 0.2.0 vaults use additive 0.1.1 envelope schemas for vault, kit,
+candidate, proposal, change and evidence. Their envelope contractVersion stays
+0.1.0; the schema identifiers distinguish expanded profile/CSV rules. Frozen
+0.1.0 schema bytes are retained. Dispatch selects 0.1.1 only from the vault’s own
+pins; earlier vaults (including earlier 0.2.0 kits) retain their original rules.

@@ -1,0 +1,589 @@
+{
+  "$id": "urn:helseark:schema:0.1.1:evidence",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "contractVersion": {
+      "const": "0.1.0"
+    },
+    "entries": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "enum": [
+                  "user-entry",
+                  "generated"
+                ]
+              },
+              "pointer": {
+                "type": "string"
+              },
+              "resourceRef": {
+                "type": "string"
+              },
+              "rule": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "resourceRef",
+              "pointer",
+              "kind",
+              "value",
+              "rule"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "locator": {
+                      "properties": {
+                        "kind": {
+                          "enum": [
+                            "text-span",
+                            "pdf-page"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "extraction"
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "extraction": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "method": {
+                              "enum": [
+                                "ocr",
+                                "model",
+                                "llm"
+                              ]
+                            }
+                          }
+                        },
+                        "then": {
+                          "properties": {
+                            "model": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    ],
+                    "properties": {
+                      "method": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "model": {
+                        "oneOf": [
+                          {
+                            "type": "null"
+                          },
+                          {
+                            "additionalProperties": false,
+                            "properties": {
+                              "name": {
+                                "minLength": 1,
+                                "type": "string"
+                              },
+                              "version": {
+                                "minLength": 1,
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "version"
+                            ],
+                            "type": "object"
+                          }
+                        ]
+                      },
+                      "preprocessing": {
+                        "items": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "method": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "parameters": {
+                              "type": "object"
+                            },
+                            "tool": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "version": {
+                              "minLength": 1,
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "method",
+                            "tool",
+                            "version",
+                            "parameters"
+                          ],
+                          "type": "object"
+                        },
+                        "type": "array"
+                      },
+                      "provenanceVersion": {
+                        "const": "1"
+                      },
+                      "status": {
+                        "const": "known"
+                      },
+                      "tool": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "version": {
+                        "minLength": 1,
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "provenanceVersion",
+                      "status",
+                      "method",
+                      "tool",
+                      "version",
+                      "model",
+                      "preprocessing"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "provenanceVersion": {
+                        "const": "1"
+                      },
+                      "reason": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "status": {
+                        "const": "unknown"
+                      }
+                    },
+                    "required": [
+                      "provenanceVersion",
+                      "status",
+                      "reason"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "kind": {
+                "const": "source"
+              },
+              "locator": {
+                "oneOf": [
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "kind": {
+                        "const": "json-pointer"
+                      },
+                      "pointer": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "pointer"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "end": {
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "extractionSha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "text-span"
+                      },
+                      "start": {
+                        "minimum": 0,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "extractionSha256",
+                      "start",
+                      "end"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "column": {
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "delimiter": {
+                        "maxLength": 1,
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "csv-cell"
+                      },
+                      "row": {
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "encoding": {
+                        "enum": [
+                          "utf-8",
+                          "utf-8-sig",
+                          "utf-16",
+                          "utf-16-le",
+                          "utf-16-be",
+                          "iso8859-1",
+                          "cp1252"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "row",
+                      "column",
+                      "delimiter"
+                    ],
+                    "type": "object"
+                  },
+                  {
+                    "additionalProperties": false,
+                    "properties": {
+                      "bbox": {
+                        "items": {
+                          "type": "number"
+                        },
+                        "maxItems": 4,
+                        "minItems": 4,
+                        "type": "array"
+                      },
+                      "coordinateSpace": {
+                        "const": "displayed-cropbox-top-left-normalized"
+                      },
+                      "extractionSha256": {
+                        "pattern": "^[0-9a-f]{64}$",
+                        "type": "string"
+                      },
+                      "kind": {
+                        "const": "pdf-page"
+                      },
+                      "page": {
+                        "minimum": 1,
+                        "type": "integer"
+                      },
+                      "pageRotationApplied": {
+                        "enum": [
+                          0,
+                          90,
+                          180,
+                          270
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "page",
+                      "extractionSha256",
+                      "coordinateSpace",
+                      "pageRotationApplied"
+                    ],
+                    "type": "object"
+                  }
+                ]
+              },
+              "quote": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "sourceDocument": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "sourceSha256": {
+                "pattern": "^[0-9a-f]{64}$",
+                "type": "string"
+              },
+              "target": {
+                "additionalProperties": false,
+                "properties": {
+                  "pointers": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "reference": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reference",
+                  "pointers"
+                ],
+                "type": "object"
+              },
+              "transformation": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "minLength": 1,
+                    "type": "string"
+                  },
+                  "rule": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "rule"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "kind",
+              "target",
+              "sourceSha256",
+              "sourceDocument",
+              "quote",
+              "locator"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "generated"
+              },
+              "rule": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "target": {
+                "additionalProperties": false,
+                "properties": {
+                  "pointers": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "reference": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reference",
+                  "pointers"
+                ],
+                "type": "object"
+              }
+            },
+            "required": [
+              "kind",
+              "target",
+              "rule"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "const": "user-entry"
+              },
+              "rule": {
+                "minLength": 1,
+                "type": "string"
+              },
+              "target": {
+                "additionalProperties": false,
+                "properties": {
+                  "pointers": {
+                    "items": {
+                      "minLength": 1,
+                      "type": "string"
+                    },
+                    "minItems": 1,
+                    "type": "array",
+                    "uniqueItems": true
+                  },
+                  "reference": {
+                    "minLength": 1,
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "reference",
+                  "pointers"
+                ],
+                "type": "object"
+              },
+              "value": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "kind",
+              "target",
+              "value",
+              "rule"
+            ],
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "personId": {
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(?![\\s\\S])",
+      "type": "string"
+    },
+    "producerProvenance": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provenanceVersion": {
+              "const": 1
+            },
+            "status": {
+              "const": "known"
+            },
+            "promptId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "promptVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "promptSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "skillSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "kitVersion": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kitSha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "skillId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "skillVersion": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "provenanceVersion",
+            "status",
+            "promptId",
+            "promptVersion",
+            "promptSha256",
+            "skillSha256",
+            "kitVersion",
+            "kitSha256",
+            "skillId",
+            "skillVersion"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "provenanceVersion": {
+              "const": 1
+            },
+            "status": {
+              "const": "external-unknown"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "provenanceVersion",
+            "status",
+            "reason"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "contractVersion",
+    "personId",
+    "entries"
+  ],
+  "type": "object"
+}

@@ -28,6 +28,7 @@ def pin():
             task['schemaPaths'] = list(dict.fromkeys([*task['schemaPaths'], *history_profiles]))
         if task['id'] == 'query':
             task['permittedOperations'] = list(dict.fromkeys([*task['permittedOperations'], 'helseark --vault PATH history --person UUID --kind MedicationStatement --json']))
+        task['schemaPaths']=[path.replace('schemas/0.1.0/', 'schemas/0.1.1/') if Path(path).name in {'candidate.schema.json','evidence.schema.json','proposal.schema.json','change.schema.json','vault.schema.json','agent-kit.schema.json'} else path for path in task['schemaPaths']]
         task['schemaPaths']=list(dict.fromkeys([*task['schemaPaths'],'schemas/0.1.0/agent-evidence-selection.schema.json']))
         task['skillPath']=f"skills/{skills[task['id']]}/SKILL.md"
         task['promptIds']=routes[task['id']]
@@ -72,8 +73,8 @@ def pin():
                 if slot=='source_hashes': spec.update(minItems=1,uniqueItems=True)
                 specs[slot]=spec
             prompts.append({'id':name,'version':'0.1.3' if name in ('extract-report','map-structured-export') else '0.1.1' if name in ('query-with-evidence','propose-correction','plan-migration') else '0.1.0','path':path,'sha256':digest(data),'taskIds':[task['id']],
-                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.5' if task['id']=='import' else '0.1.1' if task['id'] in ('query','correct','migrate') else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.0:evidence'],
-                'outputContractIds':['urn:helseark:schema:0.1.0:candidate','urn:helseark:schema:0.1.0:evidence'] if task['id'] in ('import','correct') else [],
+                'variables':specs,'skillId':skills[task['id']],'skillVersion':'0.1.6' if task['id']=='import' else '0.1.2' if task['id']=='correct' else '0.1.1' if task['id'] in ('query','migrate') else '0.1.0','skillSha256':digest((kit/task['skillPath']).read_bytes()),'inputContractIds':['urn:helseark:schema:0.1.0:agent-context','urn:helseark:schema:0.1.0:agent-evidence-selection','urn:helseark:schema:0.1.1:evidence'],
+                'outputContractIds':['urn:helseark:schema:0.1.1:candidate','urn:helseark:schema:0.1.1:evidence'] if task['id'] in ('import','correct') else [],
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.

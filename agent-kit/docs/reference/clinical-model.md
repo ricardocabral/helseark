@@ -137,7 +137,7 @@ block; review-severity issues require acknowledgment in the later review workflo
 
 ## Evidence checklist
 
-[The evidence schema](../../schemas/0.1.0/evidence.schema.json) accepts source,
+[The evidence schema](../../schemas/0.1.1/evidence.schema.json) accepts source,
 generated and explicit user-entry evidence. Legacy single-pointer user/generated
 records remain readable for Task 1 genesis. Runtime imports use `target.reference`
 and a nonempty `target.pointers` array of JSON Pointers relative to that resource.

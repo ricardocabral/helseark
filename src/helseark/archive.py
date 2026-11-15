@@ -65,7 +65,9 @@ def _schema(vault: Vault, name: str, value):
     lock = _json(vault.root, "definitions/lock.json", data=lock_data)
     official_v1 = official_report and any(entry['path'] == 'schemas/0.1.1/validation.schema.json'
         for artifact in lock['artifacts'] for entry in artifact['files'])
-    relative = f"schemas/{'0.1.1' if review_v1 or official_v1 else '0.1.0'}/{name}.schema.json"
+    additive_v1 = (vault.config.profileVersion == '0.2.0' and name in {'candidate','change','evidence','proposal','vault','official-validation-authority'} and
+        any(entry['path'] == f'schemas/0.1.1/{name}.schema.json' for artifact in lock['artifacts'] for entry in artifact['files']))
+    relative = f"schemas/{'0.1.1' if review_v1 or official_v1 or additive_v1 else '0.1.0'}/{name}.schema.json"
     lock = _json(vault.root, "definitions/lock.json", data=lock_data)
     entries = [entry for artifact in lock["artifacts"] for entry in artifact["files"] if entry["path"] == relative]
     schema_data = _read(vault.root, "definitions/" + relative)

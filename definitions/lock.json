@@ -4,23 +4,23 @@
       "files": [
         {
           "path": "schemas/0.1.0/candidate.schema.json",
-          "sha256": "ed5599352ace49ddb464157bc3fd496bb85c0946abc607853cb1c31d32ccc3ba",
-          "size": 4913
+          "sha256": "96b1e10c70c645cd6dd41d27c18574edf4fbae1f9bcbee92198dd9f24e82b160",
+          "size": 4879
         },
         {
           "path": "schemas/0.1.0/change.schema.json",
-          "sha256": "9bcf0f1326d58e6b7d11b55142aeaf09faa3e2475c1eb66885dca1e1d8384dce",
-          "size": 5073
+          "sha256": "475ca00b35a9f24b4393dd5a22b39b266e8743e62b36328e4f0a2c012b4d50e5",
+          "size": 5027
         },
         {
           "path": "schemas/0.1.0/evidence.schema.json",
-          "sha256": "8f5c758213c548ef22fe0df63c1ad715af7681315512075d4ec07499dba111a3",
-          "size": 17556
+          "sha256": "11910f24419c7241ce3d5d02e3be2b7e07cd377d33e0654e36f50cbf38497818",
+          "size": 17173
         },
         {
           "path": "schemas/0.1.0/proposal.schema.json",
-          "sha256": "c29ee22a84d9671afadf50dfff1dcb9a19349284732dc4ddbaaa30fde142c9db",
-          "size": 7211
+          "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
+          "size": 7165
         },
         {
           "path": "schemas/0.1.0/review.schema.json",
@@ -34,13 +34,13 @@
         },
         {
           "path": "schemas/0.1.0/vault.schema.json",
-          "sha256": "ff9b6bcdb06562a143ff8283d3b473111bf0ff9f610bb68a1dcfc550b0fe5026",
-          "size": 1243
+          "sha256": "504fd059defded5f364f1b6a8a84c75f0e2e46a5aa6704fbff0c1f704251965e",
+          "size": 1209
         },
         {
           "path": "schemas/0.1.0/agent-kit.schema.json",
-          "sha256": "0b48ee9d29d69592c5f8afdf1617ce9c753f7a515cf31922ae9d822b9c86d873",
-          "size": 9685
+          "sha256": "0caf8c7a8aa3f68c26f5fa98c8f28c6b6be33dedc07f87eab25b119096bb8977",
+          "size": 9639
         },
         {
           "path": "schemas/0.1.0/agent-context.schema.json",
@@ -689,7 +689,7 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "a72c23f293c4e7a54d910eb5b2335d32924d39fc8f933f7c72e2e7b66f5cf56a",
+          "sha256": "578ca2dce5897da8ed554de1e57d5e63ae74e573dc97a7aec834c8d6439232b2",
           "size": 34242
         }
       ],
@@ -767,7 +767,7 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "1b966d3bab3c3dcf6425e6937d9a24ec7e7e62e0529ead805a7339326e9e0e79",
+          "sha256": "75a09680afb9e9ef37118c8d398c7a6f4478b7354a1880e0324ae3224a1a258d",
           "size": 13205
         }
       ],
@@ -923,8 +923,8 @@
       "files": [
         {
           "path": "docs/reference/compatibility.md",
-          "sha256": "5e9e45fee0fe7c24bf0826f9ab0d796ddc21564f930fbab0ecf23dc183383052",
-          "size": 7249
+          "sha256": "8e735575ae6fb1390b0e6b4c004dacecbe02108a21a98c3ce37953f5152f197a",
+          "size": 7699
         }
       ],
       "license": "MIT",
@@ -1373,6 +1373,97 @@
       "origin": "repository-authored",
       "packageId": "helseark-reference-import-structured-data",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/candidate.schema.json",
+          "sha256": "1a7e8d90ee2784ed1e43c9f4136f912d3d2e88baffd239164abb8e8262a3f7a9",
+          "size": 4913
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-candidate.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/evidence.schema.json",
+          "sha256": "d0310696a0d0309fdb74fb3b3c98eeb346e6223993858881892a66bb5aa7bb2d",
+          "size": 17556
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-evidence.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/agent-kit.schema.json",
+          "sha256": "7a60ada7275f2cef90649c881953a2e03ead20c6f3a0d2ac43770a765af111a1",
+          "size": 9685
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-agent-kit.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/change.schema.json",
+          "sha256": "4ce44dcf41cc99cc05e06a5b36a22cf0aa1ad6b0bc7ad289e6a6310de921e442",
+          "size": 5073
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-change.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/proposal.schema.json",
+          "sha256": "2fe1dd02e3510408947d7bb40b370efef701529543ad7d264705ed1d7e1ab9d4",
+          "size": 7211
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-proposal.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/vault.schema.json",
+          "sha256": "858a19bed173e5ab8587be1be5c952956c60f40cc5d2dca4df58811728bb999e",
+          "size": 1243
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-vault.schema",
+      "version": "0.1.1"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/official-validation-authority.schema.json",
+          "sha256": "f03940c3b79403e459451dc9d6b5561df1b92baff1a3d2da4cbe28d0342502a8",
+          "size": 4823
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-official-validation-authority.schema",
+      "version": "0.1.1"
     }
   ],
   "contractVersion": "0.1.0",

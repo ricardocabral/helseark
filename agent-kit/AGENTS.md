@@ -54,7 +54,7 @@ re-extraction do not delete accepted facts.
 
 ## Prompt slot handoff contract
 
-The extraction prompt is `0.1.3`, structured mapping prompt is `0.1.3`, import skill is `0.1.5`, and query prompt/skill are `0.1.1`; other versions are pinned in the manifest. Each declares task-specific slots below
+The extraction prompt is `0.1.3`, structured mapping prompt is `0.1.3`, import skill is `0.1.6`, and query prompt/skill are `0.1.1`; other versions are pinned in the manifest. Each declares task-specific slots below
 its title and inherits this slot table. Types describe input values before
 serialization; no slot is an expression, include, tool argument or command.
 

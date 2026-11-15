@@ -65,11 +65,13 @@ def _load_kit(kit: Path, expected_digest=None, registry=None):
     if expected_digest is not None and hash_bytes(data) != expected_digest:
         raise ArchiveError('KIT_MISMATCH', 'Pinned kit manifest digest differs.')
     value = decode_json(data)
+    version = ('0.1.1' if value.get('compatibility', {}).get('profileVersion') == '0.2.0' and
+               (registry is None or 'schemas/0.1.1/agent-kit.schema.json' in registry.files) else '0.1.0')
     if registry is None:
-        schema = decode_json(_read(_bundled_root(), 'schemas/0.1.0/agent-kit.schema.json'))
+        schema = decode_json(_read(_bundled_root(), f'schemas/{version}/agent-kit.schema.json'))
         valid = Draft202012Validator(schema).is_valid(value)
     else:
-        valid = registry.validate('urn:helseark:schema:0.1.0:agent-kit', value)
+        valid = registry.validate(f'urn:helseark:schema:{version}:agent-kit', value)
     if not valid:
         raise ArchiveError('INVALID_KIT', 'Kit manifest violates protocol 1.')
     # Explicit paths are checked independently of schema patterns, before any read.

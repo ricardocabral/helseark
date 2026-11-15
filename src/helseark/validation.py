@@ -792,7 +792,7 @@ class _Checks:
 
     def evidence(self, evidence, sources):
         self.family = 'evidence'
-        if not self.registry.validate('urn:helseark:schema:0.1.0:evidence', evidence):
+        if not self.registry.validate('urn:helseark:schema:'+('0.1.1' if self.vault.config.profileVersion == '0.2.0' and 'schemas/0.1.1/evidence.schema.json' in self.registry.files else '0.1.0')+':evidence', evidence):
             self.issue('INVALID_ENVELOPE')
         if not isinstance(evidence, dict) or evidence.get('personId') != self.person:
             self.issue('PERSON_MISMATCH')
@@ -964,7 +964,7 @@ def validate_candidate(vault: Vault, candidate: Candidate) -> ValidationReport:
                 'fhirVersion':vault.config.fhirVersion}.items()):
             raise ArchiveError('UNSUPPORTED_VERSION', 'Candidate version pins are unsupported.')
         checks.checked.add('local-envelopes')
-        if not registry.validate('urn:helseark:schema:0.1.0:candidate', metadata):
+        if not registry.validate('urn:helseark:schema:'+('0.1.1' if vault.config.profileVersion == '0.2.0' and 'schemas/0.1.1/candidate.schema.json' in registry.files else '0.1.0')+':candidate', metadata):
             checks.issue('INVALID_ENVELOPE')
             return checks.report()
         expected = {'candidateId': candidate.candidateId, 'personId': candidate.personId,
@@ -1024,7 +1024,7 @@ def validate_proposal(vault: Vault, proposalDirectory: Path, *,
                     isinstance(pins, dict) and any(k in pins and pins[k] != v for k,v in _versions(vault).items())):
                 raise ArchiveError('UNSUPPORTED_VERSION', 'Proposal version pins are unsupported.')
         checks.checked.add('local-envelopes')
-        if not registry.validate('urn:helseark:schema:0.1.0:proposal', proposal):
+        if not registry.validate('urn:helseark:schema:'+('0.1.1' if vault.config.profileVersion == '0.2.0' and 'schemas/0.1.1/proposal.schema.json' in registry.files else '0.1.0')+':proposal', proposal):
             checks.issue('INVALID_ENVELOPE')
             return checks.report(digest)
         _verify_inputs(proposalDirectory,proposal)
