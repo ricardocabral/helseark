@@ -20,7 +20,14 @@ with zipfile.ZipFile(wheels[0]) as wheel:
     assert metadata['License-Expression'] == 'MIT'
     assert metadata.get_all('License-File') == ['LICENSE'], 'Unrelated project license metadata'
     for markdown, html in re.findall(r'\]\(([^)]+)\)|(?:src|srcset)="([^"]+)"', metadata.get_payload()):
-        assert (markdown or html).startswith(('https://', '#')), 'README link depends on a checkout'
+        target = markdown or html
+        if not target.startswith(('https://', '#')):
+            # Reader routes must exist in the actual wheel, without a checkout.
+            from pathlib import PurePosixPath
+            relative = PurePosixPath(target.split('#', 1)[0])
+            assert not relative.is_absolute() and '..' not in relative.parts, target
+            assert any(name.endswith('/data/share/helseark/'+str(relative))
+                       for name in wheel.namelist()), ('README target absent from wheel', target)
     assert wheel.read(info + '/licenses/LICENSE') == license_bytes
     runtime_license = next(n for n in wheel.namelist() if n.endswith('.data/data/share/helseark/LICENSE'))
     assert wheel.read(runtime_license) == license_bytes

@@ -345,12 +345,18 @@ binds mapped candidates and coverage independently of their editable IDs or path
 
 Profile set 0.2.0 adds source-assertion history families. The original six
 profiles remain byte-identical at version 0.1.0. Provenance 0.2.0 widens the
-native target boundary to include the added families; the original Provenance
+native target and revision-entity boundaries to include the added families; the original Provenance
 0.1.0 remains supported. New vaults pin profile set
-0.2.0 and kit 0.1.9; existing 0.1.0 vaults continue using their retained locks,
+0.2.0 and kit 0.1.14; existing 0.1.0 vaults continue using their retained locks,
 profiles and kits. They are readable without migration. New history resources
 require a 0.2.0 vault and its pinned history definitions; do not edit vault pins
-or repin accepted history to upgrade. No persisted clinical meaning is rewritten.
+or repin accepted history to upgrade. No persisted clinical meaning is rewritten. Source entities still require selected-person
+DocumentReference revisions. Other entities must resolve to supported resources;
+accepted references retain exact revisions and cannot cross people. Re-extraction
+links the prior exact revision without changing its bytes.
+Kit 0.1.14 includes the corrected current Provenance definitions. Earlier
+0.2.0 kits also retain their exact definitions; installing new toolkit bytes does
+not repair or repin those vaults. Migration remains a separate unavailable workflow.
 The archive contract and FHIR release stay 0.1.0 and R4 4.0.1 respectively.
 
 `helseark --vault VAULT history --person PERSON --kind MedicationStatement --json`

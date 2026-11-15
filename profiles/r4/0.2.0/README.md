@@ -1,7 +1,8 @@
 # Helseark source-assertion profiles 0.2.0
 
 Additive history surface for FHIR R4 4.0.1. The original six 0.1.0
-profiles remain frozen; Provenance 0.2.0 expands native target support.
+profiles remain frozen; Provenance 0.2.0 expands native target and revision-entity support. Source entities still require
+DocumentReference revisions; exact revision and selected-person checks remain mandatory.
 Every scalar requires evidence and explicit human review. Unsupported elements
 stay in the source, with a declared limitation, rather than being dropped.
 See [clinical model and compatibility](../../../docs/reference/clinical-model.md#history-profile-compatibility-and-query).

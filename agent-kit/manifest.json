@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "3760b03755d8267bcb2605a166306a6a4d0ea6940894eaf19d8a06c9f0738354",
+    "definitionLockSha256": "2a3a19efcfdcfb64d13c5ced4c70d902084e7d33215f951212e7e8052952af02",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.2.0",
     "serializationVersion": "helseark-json-1"
@@ -14,8 +14,8 @@
   "files": [
     {
       "path": "AGENTS.md",
-      "sha256": "f20aff14341ed418e81921805a88dcf1e4ea2c9c8aba2469a2e6f9eca43ecc49",
-      "size": 10458
+      "sha256": "e11814d63283695e97ef08aab908bdf09b572816e9e9ca8f43461f0111cbf7a0",
+      "size": 10459
     },
     {
       "path": "START-HERE.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "3760b03755d8267bcb2605a166306a6a4d0ea6940894eaf19d8a06c9f0738354",
+      "sha256": "2a3a19efcfdcfb64d13c5ced4c70d902084e7d33215f951212e7e8052952af02",
       "size": 40392
     },
     {
@@ -49,8 +49,8 @@
     },
     {
       "path": "docs/how-to/import-structured-data.md",
-      "sha256": "42e84c96b1f092819fe4a2d42a98f009de430d5abbc918b367b28f436c250308",
-      "size": 8538
+      "sha256": "e33147386e22bec4c5cb358c3f7ca8303fd71377bcf7cb3be8cb384454bac2a9",
+      "size": 9072
     },
     {
       "path": "docs/how-to/query-history.md",
@@ -64,8 +64,8 @@
     },
     {
       "path": "docs/reference/agent-protocol.md",
-      "sha256": "9b83a1705a8e727a3420af3c8d0f1c1ca869467340acc3e540e7f5a62d95f2c3",
-      "size": 30048
+      "sha256": "254a8fbae57288d121d452e7b51eaea8165e0ce0fc268abaa631b041498a4918",
+      "size": 30050
     },
     {
       "path": "docs/reference/archive-format.md",
@@ -74,13 +74,13 @@
     },
     {
       "path": "docs/reference/clinical-model.md",
-      "sha256": "3a31ac1e4e72f2fdcc62be597d834d2948514cd4a15b320bf53202255e06c87e",
-      "size": 33654
+      "sha256": "e997e70b0edf1f6a8a4f0d6b173f32385d43fa3d15daf92fd3f9a11ddaa8928d",
+      "size": 34186
     },
     {
       "path": "docs/reference/intake.md",
-      "sha256": "30bf11fb4f4d00a9265f7176c8c33db5cae37ffab5eb53f81159692af7821f2f",
-      "size": 14395
+      "sha256": "41309356a410413333d0b016dd899ac51a11ab8605d7bdd2f9956e30855295ac",
+      "size": 14396
     },
     {
       "path": "docs/reference/pdf-extraction.md",
@@ -174,8 +174,8 @@
     },
     {
       "path": "profiles/r4/0.2.0/README.md",
-      "sha256": "840a19a1e795cd923134e190a63a16bd9071dfc3752f48237ebf0aa80c189173",
-      "size": 4250
+      "sha256": "8bcb8e32673b302305ff16994b49c2f480e8b14b8448e1f78fbf08d11f36f703",
+      "size": 4389
     },
     {
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-allergy-intolerance.json",
@@ -219,8 +219,8 @@
     },
     {
       "path": "profiles/r4/0.2.0/StructureDefinition-helseark-provenance.json",
-      "sha256": "514639b3b5130e87b50bfd1cf38d684b406b25ee9a088837431850539e0e5281",
-      "size": 5173
+      "sha256": "98c91a58f2e24e1d3585e627489c5394dada378a07d0c0fb257bf9373407f894",
+      "size": 4568
     },
     {
       "path": "profiles/r4/0.2.0/package.json",
@@ -378,7 +378,7 @@
       "size": 11
     }
   ],
-  "kitVersion": "0.1.9",
+  "kitVersion": "0.1.14",
   "prompts": [
     {
       "id": "extract-report",

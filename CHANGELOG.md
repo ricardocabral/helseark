@@ -18,6 +18,13 @@ to its reviewed tag and published artifacts when a release is authorized.
 
 - README onboarding and implementation status; repository-agent guidance for public contributors.
 
+### Fixed
+
+- Staged kit 0.1.14 selects the vault Provenance profile for structured imports,
+  supports exact history revision entities, and inventories retained native attachments.
+  Existing vault pins and accepted history remain unchanged.
+- Staged README capability guides resolve within the revision, with bundled offline routes.
+
 Before a release, add the final feature/fix inventory, separate breaking contract
 changes and migration requirements, and disclose known limitations. Keep sensitive
 security details private until coordinated disclosure under SECURITY.md.

@@ -148,12 +148,15 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
         kind=original['resourceType']
         coverage.append({'pointer':ptr,'disposition':'explicit-local-assignment' if kind=='Patient' else 'mapped',
                          'nativeId':original['id'],'nativeMeta':original.get('meta',{})})
+        local_profile = native_profile(kind)
+        if kind == 'Provenance':
+            local_profile = local_profile.rsplit('|', 1)[0] + '|' + vault.config.profileVersion
         profiles=original.get('meta',{}).get('profile',[])
         if not isinstance(profiles,list):
             raise ArchiveError('INVALID_INPUT','Expected a list of source profile identifiers.')
         for profile in profiles:
             if not isinstance(profile,str) or profile not in {'http://hl7.org/fhir/StructureDefinition/'+kind,
-                    'http://hl7.org/fhir/StructureDefinition/'+kind+'|4.0.1',*_profile(kind)['profile']}:
+                    'http://hl7.org/fhir/StructureDefinition/'+kind+'|4.0.1',native_profile(kind),local_profile}:
                 unsupported(ptr+'/meta/profile','unhandled-source-profile')
         for k in original.get('meta',{}):
             if k not in {'versionId','lastUpdated','profile'}:unsupported(ptr+'/meta/'+k.replace('~','~0').replace('/','~1'))
@@ -161,7 +164,7 @@ def import_fhir_r4(source: SourceReceipt, person: str, mapping: IdentityMapping)
             if k not in set(_FIELDS[kind].split())|{'resourceType','id','meta','language','text'}:
                 unsupported(ptr+'/'+k.replace('~','~0').replace('/','~1'))
         if kind=='Patient':continue
-        r=deepcopy(original);r['id']=ref.removeprefix('urn:uuid:');r['meta']=_profile(kind)
+        r=deepcopy(original);r['id']=ref.removeprefix('urn:uuid:');r['meta']={'profile':[local_profile]}
         # Rewrite only Reference.reference values, never arbitrary equal clinical strings.
         from ..archive import _reference_nodes
         for pointer,node in _reference_nodes(r):

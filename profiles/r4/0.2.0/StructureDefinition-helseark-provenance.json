@@ -120,12 +120,7 @@
           {
             "code": "Reference",
             "targetProfile": [
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0",
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-observation|0.1.0",
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-diagnostic-report|0.1.0",
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-specimen|0.1.0",
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-document-reference|0.1.0",
-              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0"
+              "http://hl7.org/fhir/StructureDefinition/Resource"
             ]
           }
         ]

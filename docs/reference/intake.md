@@ -165,7 +165,7 @@ is not evidence that a model follows the instructions; fresh actual trials remai
 a separate coordinator gate.
 
 
-## Structured host issuance — kit 0.1.9
+## Structured host issuance — kit 0.1.14
 
 Toolkit-retained non-PDF source receipts require original structured issuance when
 reading a candidate. The source-local `structured/<candidate-input-digest>.json`

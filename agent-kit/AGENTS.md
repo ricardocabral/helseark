@@ -139,7 +139,7 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.9 is an intermediate staged union of bounded structured intake, native
+Kit 0.1.14 is an intermediate staged union of bounded structured intake, native
 history, optional OCR and static presentation on the current clinical foundation.
 Human-controlled reviewed publication is available. The renderer reports both
 draft disposition and whole-workflow availability. No acceptance permission follows.
