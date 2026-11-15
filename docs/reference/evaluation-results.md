@@ -55,7 +55,7 @@ synthetic review → commit route. They are separate software-contract evidence;
 they do not retroactively qualify production publication in the earlier query
 trials or change those trials' results and limitations.
 
-These older runtimes, sources and instruction sets do not qualify kit 0.1.18 or
+These older runtimes, sources and instruction sets do not qualify kit 0.1.19 or
 establish strict packet compliance, full FHIR/terminology conformance, general
 provider coverage, medical truth or complete evaluation. Actual final-kit gates
 remain: transcription correction preserving earlier facts/evidence; scoped export

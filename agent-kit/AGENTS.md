@@ -139,7 +139,7 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.18: see [offline guides](docs/index.md) for current features and limits.
+Kit 0.1.19: see [offline guides](docs/index.md) for current features and limits.
 Draft disposition and whole-workflow availability never grant acceptance.
 Source inclusion/derivative export require human export-plan/export-review authority.
 Migration is whole-vault host scope: agents assess; humans review the plan digest.

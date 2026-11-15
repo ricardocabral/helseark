@@ -163,6 +163,73 @@ def _source_bytes(vault, source):
     return data
 
 
+def _attachment_closure(vault: Vault, person: str, digest: str):
+    """Verify retained attachment provenance and return its exact assets/receipts.
+
+    CAS locality alone never proves intake ownership. Extraction relationships
+    resolve through the selected person's verified original and native readers.
+    """
+    path = _safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob')
+    data = _regular(path, LIMITS.sourceBytes)
+    if hash_bytes(data) != digest:
+        raise ArchiveError('SOURCE_HASH_MISMATCH', 'Retained attachment bytes differ.')
+    assets = {}; receipts = set()
+    source_path = path.parent/'source.json'
+    extraction_path = path.parent/'extraction.json'
+    if source_path.exists() or source_path.is_symlink():
+        media = 'application/pdf' if data.startswith(b'%PDF-') else 'application/octet-stream'
+        source = SourceReceipt(person, digest, len(data), media, path)
+        _source_bytes(vault, source)
+        assets[digest] = media
+        receipts.add(source_path)
+        # PDF text receipts live beside the original; OCR version receipts live
+        # beside their pages. Neither may claim an unrelated source or artifact.
+        if extraction_path.exists() or extraction_path.is_symlink():
+            receipt, _, _, _ = _extraction(vault, source, LIMITS, retained_only=True)
+            assets[receipt['pagesSha256']] = 'application/json'
+            receipts.add(extraction_path)
+        return assets, receipts
+    has_receipt = extraction_path.exists() or extraction_path.is_symlink()
+    try:
+        pages = decode_json(data)
+    except ArchiveError:
+        raise ArchiveError('SOURCE_AUTHORITY_REQUIRED', 'Attachment lacks retained original/extraction provenance.') from None
+    # Text extraction receipts live at the original, not the pages CAS object.
+    # The artifact's source link is only a selector until the native reader
+    # verifies the original's receipt and its exact pages digest below.
+    receipt = decode_json(_regular(extraction_path, 65536)) if has_receipt else None
+    if has_receipt:
+        if not isinstance(receipt, dict) or receipt.get('pagesSha256') != digest:
+            raise ArchiveError('EXTRACTION_MISMATCH', 'Attachment extraction receipt differs.')
+        original = receipt.get('sourceSha256')
+    elif isinstance(pages, dict) and pages.get('artifactVersion') == 'helseark-pdf-pages-1':
+        original = pages.get('sourceSha256')
+    else:
+        raise ArchiveError('SOURCE_AUTHORITY_REQUIRED', 'Attachment lacks retained original/extraction provenance.')
+    sha256_string(original)
+    original_path = _safe(vault.root, f'people/{person}/assets/sha256/{original}/blob')
+    original_data = _regular(original_path, LIMITS.sourceBytes)
+    source = SourceReceipt(person, original, len(original_data), 'application/pdf', original_path)
+    _source_bytes(vault, source)
+    if isinstance(pages, dict) and pages.get('artifactVersion') == 'helseark-ocr-pages-1':
+        _, pages, _, _ = _ocr_extraction(vault, source, digest)
+        for item in pages['derivatives']:
+            content = _regular(_safe(vault.root,
+                f"people/{person}/assets/sha256/{item['sha256']}/blob"), ARTIFACT_BYTES)
+            assets[item['sha256']] = ('image/x-portable-graymap' if content.startswith(b'P5\n')
+                                     else 'text/tab-separated-values')
+    else:
+        verified, _, _, _ = _extraction(vault, source, LIMITS, retained_only=True)
+        if (receipt is not None and verified != receipt) or verified['pagesSha256'] != digest:
+            raise ArchiveError('EXTRACTION_MISMATCH', 'Attachment differs from original extraction.')
+        receipts.add(original_path.parent/'extraction.json')
+    assets.update({original:'application/pdf', digest:'application/json'})
+    receipts.add(original_path.parent/'source.json')
+    if has_receipt:
+        receipts.add(extraction_path)
+    return assets, receipts
+
+
 def _cue_issues(pages):
     # Conservative repeated explicit labels only; never assign a person from text.
     cues = {m.group(1).strip().casefold() for page in pages for m in
@@ -754,9 +821,10 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
         inputs.append({'path':'inputs/coverage.json','sha256':hash_bytes(data)})
     assets=[]; bindings=[]
     digests=set(sources)
-    # Native attachments are retained assets too, even when the Bundle itself
-    # supplies the mapping evidence. Candidate validation has checked locality,
-    # selected-person ownership, size and hash before this inventory is built.
+    # Native attachments require intake provenance in addition to candidate
+    # locality/hash/size validation. Legacy authority covers selected sources
+    # only; it never authorizes extra URLs in a newly issued structured import.
+    retained_media = {}; retained_receipts = set()
     for resource in resources:
         for pointer, node in _walk(resource):
             if (isinstance(node, dict) and
@@ -765,7 +833,22 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
                      re.fullmatch(r'/presentedForm/[0-9]+', pointer))):
                 match = re.fullmatch(r'assets/sha256/([0-9a-f]{64})/blob', node.get('url', ''))
                 if match:
-                    digests.add(match[1])
+                    digest = match[1]
+                    blob = _safe(vault.root, f'people/{fresh.personId}/assets/sha256/{digest}/blob')
+                    legacy = (digest in sources
+                        and not (blob.parent/'source.json').exists()
+                        and not (blob.parent/'source.json').is_symlink()
+                        and not (blob.parent/'structured').exists()
+                        and ((authorized_sources is not None
+                              and not _safe(vault.root, f'.runtime/intake/{fresh.candidateId}.json').exists())
+                             or (correction and correction['mode'] != 'laboratory-amendment'
+                                 and any(a['sha256'] == digest for _, _, change in history
+                                         for a in change['assets']))))
+                    if not legacy:
+                        closure, receipts = _attachment_closure(vault, fresh.personId, digest)
+                        retained_media.update(closure); retained_receipts.update(receipts)
+                        digests.update(closure)
+                    digests.add(digest)
     for e in evidence['entries']:
         digest=e.get('locator',{}).get('extractionSha256')
         if digest: digests.add(digest)
@@ -782,13 +865,33 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
                           and (pointer.endswith('/attachment') or r['resourceType']=='DiagnosticReport'
                                and re.fullmatch(r'/presentedForm/[0-9]+',pointer))
                           and 'contentType' in node}
+        if hash_bytes(data) != digest:
+            raise ArchiveError('SOURCE_HASH_MISMATCH','Retained asset bytes differ.')
         if len(declared_media)>1:
             raise ArchiveError('INVALID_INPUT','Conflicting source attachment media types.')
-        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':next(iter(declared_media),
-            'application/pdf' if data.startswith(b'%PDF-') else 'image/x-portable-graymap' if data.startswith(b'P5\n') else 'text/tab-separated-values' if data.startswith(b'level\tpage_num\t') else 'application/json')})
+        verified_media = retained_media.get(digest)
+        # PDF classification is owned by verified retention/bytes, never by an
+        # untrusted declaration. Generic non-PDF retention permits refinements.
+        if data.startswith(b'%PDF-') or verified_media == 'application/pdf':
+            if declared_media and declared_media != {'application/pdf'}:
+                raise ArchiveError('SOURCE_MEDIA_TYPE_MISMATCH','PDF attachments require application/pdf.')
+            media = 'application/pdf'
+        else:
+            media = next(iter(declared_media),
+                verified_media or ('image/x-portable-graymap' if data.startswith(b'P5\n')
+                else 'text/tab-separated-values' if data.startswith(b'level\tpage_num\t') else 'application/json'))
+            if (media.split(';', 1)[0].strip().lower() == 'application/pdf'
+                    or verified_media not in (None, 'application/octet-stream') and media != verified_media):
+                raise ArchiveError('SOURCE_MEDIA_TYPE_MISMATCH','Attachment media contradicts retained provenance/bytes.')
+        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':media})
         for name in ('source.json','extraction.json'):
             receipt=_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/{name}')
             if receipt.exists(): bindings.append({'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),'sha256':hash_bytes(_regular(receipt,65536))})
+    for receipt in sorted(retained_receipts):
+        binding = {'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),
+                   'sha256':hash_bytes(_regular(receipt,65536))}
+        if binding not in bindings:
+            bindings.append(binding)
     _write(path/'evidence.json',encode_json(evidence))
     retained={f"{i['type']}/{i['id']}" for i in inventory}
     omissions=sorted(old_refs-retained)

@@ -166,7 +166,7 @@ is not evidence that a model follows the instructions; fresh actual trials remai
 a separate coordinator gate.
 
 
-## Structured host issuance — kit 0.1.18
+## Structured host issuance — kit 0.1.19
 
 Toolkit-retained non-PDF source receipts require original structured issuance when
 reading a candidate. The source-local `structured/<candidate-input-digest>.json`
@@ -204,3 +204,24 @@ to the three candidate inputs. Its mapping/coverage digest permits doctor and
 backup to account for a matching source-local issuance receipt when present.
 Unknown, altered and unaccepted sidecars remain visible audit issues. Issuance is
 resumable host state: accepted queries/history do not require it, work or runtime.
+
+
+## Native attachment authority — kit 0.1.19
+
+DocumentReference content and DiagnosticReport presentedForm use the same retained
+attachment boundary. Before preparation, local paths/hash/size must validate. A
+new attachment then requires a verified selected-person source receipt matching
+its exact original bytes, or a verified extraction linked to that original.
+Preparation inventories the full original/extraction/derivative closure and binds
+its source/extraction receipts for exact review and commit. Missing, malformed,
+wrong-person or contradictory receipts block; copying a blob into the selected
+person's CAS does not confer original-source authority.
+
+PDF classification follows retained provenance and bytes. A contradictory media
+declaration blocks before acceptance. Generic non-PDF retention still permits
+supported structured/text media refinements, including FHIR JSON and mapped CSV.
+Source assignment never authorizes PDF disclosure: default source-inclusive
+export still requires separate reviewed original inclusion or supplied derivative
+mapping/omissions. Previously accepted bytes and pinned definitions are unchanged.
+Explicit legacy source authorization applies only to its selected genuine legacy
+sources, never extra attachment URLs in newly issued imports.

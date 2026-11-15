@@ -1,6 +1,6 @@
 # First archive: review, publish, query and restore
 
-For toolkit 0.1.2, kit 0.1.18, archive format 1, contract 0.1.0 / profile-set 0.2.0
+For toolkit 0.1.2, kit 0.1.19, archive format 1, contract 0.1.0 / profile-set 0.2.0
 and independently versioned exact-issue review receipts 0.1.1.
 Use Python 3.12+ and an installed local Helseark wheel with its pinned `pdf` extra.
 Setup may require acquiring dependencies in advance; the lesson itself is offline.

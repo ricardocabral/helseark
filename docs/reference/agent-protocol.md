@@ -8,7 +8,7 @@ a separate gate; templates do not establish command support or extraction accura
 ## Entry points and pins
 
 A new vault contains generated `AGENTS.md`, a thin `CLAUDE.md` containing
-`@AGENTS.md`, and its explicitly pinned agent-kit directory (current new-vault kit `0.1.18`). The AGENTS template is the one routing
+`@AGENTS.md`, and its explicitly pinned agent-kit directory (current new-vault kit `0.1.19`). The AGENTS template is the one routing
 source; it points to `vault.json` and the retained kit's `START-HERE.md` and
 `manifest.json`. Contributor instructions in the toolkit are a different scope.
 
@@ -396,7 +396,7 @@ The renderer neither embeds original evidence nor grants filesystem authority.
 The [intake contract 1](intake.md) defines source/extraction receipts and the real
 CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
 this protocol's existing v2 selector and renderer, never a competing prompt or
-projection owner. Its PDF draft is available; current kit 0.1.18 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
+projection owner. Its PDF draft is available; current kit 0.1.19 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
 publication is available only through explicit human host control. The runtime handoff discloses whole-workflow
 availability separately. Source-specific packets request exactly one user-selected
 source and minimal identity; source assertions cannot grant broader authorization.
