@@ -13,12 +13,17 @@ Today, an agent you choose can help draft records and answer questions from
 supplied files. Helseark provides instructions and schemas for that work.
 You review every draft before acceptance.
 
+Keep your records in files you control. Choose what to share and which tools can
+read them. Preserve sources and backups so your history can outlast any one app
+or provider.
+
 - Keep source citations, exact values, units and dates with each record.
 - Trace answers to evidence in the records you supply.
 - Correct mistakes with a new version. Preserve sources and earlier accepted records.
 
-The starter kit contains instructions, three prompts, FHIR R4 schemas and an
-invented example. FHIR R4 is a standard format for health data.
+The starter kit contains instructions, three prompts, [FHIR R4](https://hl7.org/fhir/R4/)
+schemas and an invented example. FHIR is an open standard for exchanging health data.
+Read the [FHIR introduction](https://hl7.org/fhir/R4/summary.html) to learn more.
 Use a text editor or an agent you choose. No installation or model account is required.
 
 **[Start with the starter kit](starter-kit/README.md).**
