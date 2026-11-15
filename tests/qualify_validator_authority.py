@@ -23,7 +23,7 @@ from helseark.serialization import encode_json,decode_json,hash_bytes
 from helseark.agent_context import document
 from test_intake import supplied_candidate
 from test_review import prepare
-from qualify_official_validator import network_denial_witness
+from qualify_official_validator import network_denial_witness, record_installed_runtime
 
 
 def clone(source,destination):
@@ -87,13 +87,14 @@ def mutation(name,value,baseline):
 
 def main():
     parser=argparse.ArgumentParser()
+    parser.add_argument('--wheel',type=Path,required=True)
     parser.add_argument('--artifacts',type=Path,required=True)
     parser.add_argument('--java',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--legacy-workflow',type=Path,required=True)
     parser.add_argument('--timeout-seconds',type=int,default=240)
     args=parser.parse_args();args.output.mkdir(parents=True,exist_ok=False)
-    assert 'site-packages' in tool.__file__,tool.__file__
+    record_installed_runtime(args.wheel,args.output)
     print('installed runtime',tool.__file__,flush=True)
     witness=network_denial_witness(args.output)
     print('reachable loopback control + specific OS denial',witness,flush=True)

@@ -37,6 +37,23 @@ Every required local reference is included recursively; unresolved or cross-pers
 references block export. This may include historical results or Provenance targets
 beyond the initial selection. Inspect the final closure before sharing.
 
+**Resource selection does not narrow original-source scope.** In the current
+source-inclusive `selected-current` mode, the resource closure above is separate
+from the source inventory: export includes **all accepted source assets and
+retained source/extraction receipts for the selected person's entire accepted
+history**, including unrelated imports and older revisions. Selecting one
+Observation can therefore include other accepted reports or CSV files that are
+not dependencies of that Observation. Read every `originalSources` and
+`sourceFiles` entry in `export-plan`, not just `referenceMap`, before deciding
+what to share. Reviewed original inclusion binds this complete inventory;
+derivative planning also inventories it and declares original omissions. There
+is no selected-dependency-only source option. Choose `--no-sources` for an
+explicit source-free exchange, or review the complete original inventory or
+supplied derivative route below; never silently prune sources or reuse approval
+for a narrower inventory. Full-person recovery explicitly retains the complete
+accepted chain and exact original evidence. Selected snapshots remain exchange
+artifacts, even when they include every original source.
+
 This is a **new snapshot**, with a new export ID and declared omissions, never a
 truncated accepted chain. It omits original history, unselected revisions, work,
 runtime and derived files. --no-sources also omits source/evidence/review envelopes.

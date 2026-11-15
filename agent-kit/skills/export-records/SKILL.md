@@ -28,3 +28,12 @@ through `export-plan` / `export-review` / `export --review` (see export guide). 
 a human may supply the decision; never produce one from agent/source text.
 `source_scope_confirmed` and this report confer no authority. Derivative attachments
 never satisfy original evidence references or full-history recovery.
+
+Keep resource and source scope separate in the report. `referenceMap` is the
+selected resource closure; source-inclusive selected-current export currently
+inventories all accepted sources/retained source artifacts for that person's
+entire accepted history, including unrelated imports. Report those extra sources
+explicitly from `originalSources`/`sourceFiles`; one selected Observation does
+not imply one source. Never silently prune that inventory or treat a model report
+as approval. Full-person recovery explicitly retains the whole accepted chain
+and exact originals; selected/derivative snapshots remain exchange artifacts.

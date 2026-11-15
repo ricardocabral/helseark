@@ -172,18 +172,36 @@ and terminology byte pins and acquisition URLs are unchanged by this correction.
 
 ## Combined release and CI qualification
 
-New vaults use agent kit 0.1.12. The original 0.1.0 review/validation schemas
+New vaults use agent kit 0.1.18. The original 0.1.0 review/validation schemas
 remain unchanged; enriched reports use the separately pinned 0.1.1 validation
 schema, and exact-issue 0.1.1 human receipts retain the execution authority. Old
 vaults keep their own definitions and kit. No automatic repinning is performed.
 
 The Linux offline-validator job runs both the actual supported corpus and
-`tests/qualify_validator_authority.py` against an installed wheel. The latter
+`tests/qualify_validator_authority.py` against the same installed wheel. The job
+builds and installs once into its own locked-dependency environment before either
+producer, with only test support on `PYTHONPATH`. Both producers require
+`--wheel`, verify imported module origins and runtime/data bytes against it, and
+retain its SHA-256 in `installed-runtime.json`. The corpus also requires an
+explicit `--fixtures` directory and uses the initialized vault's installed,
+pinned profiles and schema. Actual outcomes retain profile pins; producer logs
+and the wheel travel with the CI evidence. This is qualification wiring, not a
+claim that a blocked remote job has run.
+
+The maintained standalone `tests/qualify_official_cli.py` also requires `--wheel`;
+it exercises real public CLI success, empty-package missing-artifact failure,
+and a fresh real execution before synthetic review/commit. For example, from a
+checkout with only `tests` on `PYTHONPATH`, use the installed interpreter and
+pass `--wheel /absolute/release.whl --artifacts /absolute/validator-7.0.5
+--java /absolute/jre/bin/java --output /absolute/new-cli-evidence
+--timeout-seconds 240`.
+
+The authority producer
 verifies a reachable network control, actual positive and schema-valid deeper
 negative, unavailable required terminology, four early-request revocations,
 missing Java, actual successful recovery, public replay rejection and preserved
 history. Its legacy input comes from the immutable synthetic fixture via
 `tests/setup_validator_legacy.py`; no execution attestation is added to old bytes.
-The three disjoint agent/clinical/core groups run all pytest cases separately;
+The four disjoint agent/clinical/portability/core groups run all pytest cases separately;
 the base-only jobs retain optional dependency checks. Only a completed CI run
 on the integrated commit establishes Linux results.

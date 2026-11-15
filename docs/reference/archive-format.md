@@ -369,7 +369,7 @@ Orphan sidecars/blobs and incomplete staging are reported and never discarded.
 Review binding checks use the retained proposal, three candidate inputs,
 validation, review and source/extraction receipts, without work or runtime caches.
 
-The combined clinical/portability distributable uses agent kit `0.1.15`. It retains
+The combined clinical/portability distributable uses agent kit `0.1.18`. It retains
 contract `0.1.0` archive pins and the separate `0.1.1` exact-issue review receipt
 contract. This new kit identity does not change existing vaults, historical kit
 content, accepted receipts or their original definition/license pins.
@@ -380,6 +380,15 @@ content, accepted receipts or their original definition/license pins.
 source-review-1 contracts), dispatched separately from unchanged export format 1.
 See [export workflow](../how-to/export-records.md). Plans bind vault/person, Head,
 selection, reference closure and exact original/derivative hashes and sizes.
+For `selected-current`, `referenceMap` is the selected resource reference
+closure; `originalSources` and `sourceFiles` instead inventory all accepted
+sources and retained source/extraction artifacts across the selected person's
+accepted history. They can include unrelated imports and old revisions. Original
+inclusion copies this full source inventory; resource selectors do not prune it.
+A decision binds both scopes together, including declared omissions for supplied
+derivatives. See [export scope](../how-to/export-records.md). Full-person recovery
+retains the entire accepted chain and exact originals explicitly.
+
 Host digest controls under `.runtime/source-disclosures` are ephemeral authority;
 portable receipts are audit declarations only. Recovery chains retain original
 bytes; derivative snapshots declare unresolved original evidence and all source

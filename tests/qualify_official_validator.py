@@ -9,6 +9,10 @@ from dataclasses import replace
 from pathlib import Path
 import shutil
 import socket
+import sys
+import sysconfig
+import importlib
+import zipfile
 
 from jsonschema import Draft6Validator
 from helseark.archive import init_vault, add_person, head, resolve
@@ -17,6 +21,41 @@ from helseark.serialization import decode_json, encode_json, hash_bytes
 from helseark.fhir_validator import (_lock, _run_bundle, _artifacts,
                                      validate_with_official_tool)
 from helseark.portability import fhir_collection
+
+
+def record_installed_runtime(wheel: Path, output: Path) -> dict:
+    """Fail on checkout/shadow imports or installed payloads unlike this wheel.
+
+    Shared by the actual corpus, CLI and authority producers. This verifies
+    correspondence, not conformance: only the real executions establish that.
+    """
+    import helseark
+    purelib = Path(sysconfig.get_path('purelib')).resolve()
+    package = purelib/'helseark'
+    assert Path(helseark.__file__).resolve() == package/'__init__.py', (
+        'Qualification requires the installed wheel', helseark.__file__)
+    modules, payloads = {}, {}
+    with zipfile.ZipFile(wheel) as archive:
+        for name in archive.namelist():
+            if name.startswith('helseark/') and name.endswith('.py'):
+                module_name = name[:-3].replace('/', '.')
+                if module_name.endswith('.__init__'):
+                    module_name = module_name[:-9]
+                module = importlib.import_module(module_name)
+                path = purelib/name
+                assert Path(module.__file__).resolve() == path, (name, module.__file__)
+                assert path.read_bytes() == archive.read(name), name
+                modules[name] = {'path':str(path), 'sha256':hash_bytes(path.read_bytes())}
+            elif '.data/data/share/helseark/' in name:
+                relative = name.split('.data/data/', 1)[1]
+                path = Path(sysconfig.get_path('data'))/relative
+                assert path.read_bytes() == archive.read(name), relative
+                payloads[relative] = hash_bytes(path.read_bytes())
+    assert modules and payloads
+    value = {'wheel':str(wheel.resolve()), 'wheelSha256':hash_bytes(wheel.read_bytes()),
+             'python':sys.executable, 'modules':modules, 'dataPayloads':payloads}
+    (output/'installed-runtime.json').write_bytes(encode_json(value))
+    return value
 
 
 def network_denial_witness(output):
@@ -58,21 +97,29 @@ print(json.dumps({'connected':True,'networkNamespace':namespace}))
 
 def main():
     parser=argparse.ArgumentParser()
+    parser.add_argument('--wheel',type=Path,required=True)
+    parser.add_argument('--fixtures',type=Path,required=True,help='Explicit synthetic fixture directory')
     parser.add_argument('--artifacts',type=Path,required=True)
     parser.add_argument('--java',type=Path,required=True)
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--timeout-seconds',type=int,default=120)
     args=parser.parse_args()
     args.output.mkdir(parents=True,exist_ok=False)
-    root=Path(__file__).resolve().parents[1]
+    record_installed_runtime(args.wheel,args.output)
     pins=_lock()
-    config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
-                           args.artifacts/'packages',root/'profiles/r4',args.timeout_seconds,False,args.java)
-    network_denial_witness(args.output)
     vault=init_vault(args.output/'vault')
+    config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
+                           args.artifacts/'packages',vault.root/'definitions/profiles/r4',args.timeout_seconds,False,args.java)
+    network_denial_witness(args.output)
     person=add_person(vault,PersonDraft('Synthetic official corpus'))
     initial_head=head(vault,person)
-    corpus=decode_json((root/'tests/fixtures/synthetic/profiles/collection.json').read_bytes())
+    corpus=decode_json((args.fixtures/'profiles/collection.json').read_bytes())
+    (args.output/'qualification-inputs.json').write_bytes(encode_json({
+        'fixturePath':str((args.fixtures/'profiles/collection.json').resolve()),
+        'fixtureSha256':hash_bytes((args.fixtures/'profiles/collection.json').read_bytes()),
+        'definitionLockSha256':vault.config.definitionLockSha256,
+        'schemaSha256':hash_bytes((vault.root/'definitions/definitions/fhir-r4-json-schema/fhir.schema.json').read_bytes()),
+        'profileDirectory':str(config.profileDirectory), 'profileVersion':vault.config.profileVersion}))
     original_person=next(e['resource']['id'] for e in corpus['entry'] if e['resource']['resourceType']=='Patient')
     # Fixture parameterization of identity precedes the public mapper; no Bundle converter here.
     raw=encode_json(corpus).replace(original_person.encode(),person.encode())
@@ -110,7 +157,7 @@ def main():
     invalid=deepcopy(bundle)
     obs=next(e['resource'] for e in invalid['entry'] if 'valueQuantity' in e['resource'])
     obs['dataAbsentReason']={'text':'Synthetic conflicting absence'}
-    schema=decode_json((root/'definitions/fhir-r4-json-schema/fhir.schema.json').read_bytes())
+    schema=decode_json((vault.root/'definitions/definitions/fhir-r4-json-schema/fhir.schema.json').read_bytes())
     assert Draft6Validator(schema).is_valid(invalid)
     _,bad_counts,bad_run=_run_bundle(vault,invalid,mapping,config)
     (args.output/'invariant-negative.json').write_bytes(encode_json(bad_run))
@@ -125,6 +172,7 @@ def main():
     from helseark.review import read_prepared
     from helseark.archive import commit_candidate,open_vault
     v,p,source,packet,candidate=supplied_candidate(args.output/'workflow')
+    config=replace(config,profileDirectory=v.root/'definitions/profiles/r4')
     proposal=prepare(v,candidate)
     source_bytes=source.assetPath.read_bytes()
     required=validate_with_official_tool(proposal,replace(config,requireTerminology=True),vault=v)

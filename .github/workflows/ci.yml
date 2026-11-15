@@ -133,38 +133,45 @@ jobs:
         run: |
           uv run --no-sync python scripts/acquire_validator.py "$RUNNER_TEMP/validator" --linux-jre
           test -x "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java"
-      - name: Real corpus with enforced empty network namespace
-        run: |
-          sudo env PYTHONPATH="$PWD/src:$PWD/tests" \
-            "$PWD/.venv/bin/python" tests/qualify_official_validator.py \
-            --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
-            --output "$RUNNER_TEMP/official-evidence" --timeout-seconds 240
-      - name: Build and install exact authority qualification runtime
+      - name: Build and install exact qualification runtime once
         run: |
           uv build --no-sources
           uv venv --python "$PWD/.venv/bin/python" "$RUNNER_TEMP/authority-env"
           uv pip install --offline --no-deps --python "$RUNNER_TEMP/authority-env/bin/python" dist/*.whl
-          # Reuse only this job's exact locked dependencies after installing the
-          # wheel, so the editable project cannot satisfy the wheel installation.
+          # Only this job's locked dependencies; adding the path does not process
+          # the editable project's nested .pth. Both producers verify wheel bytes.
           "$RUNNER_TEMP/authority-env/bin/python" -c 'import pathlib,sys,sysconfig; pathlib.Path(sysconfig.get_path("purelib"), "qualified-dependencies.pth").write_text(sys.argv[1]+"\n")' "$PWD/.venv/lib/python3.12/site-packages"
           uv run --no-sync python tests/setup_validator_legacy.py "$RUNNER_TEMP/legacy-workflow"
-      - name: Actual installed execution authority and failed-request matrix
+      - name: Real installed corpus with enforced empty network namespace
+        shell: bash
         run: |
-          mkdir "$RUNNER_TEMP/authority-staging"
-          sudo env PYTHONPATH="$PWD/tests" TMPDIR="$RUNNER_TEMP/authority-staging" \
-            "$RUNNER_TEMP/authority-env/bin/python" tests/qualify_validator_authority.py \
+          mkdir "$RUNNER_TEMP/official-evidence"
+          sudo env PYTHONPATH="$PWD/tests" \
+            "$RUNNER_TEMP/authority-env/bin/python" tests/qualify_official_validator.py \
+            --wheel dist/*.whl --fixtures "$PWD/tests/fixtures/synthetic" \
             --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
-            --output "$RUNNER_TEMP/authority-evidence" --timeout-seconds 240 \
-            --legacy-workflow "$RUNNER_TEMP/legacy-workflow"
+            --output "$RUNNER_TEMP/official-evidence/run" --timeout-seconds 240 \
+            2>&1 | tee "$RUNNER_TEMP/official-evidence/producer.txt"
+      - name: Actual installed execution authority and failed-request matrix
+        shell: bash
+        run: |
+          mkdir "$RUNNER_TEMP/authority-staging" "$RUNNER_TEMP/authority-evidence"
+          sudo env PYTHONPATH="$PWD/tests" TMPDIR="$RUNNER_TEMP/authority-staging" \
+            "$RUNNER_TEMP/authority-env/bin/python" tests/qualify_validator_authority.py --wheel dist/*.whl \
+            --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
+            --output "$RUNNER_TEMP/authority-evidence/run" --timeout-seconds 240 \
+            --legacy-workflow "$RUNNER_TEMP/legacy-workflow" \
+            2>&1 | tee "$RUNNER_TEMP/authority-evidence/producer.txt"
       - name: Retain synthetic qualification evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: official-validator-evidence
           path: |
+            dist/*.whl
             ${{ runner.temp }}/validator/acquisition.jsonl
-            ${{ runner.temp }}/official-evidence/*.json
+            ${{ runner.temp }}/official-evidence/run/*.json
             ${{ runner.temp }}/official-evidence/*.txt
-            ${{ runner.temp }}/authority-evidence/*.json
+            ${{ runner.temp }}/authority-evidence/run/*.json
             ${{ runner.temp }}/authority-evidence/*.txt
           if-no-files-found: error

@@ -1,6 +1,6 @@
 # Python API reference
 
-For toolkit 0.1.2 / kit 0.1.15. Import public functions from their owning
+For toolkit 0.1.2 / kit 0.1.18. Import public functions from their owning
 modules; `helseark.__init__` does not re-export the entire API. Paths are pathlib
 Path, IDs are validated UUID strings, and decoded FHIR trees use Decimal for JSON
 fractions. Types and immutable workflow dataclasses live in `helseark.contracts`.

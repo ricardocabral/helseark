@@ -45,12 +45,17 @@ failed attempts remain preserved separately from supplied fixture candidates.
 | Evidence class | Observed sample and limit |
 |---|---|
 | Selected-revision discovery | Actual gpt-6.1-sol medium baseline/corrected trials; corrected authorized comparison 11 inputs /43,872 bytes to 18 inputs /109,956 bytes. No efficiency improvement observed; the earlier withheld-locator partial run remains separate |
-| Source-cited queries | Three actual baseline and three actual corrected trials: calendar, historical report, and instant/person scope. Corrected run logged 89 explicit receipts /768,907 bytes /286 citation rows, with report-only writes inside 214 files per scenario. Implicit I/O remains unknown; no causal efficiency claim |
+| Source-cited queries | Three actual baseline and three actual corrected trials: calendar, historical report, and instant/person scope. Corrected run logged 89 explicit receipts /768,907 bytes /286 citation rows, with report-only writes inside 214 files per scenario. These earlier trials used a **test-only accepted-fixture publisher**, so they did not qualify production prepare/review/commit. Implicit I/O remains unknown; no causal efficiency claim |
 | PDF extraction | Six actual corrected/supplementary trials described above, plus five earlier baseline unavailable stops and five post-kit trials with a qualitative omission. The separate supplementary source does not erase the original miss |
 | Toolkit correctness | Deterministic source/candidate/review/publication/query/portability/migration tests, installed offline journeys and integrity counts establish only the exercised software contracts. Supplied candidates are not model observations |
 | Seeded review visibility | Seeded decimal, unit, patient and omitted-result fixtures exercise displayed review facts/issues. Visibility does not prove that a human notices or corrects every error |
 
-These older runtimes, sources and instruction sets do not qualify kit 0.1.15 or
+Later deterministic fixtures use the public intake → prepare → display → explicit
+synthetic review → commit route. They are separate software-contract evidence;
+they do not retroactively qualify production publication in the earlier query
+trials or change those trials' results and limitations.
+
+These older runtimes, sources and instruction sets do not qualify kit 0.1.18 or
 establish strict packet compliance, full FHIR/terminology conformance, general
 provider coverage, medical truth or complete evaluation. Actual final-kit gates
 remain: transcription correction preserving earlier facts/evidence; scoped export
