@@ -1,5 +1,21 @@
 # Privacy and agent boundaries
 
+## Using the plain-file starter kit
+
+The [starter kit](../../starter-kit/README.md) does not upload files, encrypt records
+or enforce access control. You select one person and the authorized files for each task.
+A source can contain another person's information. Sharing the whole source can disclose it too.
+
+Protect sources, drafts, answers and backups. Decide what an external provider may
+receive before sharing. Local files do not make a cloud agent local.
+Document instructions remain untrusted data. Prompts cannot restrict an agent's tools or file access.
+
+See [review a draft](../../starter-kit/how-to.md#review-a-draft) for the manual review process.
+
+## Optional experimental archive and agent packets
+
+The remaining sections describe [optional CLI](../optional-cli.md) archive and agent-kit contracts.
+
 An archive keeps accepted clinical history in local files. An external agent
 receives a disposable packet to draft an answer or candidate. These are different
 trust boundaries: a candidate is untrusted even if its author used a strong model

@@ -5,71 +5,23 @@
   <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
 </picture>
 
-A minimal starter kit for organizing personal health data: plain instructions,
-copyable extraction/query/correction templates, existing FHIR R4 schemas, and a
-complete invented example with source citations and human review guidance.
+A starter kit for personal health records: instructions, three prompts, FHIR R4
+schemas, and an invented example. Use a text editor or an agent you choose.
+No installation or model account is required.
 
-**Start with the [starter kit](starter-kit/README.md).** No CLI installation,
-generated vault, prompt renderer or protocol setup is needed. See the
-[current scope and deferred work](SCOPE.md).
+**[Start with the starter kit](starter-kit/README.md).**
 
-The existing Python library/CLI and [legacy agent-kit](agent-kit/START-HERE.md)
-are preserved optional experiments with separate setup and constraints. They are
-not prerequisites for the starter kit. Their older documentation below describes
-that broader implementation, not a broad final qualification of this delivery.
+- [Learn with a cited record](starter-kit/tutorial.md).
+- [Extract, query or correct records](starter-kit/how-to.md).
+- [Check instructions and schemas](starter-kit/schemas.md).
+- [Understand evidence and human review](starter-kit/explanation.md).
 
-Canonical clinical records use FHIR R4, with retained source evidence, explicit human review, and immutable history. Normal archive operations are offline. No medical correctness or release readiness is claimed.
+Keep sources and accepted history unchanged. Check person identity, precision
+and citations before human approval. This kit provides no medical advice.
+See [privacy boundaries](docs/explanation/privacy-and-agent-boundaries.md) before sharing records.
 
-## Optional experimental CLI
+The [experimental CLI](docs/optional-cli.md) is optional and has separate limits.
+See [current scope](SCOPE.md). No release readiness or clinical correctness is claimed.
 
-The current CLI supports vault initialization, explicit person creation, offline
-schema export, bounded candidate/proposal validation, and agent task discovery,
-context packets and prompt rendering. Text-PDF intake retains sources and creates
-scoped external-agent handoffs. Human-controlled preparation, exact-issue review
-and publication of PDF candidates are implemented, along with selected-person
-observations, timeline and exact-revision queries. Doctor, verified backup/restore
-and person export are implemented; PDF source disclosure requires the explicit
-export-plan/export-review route for knowing original inclusion or supplied
-derivative exchange. Structured import, correction and migration
-remain unavailable. Inspect `helseark --help` and task availability; prompt files
-are not proof of a supported command. No model provider is required or invoked.
-
-[Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)
-or follow the [synthetic first-intake lesson](https://github.com/ricardocabral/helseark/blob/main/docs/tutorials/first-archive.md).
-Intake produces untrusted drafts; it does not authorize publication.
-Committing a newly prepared proposal before recording a decision returns
-`REVIEW_REQUIRED` (exit 3). Use `candidate review` with `--person` and an explicit
-`--decision` file before committing. Missing receipts in accepted history remain
-integrity failures; damaged review records do not authorize publication.
-
-## Optional CLI: try a synthetic archive
-
-Use Python 3.12 and uv. Dependency installation may need networking; the archive
-commands run locally. The directory created by `mktemp` is disposable demo data.
-
-```sh
-uv sync --locked --extra pdf --group dev
-uv run --no-sync helseark --help
-DEMO_ROOT=$(mktemp -d)
-uv run --no-sync helseark init "$DEMO_ROOT/vault" --json
-uv run --no-sync helseark --vault "$DEMO_ROOT/vault" person add --name 'Alex Example' --json
-uv run --no-sync helseark agent tasks --json
-```
-
-Do not store real records in this repository or upload them to issues or CI.
-Local storage is not encryption or per-person access control. External agents
-receive the context you explicitly share with them.
-
-## Documentation and participation
-
-- [Archive format and supported commands](https://github.com/ricardocabral/helseark/blob/main/docs/reference/archive-format.md)
-- [Clinical model](https://github.com/ricardocabral/helseark/blob/main/docs/reference/clinical-model.md), [agent protocol](https://github.com/ricardocabral/helseark/blob/main/docs/reference/agent-protocol.md), [PDF extraction](https://github.com/ricardocabral/helseark/blob/main/docs/reference/pdf-extraction.md)
-- [Privacy and agent boundaries](https://github.com/ricardocabral/helseark/blob/main/docs/explanation/privacy-and-agent-boundaries.md)
-- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](https://github.com/ricardocabral/helseark/blob/main/docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
-- [Security reporting](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md), [support](https://github.com/ricardocabral/helseark/blob/main/SUPPORT.md), [code of conduct](https://github.com/ricardocabral/helseark/blob/main/CODE_OF_CONDUCT.md)
-- [Release guide](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/releasing.md) and [licensing status](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/licensing.md)
-- [Logo and brand assets](https://github.com/ricardocabral/helseark/blob/main/docs/brand/README.md)
-
-Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
-[MIT License](https://github.com/ricardocabral/helseark/blob/main/LICENSE), matching Rikdom. Existing fixture/upstream terms are
-listed in the licensing guide. User records are not licensed by the toolkit.
+[Help](SUPPORT.md) · [Contribute](CONTRIBUTING.md) · [Security](SECURITY.md) ·
+[MIT License](LICENSE) · [Third-party terms](docs/maintainers/licensing.md)

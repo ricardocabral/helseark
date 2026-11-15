@@ -1,0 +1,59 @@
+# Optional experimental CLI
+
+The [starter kit](../starter-kit/README.md) needs no installation.
+This page covers the separate experimental Python library, CLI and legacy agent-kit.
+See [current scope](../SCOPE.md) for limits. No release readiness or clinical correctness is claimed.
+
+## Supported work
+
+- Initialize a vault, create an explicit person and export schemas offline.
+- Discover agent tasks, build context packets and render prompts.
+- Retain text-PDF sources and prepare external-agent handoffs.
+- Validate drafts, prepare proposals and publish after explicit human review.
+- Query selected-person observations, timelines and exact revisions.
+- Check integrity, back up, restore and export records.
+
+Structured import, correction and migration commands remain unavailable.
+Check `helseark --help` and task availability. Prompt files do not establish command support.
+The CLI does not require or invoke a model provider.
+
+Drafts do not authorize publication. Committing a new proposal without a decision
+returns `REVIEW_REQUIRED` (exit 3). Use `candidate review` with `--person` and
+an explicit `--decision` file. Missing or damaged accepted-history receipts remain integrity failures.
+See [review and publication steps](how-to/import-report.md#prepare-and-accept-the-exact-human-reviewed-proposal).
+
+PDF source disclosure requires the explicit export-plan/export-review route.
+That route covers knowing original inclusion or supplied derivative exchange.
+See [export records](how-to/export-records.md) before sharing sources.
+
+## Try a synthetic archive
+
+Use Python 3.12 and uv. Run these commands from the repository root.
+Dependency installation may need networking. Archive commands run locally.
+The directory created by `mktemp` contains disposable demo data.
+
+```sh
+uv sync --locked --extra pdf --group dev
+uv run --no-sync helseark --help
+DEMO_ROOT=$(mktemp -d)
+uv run --no-sync helseark init "$DEMO_ROOT/vault" --json
+uv run --no-sync helseark --vault "$DEMO_ROOT/vault" person add --name 'Alex Example' --json
+uv run --no-sync helseark agent tasks --json
+```
+
+Do not store real records in this repository or upload them to issues or CI.
+Read [privacy boundaries](explanation/privacy-and-agent-boundaries.md) before sharing files.
+
+## Guides and contracts
+
+- Learn with the [synthetic first-intake lesson](tutorials/first-archive.md).
+- [Prepare a PDF import](how-to/import-report.md), [query accepted history](how-to/query-history.md),
+  [export records](how-to/export-records.md), or [back up and restore](how-to/backup-and-restore.md).
+- Look up the [archive format and commands](reference/archive-format.md),
+  [clinical model](reference/clinical-model.md), [intake](reference/intake.md),
+  [PDF extraction](reference/pdf-extraction.md), [review](reference/review.md),
+  and [agent protocol](reference/agent-protocol.md).
+- Understand [privacy and agent boundaries](explanation/privacy-and-agent-boundaries.md).
+
+The [legacy agent-kit](../agent-kit/START-HERE.md) has its own entry point and
+versioned contracts. Inspect actual task availability before using its prompts.
