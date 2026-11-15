@@ -11,11 +11,9 @@ qualification.
 
 Do not publish vulnerabilities in public GitHub issues or pull requests.
 
-Use [GitHub private vulnerability reporting](https://github.com/ricardocabral/helseark/security/advisories/new)
-when available. If unavailable, open only a minimal issue requesting a private
-contact channel; include no vulnerability details or attachments. Wait for that
-route before sending evidence. Maintainers must establish a tested private
-fallback before public launch, and enable GitHub reporting when available.
+Report vulnerabilities privately to [ricardo@rnc.sh](mailto:ricardo@rnc.sh).
+You can also use [GitHub private vulnerability reporting](https://github.com/ricardocabral/helseark/security/advisories/new)
+when available. Do not include vulnerability details in public issues or pull requests.
 
 Include affected version/commit, OS/Python/filesystem, expected and actual
 behavior, reproduction steps or proof of concept, likely impact and suggested
