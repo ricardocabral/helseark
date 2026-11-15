@@ -10,12 +10,10 @@ hate speech, sexual attention, doxxing, intimidation and repeated disruptive
 behavior are not acceptable. Never share another person's health information or
 private communications without permission.
 
-Report concerns privately to the [repository owner](https://github.com/ricardocabral)
-through an available private contact. If a private channel is not available,
-request one with a minimal issue containing no names, allegations or sensitive
-details. Do not post incident evidence publicly. A tested private conduct contact
-and an alternate for concerns involving the owner must be established before
-public launch; see the [release checklist](docs/maintainers/releasing.md).
+Report concerns privately to [ricardo@rnc.sh](mailto:ricardo@rnc.sh).
+Do not post incident evidence publicly. The repository owner receives these
+reports; no independent alternate is currently designated for concerns involving
+the owner.
 
 Maintainers will review available evidence fairly, limit disclosure to what is
 needed, and may ask for corrections, remove content, restrict participation or

@@ -22,8 +22,9 @@ Maintainer roles and review access are granted by the owner based on demonstrate
 contributions and responsible handling of sensitive-data boundaries. Discuss
 technical disagreements in the relevant issue with reproducible evidence; the
 owner decides unresolved scope or release questions. Use private channels for
-security or conduct reports. A private alternate for owner-related conduct
-concerns is still a [public-launch requirement](docs/maintainers/releasing.md).
+security or conduct reports. Conduct reports go to
+[ricardo@rnc.sh](mailto:ricardo@rnc.sh); no independent alternate is currently
+designated for concerns involving the owner.
 
 The [contribution guide](CONTRIBUTING.md), [coding guide](docs/development/coding-guide.md)
 and [release checklist](docs/maintainers/releasing.md) define the working process.
