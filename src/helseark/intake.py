@@ -494,6 +494,71 @@ def _bounded_json(path, limits):
     return value
 
 
+def _correction_authority(vault, directory, metadata, bundle):
+    """Authorize edits only in the host-allocated draft of verified accepted history.
+
+    Accepted mapping/coverage remains the original issuance. This separate control
+    authorizes a local revision, never a new structured import or source expansion.
+    """
+    from .archive import _history, resolve
+    from .contracts import ResourceRef
+    control = _safe(vault.root, f".runtime/corrections/{metadata['candidateId']}.json")
+    if not control.exists():
+        return None
+    raw = _regular(control, CANDIDATE_FILE_BYTES)
+    authority = _bounded_json(_safe(vault.root, f".runtime/intake/{metadata['candidateId']}.json"), LIMITS)
+    correction = decode_json(raw)
+    def reject():
+        raise ArchiveError('CANDIDATE_MISMATCH', 'Correction differs from host-owned accepted target, base or source authority.')
+    if (not isinstance(authority, dict) or not isinstance(correction, dict) or
+            authority.get('correctionControlSha256') != hash_bytes(raw) or
+            directory != _safe(vault.root, f"work/corrections/{metadata['candidateId']}") or
+            correction.get('metadataSha256') != hash_bytes(encode_json(metadata)) or
+            correction.get('personId') != metadata['personId'] or
+            correction.get('base') != metadata['baseChangeSha256'] or
+            correction.get('sources') != metadata['sourceSha256']):
+        reject()
+    accepted = [(path, change) for at, path, change in _history(vault, metadata['personId'])
+                if at.changeSha256 == correction.get('acceptedChangeSha256')]
+    if len(accepted) != 1:
+        reject()
+    path, change = accepted[0]
+    proposal = _bounded_json(path/'proposal.json', LIMITS)
+    if proposal.get('importReview', {}).get('sourceHashes') != correction['sources']:
+        reject()
+    kind, rid = correction['target'].split('/')
+    current = resolve(vault, metadata['personId'], ResourceRef(kind, rid))
+    if current['meta']['versionId'] != correction.get('targetVersionId') or not any(
+            i['type']==kind and i['id']==rid and i['versionId']==correction['targetVersionId']
+            for i in change['resources']):
+        reject()
+    expected = {'urn:uuid:'+i['id']:i['type']+'/'+i['id'] for i in change['resources']
+                if i['type']=='DocumentReference' or i['type']==kind and i['id']==rid}
+    if any(not isinstance(e, dict) or not isinstance(e.get('resource'), dict) or
+           any(not isinstance(e['resource'].get(k), str) for k in ('resourceType','id')) or
+           not isinstance(e.get('fullUrl'), str) for e in bundle['entry']):
+        reject()
+    actual = {e['fullUrl']:e['resource']['resourceType']+'/'+e['resource']['id'] for e in bundle['entry']}
+    if correction['mapping'] != expected or actual != expected or len(actual)!=len(bundle['entry']):
+        reject()
+    coverage = path/'inputs/coverage.json'
+    if coverage.exists() and _regular(directory/'coverage.json', CANDIDATE_FILE_BYTES) != _regular(coverage, CANDIDATE_FILE_BYTES):
+        reject()
+    # Only original target/source-document URLs are in the draft scope. Other
+    # retained blobs (including extractions) cannot become new attachments.
+    from .validation import _walk
+    allowed = {node['url'] for item in change['resources']
+               if item['type']+'/'+item['id'] in expected.values()
+               for _, node in _walk(_bounded_json(path/item['path'], LIMITS))
+               if isinstance(node, dict) and isinstance(node.get('url'), str)
+               and node['url'].startswith('assets/')}
+    for entry in bundle['entry']:
+        for _, node in _walk(entry['resource']):
+            if isinstance(node, dict) and isinstance(node.get('url'), str) and node['url'].startswith('assets/') and node['url'] not in allowed:
+                reject()
+    return correction
+
+
 def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None = None) -> Candidate:
     """Read strict untrusted envelopes for real Task2 checks; never accept records."""
     directory = Path(candidateDirectory).absolute()
@@ -538,6 +603,7 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
     if evidence.get('producerProvenance') != metadata['producerProvenance']:
         raise ArchiveError('PRODUCER_MISMATCH', 'Candidate and evidence producer provenance differ.')
     _verify_producer(vault, metadata['producerProvenance'], registry)
+    correction = _correction_authority(vault, directory, metadata, bundle)
     retained_issues = []
     for digest in metadata['sourceSha256']:
         path = _safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob')
@@ -550,6 +616,8 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
         if not data.startswith(b'%PDF-') and ((path.parent/'source.json').exists() or (path.parent/'structured').exists()):
             receipt = SourceReceipt(person, digest, len(data), 'application/octet-stream', path)
             _source_bytes(vault, receipt)
+            if correction is not None:
+                continue
             candidate_digest = _candidate_inputs(directory)[1]
             authority_path = path.parent/'structured'/f'{candidate_digest}.json'
             if not authority_path.exists():
@@ -954,12 +1022,13 @@ def start_correction(vault: Vault, person: str, target, reason: str) -> Candidat
         current = resolve(vault, person, ResourceRef(target.resourceType, target.id))
         if target.versionId and target.versionId != current['meta']['versionId']:
             raise ArchiveError('STALE_BASE', 'Correction target is no longer current.')
-        for _, directory, change in reversed(_history(vault, person)):
+        for accepted_head, directory, change in reversed(_history(vault, person)):
             if any(i['type']==target.resourceType and i['id']==target.id and i['versionId']==current['meta']['versionId'] for i in change['resources']):
                 break
         proposal = _bounded_json(directory/'proposal.json', LIMITS)
         if 'importReview' not in proposal:
             raise ArchiveError('INVALID_INPUT', 'Target has no supported reviewed source.')
+        target_version = current['meta']['versionId']
         resources = [current] + [_bounded_json(directory/i['path'], LIMITS) for i in change['resources'] if i['type']=='DocumentReference']
         if len(resources)==1:
             raise ArchiveError('INVALID_INPUT', 'Target requires its retained source document.')
@@ -984,11 +1053,18 @@ def start_correction(vault: Vault, person: str, target, reason: str) -> Candidat
         bundle = {'resourceType':'Bundle','type':'collection','entry':[{'fullUrl':'urn:uuid:'+r['id'],'resource':r} for r in resources]}
         for name,value in [('candidate',metadata),('bundle',bundle),('evidence',evidence)]:
             _write(path/(name+'.json'),encode_json(value))
+        coverage = directory/'inputs/coverage.json'
+        if coverage.exists():
+            _write(path/'coverage.json', _regular(coverage, CANDIDATE_FILE_BYTES))
         control = _safe(vault.root, f'.runtime/corrections/{identifier}.json'); _mkdir(control.parent)
-        _write(control,encode_json({'personId':person,'base':metadata['baseChangeSha256'],'reason':reason,'mode':mode,'target':f'{target.resourceType}/{target.id}',
-            'mapping':{'urn:uuid:'+r['id']:f"{r['resourceType']}/{r['id']}" for r in resources},'sources':metadata['sourceSha256']}))
+        control_bytes = encode_json({'acceptedChangeSha256':accepted_head.changeSha256,
+            'targetVersionId':target_version, 'metadataSha256':hash_bytes(encode_json(metadata)),
+            'personId':person,'base':metadata['baseChangeSha256'],'reason':reason,'mode':mode,'target':f'{target.resourceType}/{target.id}',
+            'mapping':{'urn:uuid:'+r['id']:f"{r['resourceType']}/{r['id']}" for r in resources},'sources':metadata['sourceSha256']})
+        _write(control, control_bytes)
         authority = _safe(vault.root, f'.runtime/intake/{identifier}.json'); _mkdir(authority.parent)
-        _write(authority,encode_json({'personId':person,'sourceHashes':metadata['sourceSha256'],'identityConfirmed':True}))
+        _write(authority,encode_json({'personId':person,'sourceHashes':metadata['sourceSha256'],'identityConfirmed':True,
+            'correctionControlSha256':hash_bytes(control_bytes)}))
     return read_candidate(vault,path,person=person)
 
 def _structured_source(source: SourceReceipt, person: str):

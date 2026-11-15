@@ -225,3 +225,9 @@ export still requires separate reviewed original inclusion or supplied derivativ
 mapping/omissions. Previously accepted bytes and pinned definitions are unchanged.
 Explicit legacy source authorization applies only to its selected genuine legacy
 sources, never extra attachment URLs in newly issued imports.
+
+Same-source correction drafts use a distinct host-owned accepted-history binding;
+they do not mint or replace structured mapping issuance. The returned allocation
+pins target/version/base, candidate metadata, original sources and original
+coverage. See [correction](../how-to/correct-record.md). Arbitrary producer labels,
+explicit source arguments and copied drafts do not confer this authority.

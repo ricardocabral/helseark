@@ -23,3 +23,9 @@ Follow the [implemented correction commands](../../docs/how-to/correct-record.md
 Report stale parent children and explicit cancellation dispositions. Never erase
 a person as part of a correction; [removal](../../docs/how-to/manage-family.md)
 has its own digest-bound approval and recoverable quarantine.
+
+For accepted structured FHIR/CSV records, edit only the host-allocated correction
+bundle/evidence in place. Preserve metadata, source set and original coverage;
+copying the draft or changing its producer cannot create issuance. A stale base
+requires a fresh public allocation. Do not invent source facts or bypass source
+token validation. See the correction guide for error-status alternatives.

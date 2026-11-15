@@ -21,7 +21,7 @@ Actual command output and nonzero checked counts are required for a success repo
 
 Require a clean doctor report before either export mode. Report exact UNKNOWN_PATH locations, preserve unknown material, and block pending scope resolution; never copy arbitrary root/person files or unlisted definitions/kit files. Full household backups follow the same unknown-material blocking policy.
 
-The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. Default PDF disclosure remains blocked; route a human to export-plan / export-review / export --review.
+The host can run `helseark --vault PATH doctor --json` and the explicit backup/export commands. An agent scope report does not authorize restore, source disclosure or publication. Default original native attachment disclosure remains blocked regardless of media type; route a human to export-plan / export-review / export --review.
 
 The host supports reviewed exact original inclusion and supplied derivative exchange
 through `export-plan` / `export-review` / `export --review` (see export guide). Only
@@ -37,3 +37,5 @@ explicitly from `originalSources`/`sourceFiles`; one selected Observation does
 not imply one source. Never silently prune that inventory or treat a model report
 as approval. Full-person recovery explicitly retains the whole accepted chain
 and exact originals; selected/derivative snapshots remain exchange artifacts.
+
+Clinical intake or same-person association never substitutes for a disclosure decision.

@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "74fa5ca56b48004e39877116cde44b6b4127ca8b40a4f3d2f0e67cf23dfcaacb",
-          "size": 15798
+          "sha256": "bf121bc4c1b5f87355167a04abac86eeb11cd2a2b5bf858c2ed66d1750aa5cd3",
+          "size": 16196
         }
       ],
       "license": "MIT",
@@ -845,8 +845,8 @@
       "files": [
         {
           "path": "docs/how-to/export-records.md",
-          "sha256": "4c23c2f3f92f149565af938f2f5c1179af463ef8b575142189b36683909c52f9",
-          "size": 11073
+          "sha256": "16ab2fd51e4511d41967556abf8be048c8d4644e3aff0732468694f7202e8f29",
+          "size": 12085
         }
       ],
       "license": "MIT",
@@ -923,8 +923,8 @@
       "files": [
         {
           "path": "docs/reference/compatibility.md",
-          "sha256": "ef8b361d217f477d3831fbb9cace418961712fc8a53198ab1e703f57eb455b8c",
-          "size": 8238
+          "sha256": "0fa76e2df91ba5bda484335c9461a2016e53d86fb2623aed93e9e69dd3d3717c",
+          "size": 8777
         }
       ],
       "license": "MIT",
@@ -949,8 +949,8 @@
       "files": [
         {
           "path": "docs/how-to/correct-record.md",
-          "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
-          "size": 2198
+          "sha256": "4ca8cfb784890f997263be969847a91b2596ab1b85772d6fc770bec1e67a670f",
+          "size": 3288
         }
       ],
       "license": "MIT",
@@ -1131,8 +1131,8 @@
       "files": [
         {
           "path": "docs/how-to/run-offline-validator.md",
-          "sha256": "8f30a80a147e855d9a547d90c255e833194e089907289c48998d64c0747d9480",
-          "size": 12697
+          "sha256": "236b8f4feddaf439895be8be65d84e30d6aa573cde546d1e857d36d8e389db98",
+          "size": 12828
         }
       ],
       "license": "MIT",

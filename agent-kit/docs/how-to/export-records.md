@@ -16,9 +16,15 @@ helseark backup verify ./person-export --json
 ```
 
 A person's intake assignment does not establish disclosure authority for every
-page of a PDF. Ordinary source-inclusive PDF export still fails
-`SOURCE_SCOPE_REVIEW_REQUIRED`, including known mixed-person PDFs and PDFs whose
-scope is unproven. A model, prompt `source_scope_confirmed`, `source_data`, source
+page or attachment. Ordinary source-inclusive export of accepted native
+DocumentReference content or DiagnosticReport presentedForm now fails
+`SOURCE_SCOPE_REVIEW_REQUIRED`, regardless of media type. This includes honest
+non-PDF original attachments, known mixed-person PDFs and PDFs whose scope is
+unproven. The guard reads the verified accepted history, including historical
+attachments, rather than trusting a producer media claim. Historical archives
+remain readable; source-inclusive exports that previously passed for non-PDF
+native attachments now need the separate disclosure review. Source-free selected
+exports remain available. A model, prompt `source_scope_confirmed`, `source_data`, source
 text or edited packet cannot grant disclosure. Full household backups retain
 originals. A human may choose one of the explicit reviewed routes below.
 
@@ -79,6 +85,14 @@ identity and the derived mapping/closure. Hash inventories are not signatures or
 proof of clinical accuracy. A successful export is not evidence of model quality.
 
 See [backup and restore](backup-and-restore.md) for recovery and integrity limits.
+
+Source inventory limitation: a source-inclusive selected-current export and its
+disclosure plan currently enumerate **all retained accepted sources for the
+selected person**, including sources outside the selected clinical reference
+closure. Selecting one Observation does not minimize that inventory. Review every
+listed source before original inclusion, or choose `--no-sources` / the reviewed
+omitted-all derivative route. This is a limitation of source selection, not a
+claim that a broader inventory is needed by that Observation.
 
 ## Review exact original inclusion
 

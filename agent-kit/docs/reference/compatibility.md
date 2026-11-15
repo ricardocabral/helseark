@@ -125,3 +125,11 @@ selected-person provenance and exact closure binding. It preserves the combined
 review, correction, migration and offline validation behavior. Installing it does
 not repin vaults or rewrite accepted history. Independent exact-head review and
 full remote qualification remain separate release gates.
+
+Kit 0.1.19 adds host-bound corrections for accepted structured sources and
+media-independent source disclosure review for native original attachments.
+No schema/profile or historical accepted bytes change. Existing vaults keep their
+pins; existing compatible readers remain usable. New-runtime source-inclusive
+export of native non-PDF attachments now requires explicit disclosure review.
+Unfinished correction drafts created before the new host binding must be started
+again; do not edit old accepted inputs or source issuance receipts.

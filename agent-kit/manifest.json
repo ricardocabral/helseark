@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "835bf9d074edbac4d3baa6843cfb2fa27be2a990353d1abf9dcd89d0c3186c9c",
+    "definitionLockSha256": "6acb5eb2f3dd90b1cdb0834d18fbd0264ae12269cc0dc127e34f426264ffc398",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.2.0",
     "serializationVersion": "helseark-json-1"
@@ -34,7 +34,7 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "835bf9d074edbac4d3baa6843cfb2fa27be2a990353d1abf9dcd89d0c3186c9c",
+      "sha256": "6acb5eb2f3dd90b1cdb0834d18fbd0264ae12269cc0dc127e34f426264ffc398",
       "size": 51157
     },
     {
@@ -79,13 +79,13 @@
     },
     {
       "path": "docs/how-to/correct-record.md",
-      "sha256": "9b87822a42f16283b9bec27fa54627856fc5057bc0dc86588e456379f5333800",
-      "size": 2198
+      "sha256": "4ca8cfb784890f997263be969847a91b2596ab1b85772d6fc770bec1e67a670f",
+      "size": 3288
     },
     {
       "path": "docs/how-to/export-records.md",
-      "sha256": "4c23c2f3f92f149565af938f2f5c1179af463ef8b575142189b36683909c52f9",
-      "size": 11073
+      "sha256": "16ab2fd51e4511d41967556abf8be048c8d4644e3aff0732468694f7202e8f29",
+      "size": 12085
     },
     {
       "path": "docs/how-to/generate-reports.md",
@@ -124,8 +124,8 @@
     },
     {
       "path": "docs/how-to/run-offline-validator.md",
-      "sha256": "8f30a80a147e855d9a547d90c255e833194e089907289c48998d64c0747d9480",
-      "size": 12697
+      "sha256": "236b8f4feddaf439895be8be65d84e30d6aa573cde546d1e857d36d8e389db98",
+      "size": 12828
     },
     {
       "path": "docs/how-to/troubleshoot.md",
@@ -164,8 +164,8 @@
     },
     {
       "path": "docs/reference/compatibility.md",
-      "sha256": "ef8b361d217f477d3831fbb9cace418961712fc8a53198ab1e703f57eb455b8c",
-      "size": 8238
+      "sha256": "0fa76e2df91ba5bda484335c9461a2016e53d86fb2623aed93e9e69dd3d3717c",
+      "size": 8777
     },
     {
       "path": "docs/reference/evaluation-results.md",
@@ -174,8 +174,8 @@
     },
     {
       "path": "docs/reference/intake.md",
-      "sha256": "74fa5ca56b48004e39877116cde44b6b4127ca8b40a4f3d2f0e67cf23dfcaacb",
-      "size": 15798
+      "sha256": "bf121bc4c1b5f87355167a04abac86eeb11cd2a2b5bf858c2ed66d1750aa5cd3",
+      "size": 16196
     },
     {
       "path": "docs/reference/pdf-extraction.md",
@@ -344,13 +344,13 @@
     },
     {
       "path": "prompts/prepare-export.md",
-      "sha256": "bd74e1587ba4f34836dfa45844ee2ca1c6034fc41a369c485e0811470807114d",
-      "size": 3879
+      "sha256": "bb8cdd3192f87b4837f70d6e0b7bcad1d0b4cd10cd5da66edf97af3238575b9f",
+      "size": 4085
     },
     {
       "path": "prompts/propose-correction.md",
-      "sha256": "9f7a7058dd9d1c097fdf4f2bc2235e07b95b1a2b16e1b63d3d42a57b4e661923",
-      "size": 4504
+      "sha256": "d435a5a320cf502cf25b103c053971ea04ec25cb39a58d696c6749d220a8b473",
+      "size": 4731
     },
     {
       "path": "prompts/query-with-evidence.md",
@@ -484,13 +484,13 @@
     },
     {
       "path": "skills/correct-records/SKILL.md",
-      "sha256": "85bb58e1c56321848fb4132cff10e3bcb01088e1d7c4f53b4a3abb3d5135a146",
-      "size": 2171
+      "sha256": "1f336a3d5033a783f1fb03f9e53c28cdcb5019e8621610ef99a84db0a13bba92",
+      "size": 2567
     },
     {
       "path": "skills/export-records/SKILL.md",
-      "sha256": "1dbbcb0c1d0378ef26b4eeb98650bad5c6b52f8886ac183bf1482912bc1cf3d1",
-      "size": 3197
+      "sha256": "131d4fcb4c97931a39dac0024d9c7ed0588ec43dbd75c04ecd8db6e1667934d7",
+      "size": 3334
     },
     {
       "path": "skills/import-records/SKILL.md",
@@ -782,10 +782,10 @@
         "urn:helseark:schema:0.1.1:evidence"
       ],
       "path": "prompts/propose-correction.md",
-      "sha256": "9f7a7058dd9d1c097fdf4f2bc2235e07b95b1a2b16e1b63d3d42a57b4e661923",
+      "sha256": "d435a5a320cf502cf25b103c053971ea04ec25cb39a58d696c6749d220a8b473",
       "skillId": "correct-records",
-      "skillSha256": "85bb58e1c56321848fb4132cff10e3bcb01088e1d7c4f53b4a3abb3d5135a146",
-      "skillVersion": "0.1.2",
+      "skillSha256": "1f336a3d5033a783f1fb03f9e53c28cdcb5019e8621610ef99a84db0a13bba92",
+      "skillVersion": "0.1.3",
       "taskIds": [
         "correct"
       ],
@@ -853,7 +853,7 @@
           "uniqueItems": true
         }
       },
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     {
       "id": "prepare-export",
@@ -867,10 +867,10 @@
       ],
       "outputContractIds": [],
       "path": "prompts/prepare-export.md",
-      "sha256": "bd74e1587ba4f34836dfa45844ee2ca1c6034fc41a369c485e0811470807114d",
+      "sha256": "bb8cdd3192f87b4837f70d6e0b7bcad1d0b4cd10cd5da66edf97af3238575b9f",
       "skillId": "export-records",
-      "skillSha256": "1dbbcb0c1d0378ef26b4eeb98650bad5c6b52f8886ac183bf1482912bc1cf3d1",
-      "skillVersion": "0.1.1",
+      "skillSha256": "131d4fcb4c97931a39dac0024d9c7ed0588ec43dbd75c04ecd8db6e1667934d7",
+      "skillVersion": "0.1.2",
       "taskIds": [
         "export"
       ],
@@ -920,7 +920,7 @@
           "type": "boolean"
         }
       },
-      "version": "0.1.1"
+      "version": "0.1.2"
     },
     {
       "id": "verify-archive",
@@ -1258,7 +1258,8 @@
         "explicit-person",
         "exact-digests",
         "pinned-head",
-        "human-review-required"
+        "human-review-required",
+        "accepted-target-draft-authority"
       ],
       "id": "correct",
       "intent": "Prepare correction context",
@@ -1326,7 +1327,8 @@
         "human-review-required",
         "known-material-closure",
         "readable-audit-paths",
-        "exact-reference-bindings"
+        "exact-reference-bindings",
+        "native-attachment-disclosure-review"
       ],
       "id": "export",
       "intent": "Prepare export scope context",

@@ -38,3 +38,20 @@ A report pinned to an older child revision stays pinned; current queries warn
 `REPORT_RESULT_REVISION_MISMATCH`. Revise a parent explicitly when appropriate.
 
 Validation/evidence coverage is not proof of medical or extraction correctness.
+
+## Structured-source drafts (kit 0.1.19)
+
+The public correction route also accepts supported reviewed FHIR R4 and mapped
+CSV records. It derives authority from the verified accepted target, exact current
+revision, source set and base. Edit the bundle/evidence in the returned allocation;
+keep candidate metadata and the retained original coverage unchanged. A copied
+or renamed correction directory has no draft authority. Start a new draft if the
+base changes or host controls are lost. Older unfinished drafts need reallocation;
+accepted history, original input/coverage/mapping receipts and source bytes stay
+unchanged. Original structured candidates retain their exact issuance checks.
+
+This is same-source local correction authority, not new structured issuance.
+It cannot add sources or invent clinical facts. Preserve source-token checks and
+provide actual source-backed evidence; a reviewer may instead explicitly mark an
+erroneous local assertion entered-in-error. Clinical review of the final proposal
+is mandatory and separate from permission to disclose any source attachment.

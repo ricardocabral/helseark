@@ -172,7 +172,7 @@ and terminology byte pins and acquisition URLs are unchanged by this correction.
 
 ## Combined release and CI qualification
 
-New vaults use agent kit 0.1.18. The original 0.1.0 review/validation schemas
+New vaults use agent kit 0.1.19. The original 0.1.0 review/validation schemas
 remain unchanged; enriched reports use the separately pinned 0.1.1 validation
 schema, and exact-issue 0.1.1 human receipts retain the execution authority. Old
 vaults keep their own definitions and kit. No automatic repinning is performed.
@@ -189,8 +189,10 @@ and the wheel travel with the CI evidence. This is qualification wiring, not a
 claim that a blocked remote job has run.
 
 The maintained standalone `tests/qualify_official_cli.py` also requires `--wheel`;
-it exercises real public CLI success, empty-package missing-artifact failure,
-and a fresh real execution before synthetic review/commit. For example, from a
+it exercises real public CLI success, empty-package runtime-closure rejection
+(exit 5, `VALIDATOR_RUNTIME_CHANGED`), a separate stale-profile missing-artifact
+rejection (exit 6, `VALIDATOR_MISSING_ARTIFACT`), and a fresh real execution before
+synthetic review/commit. For example, from a
 checkout with only `tests` on `PYTHONPATH`, use the installed interpreter and
 pass `--wheel /absolute/release.whl --artifacts /absolute/validator-7.0.5
 --java /absolute/jre/bin/java --output /absolute/new-cli-evidence

@@ -32,6 +32,10 @@ def issued(tmp_path, kind, mode='retained', media='application/octet-stream', da
     elif mode == 'copied-other':
         add_source(vault, other, original)
         blob.parent.mkdir(parents=True); blob.write_bytes(data)
+    elif mode == 'copied-receipt':
+        other_source = add_source(vault, other, original)
+        blob.parent.mkdir(parents=True); blob.write_bytes(data)
+        (blob.parent/'source.json').write_bytes((other_source.assetPath.parent/'source.json').read_bytes())
     elif mode != 'missing':
         retained = add_source(vault, person, original)
     if mode.startswith('receipt-'):
@@ -100,7 +104,7 @@ def test_raw_cas_is_not_retained_source_authority(tmp_path, kind, explicit):
 
 
 @pytest.mark.parametrize('kind', ['DocumentReference', 'DiagnosticReport'])
-@pytest.mark.parametrize('mode', ['copied-other', 'receipt-malformed', 'receipt-person',
+@pytest.mark.parametrize('mode', ['copied-other', 'copied-receipt', 'receipt-malformed', 'receipt-person',
     'receipt-hash', 'receipt-size', 'receipt-path', 'receipt-media', 'receipt-extra',
     'original-extraction-relation', 'missing', 'hash', 'size', 'symlink', 'limit'])
 def test_unverified_attachment_never_advances_head(tmp_path, kind, mode):
@@ -142,35 +146,32 @@ def test_retained_attachment_public_review_and_export(tmp_path, kind, media, dat
     commit_candidate(vault, proposal, decision(vault, proposal))
     assert not doctor(vault).issues
     selection = ExportSelection('selected-current', (), True)
-    if media == 'application/pdf':
-        with pytest.raises(ArchiveError, match='SOURCE_SCOPE_REVIEW_REQUIRED'):
-            export_person(vault, person, tmp_path/'denied', selection)
-        plan = prepare_disclosure(vault, person, selection, tmp_path/'plan')
-        plan_data = decode_json((plan/'plan.json').read_bytes())
-        assert plan_data['personId'] == person
-        assert hash_bytes(data) in {a['sha256'] for a in plan_data['originalSources']}
-        def disclose(plan):
-            record_disclosure(vault, plan, dict(format='helseark-source-decision-1',
-                planSha256=hash_bytes((plan/'plan.json').read_bytes()), humanReviewed=True,
-                confirmedPerson=True, acknowledgedDisclosure=True,
-                reviewer={'kind':'synthetic-test','label':'SYNTHETIC review only'},
-                reason='SYNTHETIC scope and omissions review; no clinical approval'))
-        disclose(plan)
-        export = export_person(vault, person, tmp_path/'original-export', selection, review=plan)
-        assert decode_json((export.path/'export.json').read_bytes())['sourceDisclosure']['plan']['originalDisposition'] == 'included-exact'
-        derivative = tmp_path/'derivative.txt'; derivative.write_bytes(b'SYNTHETIC supplied selected subset\n')
-        plan2 = prepare_disclosure(vault, person, selection, tmp_path/'derivative-plan', derivatives=[dict(
-            sourceSha256=hash_bytes(data), path=str(derivative), mediaType='text/plain',
-            mapping='SYNTHETIC manually supplied subset', omissions='SYNTHETIC excluded other person; not machine verified')])
-        disclose(plan2)
-        derived = export_person(vault, person, tmp_path/'derivative-export', selection, review=plan2)
-        assert not verify_export(derived.path).issues and not (derived.path/'sources').exists()
-        assert (derived.path/f'derivatives/{hash_bytes(derivative.read_bytes())}/blob').read_bytes() == derivative.read_bytes()
-        manifest = decode_json((derived.path/'export.json').read_bytes())
-        assert manifest['sourceDisclosure']['plan']['originalDisposition'] == 'omitted-all'
-        assert manifest['sourceDisclosure']['plan']['derivatives'][0]['omissions']
-    else:
-        export = export_person(vault, person, tmp_path/'original-export', selection)
+    with pytest.raises(ArchiveError, match='SOURCE_SCOPE_REVIEW_REQUIRED'):
+        export_person(vault, person, tmp_path/'denied', selection)
+    plan = prepare_disclosure(vault, person, selection, tmp_path/'plan')
+    plan_data = decode_json((plan/'plan.json').read_bytes())
+    assert plan_data['personId'] == person
+    assert hash_bytes(data) in {a['sha256'] for a in plan_data['originalSources']}
+    def disclose(plan):
+        record_disclosure(vault, plan, dict(format='helseark-source-decision-1',
+            planSha256=hash_bytes((plan/'plan.json').read_bytes()), humanReviewed=True,
+            confirmedPerson=True, acknowledgedDisclosure=True,
+            reviewer={'kind':'synthetic-test','label':'SYNTHETIC review only'},
+            reason='SYNTHETIC scope and omissions review; no clinical approval'))
+    disclose(plan)
+    export = export_person(vault, person, tmp_path/'original-export', selection, review=plan)
+    assert decode_json((export.path/'export.json').read_bytes())['sourceDisclosure']['plan']['originalDisposition'] == 'included-exact'
+    derivative = tmp_path/'derivative.txt'; derivative.write_bytes(b'SYNTHETIC supplied selected subset\n')
+    plan2 = prepare_disclosure(vault, person, selection, tmp_path/'derivative-plan', derivatives=[dict(
+        sourceSha256=hash_bytes(data), path=str(derivative), mediaType='text/plain',
+        mapping='SYNTHETIC manually supplied subset', omissions='SYNTHETIC excluded other person; not machine verified')])
+    disclose(plan2)
+    derived = export_person(vault, person, tmp_path/'derivative-export', selection, review=plan2)
+    assert not verify_export(derived.path).issues and not (derived.path/'sources').exists()
+    assert (derived.path/f'derivatives/{hash_bytes(derivative.read_bytes())}/blob').read_bytes() == derivative.read_bytes()
+    manifest = decode_json((derived.path/'export.json').read_bytes())
+    assert manifest['sourceDisclosure']['plan']['originalDisposition'] == 'omitted-all'
+    assert manifest['sourceDisclosure']['plan']['derivatives'][0]['omissions']
     assert not verify_export(export.path).issues
     assert (export.path/f'sources/people/{person}/assets/sha256/{hash_bytes(data)}/blob').read_bytes() == data
     assert all(p.read_bytes() == old for p,old in frozen.items())

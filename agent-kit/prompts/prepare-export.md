@@ -1,4 +1,4 @@
-# prepare-export — prompt 0.1.1
+# prepare-export — prompt 0.1.2
 
 Fixed task ID: `export`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
@@ -47,3 +47,5 @@ explicitly from `originalSources`/`sourceFiles`; one selected Observation does
 not imply one source. Never silently prune that inventory or treat a model report
 as approval. Full-person recovery explicitly retains the whole accepted chain
 and exact originals; selected/derivative snapshots remain exchange artifacts.
+
+Require separate disclosure review for original native attachments regardless of media type, including honest non-PDF originals and historical attachments. Clinical review never grants disclosure consent.
