@@ -1,6 +1,8 @@
 # Extract, query and correct records
 
-Use these tasks manually or with an agent. No Helseark runtime is required.
+Ask your agent to use [the Helseark skill](../skills/helseark/SKILL.md) for these
+tasks. No Helseark runtime or skill installation is required when you provide
+the file path. The skill loads the relevant task instructions for you.
 For your first import, follow [Save your first health record](tutorial.md).
 
 ## Prepare the task
@@ -11,15 +13,15 @@ For your first import, follow [Save your first health record](tutorial.md).
    Stop if identity is missing or conflicting.
 3. Keep sources and accepted files unchanged, outside this repository.
    Use separate files for drafts and review notes.
-4. Supply the instructions, chosen template and inputs below.
+4. Tell the skill which task you want and supply the inputs below.
    Share only authorized files with an agent. Read [privacy boundaries](explanation/privacy-and-agent-boundaries.md) before sharing.
 
 ## Extract a source
 
-1. Copy the [extraction template](../prompts/extract.md).
+1. Ask the Helseark skill to extract your selected source.
 2. Supply the person's ID (or confirmed `profile.fhir.json`), identity cues, selected
-   PDF or note, [FHIR R4 schema](../definitions/fhir-r4-json-schema/fhir.schema.json),
-   and a new draft destination such as `drafts/lab-2026-03/`. Retain the source unchanged.
+   PDF or note, and a new draft destination such as `drafts/lab-2026-03/`.
+   The skill selects the schema. Retain the source unchanged.
 3. Ask the agent to save the returned Bundle, field citations and unresolved
    questions there as drafts. If it cannot write files, save its output yourself.
    See the [complete example](../examples/README.md) for the expected format.
@@ -32,7 +34,7 @@ in the source and flag them in the review note.
 
 ## Retrieve a cited answer
 
-1. Copy the [query template](../prompts/query.md).
+1. Ask the Helseark skill your question about the selected records.
 2. Supply the person's ID, question, date range, record files/revisions and source citations.
    Mark draft records as unreviewed.
 3. Check the answer against its cited records and sources.
@@ -42,7 +44,7 @@ A query must leave records unchanged. A failed read cannot support an absence cl
 
 ## Propose a correction
 
-1. Copy the [correction template](../prompts/correct.md).
+1. Ask the Helseark skill to propose a correction.
 2. Supply the person's ID, exact prior file/revision, field, reason and supporting evidence.
    Label user statements as user statements.
 3. Save the corrected resource separately with its citations and field-level before/after list.

@@ -7,7 +7,9 @@ missing or inconsistent. Read no other person's records.
 
 Create a draft FHIR R4 collection Bundle with an explicit Patient and explicit
 subjects on clinical resources. Use DocumentReference to identify the retained
-source, with a local attachment URL. Preserve exact decimals, comparators,
+source, with a local attachment URL. Give each Bundle entry a UUID URN `fullUrl`
+and use that exact URN for references to it from other entries, as in the example.
+Preserve exact decimals, comparators,
 original units, source status, partial dates and uncertainty. Do not infer codes,
 timezones or clinical meaning. Separate clinical source status from human approval.
 

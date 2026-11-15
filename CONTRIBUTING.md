@@ -12,8 +12,8 @@ large changes, open an issue to align on scope and design. Keep changes focused.
 
 ## Choose the right scope
 
-Helseark's core consists of [agent instructions](instructions.md), three task
-prompts, existing FHIR R4/schema references and a complete invented example.
+Helseark's core consists of the [agent skill](skills/helseark/SKILL.md), shared
+instructions, three task references, FHIR R4 schemas and a complete invented example.
 Preserve precision, explicit person identity, source evidence, human
 review and accepted history. See [SCOPE.md](SCOPE.md) for deferred work. Existing
 Python/CLI and legacy agent-kit work remains optional and preserved; their setup

@@ -4,6 +4,7 @@
 
 | Path | Purpose |
 | --- | --- |
+| `skills/helseark/SKILL.md` | User-facing agent workflow for profiles, imports, queries and corrections |
 | `instructions.md`, `prompts/` | Agent instructions and extraction/query/correction prompts |
 | `examples/` | Complete invented source, FHIR Bundle and citations |
 | `docs/tutorial.md`, `docs/how-to.md`, `docs/schemas.md` | User walkthrough, task guide and schema reference |

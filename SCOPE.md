@@ -1,7 +1,7 @@
 # Current scope
 
-The core deliverable is [Helseark](README.md): plain
-agent instructions, directly usable extraction/query/correction templates,
+The core deliverable is [Helseark](README.md): an agent skill, shared instructions,
+extraction/query/correction task references,
 existing FHIR R4/schema references, and a complete invented source with a cited
 FHIR example. Use requires no CLI installation or generated vault. Preserve exact
 precision, explicit person identity, source evidence and mandatory human review.
@@ -9,7 +9,7 @@ Schema validity does not establish clinical truth. No medical advice is provided
 
 | Area | Status |
 | --- | --- |
-| Instructions, three templates, schemas and invented example | Core |
+| Agent skill, instructions, three task references, schemas and invented example | Core |
 | Existing Python library/CLI and legacy agent-kit | Preserved, optional experimental work; separate setup and limitations |
 | Confinement infrastructure and sandbox launchers | Deferred |
 | Bespoke evaluation platform and provider evaluations | Deferred |
