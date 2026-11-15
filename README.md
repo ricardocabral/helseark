@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/brand/svg/helseark-horizontal-reverse.svg">
-  <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
+  <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark logo" width="480" height="120">
 </picture>
 
 A starter kit for personal health records: instructions, three prompts, FHIR R4
