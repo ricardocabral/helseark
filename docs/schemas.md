@@ -1,7 +1,7 @@
 # Existing data schema references
 
 Clinical data uses **FHIR R4 4.0.1**, with native Patient, Observation and
-DocumentReference resources in the [example Bundle](examples/bundle.fhir.json).
+DocumentReference resources in the [example Bundle](../examples/bundle.fhir.json).
 Readable citation/review notes are supporting material, not another clinical store.
 
 | Existing asset | Use and limits |
@@ -9,7 +9,7 @@ Readable citation/review notes are supporting material, not another clinical sto
 | [Upstream FHIR JSON Schema](../definitions/fhir-r4-json-schema/fhir.schema.json) | Draft-06 structural schema for R4 resources; contains its definitions in one file |
 | [Evidence schema](../schemas/0.1.0/evidence.schema.json) | Optional Draft 2020-12 citation envelope; the complete example uses existing source and generated entry types |
 | [Local profiles](../profiles/r4/0.1.0/README.md) | Optional experimental archive constraints, including profile declarations and content-addressed attachment paths; not claimed by this portable example |
-| [Clinical model](../docs/reference/clinical-model.md) | Deeper reference for the optional archive runtime and its stricter graph/evidence rules |
+| [Clinical model](reference/clinical-model.md) | Deeper reference for the optional archive runtime and its stricter graph/evidence rules |
 | [Definition provenance and terms](../definitions/README.md) | Origin and licensing of reused upstream assets |
 
 In this example `valueQuantity.value` is a JSON number with token `0.050`,
@@ -26,10 +26,16 @@ produce readable field citations without any hash or archive setup.
 
 ## Optional structural validation
 
+**The command below checks the supplied example, not your imported records.**
+To check your own import, ask your agent to validate the actual draft Bundle and
+each resource against the upstream FHIR schema, using an exact-decimal reader.
+Have it report the input paths and outcome, or explain why validation could not
+run. Readable `evidence.md` and review notes are checked against sources by a
+human; they are not inputs to the optional machine-readable evidence schema.
+
 If Python and the repository's existing `jsonschema` dependency are already
 available, run the following from the repository root. Nothing is installed,
-written, fetched, or initialized. This command also works with the reduced copy
-scope described in the quickstart. It validates both the Bundle and each resource
+written, fetched, or initialized. It validates both the Bundle and each resource
 explicitly, plus the evidence envelope, while reading decimal values exactly.
 
 ```sh
@@ -43,14 +49,14 @@ def read(path):
     return json.loads(Path(path).read_text(), parse_float=Decimal)
 
 schema = read('definitions/fhir-r4-json-schema/fhir.schema.json')
-bundle = read('starter-kit/examples/bundle.fhir.json')
+bundle = read('examples/bundle.fhir.json')
 Draft6Validator(schema).validate(bundle)
 for entry in bundle['entry']:
     resource = entry['resource']
     specific = dict(schema, **{'$ref': '#/definitions/' + resource['resourceType']})
     Draft6Validator(specific).validate(resource)
 Draft202012Validator(read('schemas/0.1.0/evidence.schema.json')).validate(
-    read('starter-kit/examples/evidence.json'))
+    read('examples/evidence.json'))
 value = bundle['entry'][1]['resource']['valueQuantity']['value']
 assert str(value) == '0.050'
 print('Bundle, 3 resources and evidence structurally valid; decimal scale retained.')
@@ -61,5 +67,5 @@ This check does **not** validate local profile/FHIRPath invariants, terminology,
 reference resolution, evidence accuracy, clinical truth, source authenticity,
 or human approval. In particular, schema validation alone may accept a wrong
 person, changed comparator or inaccurate citation. Compare the [source and review
-checklist](examples/README.md) manually before accepting any real record. The
-starter kit does not implement validators, review enforcement or archive storage.
+checklist](../examples/README.md) manually before accepting any real record. The
+instructions do not implement validators, review enforcement or archive storage.

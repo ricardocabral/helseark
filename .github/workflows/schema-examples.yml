@@ -1,11 +1,18 @@
-name: Starter kit
+name: Schemas and examples
 
 on:
   push:
     branches: [main]
     paths:
-      - "starter-kit/**"
-      - "tests/test_starter_kit.py"
+      - "README.md"
+      - "instructions.md"
+      - "prompts/**"
+      - "examples/**"
+      - "docs/tutorial.md"
+      - "docs/how-to.md"
+      - "docs/schemas.md"
+      - "docs/explanation/evidence-and-review.md"
+      - "tests/test_examples.py"
       - "AGENTS.md"
       - "SCOPE.md"
       - "CONTRIBUTING.md"
@@ -13,7 +20,7 @@ on:
       - "schemas/0.1.0/evidence.schema.json"
       - "pyproject.toml"
       - "uv.lock"
-      - ".github/workflows/starter-kit.yml"
+      - ".github/workflows/schema-examples.yml"
   pull_request: {}
   workflow_dispatch:
 
@@ -26,7 +33,7 @@ concurrency:
 
 jobs:
   examples:
-    name: Validate documented starter example
+    name: Validate schemas and examples
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -45,7 +52,7 @@ jobs:
       - name: Install only locked schema-validation dependencies
         run: uv sync --locked --no-install-project --no-default-groups
 
-      # Execute the optional check contributors can copy from the starter docs.
+      # Execute the optional check contributors can copy from the schema reference.
       # This proves structure and decimal scale, not clinical truth or approval.
       - name: Run documented structural validation
         run: |
@@ -54,10 +61,10 @@ jobs:
           import subprocess
           import sys
 
-          page = Path('starter-kit/schemas.md').read_text()
+          page = Path('docs/schemas.md').read_text()
           command = page.split("python3 - <<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
           subprocess.run([sys.executable, '-c', command], check=True)
           PY
 
       - name: Check invented source, FHIR and citation consistency
-        run: uv run --no-sync python -m unittest discover -s tests -p test_starter_kit.py -v
+        run: uv run --no-sync python -m unittest discover -s tests -p test_examples.py -v

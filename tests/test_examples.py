@@ -1,4 +1,4 @@
-"""Checks for the fixed invented starter example, not a clinical validator."""
+"""Checks for the fixed invented health record example, not a clinical validator."""
 
 import csv
 from decimal import Decimal
@@ -11,7 +11,7 @@ from jsonschema import Draft6Validator, Draft202012Validator, ValidationError
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EXAMPLES = ROOT / "starter-kit" / "examples"
+EXAMPLES = ROOT / "examples"
 PERSON = "11111111-1111-4111-8111-111111111111"
 PATIENT = f"Patient/{PERSON}"
 OBSERVATION = "Observation/22222222-2222-4222-8222-222222222222"
@@ -22,7 +22,7 @@ def read_json(path):
     return json.loads(path.read_text(encoding="utf-8"), parse_float=Decimal)
 
 
-class StarterExampleTests(unittest.TestCase):
+class HealthExampleTests(unittest.TestCase):
     def setUp(self):
         with (EXAMPLES / "source.csv").open(encoding="utf-8", newline="") as source:
             self.rows = list(csv.DictReader(source))

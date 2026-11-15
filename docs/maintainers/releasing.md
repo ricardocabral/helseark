@@ -1,4 +1,4 @@
-# Publishing the Helseark starter kit
+# Publishing Helseark
 
 Before the first public launch and each release, record a responsible person,
 exact candidate commit/tag, date, evidence location,
@@ -7,7 +7,7 @@ in ignored `docs/internal/`, not public issues or uploaded CI artifacts. A faile
 empty or wrong-context read is not a pass.
 
 - [ ] Confirm the candidate matches [current scope](../../SCOPE.md) and has
-  independent review. Check the starter instructions, three templates, schema
+  independent review. Check the agent instructions, three templates, schema
   references and invented source/FHIR/evidence example; verify their links and
   the [core checks](../../CONTRIBUTING.md#core-checks). Preserve explicit identity,
   exact precision, source evidence, accepted history and mandatory human review.
@@ -45,13 +45,13 @@ empty or wrong-context read is not a pass.
   update PRs are disabled; review the weekly update-job results
   and handle deliberate version upgrades separately. Do not bypass uv's cutoff or
   the PDF runtime version guard to get a bot update merged.
-- [ ] Require green “Starter kit” checks for the exact candidate commit. Inspect
+- [ ] Require green “Schemas and examples” checks for the exact candidate commit. Inspect
   the portable files being published for missing schemas, broken relative links,
   private content and omitted licenses/notices. Record the candidate and actual
   results; there is no universal wheel/sdist or installed-platform gate for this
   installation-free delivery.
 - [ ] Document the published scope, compatibility references, known limits,
-  security support status and instructions for copying/using the starter. Tag
+  security support status and instructions for copying and using the files. Tag
   the reviewed commit and publish only with owner authorization and least-privilege
   credentials.
 - [ ] Owner authorizes the visibility change separately after reviewing evidence.
@@ -68,7 +68,7 @@ seven days requires correction or reverting the affected configuration. Do not
 claim bots or remote protections work until their results are observed.
 
 Check the first core-relevant pull request and main push after workflow changes:
-one “Starter kit” job should run and pass its documented example and consistency
+one “Schemas and examples” job should run and pass its documented example and consistency
 checks, with no automatic “Experimental CLI (manual)” run. Inspect the Actions runs
 for that commit. Investigate any failed core check or a job that exceeds its
 five-minute timeout. If routing breaks, revert the workflow change and rerun
@@ -76,7 +76,7 @@ the core check. Record remote results only after observing them.
 
 The experimental CLI and historical qualification scripts remain available.
 A runtime release requires separate scope and qualification for its promised
-behavior and platforms; starter checks provide neither. This checklist does not
+behavior and platforms; schema and example checks provide neither. This checklist does not
 authorize a runtime release or expand its support claims.
 
 Guidance consulted on 2026-11-14:

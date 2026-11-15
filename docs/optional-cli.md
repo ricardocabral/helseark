@@ -1,6 +1,6 @@
 # Optional experimental CLI
 
-The [starter kit](../starter-kit/README.md) needs no installation.
+Using [Helseark's instructions and schemas](../README.md) needs no installation.
 This page covers the separate experimental Python library, CLI and legacy agent-kit.
 See [current scope](../SCOPE.md) for limits. No release readiness or clinical correctness is claimed.
 
@@ -56,7 +56,7 @@ For an explicitly scoped runtime change, maintainers can dispatch the
 [Experimental CLI (manual) workflow](../.github/workflows/ci.yml) on its branch.
 It retains three test shards and the exact PDF dependency check as diagnostics.
 It does not run automatically on pull requests or pushes, build distributions,
-or establish supported-platform or release qualification. Passing starter checks
+or establish supported-platform or release qualification. Passing schema and example checks
 does not qualify this runtime. A runtime release needs separate scope and
 qualification; preserved qualification scripts remain available for that work.
 

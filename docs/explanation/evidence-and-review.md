@@ -5,7 +5,7 @@ those facts. A second simplified clinical format could drift from the FHIR recor
 
 ## Precision preserves meaning
 
-The [invented source](examples/source.csv) says `<0,050 mg/L`.
+The [invented source](../../examples/source.csv) says `<0,050 mg/L`.
 Its draft retains `0.050`, comparator `<` and unit `mg/L`.
 Removing the comparator would turn a bound into a point measurement.
 Adding a day to `2026-02` would invent precision. Citations make these choices inspectable.
@@ -28,8 +28,8 @@ Missing records cannot prove that a condition is absent.
 
 You control file protection, review and version organization. Prompts cannot enforce
 these rules or restrict an agent's tools. Sharing files with a cloud agent discloses
-them to that provider. See [privacy boundaries](../docs/explanation/privacy-and-agent-boundaries.md).
+them to that provider. See [privacy boundaries](privacy-and-agent-boundaries.md).
 
-The [experimental CLI](../docs/optional-cli.md) adds a separate archive workflow.
+The [experimental CLI](../optional-cli.md) adds a separate archive workflow.
 Its contracts are optional. The portable example uses base FHIR R4 and is not a CLI candidate.
-Use the [task guide](how-to.md) for actions and [schema references](schemas.md) for formats.
+Use the [task guide](../how-to.md) for actions and [schema references](../schemas.md) for formats.

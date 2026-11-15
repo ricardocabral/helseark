@@ -2,7 +2,7 @@
 
 Ask me for one person's stable local ID, my question, the records and source
 citations I authorize you to read, and any date range if I have not supplied them.
-Use the supplied starter kit agent instructions. Stop on ambiguous identity.
+Use the supplied Helseark agent instructions. Stop on ambiguous identity.
 
 Answer only from that person's supplied records. Show the resource ID and exact
 file/revision, FHIR field, source filename and page/row/pointer for every factual

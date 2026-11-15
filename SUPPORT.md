@@ -1,7 +1,7 @@
 # Getting help
 
-Use the [starter kit](starter-kit/README.md), [lesson](starter-kit/tutorial.md),
-[task guide](starter-kit/how-to.md) or [schema reference](starter-kit/schemas.md).
+Start with the [README](README.md), [walkthrough](docs/tutorial.md),
+[task guide](docs/how-to.md) or [schema reference](docs/schemas.md).
 For the [experimental CLI](docs/optional-cli.md), check `helseark --help` and the command's help.
 A prompt file does not prove that a command exists.
 

@@ -12,12 +12,12 @@ large changes, open an issue to align on scope and design. Keep changes focused.
 
 ## Choose the right scope
 
-The current core is the [minimal starter kit](starter-kit/README.md): instructions,
-three usable templates, existing FHIR R4/schema references and a complete invented
-example. Preserve precision, explicit person identity, source evidence, human
+Helseark's core consists of [agent instructions](instructions.md), three task
+prompts, existing FHIR R4/schema references and a complete invented example.
+Preserve precision, explicit person identity, source evidence, human
 review and accepted history. See [SCOPE.md](SCOPE.md) for deferred work. Existing
 Python/CLI and legacy agent-kit work remains optional and preserved; their setup
-is not required to use or improve the starter. Do not restart an older application
+is not required to use or improve these files. Do not restart an older application
 roadmap or add infrastructure without explicit scope authorization. Keep clinical
 meaning in FHIR rather than introducing a parallel format.
 
@@ -31,7 +31,7 @@ removed. Use invented fixtures and keep real archives outside the checkout.
 
 Instructions, templates and the invented example can be read and improved without
 installing Helseark or creating a vault. Compare changes against the
-[source and review checklist](starter-kit/examples/README.md). Preserve the
+[source and review checklist](examples/README.md). Preserve the
 explicit person, exact numeric scale, citations and mandatory human review.
 
 For automated checks, use Python 3.12 and uv (CI pins uv 0.11.2). Install only the
@@ -39,20 +39,20 @@ existing schema-validation dependencies from the repository root:
 
 ```sh
 uv sync --locked --no-install-project --no-default-groups
-uv run --no-sync python -m unittest discover -s tests -p test_starter_kit.py -v
+uv run --no-sync python -m unittest discover -s tests -p test_examples.py -v
 uv run --no-sync python - <<'PY'
 from pathlib import Path
 import subprocess
 import sys
 
-page = Path('starter-kit/schemas.md').read_text()
+page = Path('docs/schemas.md').read_text()
 command = page.split("python3 - <<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
 subprocess.run([sys.executable, '-c', command], check=True)
 PY
 git diff --check
 ```
 
-The “Starter kit” workflow runs these inexpensive checks on every pull request.
+The “Schemas and examples” workflow runs these checks on every pull request.
 They protect this invented example, not arbitrary clinical truth or human approval.
 New examples need corresponding focused checks. Dependency installation may access
 registries; checks use local files. Keep uv's seven-day dependency freshness guard.
@@ -61,7 +61,7 @@ defines review standards.
 
 The [experimental CLI](docs/optional-cli.md) has separate optional Python/PDF setup
 and a manually dispatched diagnostic suite. Work on it requires explicit scope;
-passing starter checks does not qualify it or its distributions.
+passing schema and example checks does not qualify it or its distributions.
 
 ## Development workflow
 

@@ -2,7 +2,7 @@
 
 Ask me for one person's stable local ID, the exact record file/revision and field
 to correct, the reason, and supporting source or explicitly attributed user
-statement if I have not supplied them. Use the supplied starter kit agent
+statement if I have not supplied them. Use the supplied Helseark agent
 instructions. Stop on identity conflicts or an unclear target.
 
 Read only the selected record and authorized evidence. Return a complete separate

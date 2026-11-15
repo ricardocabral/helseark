@@ -4,7 +4,9 @@
 
 | Path | Purpose |
 | --- | --- |
-| `starter-kit/` | Core instructions, templates and invented source/FHIR example |
+| `instructions.md`, `prompts/` | Agent instructions and extraction/query/correction prompts |
+| `examples/` | Complete invented source, FHIR Bundle and citations |
+| `docs/tutorial.md`, `docs/how-to.md`, `docs/schemas.md` | User walkthrough, task guide and schema reference |
 | `src/helseark/` | Optional experimental Python library and CLI; adapters live in `adapters/` |
 | `tests/` | Behavioral tests and installed-package qualifications |
 | `tests/fixtures/synthetic/` | Invented health data only |
@@ -65,7 +67,7 @@ Test observable contracts with invented cases. Include wrong-person, stale revie
 precision, corruption and offline failure cases where the change touches them.
 Use `tmp_path`/temporary directories and subprocesses for real process boundaries.
 A source-text assertion is not proof of behavior. Do not weaken tests to hide a
-regression. Default CI runs the documented schema command and `tests/test_starter_kit.py`
+regression. Default CI runs the documented schema command and `tests/test_examples.py`
 against the actual invented source, FHIR and evidence files. Use the commands in
 [CONTRIBUTING.md](../../CONTRIBUTING.md); these need only the existing schema
 dependencies, with no project installation, PDF extra or vault. Keep new example
@@ -73,7 +75,7 @@ checks small and specific; they do not prove clinical truth or human acceptance.
 
 Run focused tests locally. The preserved experimental application suites run
 remotely through “Experimental CLI (manual)” only when explicitly requested.
-Starter checks do not qualify runtime changes, installed packages or platforms.
+Schema and example checks do not qualify runtime changes, installed packages or platforms.
 
 Pin dependencies in `pyproject.toml` and `uv.lock` together, retain uv's seven-day
 release cutoff, and review licenses/security before adding or updating packages.

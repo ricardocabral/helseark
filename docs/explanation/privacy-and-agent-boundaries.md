@@ -1,8 +1,8 @@
 # Privacy and agent boundaries
 
-## Using the plain-file starter kit
+## Using Helseark with an agent
 
-The [starter kit](../../starter-kit/README.md) does not upload files, encrypt records
+The [instructions and schemas](../../README.md) do not upload files, encrypt records
 or enforce access control. You select one person and the authorized files for each task.
 A source can contain another person's information. Sharing the whole source can disclose it too.
 
@@ -10,7 +10,7 @@ Protect sources, drafts, answers and backups. Decide what an external provider m
 receive before sharing. Local files do not make a cloud agent local.
 Document instructions remain untrusted data. Prompts cannot restrict an agent's tools or file access.
 
-See [review a draft](../../starter-kit/how-to.md#review-a-draft) for the manual review process.
+See [review a draft](../how-to.md#review-a-draft) for the manual review process.
 
 ## Optional experimental archive and agent packets
 

@@ -1,10 +1,10 @@
 # Contributor instructions
 
-Current delivery is the [minimal starter kit](starter-kit/README.md), governed by
-[SCOPE.md](SCOPE.md). Prior application plans do not authorize restarting deferred
-work. Keep the experimental CLI and legacy agent-kit intact; they are optional,
-not starter-kit prerequisites. Internal plans are historical context where they
-conflict with the approved scope.
+Current delivery is [Helseark's agent instructions, schemas and examples](README.md),
+governed by [SCOPE.md](SCOPE.md). Prior application plans do not authorize restarting
+deferred work. Keep the experimental CLI and legacy agent-kit intact; they are
+optional, not prerequisites for organizing records with an agent. Internal plans
+are historical context where they conflict with the approved scope.
 
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md), the [coding guide](docs/development/coding-guide.md), and [SECURITY.md](SECURITY.md).
 - Public contributors use the references, tests, and self-contained issues. If private planning context is needed, ask the coordinator for public acceptance criteria; never publish internal plans.
@@ -12,10 +12,10 @@ conflict with the approved scope.
 - Workers use separate branches/worktrees. Preserve other sessions' changes. Do not amend or rewrite commits.
 - Implement the assigned plan task completely, including behavioral tests and its documentation. Report limitations honestly.
 - Use synthetic fixtures only. Preserve exact decimal precision, patient isolation, immutable accepted history, offline operation, and mandatory human review.
-- Default checks cover schemas, starter instructions and the invented example.
+- Default checks cover schemas, agent instructions and the invented example.
   Run focused checks locally; the optional experimental CLI suite runs remotely
-  through manual dispatch only when explicitly requested. Starter checks do not
-  qualify CLI behavior or distributions.
+  through manual dispatch only when explicitly requested. Schema and example
+  checks do not qualify CLI behavior or distributions.
 - An independent reviewer checks each implementation before integration. Resolve findings and suggestions, documenting reasons for any declined suggestion.
 - Only the coordinator integrates reviewed work into main and pushes. Include a concrete post-merge verification/rollback plan for production-changing PRs.
 - Keep durable guidance here; CLAUDE.md imports this file.

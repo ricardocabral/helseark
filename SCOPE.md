@@ -1,6 +1,6 @@
 # Current scope
 
-The core deliverable is the [minimal starter kit](starter-kit/README.md): plain
+The core deliverable is [Helseark](README.md): plain
 agent instructions, directly usable extraction/query/correction templates,
 existing FHIR R4/schema references, and a complete invented source with a cited
 FHIR example. Use requires no CLI installation or generated vault. Preserve exact
@@ -13,16 +13,16 @@ Schema validity does not establish clinical truth. No medical advice is provided
 | Existing Python library/CLI and legacy agent-kit | Preserved, optional experimental work; separate setup and limitations |
 | Confinement infrastructure and sandbox launchers | Deferred |
 | Bespoke evaluation platform and provider evaluations | Deferred |
-| 32-trial qualification gate | Deferred; not a starter-kit prerequisite |
+| 32-trial qualification gate | Deferred; not a prerequisite for using the instructions and schemas |
 | Official Java validator integration/qualification | Deferred |
 | Migration implementation or expansion | Deferred |
 | Adapter and OCR expansion | Deferred |
 | Reports and transactional engine expansion | Deferred |
 
-Default CI checks the starter instructions’ documented schema command and the
+Default CI checks the agent instructions’ documented schema command and the
 invented example’s identity, precision and citations. The experimental CLI suite
 is available only through the manual “Experimental CLI (manual)” workflow;
-starter checks do not qualify the optional runtime or its distributions.
+schema and example checks do not qualify the optional runtime or its distributions.
 
 Existing files, branches and historical evidence remain intact. Prior application
 roadmaps are historical context, not acceptance criteria for this delivery. Future
