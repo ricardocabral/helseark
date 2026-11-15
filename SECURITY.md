@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Like Rikdom, security maintenance targets the latest code on main; older snapshots
+Security maintenance targets the latest code on main; older snapshots
 have no separate support promise. Helseark is still under implementation and has
 no stable release. This policy makes no claim of clinical correctness or release
 qualification.
@@ -30,7 +30,7 @@ else's systems or data and does not establish a bounty program.
 
 ## Vulnerability disclosure process
 
-Following Rikdom's targets, maintainers aim to acknowledge receipt within seven
+Maintainers aim to acknowledge receipt within seven
 days and provide a status update within fourteen days when possible. These are
 targets, not guaranteed response times. Confirmed vulnerabilities receive a
 reviewed fix and focused tests plus branch CI. Maintainers coordinate disclosure
@@ -49,6 +49,3 @@ privately, rotate affected credentials and preserve restricted incident evidence
 Deleting the latest file does not remove history, caches or forks. Coordinate
 cleanup with the owner; never rewrite shared history without authorization.
 Changing visibility cannot recall public copies.
-
-Adapted from [Rikdom's security policy](https://github.com/ricardocabral/rikdom/blob/main/SECURITY.md),
-copyright 2026 rikdom contributors, MIT.

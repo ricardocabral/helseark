@@ -11,7 +11,7 @@ to its reviewed tag and published artifacts when a release is authorized.
 - Contributor, coding, governance, conduct, support and security guidance.
 - Review ownership, issue and pull request templates, and grouped security dependency updates.
 - Release and third-party licensing guidance, including history/privacy and artifact reviews.
-- MIT license and matching package metadata, following Rikdom.
+- MIT license and matching package metadata.
 - Public-repository CodeQL, dependency-review and OpenSSF Scorecard workflows.
 
 ### Changed

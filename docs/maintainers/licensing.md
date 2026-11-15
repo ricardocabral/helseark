@@ -1,10 +1,9 @@
 # Licensing and third-party material
 
 Project-authored code, schemas, profiles and documentation use the
-[MIT License](../../LICENSE), matching [Rikdom](https://github.com/ricardocabral/rikdom/blob/main/LICENSE).
+[MIT License](../../LICENSE).
 Python metadata and current FHIR package/definition metadata declare MIT.
-Contribution/security guidance adapted from Rikdom retains its contributor
-copyright notice in LICENSE. The license does not grant trademark rights or
+The license does not grant trademark rights or
 license users' health records and exports.
 
 ## Exceptions and retained notices
@@ -21,9 +20,8 @@ license users' health records and exports.
 The Apache text is scoped to that historical fixture. It is not a second project
 license and is not listed as a Python distribution license.
 
-Current project metadata was aligned to MIT at the owner's request. This updates
-repository distribution pins; it does not rewrite existing archives or retained
-historical fixtures. Their bytes, provenance and original notices stay intact.
+Retain existing archives and historical fixtures with their original bytes,
+provenance and notices.
 
 [Definitions guidance](../../definitions/README.md) and
 [upstream inventory](../../definitions/upstream-inventory.json) record exact sources

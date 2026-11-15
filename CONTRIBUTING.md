@@ -1,7 +1,6 @@
 # Contributing to Helseark
 
-This guide follows [Rikdom's contribution conventions](https://github.com/ricardocabral/rikdom/blob/main/CONTRIBUTING.md),
-adapted to Helseark's archive contracts. Read the [coding guide](docs/development/coding-guide.md),
+Read the [coding guide](docs/development/coding-guide.md),
 [code of conduct](CODE_OF_CONDUCT.md) and [security policy](SECURITY.md).
 
 ## Ways to contribute
@@ -46,7 +45,7 @@ git diff --check
 ```
 
 There is no configured linter yet. The [coding guide](docs/development/coding-guide.md)
-defines current review standards; do not claim Rikdom's `make lint` runs here.
+defines current review standards.
 
 ## Development workflow
 
@@ -108,9 +107,7 @@ issues; follow [SECURITY.md](SECURITY.md) to request a private channel.
 ## License
 
 By contributing, you agree that your project-authored contributions are licensed
-under the [MIT License](LICENSE), as in Rikdom. You must have the right to submit
+under the [MIT License](LICENSE). You must have the right to submit
 the material and identify third-party terms. Existing CC0 fixture dedications,
 upstream licenses and retained historical notices remain intact; see
 [licensing](docs/maintainers/licensing.md). No separate CLA or sign-off is required.
-
-Adapted from Rikdom's contribution guide, copyright 2026 rikdom contributors, MIT.

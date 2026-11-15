@@ -36,10 +36,10 @@ empty or wrong-context read is not a pass.
   and push protection where available. Verify CodeQL, dependency-review and OpenSSF
   Scorecard jobs after
   public launch; they are gated off while the repository is private. Their Actions
-  are SHA-pinned, with scoped permissions, following Rikdom. CodeQL uses v4 because
+  are SHA-pinned, with scoped permissions. CodeQL uses v4 because
   v3 is approaching retirement. Confirm Dependabot reads uv.lock
   and opens grouped security update proposals without auto-merge. Routine version
-  update PRs are disabled, following Rikdom; review the weekly update-job results
+  update PRs are disabled; review the weekly update-job results
   and handle deliberate version upgrades separately. Do not bypass uv's cutoff or
   the PDF runtime version guard to get a bot update merged.
 - [ ] Require green branch CI on Linux/macOS for the exact candidate commit.
