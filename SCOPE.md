@@ -1,0 +1,25 @@
+# Current scope
+
+The core deliverable is the [minimal starter kit](starter-kit/README.md): plain
+agent instructions, directly usable extraction/query/correction templates,
+existing FHIR R4/schema references, and a complete invented source with a cited
+FHIR example. Use requires no CLI installation or generated vault. Preserve exact
+precision, explicit person identity, source evidence and mandatory human review.
+Schema validity does not establish clinical truth. No medical advice is provided.
+
+| Area | Status |
+| --- | --- |
+| Instructions, three templates, schemas and invented example | Core |
+| Existing Python library/CLI and legacy agent-kit | Preserved, optional experimental work; separate setup and limitations |
+| Confinement infrastructure and sandbox launchers | Deferred |
+| Bespoke evaluation platform and provider evaluations | Deferred |
+| 32-trial qualification gate | Deferred; not a starter-kit prerequisite |
+| Official Java validator integration/qualification | Deferred |
+| Migration implementation or expansion | Deferred |
+| Adapter and OCR expansion | Deferred |
+| Reports and transactional engine expansion | Deferred |
+
+Existing files, branches and historical evidence remain intact. Prior application
+roadmaps are historical context, not acceptance criteria for this delivery. Future
+work on deferred areas requires explicit scope authorization. This cut makes no
+claim of broad final qualification, clinical correctness or release readiness.

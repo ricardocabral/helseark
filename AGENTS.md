@@ -1,5 +1,11 @@
 # Contributor instructions
 
+Current delivery is the [minimal starter kit](starter-kit/README.md), governed by
+[SCOPE.md](SCOPE.md). Prior application plans do not authorize restarting deferred
+work. Keep the experimental CLI and legacy agent-kit intact; they are optional,
+not starter-kit prerequisites. Internal plans are historical context where they
+conflict with the approved scope.
+
 - Follow [CONTRIBUTING.md](CONTRIBUTING.md), the [coding guide](docs/development/coding-guide.md), and [SECURITY.md](SECURITY.md).
 - Public contributors use the references, tests, and self-contained issues. If private planning context is needed, ask the coordinator for public acceptance criteria; never publish internal plans.
 - Maintainer agents: read the implementation plan and design in ignored `docs/internal` (in the primary clone if absent in a worktree). Never commit these documents or real health data.

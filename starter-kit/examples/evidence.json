@@ -1,0 +1,247 @@
+{
+  "contractVersion": "0.1.0",
+  "personId": "11111111-1111-4111-8111-111111111111",
+  "entries": [
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Patient/11111111-1111-4111-8111-111111111111",
+        "pointers": [
+          "/identifier/0/value"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "11111111-1111-4111-8111-111111111111",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_id",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Patient/11111111-1111-4111-8111-111111111111",
+        "pointers": [
+          "/name/0/text"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "Alex Example",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_name",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "11111111-1111-4111-8111-111111111111",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "transformation": {
+        "rule": "explicit-subject-v1",
+        "description": "Copy the selected source person ID into a local Bundle URN; requires human identity confirmation."
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "final",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "status",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "C-reactive protein",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "test",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "2026-02",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "effective_date",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/valueQuantity/value",
+          "/valueQuantity/comparator",
+          "/valueQuantity/unit"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "<0,050 mg/L",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "result",
+        "delimiter": ","
+      },
+      "transformation": {
+        "rule": "decimal-comma-v1",
+        "description": "Replace the decimal comma with a point; retain three decimal places, < and mg/L."
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/note/0/text"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "Day and time not supplied; result is below the reporting limit, not an exact concentration.",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "uncertainty",
+        "delimiter": ","
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "DocumentReference/33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "11111111-1111-4111-8111-111111111111",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "transformation": {
+        "rule": "explicit-subject-v1",
+        "description": "Copy source person ID into the same local Bundle URN; human confirmation required."
+      }
+    },
+    {
+      "kind": "source",
+      "target": {
+        "reference": "DocumentReference/33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/description"
+        ]
+      },
+      "sourceSha256": "038aed0a9490cb158583ab6df5ce2d9d47b137c4ba4d1737115280dd271d0417",
+      "sourceDocument": "DocumentReference/33333333-3333-4333-8333-333333333333",
+      "quote": "SYNTH-001",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "report_id",
+        "delimiter": ","
+      },
+      "transformation": {
+        "rule": "source-label-v1",
+        "description": "Prefix the supplied report ID with Invented report."
+      }
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Patient/11111111-1111-4111-8111-111111111111",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Observation/22222222-2222-4222-8222-222222222222",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "DocumentReference/33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "DocumentReference/33333333-3333-4333-8333-333333333333",
+        "pointers": [
+          "/status",
+          "/content/0/attachment/contentType",
+          "/content/0/attachment/url",
+          "/content/0/attachment/title"
+        ]
+      },
+      "rule": "source-file-bookkeeping-v1"
+    }
+  ]
+}
