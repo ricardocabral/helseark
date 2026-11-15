@@ -1,22 +1,79 @@
 name: CI
 
 on:
+  # Branch pushes are covered by pull_request; main is checked after integration.
   push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "schemas/**"
+      - "profiles/**"
+      - "definitions/**"
+      - "agent-kit/**"
+      # These documents are pinned runtime inputs in definitions/lock.json.
+      - "docs/how-to/backup-and-restore.md"
+      - "docs/how-to/export-records.md"
+      - "docs/how-to/import-report.md"
+      - "docs/how-to/query-history.md"
+      - "docs/reference/agent-protocol.md"
+      - "docs/reference/archive-format.md"
+      - "docs/reference/clinical-model.md"
+      - "docs/reference/intake.md"
+      - "docs/reference/pdf-extraction.md"
+      - "docs/reference/review.md"
+      - "docs/tutorials/first-archive.md"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "MANIFEST.in"
+      - "LICENSE"
+      - ".github/workflows/ci.yml"
   pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "schemas/**"
+      - "profiles/**"
+      - "definitions/**"
+      - "agent-kit/**"
+      # These documents are pinned runtime inputs in definitions/lock.json.
+      - "docs/how-to/backup-and-restore.md"
+      - "docs/how-to/export-records.md"
+      - "docs/how-to/import-report.md"
+      - "docs/how-to/query-history.md"
+      - "docs/reference/agent-protocol.md"
+      - "docs/reference/archive-format.md"
+      - "docs/reference/clinical-model.md"
+      - "docs/reference/intake.md"
+      - "docs/reference/pdf-extraction.md"
+      - "docs/reference/review.md"
+      - "docs/tutorials/first-archive.md"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "MANIFEST.in"
+      - "LICENSE"
+      - ".github/workflows/ci.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test-and-build:
-    name: Python 3.12 / ${{ matrix.os }} / ${{ matrix.test-group }}
-    runs-on: ${{ matrix.os }}
-    # Partition the full suite so archive I/O stays within a bounded job window.
+    name: Python 3.12 / ubuntu-latest / ${{ matrix.test-group }}
+    runs-on: ubuntu-latest
+    # The optional application keeps its full suite on one platform/version.
+    # Partition archive I/O into three bounded jobs; macOS qualification is deferred.
     timeout-minutes: 25
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
         test-group: [agent, clinical, core]
     steps:
       - name: Check out repository
@@ -61,13 +118,9 @@ jobs:
         run: uv run --no-sync python tests/qualify_distribution.py dist
 
   base-optionality:
-    name: Base-only PDF optionality / ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Base-only PDF optionality / ubuntu-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 5
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
     steps:
       - name: Check out repository
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5

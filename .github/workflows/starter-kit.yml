@@ -1,0 +1,63 @@
+name: Starter kit
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "starter-kit/**"
+      - "definitions/fhir-r4-json-schema/**"
+      - "schemas/0.1.0/evidence.schema.json"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/starter-kit.yml"
+  pull_request:
+    paths:
+      - "starter-kit/**"
+      - "definitions/fhir-r4-json-schema/**"
+      - "schemas/0.1.0/evidence.schema.json"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/starter-kit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  examples:
+    name: Validate documented starter example
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Set up uv and Python
+        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: "0.11.2"
+          python-version: "3.12"
+          enable-cache: false
+
+      - name: Install only locked schema-validation dependencies
+        run: uv sync --locked --no-install-project --no-default-groups
+
+      # Execute the optional check contributors can copy from the starter docs.
+      # This proves structure and decimal scale, not clinical truth or approval.
+      - name: Run documented structural validation
+        run: |
+          uv run --no-sync python - <<'PY'
+          from pathlib import Path
+          import subprocess
+          import sys
+
+          page = Path('starter-kit/schemas.md').read_text()
+          command = page.split("python3 - <<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
+          subprocess.run([sys.executable, '-c', command], check=True)
+          PY
