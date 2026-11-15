@@ -93,9 +93,9 @@ Use the [PR template](.github/pull_request_template.md).
 - Preserve offline operation, exact precision, person isolation, immutable history
   and review bound to final prepared bytes.
 
-For production changes include `## Plano pós-merge`: each signal's source/query,
-baseline, regression threshold/window and rollback. Documentation-only changes
-may state that production behavior is unchanged and identify links/config to check.
+For changes to deployed production behavior, add `## Plano pós-merge` with each
+signal's source/query, baseline, regression threshold/window and rollback.
+Ordinary documentation and skill changes need only the validation section.
 
 ## Coding and testing standards
 
