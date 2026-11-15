@@ -18,6 +18,19 @@ def test_all_feature_discovery_retains_implemented_export(tmp_path):
     tasks = list_agent_tasks(kit)
     assert len(tasks) == 7 and all(t.availability.status == 'available' for t in tasks)
     assert 'reviewed-source-disclosure' in next(t for t in tasks if t.id == 'export').requiredCapabilities
+    from helseark.archive import add_person
+    from helseark.contracts import PersonDraft, ContextRequest
+    from helseark.agent_context import build_agent_context, render_task_prompt
+    person = add_person(vault, PersonDraft('Synthetic export assessment'))
+    context = build_agent_context(vault, person, 'export', ContextRequest(), tmp_path/'context')
+    rendered = render_task_prompt(context, 'prepare-export',
+        {'source_data':{'mode':'full-person','selection':[],'omissions':[]},
+         'source_scope_confirmed':True,'output_directory':str(tmp_path/'output')},
+        trusted_context_sha256=context.trustedContextSha256)
+    import json
+    header = json.JSONDecoder().raw_decode(rendered.text.split('\n',1)[1])[0]
+    assert header['disposition'] == 'draft' and not header['stopReasons']
+    assert header['permittedWrites'] == ['output/report.md']
 
 
 def test_host_review_inputs_reject_streams_and_oversize_without_publication(tmp_path):

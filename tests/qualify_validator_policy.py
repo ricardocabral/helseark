@@ -23,7 +23,7 @@ def main():
     before={p:p.read_bytes() for p in (vault.root/'people').rglob('*') if p.is_file()}
     lock=_lock()
     config=ValidatorConfig(args.artifacts/'validator_cli.jar',lock['executableSha256'],lock['version'],
-        args.artifacts/'packages',vault.root/'definitions/profiles/r4/0.1.0',args.timeout_seconds,True,args.java)
+        args.artifacts/'packages',vault.root/'definitions/profiles/r4',args.timeout_seconds,True,args.java)
     report=validate_with_official_tool(proposal,config,vault=vault)
     data=encode_json(document(report));(args.output/'required-terminology-report.json').write_bytes(data)
     assert b'UNSELECTED SECRET' not in data
