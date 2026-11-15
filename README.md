@@ -1,8 +1,8 @@
 # Helseark
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-reverse.svg">
-  <img src="https://raw.githubusercontent.com/ricardocabral/helseark/main/docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/brand/svg/helseark-horizontal-reverse.svg">
+  <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark — Quiet Ark logo" width="480" height="120">
 </picture>
 
 A minimal starter kit for organizing personal health data: plain instructions,
