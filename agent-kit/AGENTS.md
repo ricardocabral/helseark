@@ -139,15 +139,8 @@ producerProvenance version 1 record; unknown external producers use the explicit
 external-unknown status with a reason. Historical unspecified provenance remains
 unchanged. See the pinned agent protocol for the closed contract.
 
-Kit 0.1.15 combines bounded structured intake, native history, optional OCR,
-static presentation, corrections, migration and optional official validation.
-Human-controlled reviewed publication is available. The renderer reports both
-draft disposition and whole-workflow availability. No acceptance permission follows.
-
-Portability host commands: [backup/restore/doctor](docs/how-to/backup-and-restore.md), [person exports](docs/how-to/export-records.md). Fresh destinations, exact heads, declared omissions and actual integrity counts are mandatory. No source-scope bypass from prompt slots.
-
-Explicit original-source inclusion and supplied derivative exchange use host export-plan/export-review/export --review. Only a human supplies the disclosure decision; agent reports and prompt flags grant no authority. See the person export guide.
-Migration host commands: [plan/apply](docs/how-to/migrate-archive.md),
-[compatibility](docs/reference/compatibility.md). A selected-person packet is not
-whole-vault authority. Agents emit assessments only; humans explicitly review
-host-generated plan digests. No in-place rewrite, implicit upgrade or FHIR conversion.
+Kit 0.1.15: see [offline guides](docs/index.md) for current features and limits.
+Draft disposition and whole-workflow availability never grant acceptance.
+Source inclusion/derivative export require human export-plan/export-review authority.
+Migration is whole-vault host scope: agents assess; humans review the plan digest.
+No implicit apply, repinning, in-place rewrite or FHIR conversion.

@@ -109,17 +109,19 @@ def _profiles(vault, config, destination):
     from .archive import _read
     # The current vault's pins are authoritative, including historical archives.
     lock = decode_json(_read(vault.root, 'definitions/lock.json'))
+    versions = ('0.1.0', '0.2.0') if vault.config.profileVersion == '0.2.0' else ('0.1.0',)
     entries = [e for a in lock['artifacts'] for e in a['files']
-               if e['path'].startswith('profiles/r4/0.1.0/StructureDefinition-')]
-    if len(entries) != 6:
-        _error('VALIDATOR_PROFILE_MISMATCH', 'Exactly six supported pinned profiles are required.')
+               if any(e['path'].startswith(f'profiles/r4/{version}/StructureDefinition-') for version in versions)]
+    if len(entries) != (15 if len(versions) == 2 else 6):
+        _error('VALIDATOR_PROFILE_MISMATCH', 'Complete selected-vault profile pins are required.')
     pins = []
     for entry in entries:
         name = Path(entry['path']).name
-        data = _bytes(Path(config.profileDirectory)/name, 1024*1024)
+        relative = Path(entry['path']).relative_to('profiles/r4') if len(versions) == 2 else Path(name)
+        data = _bytes(Path(config.profileDirectory)/relative, 1024*1024)
         if hash_bytes(data) != entry['sha256']:
             _error('VALIDATOR_PROFILE_MISMATCH', 'Profiles must match the selected vault definition lock.')
-        (destination/name).write_bytes(data)
+        (destination/(Path(entry['path']).parent.name+'-'+name)).write_bytes(data)
         pins.append({'path':entry['path'], 'sha256':entry['sha256']})
     return pins
 
@@ -255,7 +257,9 @@ def verify_recorded_run(vault, proposal):
         _error('REVIEW_MISMATCH', 'Official validation context or pins changed.')
     from .archive import _read
     definition_lock = decode_json(_read(vault.root,'definitions/lock.json'))
-    expected_profiles = [{'path':e['path'],'sha256':e['sha256']} for a in definition_lock['artifacts'] for e in a['files'] if e['path'].startswith('profiles/r4/0.1.0/StructureDefinition-')]
+    versions = ('0.1.0', '0.2.0') if vault.config.profileVersion == '0.2.0' else ('0.1.0',)
+    expected_profiles = [{'path':e['path'],'sha256':e['sha256']} for a in definition_lock['artifacts'] for e in a['files']
+                         if any(e['path'].startswith(f'profiles/r4/{version}/StructureDefinition-') for version in versions)]
     if run['profiles'] != expected_profiles:
         _error('REVIEW_MISMATCH', 'Official validation profile pins changed.')
     if run['packages'] != _lock()['packages'] or run['resourceCount'] != len(bundle['entry']):
@@ -327,8 +331,8 @@ def _runtime_inputs(config: ValidatorConfig) -> dict:
     for pin in _lock()['packages']:
         retain('package',packages,pin['filename'])
     profiles=Path(config.profileDirectory)
-    for path in sorted(profiles.glob('StructureDefinition-*.json')):
-        retain('profile',profiles,path.name)
+    for path in sorted(profiles.rglob('StructureDefinition-*.json')):
+        retain('profile',profiles,path.relative_to(profiles).as_posix())
     home=Path(config.javaPath).absolute().parent.parent
     if not (home/'release').is_file():
         _error('VALIDATOR_RUNTIME_CHANGED','Selected Java home has no release metadata.')
@@ -355,7 +359,9 @@ def _preparation_control(vault, proposal):
     if not path.is_file():
         _error('VALIDATOR_AUTHORITY_REQUIRED','Original host preparation authority is missing; prepare and review again.')
     value=_json(path.parent,path.name)
-    if value.get('validationAuthorityVersion')!=1 or set(value) != {'candidatePath','validationAuthorityVersion','baselineValidationSha256','officialExecutionId','officialRequestSha256'}:
+    expected = {'candidatePath','validationAuthorityVersion','baselineValidationSha256','officialExecutionId','officialRequestSha256'}
+    if (value.get('validationAuthorityVersion')!=1 or set(value) not in (expected, expected | {'personId'}) or
+            ('personId' in value and value['personId'] != proposal.personId)):
         _error('VALIDATOR_AUTHORITY_REQUIRED','Legacy or ambiguous pending workflow requires fresh preparation; no execution was attested.')
     return path,value
 

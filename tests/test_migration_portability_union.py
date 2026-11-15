@@ -21,6 +21,9 @@ def test_resealed_impossible_receipts_are_rejected(tmp_path, wrapper):
     path = receipt.mappingInventoryPath
     original = path.read_bytes()
     attacks = {
+        'empty-heads': lambda p: p.update(sourceHeads={}),
+        'head-digest': lambda p: next(iter(p['sourceHeads'].values())).update(changeSha256='0'*64),
+        'zero-counts': lambda p: p.update(expectedCounts={'changes':0,'resources':0,'assets':0}),
         'oldhash': lambda p: p['byteMappings'][0].update(oldSha256='0'*64),
         'duplicate': lambda p: p['byteMappings'].append(p['byteMappings'][0].copy()),
         'transform': lambda p: p.update(transformations=['unknown-private-transform']),
@@ -49,6 +52,7 @@ def test_resealed_impossible_receipts_are_rejected(tmp_path, wrapper):
         value['plan']['planSha256'] = _digest(value['plan'])
         value['reviewedPlanSha256'] = value['plan']['planSha256']
         value['byteMappings'] = value['plan']['byteMappings']
+        value['validatedCounts'] = value['plan']['expectedCounts']
         changed = path.with_name(value['plan']['planSha256']+'.json')
         path.rename(tmp_path/'held.json')
         changed.write_bytes(encode_json(value))

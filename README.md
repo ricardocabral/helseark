@@ -26,21 +26,21 @@ and person export are implemented; PDF source disclosure requires the explicit
 export-plan/export-review route for knowing original inclusion or supplied
 derivative exchange. Bounded FHIR R4 and explicitly mapped numeric CSV intake,
 eight native source-assertion history families, optional local OCR, and derived
-static HTML/CSV/SVG reports are integrated in this intermediate staged union.
-See [structured intake](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-structured-data.md),
-[native history](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/query-history.md), [OCR](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/run-ocr.md) and
-[reports](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/generate-reports.md). Corrections, recoverable person removal and non-destructive migration copies are implemented. Inspect `helseark --help` and task availability; prompt files
+static HTML/CSV/SVG reports are integrated in this combined development distribution.
+See [structured intake](docs/how-to/import-structured-data.md),
+[native history](docs/how-to/query-history.md), [OCR](docs/how-to/run-ocr.md) and
+[reports](docs/how-to/generate-reports.md). Corrections, recoverable person removal and non-destructive migration copies are implemented. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
 
-[Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)
-or follow the [synthetic first-intake lesson](https://github.com/ricardocabral/helseark/blob/main/docs/tutorials/first-archive.md).
+[Prepare a PDF import](docs/how-to/import-report.md)
+or follow the [synthetic first-intake lesson](docs/tutorials/first-archive.md).
 Intake produces untrusted drafts; it does not authorize publication.
 Committing a newly prepared proposal before recording a decision returns
 `REVIEW_REQUIRED` (exit 3). Use `candidate review` with `--person` and an explicit
 `--decision` file before committing. Missing receipts in accepted history remain
 integrity failures; damaged review records do not authorize publication.
 
-For deeper R4/profile checks, see the [optional offline official validator](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/run-offline-validator.md). Baseline use needs no Java; terminology remains not checked.
+For deeper R4/profile checks, see the [optional offline official validator](docs/how-to/run-offline-validator.md). Baseline use needs no Java; terminology remains not checked.
 
 ## Try a synthetic archive
 
@@ -64,13 +64,13 @@ Read the [documentation index](docs/index.md) for supported reader routes.
 
 ## Documentation and participation
 
-- [Archive format and supported commands](https://github.com/ricardocabral/helseark/blob/main/docs/reference/archive-format.md)
-- [Clinical model](https://github.com/ricardocabral/helseark/blob/main/docs/reference/clinical-model.md), [agent protocol](https://github.com/ricardocabral/helseark/blob/main/docs/reference/agent-protocol.md), [PDF extraction](https://github.com/ricardocabral/helseark/blob/main/docs/reference/pdf-extraction.md)
-- [Privacy and agent boundaries](https://github.com/ricardocabral/helseark/blob/main/docs/explanation/privacy-and-agent-boundaries.md)
-- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](https://github.com/ricardocabral/helseark/blob/main/docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
+- [Archive format and supported commands](docs/reference/archive-format.md)
+- [Clinical model](docs/reference/clinical-model.md), [agent protocol](docs/reference/agent-protocol.md), [PDF extraction](docs/reference/pdf-extraction.md)
+- [Privacy and agent boundaries](docs/explanation/privacy-and-agent-boundaries.md)
+- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
 - [Security reporting](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md), [support](https://github.com/ricardocabral/helseark/blob/main/SUPPORT.md), [code of conduct](https://github.com/ricardocabral/helseark/blob/main/CODE_OF_CONDUCT.md)
-- [Release guide](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/releasing.md) and [licensing status](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/licensing.md)
-- [Logo and brand assets](https://github.com/ricardocabral/helseark/blob/main/docs/brand/README.md)
+- [Release guide](docs/maintainers/releasing.md) and [licensing status](docs/maintainers/licensing.md)
+- [Logo and brand assets](docs/brand/README.md)
 
 Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
 [MIT License](https://github.com/ricardocabral/helseark/blob/main/LICENSE), matching Rikdom. Existing fixture/upstream terms are

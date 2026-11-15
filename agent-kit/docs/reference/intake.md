@@ -95,7 +95,8 @@ retained issues fail INTAKE_ISSUES_MISSING; MULTIPLE_PERSON_CUES is never waivab
 Known PDF provenance must match retained pages; invented boxes fail EXTRACTION_MISMATCH.
 Historical non-PDF Task2 source assets still work without intake-specific receipts.
 
-Task6 must consume this reader, bind exact candidate/proposal/source/evidence/report
+Historical Task5-only boundary (current [review](review.md), query and recovery
+are now implemented): Task6 was required to consume this reader, bind exact candidate/proposal/source/evidence/report
 bytes and base to human review, allocate immutable revisions once, preserve history,
 handle duplicates/re-extraction/omissions and publish exactly the reviewed proposal.
 `prepare_candidate`, `render_review`, `record_review`, `commit_candidate`, query,
@@ -165,7 +166,7 @@ is not evidence that a model follows the instructions; fresh actual trials remai
 a separate coordinator gate.
 
 
-## Structured host issuance — kit 0.1.9
+## Structured host issuance — kit 0.1.15
 
 Toolkit-retained non-PDF source receipts require original structured issuance when
 reading a candidate. The source-local `structured/<candidate-input-digest>.json`

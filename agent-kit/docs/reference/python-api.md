@@ -1,6 +1,6 @@
 # Python API reference
 
-For toolkit 0.1.2 / kit 0.1.13. Import public functions from their owning
+For toolkit 0.1.2 / kit 0.1.15. Import public functions from their owning
 modules; `helseark.__init__` does not re-export the entire API. Paths are pathlib
 Path, IDs are validated UUID strings, and decoded FHIR trees use Decimal for JSON
 fractions. Types and immutable workflow dataclasses live in `helseark.contracts`.
@@ -137,5 +137,20 @@ Domain functions raise `ArchiveError` with code, safeMessage and details; report
 may also contain Issue records. A successful function returning a report requires
 inspection of issues/coverage. Raw caller filesystem failures can raise OSError;
 the CLI maps those to safe IO_ERROR. See [CLI error recovery](cli.md#errors-and-recovery).
-Structured adapter, history-profile, Java validator, OCR and presentation APIs
-are not available on this branch.
+## Structured intake, history and derived output
+
+| Owning module / function | Contract |
+|---|---|
+| `adapters.fhir_r4.import_fhir_r4(source, person, mapping: IdentityMapping) -> Candidate` | Explicit assignment, retained full source, supported profile graph and coverage; no publication |
+| `adapters.csv_metrics.import_metrics_csv(source, person, mapping: CsvMetricMapping) -> Candidate` | Explicit numeric CSV dialect, columns, units, decimal/time handling; no inferred codes |
+| `query.history(vault, person, kinds, at=None)` | Native assertions for selected kinds with status, uncertainty and evidence |
+| `adapters.ocr.extract_ocr(source, config: OcrConfig) -> ExtractionArtifact` | Optional pinned local macOS execution, derivatives and transforms; uncertain text |
+| `presentation.render_static_report(vault, person, destination) -> Path` | Fresh HTML/CSV/SVG snapshot with citations; accepted bytes unchanged |
+| `fhir_validator.validate_with_official_tool(proposal, config: ValidatorConfig or Path or None, *, vault) -> ValidationReport` | Explicit pinned offline execution; records host authority and coverage; never accepts |
+| `fhir_validator.load_validator_config(path) -> ValidatorConfig` | Bounded host configuration, no downloads |
+
+IdentityMapping and CsvMetricMapping live in their adapter modules; OcrConfig is
+defined in adapters.ocr, and ValidatorConfig in contracts. Refer to [structured intake](../how-to/import-structured-data.md),
+[OCR](../how-to/run-ocr.md) and [validator setup](../how-to/run-offline-validator.md)
+for required local inputs and qualification limits. A copied/edited candidate,
+report or prompt cannot establish source or execution authority.

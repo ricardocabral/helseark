@@ -1,8 +1,8 @@
 # Helseark documentation
 
 Helseark keeps a local personal or family archive of evidence-linked FHIR R4
-records. This documentation describes toolkit 0.1.2 and kit 0.1.13, archive format 1,
-contracts/profiles 0.1.0, exact-issue review 0.1.1 and serializer helseark-json-1.
+records. This documentation describes toolkit 0.1.2 and kit 0.1.15, archive format 1,
+contract 0.1.0, profile-set 0.2.0, exact-issue review 0.1.1 and serializer helseark-json-1.
 It is under development and is not production-qualified. Human review remains
 mandatory; baseline validation does not establish clinical accuracy.
 
@@ -16,6 +16,12 @@ It needs no model account and makes no extraction-accuracy claim.
 
 - [Import a report with an external agent](how-to/import-report.md): retain sources,
   restrict the agent, inspect a proposal and record your own decision.
+- [Import structured data](how-to/import-structured-data.md): bounded native FHIR R4
+  and explicitly mapped numeric CSV, with coverage and source identity review.
+- [Retain local OCR](how-to/run-ocr.md): pinned optional macOS tools and uncertain text.
+- [Generate static reports](how-to/generate-reports.md): derived HTML/CSV/SVG with evidence.
+- [Run the optional official validator](how-to/run-offline-validator.md): separate pinned
+  Java/package setup, offline execution and host-held review authority.
 - [Query accepted history](how-to/query-history.md): preserve native result shapes,
   units, precision, revisions and evidence.
 - [Manage explicit family identities](how-to/manage-family.md): distinguish same-name
@@ -57,11 +63,11 @@ In a vault read its root AGENTS.md, then vault.json and
 release. The definitions copy also retains documentation, but the pinned kit is
 the onboarding route. The contributor repository AGENTS.md is not archive guidance.
 
-This branch supports text-PDF drafts, human-controlled prepared publication,
-queries, doctor, household backup/restore, reviewed original-source or derivative
-person export, corrections, recoverable person removal and lossless migration copies.
-Structured imports, official validator integration, broader history profiles, OCR
-and static reports are not available here. Full all-feature guide reconciliation
-and qualification remain later gates with their independently owned features.
-Templates do not establish capability. Actual-agent/model acceptance is separate
-from this deterministic tutorial; no extraction accuracy is implied.
+This distribution supports text-PDF drafts, bounded native FHIR R4 and mapped
+numeric CSV intake, eight source-assertion history families, exact human-reviewed
+publication, queries, static reports, doctor, backup/restore, reviewed source
+exports, corrections, recoverable person removal and lossless migration copies.
+OCR is optional and currently macOS-only; official validation needs separately
+provisioned pinned Java/packages. Neither operation runs a model or accepts facts.
+Full remote Linux/macOS CI, independent final-union review and actual final-kit
+agent scenarios remain open. See [evaluation and limits](explanation/evaluation-and-limits.md).

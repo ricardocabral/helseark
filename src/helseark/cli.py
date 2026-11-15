@@ -7,7 +7,7 @@ import sys
 from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
-from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
+from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head, VersionSet
 from .query import observations, timeline, history, parse_reference
 from .presentation import render_static_report
 from .archive import resolve
@@ -326,7 +326,7 @@ def main(argv=None):
             elif args.command == 'migrate':
                 if args.migration_command == 'plan':
                     plan = (plan_fhir_migration(vault,args.to_fhir) if args.to_fhir else
-                            plan_migration(vault,replace(CURRENT,contractVersion=args.to_contract)))
+                            plan_migration(vault,replace(VersionSet(**{key:getattr(vault.config,key) for key in document(CURRENT)}),contractVersion=args.to_contract)))
                     output = document(plan)
                     exit_code = 6 if plan.blockedRecords else 0
                 else:
@@ -403,7 +403,7 @@ def main(argv=None):
             elif args.command == 'candidate':
                 if args.candidate_command=='prepare':
                     candidate=read_candidate(vault,args.path,person=args.person)
-                    reconciliation=decode_json(args.reconciliation.read_bytes()) if args.reconciliation else None
+                    reconciliation=decode_json(_regular(args.reconciliation, 64 * 1024 * 1024)) if args.reconciliation else None
                     if reconciliation is not None and (not isinstance(reconciliation,dict) or any(v is not None and not isinstance(v,str) for v in reconciliation.values())):
                         raise ArchiveError('INVALID_INPUT','Reconciliation must map references to strings or null.')
                     proposal=prepare_candidate(vault,candidate,reextract=args.reextract,reconciliation=reconciliation,authorized_sources=tuple(args.source) if args.source else None,
@@ -418,7 +418,7 @@ def main(argv=None):
                         raise ArchiveError('PERSON_MISMATCH','Proposal differs from explicit person.')
                     if args.candidate_command=='review':
                         if args.decision:
-                            raw=decode_json(args.decision.read_bytes())
+                            raw=decode_json(_regular(args.decision, 1024 * 1024))
                             if not isinstance(raw,dict) or set(raw)!={'confirmedPerson','decision','acknowledgedIssues','reviewerLabel'} or not isinstance(raw['acknowledgedIssues'],list) or not isinstance(raw['reviewerLabel'],str):
                                 raise ArchiveError('INVALID_INPUT','Expected explicit human ReviewDecision object.')
                             decision=ReviewDecision(raw['confirmedPerson'],raw['decision'],tuple(raw['acknowledgedIssues']),raw['reviewerLabel'])

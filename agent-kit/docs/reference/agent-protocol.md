@@ -231,10 +231,10 @@ canonical FHIR decimals remain distinct; accepted history is never rewritten.
 Implemented runtime capabilities: agent-discovery, agent-context, schema-export,
 baseline-validation, person-identity, raw-record-selection, task-instructions,
 pdf-intake, candidate-read, reviewed-publication, clinical-query, person-export
-, reviewed-source-disclosure, fhir-r4-import and csv-metrics-import. Runtime discovery derives availability from these actual
+, reviewed-source-disclosure, fhir-r4-import, csv-metrics-import, correction and migration. Runtime discovery derives availability from these actual
 implementations; instruction presence alone does not enable a workflow.
-Reviewed publication is human-controlled. Correction, migration, terminology and
-the official validator remain unavailable. Optional OCR is operator-configured;
+Reviewed publication is human-controlled. Correction and migration are implemented. Official validation is optional and
+requires separate pinned local tools; terminology completeness remains unchecked. Optional OCR is operator-configured;
 static reports are host commands, never agent publication authority.
 [Local OCR](../how-to/run-ocr.md) is an explicit optional host intake step; task
 availability never implies native tools/models are installed or accuracy is proven.
@@ -396,7 +396,7 @@ The renderer neither embeds original evidence nor grants filesystem authority.
 The [intake contract 1](intake.md) defines source/extraction receipts and the real
 CLI entry, typed confirmed assignment and candidate-reading boundary. Intake uses
 this protocol's existing v2 selector and renderer, never a competing prompt or
-projection owner. Its PDF draft is available; current kit 0.1.9 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
+projection owner. Its PDF draft is available; current kit 0.1.15 also supports the two [bounded structured families](../how-to/import-structured-data.md). Reviewed
 publication is available only through explicit human host control. The runtime handoff discloses whole-workflow
 availability separately. Source-specific packets request exactly one user-selected
 source and minimal identity; source assertions cannot grant broader authorization.

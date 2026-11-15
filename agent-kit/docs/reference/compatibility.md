@@ -1,16 +1,16 @@
 # Compatibility and migration contracts
 
-Applies to toolkit 0.1.2 and kit 0.1.13. Version axes are independent.
+Applies to toolkit 0.1.2 and kit 0.1.15. Version axes are independent.
 
 | Axis | Supported value | Unsupported behavior |
 | --- | --- | --- |
 | Archive | 1 | Explicit error; no migration on open |
 | Local contract | 0.1.0 (review receipts also read 0.1.1) | Blocked migration plan; no guessed upgrade |
-| Profile | 0.1.0 | Explicit error |
+| Profile set | Current 0.2.0; retained 0.1.0 readers | Explicit error |
 | FHIR | R4 4.0.1 | Separate blocked FHIR conversion report |
 | Serialization | helseark-json-1 | Explicit error |
 | Agent protocol | 1 | Explicit error |
-| Current kit | 0.1.13 | Exact retained compatible manifests required |
+| Current kit | 0.1.15 | Exact retained compatible manifests required |
 | Test-only layout | helseark-test-only-layout-0 | Requires explicit fixture opt-in; no public release status |
 
 Production archive 1 semantics are frozen for this release. New toolkit code does
@@ -19,7 +19,7 @@ Existing compatible kit pins, including 0.1.3 and older, remain byte-identical i
 their vaults and migrations. `plan_migration` carries those exact bytes; it does
 not upgrade them to the currently installed kit. The real canonical profile base
 is `https://github.com/ricardocabral/helseark/fhir/StructureDefinition/`, with explicit
-`|0.1.0` versions. These URLs identify local retained definitions; they are not
+`|0.1.0` or `|0.2.0` versions. These URLs identify local retained definitions; they are not
 network resolution requests. No provisional namespace replacement is performed.
 
 ## Library and CLI
@@ -48,7 +48,7 @@ requires explicit human review of that plan. `--resume` chooses staging reuse.
 `--test-only-legacy` must be supplied on both operations for the synthetic layout.
 There are no scripts, callbacks or plugin names in input plans.
 
-Only two dispatch entries exist: v1 identity copy and opted-in test-only wrapper
+Two operation classes exist for each supported profile set: v1 identity copy and opted-in test-only wrapper
 layout to v1. Both preserve every accepted byte and reference without rewriting.
 No clinical content transform, omission, unit conversion, ID reassignment or
 FHIR release conversion is implemented. Unknown targets yield blocked plans;
@@ -87,14 +87,15 @@ exports omit these mappings explicitly. A receipt records a historical copy; it
 is not authenticated authority or a claim that mutable work still has old hashes.
 Unknown or malformed files under `migrations/` block whole-vault recovery/export.
 
-Historical validation requires an exact supported version pair and its single
+Historical validation reconciles head rosters, terminal change hashes and counts
+with their own historical inventory. It requires an exact supported version pair and its single
 dispatched operation, safe unique source/destination paths, complete mapping
 coverage of the dispatched source inventory, exact old hash/size bindings, complete
 required-definition/kit inventory, and unchanged new hashes for both lossless
 operations. It never compares historical mutable work or source heads to today's
 state, requires no signature, and does not rewrite valid old receipts. Kit 0.1.8
 remains a compatible historical input; other branch-local kit numbers are not aliases for this combined inventory.
-New vaults use 0.1.13; existing vaults retain their exact pins and accepted history.
+New vaults use 0.1.15; existing vaults retain their exact pins and accepted history.
 
 Person removal plans/results inventory retained shared receipts in
 `retainedLocalMetadata` (path, SHA-256, size, personId, sourceHead). Approval binds
@@ -103,3 +104,9 @@ does not erase this historical metadata or securely delete quarantine/backups.
 Older removal journals without this field remain restorable with their original
 digest. Applying an old plan in a vault with undisclosed local receipts requires
 a new plan and approval.
+
+Current review and validator-authority schemas are 0.1.1; unrelated envelope
+schemas remain 0.1.0. The 0.2.0 profile set adds eight history families and current
+Provenance; six original profiles and all frozen 0.1.0 contract bytes remain.
+Identity migration keeps the source profile set, kit and definition bytes. It
+does not upgrade 0.1.0 vaults to 0.2.0.

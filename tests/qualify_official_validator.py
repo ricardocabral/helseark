@@ -67,7 +67,7 @@ def main():
     root=Path(__file__).resolve().parents[1]
     pins=_lock()
     config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
-                           args.artifacts/'packages',root/'profiles/r4/0.1.0',args.timeout_seconds,False,args.java)
+                           args.artifacts/'packages',root/'profiles/r4',args.timeout_seconds,False,args.java)
     network_denial_witness(args.output)
     vault=init_vault(args.output/'vault')
     person=add_person(vault,PersonDraft('Synthetic official corpus'))

@@ -110,7 +110,7 @@ def main():
     (args.output/'original-person-inventory.json').write_bytes(encode_json(original))
     pins=tool._lock()
     config=ValidatorConfig(args.artifacts/'validator_cli.jar',pins['executableSha256'],pins['version'],
-        args.output/'packages',vault.root/'definitions/profiles/r4/0.1.0',args.timeout_seconds,False,args.output/'java-runtime'/java_relative)
+        args.output/'packages',vault.root/'definitions/profiles/r4',args.timeout_seconds,False,args.output/'java-runtime'/java_relative)
     def staging_space():
         available=shutil.disk_usage(args.output).free
         staging=Path(os.environ['TMPDIR'])

@@ -17,14 +17,16 @@ from .archive import (_files, _read, _json, _write, _safe, _sync_tree,
                       _sync_directory, _writer_lock, _bundled_root, open_vault, doctor, head)
 from .portability import backup, restore, verify_export, _blocked, _publish, _destination
 
-CURRENT = VersionSet(1, '0.1.0', '0.1.0', '4.0.1', 'helseark-json-1')
+CURRENT = VersionSet(1, '0.1.0', '0.2.0', '4.0.1', 'helseark-json-1')
 TEST_ONLY = replace(CURRENT, archiveFormatVersion=0, serializationVersion='test-only-layout-0')
 _MARKER = {'format':'helseark-test-only-layout-0',
            'notice':'TEST ONLY: not a supported public release; synthetic fixtures only',
            'snapshotPath':'snapshot'}
 # Data never selects executable code, plugins, converters or import paths.
-_DISPATCH = {(CURRENT, CURRENT):'v1-identity-copy',
-             (TEST_ONLY, CURRENT):'test-only-layout-0-to-v1'}
+_PREVIOUS = replace(CURRENT, profileVersion='0.1.0')
+_DISPATCH = {(version, version): 'v1-identity-copy' for version in (CURRENT, _PREVIOUS)}
+_DISPATCH.update({(replace(version, archiveFormatVersion=0, serializationVersion='test-only-layout-0'), version):
+                  'test-only-layout-0-to-v1' for version in (CURRENT, _PREVIOUS)})
 
 
 def _versions(vault):
@@ -64,7 +66,7 @@ def _inventory(root):
 
 
 def _source(vault):
-    fixture = _versions(vault) == TEST_ONLY
+    fixture = _versions(vault).archiveFormatVersion == 0
     reopened = open_migration_source(vault.root,allowTestFixture=fixture)
     if reopened.config != vault.config:
         raise ArchiveError('STALE_BASE', 'Migration source configuration changed.')
@@ -94,7 +96,7 @@ def plan_migration(vault: Vault, target: VersionSet) -> MigrationPlan:
     if target.fhirVersion != versions.fhirVersion:
         blocked = ({'code':'FHIR_RELEASE_PLAN_REQUIRED',
                     'reason':'Use the separate unsupported FHIR release plan class.'},)
-    prefix = 'snapshot/vault/' if versions==TEST_ONLY else ''
+    prefix = 'snapshot/vault/' if versions.archiveFormatVersion == 0 else ''
     mappings = tuple({'sourcePath':entry['path'], 'destinationPath':entry['path'][len(prefix):],
                       'oldSha256':entry['sha256'], 'newSha256':entry['sha256'], 'size':entry['size']}
                      for entry in before if not prefix or entry['path'].startswith(prefix)) if operation else ()
@@ -159,7 +161,7 @@ def _historical_plan_consistent(plan: dict) -> bool:
             not unique_paths([entry['sourcePath'] for entry in mappings]) or
             not unique_paths([entry['destinationPath'] for entry in mappings])):
         return False
-    prefix = 'snapshot/vault/' if source == TEST_ONLY else ''
+    prefix = 'snapshot/vault/' if source.archiveFormatVersion == 0 else ''
     retained = [entry for entry in inventory if entry['path'].startswith(prefix)]
     if not any(entry['path'] == prefix+'vault.json' for entry in retained):
         return False
@@ -168,6 +170,26 @@ def _historical_plan_consistent(plan: dict) -> bool:
                 for entry in retained]
     definitions = [entry for entry in inventory
                    if entry['path'].startswith((prefix+'definitions/', prefix+'agent-kit/'))]
+    # Reconcile only facts derivable from the sealed historical inventory. Never
+    # compare these heads/counts with today's mutable vault or work directories.
+    import re
+    heads = {}
+    counts = {'changes': 0, 'resources': 0, 'assets': 0}
+    for entry in retained:
+        path = entry['path'][len(prefix):]
+        change = re.fullmatch(r'people/([0-9a-f-]{36})/accepted/([0-9]{8})-([0-9a-f-]{36})/change[.]json', path)
+        if change:
+            person, sequence, transaction = change.groups()
+            value = {'sequence': int(sequence), 'transactionId': transaction, 'changeSha256': entry['sha256']}
+            if person not in heads or value['sequence'] > heads[person]['sequence']:
+                heads[person] = value
+            counts['changes'] += 1
+        if re.fullmatch(r'people/[^/]+/accepted/[^/]+/resources/[A-Z][A-Za-z]+-[0-9a-f-]{36}[.]json', path):
+            counts['resources'] += 1
+        if re.fullmatch(r'people/[^/]+/assets/sha256/[0-9a-f]{64}/blob', path):
+            counts['assets'] += 1
+    if plan['sourceHeads'] != heads or plan['expectedCounts'] != counts:
+        return False
     return (mappings == expected and plan['requiredDefinitions'] == definitions and
             any(entry['path'] == prefix+'definitions/lock.json' for entry in definitions) and
             any(entry['path'].startswith(prefix+'agent-kit/') and
@@ -281,7 +303,7 @@ def apply_migration(vault: Vault, plan: MigrationPlan, destination: Path, *,
         snapshot = stage/'snapshot'
         if snapshot.exists():
             _blocked(verify_export(snapshot))
-        elif plan.sourceVersionSet==TEST_ONLY:
+        elif plan.sourceVersionSet.archiveFormatVersion == 0:
             # Restore the verified fixture through Task8, then snapshot it through
             # that same boundary; no second copy/restore implementation.
             recovered = stage/'legacy-recovered'

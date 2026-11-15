@@ -229,7 +229,10 @@ Independent facts live in `tests/fixtures/expected/pdf-facts.json`. No real heal
 data was used. The scan contains only raster pixels; the injection is inert text;
 the mixed report retains both explicit names without inferring person identity.
 
-The adapter intentionally makes no mixed-person classification. Later intake
+Historical adapter-only snapshot (the current integrated intake is documented in
+[intake](intake.md) and [review](review.md)):
+
+The adapter intentionally makes no mixed-person classification. At that snapshot, intake
 must implement identity cue assessment and block ordinary acceptance on
 `MULTIPLE_PERSON_CUES`; preserving text here does not satisfy that requirement.
 Intake must consume actual adapter output/issues, retain hash-bound assets,

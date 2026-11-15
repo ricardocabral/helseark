@@ -53,8 +53,8 @@
       "license": "Apache-2.0",
       "path": "agent-kit/examples/task5-example.py",
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output.",
-      "sha256": "95338e57e9edbf73db3edac1d8a0c1b6c3ff29818fe8039e2aadfe07a1a0ee4a",
-      "size": 2097,
+      "sha256": "b56a56fdf0bd35ee00dcf160afbfa43900b47bdbd84f67011caff55a54dcd131",
+      "size": 2416,
       "synthetic": true
     },
     {
@@ -155,6 +155,14 @@
     },
     {
       "license": "CC0-1.0",
+      "path": "tests/fixtures/expected/clinical-history-facts.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "a245653ffae89310df903e1e45b47dd731442d4232b9d0f1c3dba9f96cfe8217",
+      "size": 3907,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
       "path": "tests/fixtures/expected/intake-distinct-facts.json",
       "provenance": "Repository-authored synthetic test-only migration layout; no real health data",
       "sha256": "7805484f3d790017139d98eea142c371cde2deafa1eef4f1ac5c55c8e1e59626",
@@ -167,6 +175,14 @@
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output.",
       "sha256": "7f61742346683de0257c1dad92594a95b852ac9ec26a386c90d6b3777f22f94e",
       "size": 592,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/expected/ocr-facts.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "9de33b6dbaf05ef9083a246d65e836aa08562112a54510a20b838d5bbef20ed6",
+      "size": 4251,
       "synthetic": true
     },
     {
@@ -387,6 +403,110 @@
     },
     {
       "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/AllergyIntolerance.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "466d9688bf1a633ecb5c3f68016f2c31e5356bf120bd2faa6ff45aeaafc30f00",
+      "size": 2003,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/Condition.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "f34e9a9920b97eee9a8ff772e84260364addd2ce7fb2603e2b0527d3a419ecba",
+      "size": 2722,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/Encounter.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "fd85c1d65a2d1b2c8203e96f011dc0f665e2c747234ad7bb7b199171eba0bf5c",
+      "size": 1335,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/FamilyMemberHistory.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "915ffe957b2dee55affea75fbaabf2eab46d172d3cba146b725b08bbc6adb8dc",
+      "size": 1327,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/Immunization.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "bd8d57495e9d637fbdc59296ceb1f52b6fa3447cc9a4d18fb72a49bd6a305e1c",
+      "size": 1348,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/MedicationRequest.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "899c47f96579262d0038d669b387c6c40d1629a0508b851ad2d5fb399b4f0357",
+      "size": 1438,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/MedicationStatement.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "ed61bb5a512e72e6d92f2cdf5ae63bd1ffceddc7f1d5ca64167e637d3c8adeca",
+      "size": 1576,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/Procedure.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "7713e74ca52af5cb8f092bb576cd5d374ed685436598068e553dcbfc335b8944",
+      "size": 1113,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/README.md",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "52f038b88f143c8f87d45ecc4c0e4b9f8a8b48f86f38ab9625e3ace56707ae73",
+      "size": 1126,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/oracle/README.md",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "9d884003c31be2184ac3342bb3e2262f26f1c4545fc394fc41c2e84662fe66d5",
+      "size": 2093,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/oracle/candidate-resources.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "a4179b966fc984a5c2f9fe4e16e9362b6d6df8ad47224df284683ebc2bd32f6f",
+      "size": 3886,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/oracle/manifest.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "f8522ac8dedd6c2984d7f6cf885664598259b7ed39d37f305f815066101f2d49",
+      "size": 1506,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/clinical-history/oracle/source.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "0698c8286570aee4bc955c472c0e8612478065b2b8e964f0ec5984d1a8f0c678",
+      "size": 1435,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
       "path": "tests/fixtures/synthetic/lab-injection.pdf",
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output.",
       "sha256": "2df346d7932553a4ed3a7a33804002904db175e2596978fee9f36c7e14af8cfc",
@@ -439,6 +559,94 @@
       "provenance": "Repository-authored synthetic test-only migration layout; no real health data",
       "sha256": "69c8bd828f3e472aba56f9efcae8134eb90f185efeb6bb88249453623610415b",
       "size": 158,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/README.md",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "c85a0d69785224f7df4757f44cd8c0ac111a426380f1af23ccadf138b25b6d79",
+      "size": 1711,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/complete-scan.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "981bcee34e0e2dccc2b51d60c038f5ec72c3793375484d0f43b3755071f81eca",
+      "size": 36899,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/decimal-confusion.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "3558ca6549112a841854e516855b153c0e8596f0bef2f62852580760a6c1592e",
+      "size": 10506,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/generate.py",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "3e875b5d5fba45cb1fc6b0814f5973b4064c62f5ed80ab2e844967fbd7d378a8",
+      "size": 3822,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/missing-glyph.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "65f65698cdcd9b1b43384292fbcb5525859847dbc8894873ae852f32897b74a6",
+      "size": 8470,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/mixed-text-image.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "e3b0d7021eff05a240763ce0c94892eb02aed7bff557a344d9ed3739de778596",
+      "size": 8628,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/mixed.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "f55565ad238e67e19d0a42a3b8fe81a73fe577f7ac49c8f8ec34934b7868401d",
+      "size": 11442,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/noisy.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "c02368e391a4531abcd1e55d861563b80490079412b72905407bfa64828493f0",
+      "size": 685641,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/rotated.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "5f19a22be37eda212009fdeec1d4ae978a00ad6cace85da67982d8af2f240c1b",
+      "size": 15374,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/scan.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "063ef11818b9badecd02db175bc700dd899527dd50401acb453b1f60cfee0bf4",
+      "size": 8570,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/ocr/table-spill.pdf",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "4e150a21f7abd1f3fc83f46b88b46869aa36d97a1845e136138b511b863e4eb3",
+      "size": 13268,
       "synthetic": true
     },
     {
@@ -547,6 +755,30 @@
     },
     {
       "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/structured/README.md",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "ea605d43e49a01380d48f7e89aff194c862e50dbee2af52d2d76461c48e33fef",
+      "size": 559,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/structured/metrics.csv",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "2a868fb203f16954c4fa4820f916ca01645f6fb26eb6abd1deb68a845641dbb1",
+      "size": 140,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
+      "path": "tests/fixtures/synthetic/structured/r4.json",
+      "provenance": "Repository-authored invented fixture and independent expected facts; see local README and tests/fixtures/README.md. No real health data; no model accuracy claim.",
+      "sha256": "b5744f2432038e032ce808979bab8a69f91bd55cc7cd3ed8e0f3a92638bcfde0",
+      "size": 743,
+      "synthetic": true
+    },
+    {
+      "license": "CC0-1.0",
       "path": "tests/fixtures/synthetic/task5-complete.pdf",
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output.",
       "sha256": "599349d4660701971a30a0d72011a422cbad804b5bf002b4adf99371d0864442",
@@ -599,6 +831,30 @@
       "provenance": "Repository-authored invented fixture/example; see tests/fixtures/README.md and the local authoring scripts; no real user data or model output.",
       "sha256": "7a8b8a456998a82a2afbf80c496e9ef3bd2bd5f27de1c36477549f9937d96895",
       "size": 451,
+      "synthetic": true
+    },
+    {
+      "license": "MIT",
+      "path": "tests/fixtures/synthetic/validator-legacy/README.md",
+      "provenance": "Immutable synthetic historical official-report qualification archive from a4e715ef; see local README and per-member inventory. Original clinical data and HL7 definitions CC0; historical toolkit materials retain their own Apache-2.0 notices. Entry license does not relicense embedded material.",
+      "sha256": "7b48d66e0d8b92fb49ed1f6e6c954de684aada436bd807727c48f134ace6ba71",
+      "size": 914,
+      "synthetic": true
+    },
+    {
+      "license": "Apache-2.0",
+      "path": "tests/fixtures/synthetic/validator-legacy/accepted-workflow.tar.gz",
+      "provenance": "Immutable synthetic historical official-report qualification archive from a4e715ef; see local README and per-member inventory. Original clinical data and HL7 definitions CC0; historical toolkit materials retain their own Apache-2.0 notices. Entry license does not relicense embedded material.",
+      "sha256": "eb91d09651a218125368e982b6fc736d7c004fc1312e971cc508a80680ed7867",
+      "size": 5643698,
+      "synthetic": true
+    },
+    {
+      "license": "MIT",
+      "path": "tests/fixtures/synthetic/validator-legacy/inventory.json",
+      "provenance": "Immutable synthetic historical official-report qualification archive from a4e715ef; see local README and per-member inventory. Original clinical data and HL7 definitions CC0; historical toolkit materials retain their own Apache-2.0 notices. Entry license does not relicense embedded material.",
+      "sha256": "cf6b4bca1b9e651d769fe0a69a7ec0238771ffcba07c3147a7680896f2b2ef44",
+      "size": 45014,
       "synthetic": true
     }
   ],

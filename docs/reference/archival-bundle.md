@@ -193,7 +193,13 @@ Sources reviewed on 2026-11-14: [official R4 downloads](https://hl7.org/fhir/R4/
 [CC0 1.0 legal text](https://creativecommons.org/publicdomain/zero/1.0/legalcode.en).
 Exact downloaded page bytes and hashes are retained in the source manifest/cache.
 
-## Task 2 integration still required
+## Historical pre-integration packaging snapshot
+
+The following describes the original acquisition-only delivery. Current registry,
+vault copies, schema export and profile integration are implemented; see
+[archive format](archive-format.md), [clinical model](clinical-model.md) and the
+[optional validator guide](../how-to/run-offline-validator.md). Complete archival
+specification release publication remains separate.
 
 A subsequent Task 2 packaging change can verify the `core` source hash and full
 member inventory, then safely stage **every** regular file under `package/` as

@@ -20,5 +20,5 @@ Neither partial receipt logs nor a successful prompt establishes complete I/O te
 
 Untested providers, general scan/OCR accuracy, terminology completeness, full FHIR
 conformance, clinical accuracy and production readiness remain unclaimed. Remote
-platform suites, independent whole-union review and later
-feature-guide reconciliation are separate acceptance gates.
+platform suites, independent final-union review and actual final-kit agent
+scenarios are separate acceptance gates.

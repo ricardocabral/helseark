@@ -1,6 +1,6 @@
 # CLI reference
 
-Applies to toolkit 0.1.2 / kit 0.1.13; see [compatibility](compatibility.md).
+Applies to toolkit 0.1.2 / kit 0.1.15; see [compatibility](compatibility.md).
 `helseark` and `python -m helseark.cli` call the same implementation. No command
 launches a model. Put global `--vault PATH` before the command. Its only default is
 `HELSEARK_VAULT`; there is no parent-directory search. Clinical commands require
@@ -98,5 +98,20 @@ Validation reports use 2 for errors, 3 for unresolved review issues, and dedicat
 other issues, 0 only when no issues. Backup verify returns 5 for reported issues.
 Some adapter errors supply an explicit exit in details; read the safe code and
 retainedSource receipt, not just the number. See [recovery](../how-to/troubleshoot.md).
-Structured import, Java validation, OCR and report commands are not implemented
-on this branch. Full all-feature documentation remains a later integration gate.
+## Structured intake, history, OCR, reports and optional validation
+
+| Command after `helseark --vault V` | Inputs and result |
+|---|---|
+| `intake fhir-r4 SOURCE --person P --mapping FILE` | Explicit IdentityMapping; issued candidate/coverage, no acceptance |
+| `intake metrics-csv SOURCE --person P --mapping FILE` | Explicit CsvMetricMapping, decimal/dialect/unit/time policy; issued candidate |
+| `intake add SOURCE --person P --packet NEW_PATH --ocr-config FILE` | Retained extraction from pinned local tools; optional macOS-only |
+| `history --person P --kind TYPE` | Repeat kind for eight native history families; optional exact `--at-head` |
+| `report --person P --out NEW_PATH` | Static HTML/CSV/SVG selected snapshot; default vault/derived/reports/PERSON |
+| `validate proposal DIRECTORY --person P --official-config FILE` | Host config, new generation/report; optional `--require-official`; never review/acceptance |
+
+See [structured mapping](../how-to/import-structured-data.md), [history](../how-to/query-history.md),
+[OCR](../how-to/run-ocr.md), [reports](../how-to/generate-reports.md) and
+[official validator](../how-to/run-offline-validator.md). Failed explicit validator
+requests revoke earlier pending authority; re-run successfully and review anew.
+Host reconciliation files are regular/no-follow and bounded at 64 MiB; review
+decisions at 1 MiB. FIFO/device/symlink inputs fail without waiting for a producer.

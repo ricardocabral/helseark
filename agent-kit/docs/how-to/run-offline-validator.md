@@ -33,8 +33,9 @@ nine TGZs in the lock, with no extra files or links. An unrelated empty cache
 cannot substitute for it. Each run verifies the archives, bounds their extraction
 and seeds a new temporary home; global Java/package caches are not used.
 
-Use the six profiles from the selected vault's pinned definitions, for example
-`VAULT/definitions/profiles/r4/0.1.0`. Their exact hashes must match that vault's
+For profile-set 0.2.0 use `VAULT/definitions/profiles/r4`, containing all 15
+versioned profiles under 0.1.0 and 0.2.0. For retained profile-set 0.1.0 use its
+original six-profile directory `VAULT/definitions/profiles/r4/0.1.0`. Their exact hashes must match that vault's
 lock. An old vault is never repinned automatically. Old reports with no
 `officialRun` remain readable; creating an enriched report requires the current
 validation contract. Preserve old archives and use their compatible reader when
@@ -51,7 +52,7 @@ be absolute. `executablePath` means the official JAR, not a shell command.
   "executableSha256": "9dfe9f305b0f9389eceade2a4a1c9a2740d7b0e614066fdf07a78b571c76d92f",
   "version": "7.0.5",
   "packageDirectory": "/absolute/validator-7.0.5/packages",
-  "profileDirectory": "/absolute/vault/definitions/profiles/r4/0.1.0",
+  "profileDirectory": "/absolute/vault/definitions/profiles/r4",
   "timeoutSeconds": 120,
   "requireTerminology": false,
   "javaPath": "/absolute/jre/bin/java"
@@ -99,7 +100,7 @@ may attempt latest-package metadata requests that are denied and then fall back
 to the exact local cache. Do not describe this as zero attempted requests.
 
 `full-fhir` reports passed/failed with resource/error/warning counts for the
-pinned R4 definitions, six supported profiles and their executable invariants.
+pinned R4 definitions, selected-vault profiles and their executable invariants.
 Terminology always reports `not-checked`: local packages and `-tx n/a` do not
 establish licensed or complete terminology validation. `requireTerminology: true`
 therefore fails coverage with `TERMINOLOGY_UNAVAILABLE`, blocking acceptance.

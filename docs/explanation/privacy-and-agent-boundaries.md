@@ -10,7 +10,8 @@ The common archive instructions in the pinned kit AGENTS.md define person,
 source-data, output and review rules once. Focused skills reference those rules
 and the [actual clinical contracts](../reference/clinical-model.md). They do not
 grant write access to accepted history. Task discovery, bounded context and typed rendering are implemented. PDF intake, prepared human-controlled publication, queries and portability are
-available, together with reviewed correction and migration; structured imports and OCR remain unavailable. Their templates support blocked assessments;
+available, together with reviewed correction and migration; bounded structured imports and optional local macOS OCR are implemented.
+Native tools require explicit setup;
 their presence is not proof of an available command or a successful model run.
 
 A selected person UUID and snapshot restrict what a packet may disclose. A

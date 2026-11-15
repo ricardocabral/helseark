@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "3a31ac1e4e72f2fdcc62be597d834d2948514cd4a15b320bf53202255e06c87e",
-          "size": 33654
+          "sha256": "f11a1cdeda42aa8a3eab8074bd22ff5cc025f5f5c4040f3907657da723c5ef74",
+          "size": 33655
         }
       ],
       "license": "MIT",
@@ -702,8 +702,8 @@
       "files": [
         {
           "path": "docs/reference/agent-protocol.md",
-          "sha256": "d4cb02ab11c7a483dbe5c952b3cc39adb44e06fe9b0241ddd58bc4547e0ed019",
-          "size": 30046
+          "sha256": "4e082e619b8cf9c84bb294a0561026b5f3edf8ad3a7065792f026a26301da86e",
+          "size": 30148
         }
       ],
       "license": "MIT",
@@ -715,7 +715,7 @@
       "files": [
         {
           "path": "docs/reference/archive-format.md",
-          "sha256": "ff6886a4e84ae6c3e56f173edc03f4c5f79f68fbb6eaf54eb015cf75410a8eca",
+          "sha256": "d313ddfa826e238616f46427fde57cc705bbf6a08baa1ab1ae68b3ee0461e078",
           "size": 23140
         }
       ],
@@ -741,8 +741,8 @@
       "files": [
         {
           "path": "docs/reference/intake.md",
-          "sha256": "30bf11fb4f4d00a9265f7176c8c33db5cae37ffab5eb53f81159692af7821f2f",
-          "size": 14395
+          "sha256": "48dbe80884d222e20dfc6d9d4a4de50b8b2ba18cb1a7e01b3f0a512cc51baf64",
+          "size": 14509
         }
       ],
       "license": "MIT",
@@ -754,8 +754,8 @@
       "files": [
         {
           "path": "docs/reference/pdf-extraction.md",
-          "sha256": "515fe7b5b75bcb1ed951c11e987ba2d86ef00b8f99b2736ff8f27d0641ff268f",
-          "size": 16376
+          "sha256": "384aec40be92afb30bccfc35ffc2b05d2df9bfac48a5e6a0b591367671915930",
+          "size": 16516
         }
       ],
       "license": "MIT",
@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "9272f8c71ad29c99e7134688baf7ec196591cc0f4a39c293618eaeed5370066c",
-          "size": 13182
+          "sha256": "1b966d3bab3c3dcf6425e6937d9a24ec7e7e62e0529ead805a7339326e9e0e79",
+          "size": 13205
         }
       ],
       "license": "MIT",
@@ -793,8 +793,8 @@
       "files": [
         {
           "path": "docs/tutorials/first-archive.md",
-          "sha256": "804f7e248b7434c3743b861f576b83a2914b8382f32be4ea87f62f10d4ed5148",
-          "size": 9029
+          "sha256": "81ad0038a3a573c15a71936a5eed2e205daec7b501adaae5febd9aa686eea721",
+          "size": 9039
         }
       ],
       "license": "MIT",
@@ -910,7 +910,7 @@
       "files": [
         {
           "path": "docs/how-to/migrate-archive.md",
-          "sha256": "c43c3892f0f965061173482cd32ba1ddfba7555b611d9ebb4eef844b3eec8923",
+          "sha256": "13775489a8686252eaef16018e2271a9edf300104a094878683631e32ae53a16",
           "size": 4324
         }
       ],
@@ -923,8 +923,8 @@
       "files": [
         {
           "path": "docs/reference/compatibility.md",
-          "sha256": "2cd3cbf2fcd50b28e083337ba4bf65e17ca876231fbcf2a5fccf45ddda2ca37d",
-          "size": 6717
+          "sha256": "5e9e45fee0fe7c24bf0826f9ab0d796ddc21564f930fbab0ecf23dc183383052",
+          "size": 7249
         }
       ],
       "license": "MIT",
@@ -936,7 +936,7 @@
       "files": [
         {
           "path": "docs/explanation/evolution.md",
-          "sha256": "676291cfe30433db7215525ded0b374cac54d143eb40280f120e3769c41dccd8",
+          "sha256": "17b27c8dfa78b58690055fcc40003d91b25081a592b24ce24168f4f77c4b5080",
           "size": 2003
         }
       ],
@@ -988,8 +988,8 @@
       "files": [
         {
           "path": "docs/index.md",
-          "sha256": "a80ef951dc7d3ffd402b8b9cee65bce9490c948790bd8e83a6b1934437b28de9",
-          "size": 3843
+          "sha256": "43ae015a0ff7d0757610a4f3e12911df8224b8e1a553d685869d81536a41ceb7",
+          "size": 4380
         }
       ],
       "license": "MIT",
@@ -1001,7 +1001,7 @@
       "files": [
         {
           "path": "docs/how-to/troubleshoot.md",
-          "sha256": "6099701c23ac6c6e20045646a9f6b24bc544c9634a08e08b2d659a48e5715dff",
+          "sha256": "28d75aed10eb225918b0c7b940556ede96825aeef42b9537a53cf861a8a2baff",
           "size": 1838
         }
       ],
@@ -1014,8 +1014,8 @@
       "files": [
         {
           "path": "docs/reference/archival-bundle.md",
-          "sha256": "83f2381a535f96c88228edc2c1b2250d5ab8259bbc7a2e4fb3c9c0613465bfb1",
-          "size": 14204
+          "sha256": "936f91d25619df5e5d69d365092228bb0592070ceb83b69058012f569359520f",
+          "size": 14587
         }
       ],
       "license": "MIT",
@@ -1027,8 +1027,8 @@
       "files": [
         {
           "path": "docs/reference/cli.md",
-          "sha256": "39aaf3c59d21f48ac9af52ae81c20b10cfc2ff4d5df17e6d4d143a8652593738",
-          "size": 9629
+          "sha256": "8b615b3b7572a4dd66bdf83e63e737dc9accd722428fb0dc90c2359ec31e8954",
+          "size": 10899
         }
       ],
       "license": "MIT",
@@ -1040,8 +1040,8 @@
       "files": [
         {
           "path": "docs/reference/evaluation-results.md",
-          "sha256": "001b91c5a8b3cbe838bd803b3c8cbb519f59a70cd548a6797f0d05a3b26cfeba",
-          "size": 2505
+          "sha256": "5399faca224f619e8e87fe029b551335cc145033ab98b541a94ca1d2210e0c79",
+          "size": 6120
         }
       ],
       "license": "MIT",
@@ -1053,8 +1053,8 @@
       "files": [
         {
           "path": "docs/reference/python-api.md",
-          "sha256": "9b2a92cdd7fb03fc6498d3d0aaa361bbe6625262da43d1f20a571cea35de1900",
-          "size": 8757
+          "sha256": "3fae0b0b53f186e5c1926bf44ec513023fd340653522429c718d7e30f82283e4",
+          "size": 10332
         }
       ],
       "license": "MIT",
@@ -1079,8 +1079,8 @@
       "files": [
         {
           "path": "docs/explanation/evaluation-and-limits.md",
-          "sha256": "dc3c480ce51e7f3e4157c05eb60d62467de699b9b7c559946efd690abbba4065",
-          "size": 1501
+          "sha256": "ed5765ef18306832bfda99c1eaa57794ea3e73190ead2a30f3faad587e9efcbf",
+          "size": 1499
         }
       ],
       "license": "MIT",
@@ -1092,8 +1092,8 @@
       "files": [
         {
           "path": "docs/explanation/privacy-and-agent-boundaries.md",
-          "sha256": "63ae4a2dcd3bff28e9b8b1c2fce9d034c7840f9ac405f97e66668ec4fd723df1",
-          "size": 4021
+          "sha256": "7464f32b8df4c8450c6fd3e88d99c03c02f541b0662fe1849fee2a4a6a64b284",
+          "size": 4039
         }
       ],
       "license": "MIT",
@@ -1131,8 +1131,8 @@
       "files": [
         {
           "path": "docs/how-to/run-offline-validator.md",
-          "sha256": "3e9686bf0c86f5cadcd2dff35741e28410e1175dece374ce83be3c7bd642c53f",
-          "size": 11484
+          "sha256": "aca0fcf44d8ebdbf6e61d931a3362d666742254fc37ab30d7668a2ba853d2c90",
+          "size": 11589
         }
       ],
       "license": "MIT",
@@ -1365,8 +1365,8 @@
       "files": [
         {
           "path": "docs/how-to/import-structured-data.md",
-          "sha256": "42e84c96b1f092819fe4a2d42a98f009de430d5abbc918b367b28f436c250308",
-          "size": 8538
+          "sha256": "e83d5c4334c6c84fc260fc40d2a3bf8b7dd686b5e3855d4d9f2a99078c0f7ecb",
+          "size": 8539
         }
       ],
       "license": "MIT",
