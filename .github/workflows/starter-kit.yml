@@ -14,18 +14,7 @@ on:
       - "pyproject.toml"
       - "uv.lock"
       - ".github/workflows/starter-kit.yml"
-  pull_request:
-    paths:
-      - "starter-kit/**"
-      - "tests/test_starter_kit.py"
-      - "AGENTS.md"
-      - "SCOPE.md"
-      - "CONTRIBUTING.md"
-      - "definitions/fhir-r4-json-schema/**"
-      - "schemas/0.1.0/evidence.schema.json"
-      - "pyproject.toml"
-      - "uv.lock"
-      - ".github/workflows/starter-kit.yml"
+  pull_request: {}
   workflow_dispatch:
 
 permissions:

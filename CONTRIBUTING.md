@@ -52,7 +52,7 @@ PY
 git diff --check
 ```
 
-The “Starter kit” workflow runs these checks automatically for core changes.
+The “Starter kit” workflow runs these inexpensive checks on every pull request.
 They protect this invented example, not arbitrary clinical truth or human approval.
 New examples need corresponding focused checks. Dependency installation may access
 registries; checks use local files. Keep uv's seven-day dependency freshness guard.
