@@ -15,8 +15,10 @@ This is record organization, not medical advice.
    FHIR JSON, and evidence side by side. All files are supplied, with no generation
    step. The example is a draft, not a reviewed real record.
 3. Copy the [extraction prompt](templates/extract.md) into your chosen agent or
-   use it as a manual checklist. Supply the person and source files as requested
-   in its opening sentence. It produces FHIR JSON plus readable field citations.
+   use it as a manual checklist. In a fresh agent conversation, attach or paste
+   `instructions.md`, the chosen template, the FHIR schema listed below, and only
+   the selected person's source files; the example is optional. Supply the person
+   as requested in the prompt. It produces FHIR JSON plus readable field citations.
 4. Compare every proposed fact and citation against the source. Record your name,
    review date, exact files/revision reviewed, decision, and unresolved concerns in
    a separate review note. Accept only after explicit human approval; keep the
