@@ -15,7 +15,7 @@ dependencies = ["jsonschema==4.25.1"]
 [project.urls]
 Repository = "https://github.com/ricardocabral/helseark"
 Issues = "https://github.com/ricardocabral/helseark/issues"
-Documentation = "https://github.com/ricardocabral/helseark#documentation-and-participation"
+Documentation = "https://github.com/ricardocabral/helseark#instructions-and-reference"
 
 [project.optional-dependencies]
 pdf = ["pypdf==7.0.0"]

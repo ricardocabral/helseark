@@ -2,7 +2,8 @@
 
 Project-authored code, schemas, profiles and documentation use the
 [MIT License](../../LICENSE).
-Python metadata and current FHIR package/definition metadata declare MIT.
+Helseark's Python metadata and local FHIR profile package declare MIT.
+Vendored HL7 FHIR material retains its upstream CC0 terms and third-party exceptions.
 The license does not grant trademark rights or
 license users' health records and exports.
 

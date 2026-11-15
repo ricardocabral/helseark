@@ -25,26 +25,27 @@ empty or wrong-context read is not a pass.
   cleanup separately; never rewrite history without explicit authorization.
 - [ ] Verify account access and least-privilege tokens, collaborator roles and
   two-factor authentication. Confirm CODEOWNERS resolves to an active maintainer.
-- [ ] Configure main protection/rulesets: PRs, independent approval, required
+- [ ] Configure main protection/rulesets: PRs, independent review, required
   checks using the actual CI job names, resolved conversations, no force pushes
   or branch deletion. Verify that the rules are enforced; CODEOWNERS alone is not
   a merge gate. Review bypass permissions and restrict Actions token defaults.
 - [ ] Establish and test a private security contact before changing visibility.
   Enable GitHub private vulnerability reporting as soon as available (the feature
   requires a public repository); verify a responder receives reports immediately
-  after launch. Resolve conduct contact and owner-conflict
-  escalation before inviting public participation. Replace temporary contact
-  instructions with working private routes; never solicit sensitive issue details.
+  after launch. Confirm [ricardo@rnc.sh](mailto:ricardo@rnc.sh) receives security
+  and conduct reports. Document the current lack of an independent owner-conflict
+  contact; never solicit sensitive issue details.
 - [ ] Enable dependency graph/alerts, supported security updates, secret scanning
   and push protection where available. Verify CodeQL, dependency-review and OpenSSF
   Scorecard jobs after
   public launch; they are gated off while the repository is private. Their Actions
   are SHA-pinned, with scoped permissions. CodeQL uses v4 because
   v3 is approaching retirement. Confirm Dependabot reads uv.lock
-  and opens grouped security update proposals without auto-merge. Routine version
-  update PRs are disabled; review the weekly update-job results
-  and handle deliberate version upgrades separately. Do not bypass uv's cutoff or
-  the PDF runtime version guard to get a bot update merged.
+  and opens grouped security update proposals without auto-merge. Routine Python
+  version PRs are disabled. SHA-pinned Actions have one grouped weekly version-update
+  PR at a time because Dependabot security alerts do not cover SHA references.
+  Review the weekly update-job results. Do not bypass uv's cutoff or the PDF
+  runtime version guard to get a bot update merged.
 - [ ] Require green “Schemas and examples” checks for the exact candidate commit. Inspect
   the portable files being published for missing schemas, broken relative links,
   private content and omitted licenses/notices. Record the candidate and actual
@@ -56,6 +57,18 @@ empty or wrong-context read is not a pass.
   credentials.
 - [ ] Owner authorizes the visibility change separately after reviewing evidence.
   Public copies cannot be recalled by making the repository private again.
+
+## Dependabot severity preference
+
+After publication, use GitHub's [custom auto-triage rules](https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/auto-triage-dependabot-alerts)
+to open security PRs for **high** and **critical** alerts. This personal repository
+is ineligible while private, and `dependabot.yml` has no severity filter. Keep
+Dependabot alerts enabled. During setup, disable blanket Dependabot security
+updates, then immediately create and enable the high/critical PR rule; GitHub
+requires blanket updates to be off to create that rule. Verify the rule and
+re-enable blanket updates if setup fails. Keep lower-severity alerts visible
+for manual triage. The bounded Actions version
+PR is a separate maintenance path; [SHA references do not receive security alerts](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-alerts#limitations).
 
 ## Release and follow-up
 
