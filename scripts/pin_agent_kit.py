@@ -38,6 +38,9 @@ def pin():
             task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'], 'known-material-closure', 'readable-audit-paths',
                 'exact-reference-bindings' if task['id']=='export' else 'diagnostic-path-actions']))
             task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/export-records.md','docs/how-to/backup-and-restore.md']))
+        if task['id']=='verify':
+            task['expectedChecks']=list(dict.fromkeys([*task['expectedChecks'],'original-official-execution-authority','complete-baseline-reconciliation','failed-request-revocation']))
+            task['referencePaths']=list(dict.fromkeys([*task['referencePaths'],'docs/how-to/run-offline-validator.md']))
         task['outputs']=['output/report.md'] + (['output/candidate/candidate.json','output/candidate/bundle.json','output/candidate/evidence.json'] if task['id'] in ('import','correct') else [])
         task['requiredCapabilities']={
             'inspect':['agent-discovery','agent-context','task-instructions'],
@@ -66,7 +69,7 @@ def pin():
                 'outputArtifacts':task['outputs']})
     manifest['prompts']=prompts
     # References have one repository source; release copies make every relative link portable.
-    references=['LICENSE','NOTICE','docs/index.md'] + [p.relative_to(ROOT).as_posix() for folder in ('tutorials','how-to','reference','explanation') for p in sorted((ROOT/'docs'/folder).glob('*.md'))]
+    references=['LICENSE','NOTICE','docs/index.md'] + [p.relative_to(ROOT).as_posix() for folder in ('tutorials','how-to','reference','explanation') for p in sorted((ROOT/'docs'/folder).glob('*.md'))] + ['definitions/validator-lock.json','definitions/validator-notices.json']
     schemas=sorted({m.group(1) for p in kit.rglob('*.md') for m in re.finditer(r'\]\([^)]*?(schemas/[^)#]+)',p.read_text())})
     references += [p for p in schemas if (ROOT/p).is_file()]
     references += [p.relative_to(ROOT).as_posix() for p in sorted((ROOT/'schemas').glob('*/*.json'))]

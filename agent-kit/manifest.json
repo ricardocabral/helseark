@@ -6,7 +6,7 @@
   "compatibility": {
     "archiveFormatVersion": 1,
     "contractVersion": "0.1.0",
-    "definitionLockSha256": "2d2d18768968b2a16bd0be50aa76974af7797d49a361ba87ec3937caf728ca04",
+    "definitionLockSha256": "a14b2848e0cd5e1df73be5ff3f1e67c637fc1563462337f2fdc755cd8b504751",
     "fhirVersion": "4.0.1",
     "profileVersion": "0.1.0",
     "serializationVersion": "helseark-json-1"
@@ -24,8 +24,8 @@
     },
     {
       "path": "NOTICE",
-      "sha256": "215bea7f9270323a832963f96a86027a4e682ddf6bb6d706fb9283ca3040466c",
-      "size": 1117
+      "sha256": "9b8d6b53a19938219324a88b0f9cf81a86389e33520a03fc5ed50365b57d0535",
+      "size": 2662
     },
     {
       "path": "START-HERE.md",
@@ -34,8 +34,18 @@
     },
     {
       "path": "definitions/lock.json",
-      "sha256": "2d2d18768968b2a16bd0be50aa76974af7797d49a361ba87ec3937caf728ca04",
-      "size": 40917
+      "sha256": "a14b2848e0cd5e1df73be5ff3f1e67c637fc1563462337f2fdc755cd8b504751",
+      "size": 42825
+    },
+    {
+      "path": "definitions/validator-lock.json",
+      "sha256": "9968fe099e5c97fd3c96dae0626d8e4edd89fed1939f1508acdcb0b43fc8e33b",
+      "size": 4132
+    },
+    {
+      "path": "definitions/validator-notices.json",
+      "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8",
+      "size": 2889
     },
     {
       "path": "docs/explanation/architecture.md",
@@ -96,6 +106,11 @@
       "path": "docs/how-to/query-history.md",
       "sha256": "7222673da1edb0767ebcb63a6f1e00d817bee439ac336f828f316ab0b1f04954",
       "size": 4483
+    },
+    {
+      "path": "docs/how-to/run-offline-validator.md",
+      "sha256": "3e9686bf0c86f5cadcd2dff35741e28410e1175dece374ce83be3c7bd642c53f",
+      "size": 11484
     },
     {
       "path": "docs/how-to/troubleshoot.md",
@@ -159,8 +174,8 @@
     },
     {
       "path": "docs/reference/review.md",
-      "sha256": "e05805cc0c661be76d2842f63a71f94c9f6df6dfe4c696115f0d123aac3fb834",
-      "size": 10183
+      "sha256": "9272f8c71ad29c99e7134688baf7ec196591cc0f4a39c293618eaeed5370066c",
+      "size": 13182
     },
     {
       "path": "docs/tutorials/first-archive.md",
@@ -274,8 +289,8 @@
     },
     {
       "path": "prompts/verify-archive.md",
-      "sha256": "2ec83bdcf341d9508955b0e5bdfc710f40d6b4ded953ea4490135830d1ce4aeb",
-      "size": 3080
+      "sha256": "4635f5e65892c3d0fdb6e48fda99af9162d711bd159799799a44c71a4d34737b",
+      "size": 4135
     },
     {
       "path": "schemas/0.1.0/agent-context.schema.json",
@@ -323,6 +338,11 @@
       "size": 5683
     },
     {
+      "path": "schemas/0.1.0/official-validation-authority.schema.json",
+      "sha256": "400f5b590a0c9189c1e0f9b8c1cce409cc5b8c1445a730af451102467552573a",
+      "size": 4823
+    },
+    {
       "path": "schemas/0.1.0/proposal.schema.json",
       "sha256": "86fc1ca2696c7761d2c9cad3236035437d78ee8e1576f802bda05d5d174ab194",
       "size": 7165
@@ -349,8 +369,13 @@
     },
     {
       "path": "schemas/0.1.1/review.schema.json",
-      "sha256": "572e145e4bea2958f44114ff467233fa65fcf1ee3b9f5fc01f7e53fb1bda1124",
-      "size": 2322
+      "sha256": "77445cc22d0fbc68d3d69ffd0ce2d623af90425e9836016b65b05f1edbb41958",
+      "size": 7933
+    },
+    {
+      "path": "schemas/0.1.1/validation.schema.json",
+      "sha256": "7bf3decba7106c0c377dd9b1fcb367b60000eb81750b9bbbad49866c6c8849ab",
+      "size": 6423
     },
     {
       "path": "skills/correct-records/SKILL.md",
@@ -384,8 +409,8 @@
     },
     {
       "path": "skills/verify-archive/SKILL.md",
-      "sha256": "8bf8b56bb1524927bed777004c2e0777f88a0f85680b835226e074441992ca5e",
-      "size": 2505
+      "sha256": "359780bcdd2af939e050d913f382cfc060ee896d672161832d76eb9738214a5c",
+      "size": 3566
     },
     {
       "path": "templates/vault-AGENTS.md",
@@ -804,9 +829,9 @@
       ],
       "outputContractIds": [],
       "path": "prompts/verify-archive.md",
-      "sha256": "2ec83bdcf341d9508955b0e5bdfc710f40d6b4ded953ea4490135830d1ce4aeb",
+      "sha256": "4635f5e65892c3d0fdb6e48fda99af9162d711bd159799799a44c71a4d34737b",
       "skillId": "verify-archive",
-      "skillSha256": "8bf8b56bb1524927bed777004c2e0777f88a0f85680b835226e074441992ca5e",
+      "skillSha256": "359780bcdd2af939e050d913f382cfc060ee896d672161832d76eb9738214a5c",
       "skillVersion": "0.1.0",
       "taskIds": [
         "verify"
@@ -1235,7 +1260,10 @@
         "human-review-required",
         "known-material-closure",
         "readable-audit-paths",
-        "diagnostic-path-actions"
+        "diagnostic-path-actions",
+        "original-official-execution-authority",
+        "complete-baseline-reconciliation",
+        "failed-request-revocation"
       ],
       "id": "verify",
       "intent": "Prepare integrity inspection context",
@@ -1259,7 +1287,8 @@
         "docs/reference/clinical-model.md",
         "docs/reference/archive-format.md",
         "docs/how-to/export-records.md",
-        "docs/how-to/backup-and-restore.md"
+        "docs/how-to/backup-and-restore.md",
+        "docs/how-to/run-offline-validator.md"
       ],
       "requiredCapabilities": [
         "agent-context",

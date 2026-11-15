@@ -675,7 +675,8 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
     result=PreparedProposal(path,fresh.personId,candidate_digest,hash_bytes(encode_json(proposal)),fresh.base,report,fresh.path)
     # Host workflow control lives outside editable packet/proposal trees.
     control=_safe(vault.root,f'.runtime/prepared/{result.proposalSha256}.json'); _mkdir(control.parent)
-    _write(control,encode_json({'candidatePath':str(fresh.path),'personId':fresh.personId}))
+    _write(control,encode_json({'candidatePath':str(fresh.path),'personId':fresh.personId,'validationAuthorityVersion':1,
+        'baselineValidationSha256':hash_bytes(encode_json(document(report))),'officialExecutionId':None,'officialRequestSha256':None}))
     return result
 
 

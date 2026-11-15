@@ -1,6 +1,6 @@
 """Small CLI; all archive behavior is shared with the library."""
 import argparse
-from dataclasses import asdict
+from dataclasses import asdict, replace
 import os
 from pathlib import Path
 import sys
@@ -29,6 +29,11 @@ from .validation import schema_packet, validate_candidate, validate_proposal
 _EXIT = {
     "CORRECTION_STATUS": 2, "APPROVAL_REQUIRED": 3, "ERASURE_SCOPE_UNKNOWN": 3,
     "INVALID_MIGRATION_PLAN": 2, "MIGRATION_BLOCKED": 6, "MIGRATION_STAGING_EXISTS": 4,
+    "VALIDATOR_AUTHORITY_REQUIRED": 3, "VALIDATOR_AUTHORITY_MISMATCH": 3, "VALIDATOR_RUNTIME_CHANGED": 5,
+    "VALIDATOR_UNAVAILABLE": 6, "VALIDATOR_MISSING_ARTIFACT": 6,
+    "VALIDATOR_NETWORK_POLICY": 6, "VALIDATOR_DIGEST_MISMATCH": 5,
+    "VALIDATOR_PACKAGE_MISMATCH": 5, "VALIDATOR_PROFILE_MISMATCH": 5,
+    "VALIDATOR_TIMEOUT": 2, "VALIDATOR_PROCESS_FAILED": 2, "VALIDATOR_MALFORMED_OUTPUT": 2,
     "SOURCE_SCOPE_REVIEW_REQUIRED": 3, "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2, "CONTEXT_AUTHORITY_REQUIRED": 2,
     "INVALID_VARIABLE": 2, "INCOMPATIBLE_PROMPT": 2, "CONTEXT_MISMATCH": 5,
     "CONTEXT_BUDGET_EXCEEDED": 2, "UNKNOWN_TASK": 2, "INVALID_CONTINUATION": 2,
@@ -88,6 +93,9 @@ def main(argv=None):
         command.add_argument("path", type=Path)
         command.add_argument("--person", required=True)
         command.add_argument("--json", action="store_true")
+        if kind == 'proposal':
+            command.add_argument('--official-config',type=Path,help='Host-controlled optional offline validator configuration; writes a new pre-review report.')
+            command.add_argument('--require-official',action='store_true',help='Block if explicit official validator configuration is absent.')
     candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
     candidates = candidate.add_subparsers(dest='candidate_command', required=True)
     for verb in ('prepare','review','commit'):
@@ -380,10 +388,24 @@ def main(argv=None):
                     metadata = _json(args.path, "proposal.json")
                     if not isinstance(metadata, dict) or metadata.get("personId") != args.person:
                         raise ArchiveError("PERSON_MISMATCH", "Proposal differs from explicitly selected person.")
-                    report = validate_proposal(vault, args.path)
+                    if args.official_config or args.require_official:
+                        from .fhir_validator import validate_with_official_tool, verify_recorded_run
+                        prepared = read_prepared(vault,args.path)
+                        report = validate_with_official_tool(prepared,args.official_config,vault=vault)
+                        verify_recorded_run(vault,replace(prepared,validation=report))
+                        # Atomic replacement of the unreviewed report, never a clinical file.
+                        from tempfile import NamedTemporaryFile
+                        with NamedTemporaryFile(dir=args.path,delete=False) as stream:
+                            temporary_report = Path(stream.name)
+                            stream.write(encode_json(document(report))); stream.flush(); os.fsync(stream.fileno())
+                        os.replace(temporary_report,args.path/'validation.json')
+                    else:
+                        report = validate_proposal(vault, args.path)
                 output = {"checkedProposalSha256": report.checkedProposalSha256,
                           "coverage": [asdict(c) for c in report.coverage],
                           "issues": [asdict(i) for i in report.issues]}
+                if report.officialRun is not None:
+                    output['officialRun'] = report.officialRun
                 errors = {i.code for i in report.issues if i.severity == "error"}
                 if "STALE_BASE" in errors:
                     exit_code = 4
@@ -402,6 +424,9 @@ def main(argv=None):
             if args.command in ('observations','timeline','record'):
                 sys.stdout.buffer.write(encode_json(output))
             elif args.command == "validate":
+                if report.officialRun is not None:
+                    run=report.officialRun
+                    print(f"Official R4/profile checks: {run['resourceCount']} resources, {run['counts']['errors']} errors, {run['counts']['warnings']} warnings; terminology not checked; human review mandatory.")
                 print("Baseline archive checks blocked." if exit_code in {2, 4, 5, 6} else
                       "Baseline archive checks completed; review required; terminology not checked." if exit_code == 3 else
                       "Baseline archive checks passed; terminology not checked. Human review remains mandatory.")

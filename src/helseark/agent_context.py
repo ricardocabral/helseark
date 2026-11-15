@@ -4,7 +4,7 @@ Only manifest-listed instructions are loadable. Clinical/source content never
 participates in routing. Packets are disposable read snapshots, not authority,
 permission grants or agent execution. Task4 owns prompt rendering.
 """
-from dataclasses import asdict, is_dataclass, replace
+from dataclasses import asdict, fields as dataclass_fields, is_dataclass, replace
 from collections.abc import Mapping
 import hashlib
 from pathlib import Path
@@ -39,7 +39,8 @@ def document(value):
                 del fields[name]
         return document(fields)
     if is_dataclass(value):
-        return document(asdict(value))
+        return {f.name:document(getattr(value,f.name)) for f in dataclass_fields(value)
+                if not (f.name == 'officialRun' and getattr(value,f.name) is None)}
     if isinstance(value, Path):
         return str(value)
     if isinstance(value, dict):

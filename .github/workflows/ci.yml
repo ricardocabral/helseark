@@ -109,3 +109,58 @@ jobs:
           persist-credentials: false
       - name: Verify declared provenance and byte inventory
         run: python3 scripts/check_fixture_manifest.py
+
+  official-validator:
+    name: Real pinned offline R4 validator
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
+        with:
+          version: "0.11.2"
+          python-version: "3.12"
+          enable-cache: false
+      - name: Install locked Python environment
+        run: uv sync --locked --extra pdf --group dev
+      - name: Explicit public artifact acquisition (before offline execution)
+        run: |
+          uv run --no-sync python scripts/acquire_validator.py "$RUNNER_TEMP/validator" --linux-jre
+          test -x "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java"
+      - name: Real corpus with enforced empty network namespace
+        run: |
+          sudo env PYTHONPATH="$PWD/src:$PWD/tests" \
+            "$PWD/.venv/bin/python" tests/qualify_official_validator.py \
+            --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
+            --output "$RUNNER_TEMP/official-evidence" --timeout-seconds 240
+      - name: Build and install exact authority qualification runtime
+        run: |
+          uv build --no-sources
+          uv venv --python "$PWD/.venv/bin/python" "$RUNNER_TEMP/authority-env"
+          uv pip install --offline --no-deps --python "$RUNNER_TEMP/authority-env/bin/python" dist/*.whl
+          # Reuse only this job's exact locked dependencies after installing the
+          # wheel, so the editable project cannot satisfy the wheel installation.
+          "$RUNNER_TEMP/authority-env/bin/python" -c 'import pathlib,sys,sysconfig; pathlib.Path(sysconfig.get_path("purelib"), "qualified-dependencies.pth").write_text(sys.argv[1]+"\n")' "$PWD/.venv/lib/python3.12/site-packages"
+          uv run --no-sync python tests/setup_validator_legacy.py "$RUNNER_TEMP/legacy-workflow"
+      - name: Actual installed execution authority and failed-request matrix
+        run: |
+          mkdir "$RUNNER_TEMP/authority-staging"
+          sudo env PYTHONPATH="$PWD/tests" TMPDIR="$RUNNER_TEMP/authority-staging" \
+            "$RUNNER_TEMP/authority-env/bin/python" tests/qualify_validator_authority.py \
+            --artifacts "$RUNNER_TEMP/validator" --java "$RUNNER_TEMP/validator/runtime/jdk-17.0.21+9-jre/bin/java" \
+            --output "$RUNNER_TEMP/authority-evidence" --timeout-seconds 240 \
+            --legacy-workflow "$RUNNER_TEMP/legacy-workflow"
+      - name: Retain synthetic qualification evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: official-validator-evidence
+          path: |
+            ${{ runner.temp }}/validator/acquisition.jsonl
+            ${{ runner.temp }}/official-evidence/*.json
+            ${{ runner.temp }}/official-evidence/*.txt
+            ${{ runner.temp }}/authority-evidence/*.json
+            ${{ runner.temp }}/authority-evidence/*.txt
+          if-no-files-found: error

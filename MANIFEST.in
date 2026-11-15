@@ -13,3 +13,8 @@ recursive-include docs *.md
 recursive-include tests *.py *.json *.txt *.md *.pdf
 global-exclude *.pyc
 recursive-include tests/fixtures LICENSE
+include tests/qualify_validator_authority.py
+include tests/qualify_validator_requests.py
+include tests/setup_validator_legacy.py
+recursive-include tests/fixtures/synthetic/validator-legacy *
+include tests/qualify_official_validator.py

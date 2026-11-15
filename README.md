@@ -36,6 +36,8 @@ Committing a newly prepared proposal before recording a decision returns
 `--decision` file before committing. Missing receipts in accepted history remain
 integrity failures; damaged review records do not authorize publication.
 
+For deeper R4/profile checks, see the [optional offline official validator](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/run-offline-validator.md). Baseline use needs no Java; terminology remains not checked.
+
 ## Try a synthetic archive
 
 Use Python 3.12 and uv. Dependency installation may need networking; the archive

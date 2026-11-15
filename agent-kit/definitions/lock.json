@@ -767,8 +767,8 @@
       "files": [
         {
           "path": "docs/reference/review.md",
-          "sha256": "e05805cc0c661be76d2842f63a71f94c9f6df6dfe4c696115f0d123aac3fb834",
-          "size": 10183
+          "sha256": "9272f8c71ad29c99e7134688baf7ec196591cc0f4a39c293618eaeed5370066c",
+          "size": 13182
         }
       ],
       "license": "MIT",
@@ -806,8 +806,8 @@
       "files": [
         {
           "path": "schemas/0.1.1/review.schema.json",
-          "sha256": "572e145e4bea2958f44114ff467233fa65fcf1ee3b9f5fc01f7e53fb1bda1124",
-          "size": 2322
+          "sha256": "77445cc22d0fbc68d3d69ffd0ce2d623af90425e9836016b65b05f1edbb41958",
+          "size": 7933
         }
       ],
       "license": "MIT",
@@ -1118,14 +1118,79 @@
       "files": [
         {
           "path": "NOTICE",
-          "sha256": "215bea7f9270323a832963f96a86027a4e682ddf6bb6d706fb9283ca3040466c",
-          "size": 1117
+          "sha256": "9b8d6b53a19938219324a88b0f9cf81a86389e33520a03fc5ed50365b57d0535",
+          "size": 2662
         }
       ],
       "license": "MIT",
       "origin": "repository-authored",
       "packageId": "helseark-reference-NOTICE",
       "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "docs/how-to/run-offline-validator.md",
+          "sha256": "3e9686bf0c86f5cadcd2dff35741e28410e1175dece374ce83be3c7bd642c53f",
+          "size": 11484
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-run-offline-validator",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "definitions/validator-lock.json",
+          "sha256": "9968fe099e5c97fd3c96dae0626d8e4edd89fed1939f1508acdcb0b43fc8e33b",
+          "size": 4132
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-validator-lock",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "definitions/validator-notices.json",
+          "sha256": "946add5c282550dd1e1bcc71f91e0cd603a813e57c2277c5f2d8e6b20e9673a8",
+          "size": 2889
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-validator-notices",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.0/official-validation-authority.schema.json",
+          "sha256": "400f5b590a0c9189c1e0f9b8c1cce409cc5b8c1445a730af451102467552573a",
+          "size": 4823
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-official-validation-authority.schema",
+      "version": "0.1.0"
+    },
+    {
+      "files": [
+        {
+          "path": "schemas/0.1.1/validation.schema.json",
+          "sha256": "7bf3decba7106c0c377dd9b1fcb367b60000eb81750b9bbbad49866c6c8849ab",
+          "size": 6423
+        }
+      ],
+      "license": "MIT",
+      "origin": "repository-authored",
+      "packageId": "helseark-reference-validation.schema",
+      "version": "0.1.1"
     }
   ],
   "contractVersion": "0.1.0",

@@ -17,3 +17,27 @@ records and the vendored upstream notices. Third-party terminology and trademark
 remain subject to their respective terms; no new terminology rights are granted.
 Runtime dependency licenses remain with their distributions: jsonschema and its
 MIT dependencies, optional pypdf (BSD-3-Clause), typing-extensions (PSF-2.0).
+Helseark
+
+The retained HL7 FHIR R4 specification artifacts are CC0-1.0; FHIR and HL7
+trademarks have separate terms. See definitions/docs/r4/license.html and
+cc0-1.0.html. Original synthetic fixtures are CC0; user records remain user data.
+
+The optional official validator 7.0.5 is separately acquired software, not part
+of the Helseark wheel. Its pinned upstream LICENSE.txt is Apache-2.0:
+https://github.com/hapifhir/org.hl7.fhir.core/blob/7.0.5/LICENSE.txt
+The shaded JAR also contains third-party software and licenses; Apache-2.0 is
+not a blanket license assertion for that entire executable. The acquisition
+script retains embedded LICENSE, NOTICE and DEPENDENCIES texts verbatim and
+records their original member names, lengths and SHA-256 hashes. Keep those
+texts and the unmodified JAR together. Redistributors must independently review
+the complete dependency inventory and applicable obligations; this integration
+does not grant redistribution rights for all dependencies or code systems.
+
+The optional Java runtime is separately supplied. Retain its legal directory,
+release metadata and vendor notices. Qualification used Eclipse Temurin
+17.0.21+9 JRE; its bundled legal materials, including GPLv2 with Classpath
+Exception and third-party notices, must accompany any redistribution. No JRE
+is shipped here. The pinned FHIR package manifests declare CC0-1.0; this is not
+a license grant or completeness claim for SNOMED CT, CPT, LOINC or other licensed
+terminologies. No licensed terminology distributions are acquired by this tool.
