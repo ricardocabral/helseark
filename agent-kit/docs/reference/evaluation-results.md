@@ -50,7 +50,7 @@ failed attempts remain preserved separately from supplied fixture candidates.
 | Toolkit correctness | Deterministic source/candidate/review/publication/query/portability/migration tests, installed offline journeys and integrity counts establish only the exercised software contracts. Supplied candidates are not model observations |
 | Seeded review visibility | Seeded decimal, unit, patient and omitted-result fixtures exercise displayed review facts/issues. Visibility does not prove that a human notices or corrects every error |
 
-These older runtimes, sources and instruction sets do not qualify kit 0.1.15 or
+These older runtimes, sources and instruction sets do not qualify kit 0.1.16 or
 establish strict packet compliance, full FHIR/terminology conformance, general
 provider coverage, medical truth or complete evaluation. Actual final-kit gates
 remain: transcription correction preserving earlier facts/evidence; scoped export

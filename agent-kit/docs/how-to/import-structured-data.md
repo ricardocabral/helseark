@@ -16,8 +16,14 @@ Specimen, DocumentReference and Provenance profiles, plus the eight native
 in profile-set 0.2.0 vaults. Imported Provenance uses the selected vault profile
 pin; source declarations may use the frozen 0.1.0 or applicable current profile.
 Unknown profile declarations remain blocking. Local attachments must already be
-retained for the selected person; preparation includes their assets and receipts
-in the immutable proposal inventory. No attachment is fetched from the network. Patient fields remain in the
+retained for the selected person with `intake add` / `add_source`, or be a verified
+retained extraction of such an original. A local CAS path, copied blob or receipt
+hash alone is insufficient. Preparation checks person, digest, size, path and
+original/extraction relationships and binds the complete assets and receipts in
+the immutable proposal inventory. A PDF must declare `application/pdf`; a text or
+structured declaration cannot downgrade its disclosure review. Non-PDF originals
+retained as `application/octet-stream` may keep supported structured/text media
+refinements. Same-person retained originals may be reused by later issued imports. No attachment is fetched from the network. Patient fields remain in the
 original export with an explicit local assignment; they never overwrite local identity.
 Clinical fields and statuses stay native FHIR. Native IDs/version metadata are retained
 in source evidence and identifiers; candidate IDs are new UUIDs. Preparation assigns
@@ -115,7 +121,7 @@ that dependency. Errors and identity failures cannot be acknowledged away.
 
 Follow the same explicit prepare/review/commit commands above. Inspect the mapping,
 coverage, transformed date/status fields and exact source cells before any real decision.
-Kit 0.1.15 advertises bounded FHIR R4 and numeric metric CSV intake alongside the current clinical, history, portability and presentation workflows.
+Kit 0.1.16 advertises bounded FHIR R4 and numeric metric CSV intake alongside the current clinical, history, portability and presentation workflows.
 The optional CSV locator `encoding` field extends the existing evidence contract;
 old evidence without it still means UTF-8. Older pinned vault schemas remain unchanged:
 new encoded-CSV locators require the current definitions and are not auto-migrated.

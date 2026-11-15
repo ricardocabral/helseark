@@ -1,6 +1,6 @@
 # CLI reference
 
-Applies to toolkit 0.1.2 / kit 0.1.15; see [compatibility](compatibility.md).
+Applies to toolkit 0.1.2 / kit 0.1.16; see [compatibility](compatibility.md).
 `helseark` and `python -m helseark.cli` call the same implementation. No command
 launches a model. Put global `--vault PATH` before the command. Its only default is
 `HELSEARK_VAULT`; there is no parent-directory search. Clinical commands require

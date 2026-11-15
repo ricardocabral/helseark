@@ -1,6 +1,6 @@
 # Recover from a blocked operation
 
-For toolkit 0.1.2 / kit 0.1.15, keep originals and failed work until the cause is understood.
+For toolkit 0.1.2 / kit 0.1.16, keep originals and failed work until the cause is understood.
 Start with `helseark --vault /absolute/vault doctor --json`. Record checkedChanges,
 checkedResources, checkedAssets, issues and affected paths; zero counts do not
 qualify a clinical archive.
