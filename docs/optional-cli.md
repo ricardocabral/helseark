@@ -44,6 +44,22 @@ uv run --no-sync helseark agent tasks --json
 Do not store real records in this repository or upload them to issues or CI.
 Read [privacy boundaries](explanation/privacy-and-agent-boundaries.md) before sharing files.
 
+## Optional diagnostics
+
+After the setup above, a focused CLI check is:
+
+```sh
+uv run --no-sync pytest tests/test_cli_journey.py -q
+```
+
+For an explicitly scoped runtime change, maintainers can dispatch the
+[Experimental CLI (manual) workflow](../.github/workflows/ci.yml) on its branch.
+It retains three test shards and the exact PDF dependency check as diagnostics.
+It does not run automatically on pull requests or pushes, build distributions,
+or establish supported-platform or release qualification. Passing starter checks
+does not qualify this runtime. A runtime release needs separate scope and
+qualification; preserved qualification scripts remain available for that work.
+
 ## Guides and contracts
 
 - Learn with the [synthetic first-intake lesson](tutorials/first-archive.md).

@@ -1,4 +1,4 @@
-# Releasing Helseark
+# Publishing the Helseark starter kit
 
 Before the first public launch and each release, record a responsible person,
 exact candidate commit/tag, date, evidence location,
@@ -6,9 +6,12 @@ result and unresolved findings for each item. Store sensitive scan/review eviden
 in ignored `docs/internal/`, not public issues or uploaded CI artifacts. A failed,
 empty or wrong-context read is not a pass.
 
-- [ ] Complete implementation acceptance and independent review. Distinguish
-  supported CLI, library-only and planned features; update README, references,
-  agent-kit descriptors and examples to match. Release only what was qualified.
+- [ ] Confirm the candidate matches [current scope](../../SCOPE.md) and has
+  independent review. Check the starter instructions, three templates, schema
+  references and invented source/FHIR/evidence example; verify their links and
+  the [core checks](../../CONTRIBUTING.md#core-checks). Preserve explicit identity,
+  exact precision, source evidence, accepted history and mandatory human review.
+  Schema validity does not establish clinical truth or approval.
 - [ ] Review [licensing.md](licensing.md) and the MIT license/metadata. Confirm
   provenance and redistribution rights for code, fixtures, brand and vendored
   material, and include notices in each artifact.
@@ -42,15 +45,15 @@ empty or wrong-context read is not a pass.
   update PRs are disabled; review the weekly update-job results
   and handle deliberate version upgrades separately. Do not bypass uv's cutoff or
   the PDF runtime version guard to get a bot update merged.
-- [ ] Require green branch CI on Linux/macOS for the exact candidate commit.
-  Build wheel/sdist and archival bundle; inspect file lists for accidental private
-  files and bundled license omissions. Qualify installed artifacts outside the
-  checkout with network blocked using the existing qualification scripts. Record
-  artifact hashes and exact tool versions; verify base-only/PDF-extra behavior.
-- [ ] Add release notes with supported platforms, compatibility pins, known limits,
-  security support status, install/upgrade and recovery instructions. Verify docs
-  links and examples from the distributed artifacts. Tag the reviewed commit;
-  publish only with owner authorization and least-privilege release credentials.
+- [ ] Require green “Starter kit” checks for the exact candidate commit. Inspect
+  the portable files being published for missing schemas, broken relative links,
+  private content and omitted licenses/notices. Record the candidate and actual
+  results; there is no universal wheel/sdist or installed-platform gate for this
+  installation-free delivery.
+- [ ] Document the published scope, compatibility references, known limits,
+  security support status and instructions for copying/using the starter. Tag
+  the reviewed commit and publish only with owner authorization and least-privilege
+  credentials.
 - [ ] Owner authorizes the visibility change separately after reviewing evidence.
   Public copies cannot be recalled by making the repository private again.
 
@@ -64,13 +67,17 @@ at the candidate commit; any missing/broken route or failed update job within
 seven days requires correction or reverting the affected configuration. Do not
 claim bots or remote protections work until their results are observed.
 
-For a software release, retain the last qualified version and hashes. Within
-24 hours, verify installation and the synthetic creation/validation/offline
-journeys on qualified platforms from published artifacts. Baseline is the exact
-candidate CI/qualification results; any hash mismatch, network attempt, isolation
-failure or archive mutation blocks further distribution. Withdraw affected
-artifacts or mark the release unusable, announce the supported previous version
-and prepare a reviewed fix. Never mutate user history to roll back software.
+Check the first core-relevant pull request and main push after workflow changes:
+one “Starter kit” job should run and pass its documented example and consistency
+checks, with no automatic “Experimental CLI (manual)” run. Inspect the Actions runs
+for that commit. Investigate any failed core check or a job that exceeds its
+five-minute timeout. If routing breaks, revert the workflow change and rerun
+the core check. Record remote results only after observing them.
+
+The experimental CLI and historical qualification scripts remain available.
+A runtime release requires separate scope and qualification for its promised
+behavior and platforms; starter checks provide neither. This checklist does not
+authorize a runtime release or expand its support claims.
 
 Guidance consulted on 2026-11-14:
 [GitHub community files](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file),

@@ -12,7 +12,10 @@ conflict with the approved scope.
 - Workers use separate branches/worktrees. Preserve other sessions' changes. Do not amend or rewrite commits.
 - Implement the assigned plan task completely, including behavioral tests and its documentation. Report limitations honestly.
 - Use synthetic fixtures only. Preserve exact decimal precision, patient isolation, immutable accepted history, offline operation, and mandatory human review.
-- Run focused tests locally; full suites run on remote branch CI.
+- Default checks cover schemas, starter instructions and the invented example.
+  Run focused checks locally; the optional experimental CLI suite runs remotely
+  through manual dispatch only when explicitly requested. Starter checks do not
+  qualify CLI behavior or distributions.
 - An independent reviewer checks each implementation before integration. Resolve findings and suggestions, documenting reasons for any declined suggestion.
 - Only the coordinator integrates reviewed work into main and pushes. Include a concrete post-merge verification/rollback plan for production-changing PRs.
 - Keep durable guidance here; CLAUDE.md imports this file.
