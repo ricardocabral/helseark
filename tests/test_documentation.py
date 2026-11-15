@@ -131,5 +131,5 @@ def test_shipped_native_candidate_and_contract_examples(lesson):
     for path, name in [('lesson-candidate/candidate.json', 'candidate'),
                        ('lesson-candidate/evidence.json', 'evidence')]:
         value = decode_json((lesson/path).read_bytes())
-        assert registry.validate('urn:helseark:schema:0.1.0:'+name, value)
+        assert registry.validate('urn:helseark:schema:0.1.1:'+name, value)
     assert len(cli('--vault', vault, 'observations', '--person', person)) == 2
