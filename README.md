@@ -67,10 +67,10 @@ Read the [documentation index](docs/index.md) for supported reader routes.
 - [Archive format and supported commands](docs/reference/archive-format.md)
 - [Clinical model](docs/reference/clinical-model.md), [agent protocol](docs/reference/agent-protocol.md), [PDF extraction](docs/reference/pdf-extraction.md)
 - [Privacy and agent boundaries](docs/explanation/privacy-and-agent-boundaries.md)
-- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
+- [Contributing](https://github.com/ricardocabral/helseark/blob/main/CONTRIBUTING.md), [coding guide](https://github.com/ricardocabral/helseark/blob/main/docs/development/coding-guide.md), [governance](https://github.com/ricardocabral/helseark/blob/main/GOVERNANCE.md), [changelog](https://github.com/ricardocabral/helseark/blob/main/CHANGELOG.md)
 - [Security reporting](https://github.com/ricardocabral/helseark/blob/main/SECURITY.md), [support](https://github.com/ricardocabral/helseark/blob/main/SUPPORT.md), [code of conduct](https://github.com/ricardocabral/helseark/blob/main/CODE_OF_CONDUCT.md)
-- [Release guide](docs/maintainers/releasing.md) and [licensing status](docs/maintainers/licensing.md)
-- [Logo and brand assets](docs/brand/README.md)
+- [Release guide](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/releasing.md) and [licensing status](https://github.com/ricardocabral/helseark/blob/main/docs/maintainers/licensing.md)
+- [Logo and brand assets](https://github.com/ricardocabral/helseark/blob/main/docs/brand/README.md)
 
 Public launch is planned after implementation and publication checks. Project-authored code, schemas, profiles and documentation use the
 [MIT License](https://github.com/ricardocabral/helseark/blob/main/LICENSE), matching Rikdom. Existing fixture/upstream terms are
