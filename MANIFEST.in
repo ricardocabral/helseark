@@ -18,3 +18,14 @@ include tests/qualify_validator_requests.py
 include tests/setup_validator_legacy.py
 recursive-include tests/fixtures/synthetic/validator-legacy *
 include tests/qualify_official_validator.py
+
+
+# Keep the independent history test's retained source, candidate and oracle in sdists.
+recursive-include tests/fixtures/synthetic/clinical-history/oracle *.json *.md
+include tests/fixtures/expected/clinical-history-facts.json
+
+recursive-include tests/fixtures/synthetic/ocr *.pdf *.md *.py
+include tests/fixtures/expected/ocr-facts.json
+include tests/qualify_intake_history_presentation_installed.py
+recursive-include tests/fixtures/synthetic/structured *.json *.csv *.md
+recursive-include tests/fixtures/synthetic/clinical-history *.json *.md

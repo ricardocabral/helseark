@@ -1,0 +1,82 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-immunization",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-immunization",
+  "version": "0.2.0",
+  "name": "HelsearkImmunization",
+  "title": "Helseark Immunization",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Immunization",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Immunization",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Immunization",
+        "path": "Immunization",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-immunization|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "Immunization.id",
+        "path": "Immunization.id",
+        "min": 1
+      },
+      {
+        "id": "Immunization.meta",
+        "path": "Immunization.meta",
+        "min": 1
+      },
+      {
+        "id": "Immunization.implicitRules",
+        "path": "Immunization.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "Immunization.contained",
+        "path": "Immunization.contained",
+        "max": "0"
+      },
+      {
+        "id": "Immunization.extension",
+        "path": "Immunization.extension",
+        "max": "0"
+      },
+      {
+        "id": "Immunization.modifierExtension",
+        "path": "Immunization.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "Immunization.patient",
+        "path": "Immunization.patient",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "Immunization.patient.reference",
+        "path": "Immunization.patient.reference",
+        "min": 1
+      }
+    ]
+  }
+}

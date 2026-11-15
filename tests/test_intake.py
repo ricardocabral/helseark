@@ -252,8 +252,8 @@ def test_actual_renderer_drafts_only_confirmed_selected_pdf(tmp_path):
     vault,person,source,packet=packet_for(tmp_path,identityConfirmed=True)
     header=json.JSONDecoder().raw_decode((packet.path/'prompt.txt').read_text().split('\n',1)[1])[0]
     assert header['disposition']=='draft'
-    assert header['workflowAvailability']=={
-        'status':'unavailable', 'missingCapabilities':['structured-import']}
+    assert header['workflowAvailability']['status']=='available'
+    assert not header['workflowAvailability']['missingCapabilities']
     assert header['permittedWrites']==[
         'output/report.md', 'output/candidate/candidate.json',
         'output/candidate/bundle.json', 'output/candidate/evidence.json']

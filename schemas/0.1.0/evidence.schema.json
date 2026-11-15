@@ -274,6 +274,17 @@
                       "row": {
                         "minimum": 1,
                         "type": "integer"
+                      },
+                      "encoding": {
+                        "enum": [
+                          "utf-8",
+                          "utf-8-sig",
+                          "utf-16",
+                          "utf-16-le",
+                          "utf-16-be",
+                          "iso8859-1",
+                          "cp1252"
+                        ]
                       }
                     },
                     "required": [

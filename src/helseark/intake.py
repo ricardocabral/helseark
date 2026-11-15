@@ -235,7 +235,7 @@ def _extraction(vault, source, limits, *, retained_only=False):
     return receipt, pages, path, tuple(dict.fromkeys(issues))
 
 
-def _extraction_files(vault, person, sources):
+def _extraction_files(vault, person, sources, extraction_hashes=()):
     """Resolve exact retained pages from selected originals, never supplied paths.
 
     Context owns selection/budget/host authority; intake owns immutable extraction
@@ -243,23 +243,102 @@ def _extraction_files(vault, person, sources):
     """
     from .contracts import ContextFile
     files = []
+    remaining = set(extraction_hashes)
     for selected in sources:
         source = SourceReceipt(person, selected.sha256, selected.size,
                                'application/pdf', Path(selected.path))
         _source_bytes(vault, source)
-        receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
+        matches = []
+        for digest in tuple(remaining):
+            blob = _safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob')
+            artifact = decode_json(_regular(blob, ARTIFACT_BYTES))
+            if isinstance(artifact, dict) and artifact.get('sourceSha256') == source.sourceSha256:
+                matches.append(digest)
+        if extraction_hashes and len(matches) != 1:
+            raise ArchiveError('EXTRACTION_MISMATCH', 'Select exactly one retained extraction per original.')
+        if matches:
+            digest = matches[0]
+            remaining.remove(digest)
+            artifact = decode_json(_regular(_safe(vault.root, f'people/{person}/assets/sha256/{digest}/blob'), ARTIFACT_BYTES))
+            if artifact.get('artifactVersion') == 'helseark-ocr-pages-1':
+                receipt, _, path, _ = _ocr_extraction(vault, source, digest)
+            else:
+                receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
+                if receipt['pagesSha256'] != digest:
+                    raise ArchiveError('EXTRACTION_MISMATCH', 'Extraction differs from selected original.')
+        else:
+            receipt, _, path, _ = _extraction(vault, source, LIMITS, retained_only=True)
         data = _regular(path, ARTIFACT_BYTES)
         if hash_bytes(data) != receipt['pagesSha256']:
             raise ArchiveError('INTEGRITY', 'Selected extraction changed during read.')
         file = ContextFile(str(path), receipt['pagesSha256'], len(data), str(path))
         if file not in files:
             files.append(file)
+    if remaining:
+        raise ArchiveError("EXTRACTION_MISMATCH", "Extraction is outside selected originals.")
     return tuple(files)
+
+
+def _ocr_extraction(vault, source, digest):
+    """Resolve one immutable OCR version within the explicit person's CAS."""
+    sha256_string(digest)
+    path = _safe(vault.root, f'people/{source.personId}/assets/sha256/{digest}/blob')
+    data = _regular(path, ARTIFACT_BYTES)
+    if hash_bytes(data) != digest:
+        raise ArchiveError('INTEGRITY', 'OCR artifact bytes differ.')
+    pages = decode_json(data)
+    if (not isinstance(pages, dict) or pages.get('artifactVersion') != 'helseark-ocr-pages-1' or
+            pages.get('sourceSha256') != source.sourceSha256 or pages.get('personId') != source.personId):
+        raise ArchiveError('EXTRACTION_MISMATCH', 'OCR artifact differs from selected source/person.')
+    from .adapters.ocr import _validate_artifact
+    _validate_artifact(pages)
+    receipt = decode_json(_regular(path.parent/'extraction.json',65536))
+    if (not isinstance(receipt,dict) or set(receipt) != {'receiptVersion','pagesSha256','sourceSha256','pageCount','issues'} or
+            receipt['receiptVersion'] != 1 or receipt.get('pagesSha256') != digest or receipt.get('sourceSha256') != source.sourceSha256 or
+            receipt.get('pageCount') != len(pages['pages'])):
+        raise ArchiveError('INTEGRITY', 'OCR receipt differs from retained bytes.')
+    for derivative in pages['derivatives']:
+        blob = _safe(vault.root, f"people/{source.personId}/assets/sha256/{derivative['sha256']}/blob")
+        content = _regular(blob, ARTIFACT_BYTES)
+        if len(content) != derivative['size'] or hash_bytes(content) != derivative['sha256']:
+            raise ArchiveError('INTEGRITY', 'OCR derivative bytes differ.')
+    # Recompute review requirements; a receipt cannot waive them.
+    issues = (Issue('OCR_VISUAL_REVIEW','review',None,None,
+        'Every OCR page remains unresolved: verify original pixels, identity, missing glyphs, decimals and table rows.'),
+        *tuple(_cue_issues(pages['pages'])))
+    return receipt, pages, path, issues
+
+
+def _create_ocr(vault, source, config):
+    from .adapters.ocr import extract_ocr
+    artifact = extract_ocr(source, config)
+    data = _regular(artifact.pagesPath, ARTIFACT_BYTES)
+    if hash_bytes(data) != artifact.pagesSha256:
+        raise ArchiveError('INTEGRITY','OCR artifact differs from its receipt.')
+    pages = decode_json(data)
+    from .adapters.ocr import _validate_artifact
+    _validate_artifact(pages)
+    for derivative in pages['derivatives']:
+        content = _regular(artifact.pagesPath.parent/derivative['path'],ARTIFACT_BYTES)
+        if hash_bytes(content) != derivative['sha256']:
+            raise ArchiveError('INTEGRITY','OCR derivative differs.')
+        _asset(vault, source.personId, content)
+    path = _asset(vault, source.personId, data)
+    receipt = {'receiptVersion':1,'sourceSha256':source.sourceSha256,
+        'pagesSha256':artifact.pagesSha256,'pageCount':artifact.pageCount,
+        'issues':document(artifact.issues)}
+    stored = path.parent/'extraction.json'
+    if stored.exists():
+        if _regular(stored,65536) != encode_json(receipt):
+            raise ArchiveError('INTEGRITY','OCR receipt differs.')
+    else:
+        _write(stored,encode_json(receipt))
+    return _ocr_extraction(vault,source,artifact.pagesSha256)
 
 
 def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
                  identityConfirmed: bool = False, outputDirectory: Path | None = None,
-                 limits: IntakeLimits = LIMITS) -> ImportPacket:
+                 limits: IntakeLimits = LIMITS, ocrConfig=None) -> ImportPacket:
     """Create a real context/renderer packet; false confirmation renders report-only.
 
     The three required arguments are Task5's public interface. Optional keyword
@@ -268,6 +347,11 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     """
     if type(identityConfirmed) is not bool or not isinstance(limits, IntakeLimits):
         raise ArchiveError('INVALID_INPUT', 'Confirmation must be boolean and limits typed.')
+    if ocrConfig is not None:
+        ocr_output = Path(ocrConfig.outputDirectory).absolute()
+        work = vault.root / 'people' / source.personId / 'work'
+        if (ocr_output == vault.root or vault.root in ocr_output.parents) and work not in ocr_output.parents:
+            raise ArchiveError('UNSAFE_PATH','OCR output must be outside vault or in selected person work.')
     data = _source_bytes(vault, source)
     if len(data) > limits.sourceBytes:
         raise ArchiveError('SOURCE_TOO_LARGE', 'Source exceeds the byte limit.')
@@ -281,7 +365,12 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
     with _writer_lock(vault):
         _source_bytes(vault, source)
         try:
-            receipt, pages, extraction_path, issues = _extraction(vault, source, limits)
+            receipt, pages, extraction_path, issues = (_create_ocr(vault, source, ocrConfig) if ocrConfig is not None
+                else _extraction(vault, source, limits))
+            if receipt['pageCount'] > limits.pdfPages:
+                raise ArchiveError('PAGE_LIMIT','Extraction exceeds the caller page limit.')
+            if any(len(p['text'].encode()) > limits.textFieldBytes for p in pages['pages']):
+                raise ArchiveError('TEXT_FIELD_LIMIT','Extraction exceeds the caller text limit.')
         except ArchiveError as error:
             raise ArchiveError(error.code, error.safeMessage,
                 {**error.details, 'retainedSource': document(source)}) from None
@@ -290,7 +379,8 @@ def build_packet(vault: Vault, source: SourceReceipt, destination: Path, *,
         context = build_agent_context(vault, source.personId, 'import',
             ContextRequest(sourceHashes=(source.sourceSha256,), includeSourceExtractions=
                 'selectedExtractions' in load_definition_registry(vault).resolve(
-                    'urn:helseark:schema:0.1.0:agent-context')['properties']), destination / 'context')
+                    'urn:helseark:schema:0.1.0:agent-context')['properties'],
+                sourceExtractionHashes=(receipt['pagesSha256'],) if ocrConfig is not None else ()), destination / 'context')
         candidate_id = str(uuid4())
         confirmed = identityConfirmed and not any(i.severity == 'error' for i in issues)
         source_data = {'sourceReceipt': document(source), 'extractionReceipt': receipt,
@@ -387,22 +477,51 @@ def read_candidate(vault: Vault, candidateDirectory: Path, *, person: str | None
         data = _regular(path, limits.sourceBytes)
         if hash_bytes(data) != digest:
             raise ArchiveError('SOURCE_HASH_MISMATCH', 'Declared source bytes differ.')
+        # A retained non-PDF intake receipt is host provenance, independent of
+        # editable producer labels, format claims, candidate IDs and locations.
+        # Legacy Task2 assets have no intake receipt; PDF has its own authority.
+        if not data.startswith(b'%PDF-') and ((path.parent/'source.json').exists() or (path.parent/'structured').exists()):
+            receipt = SourceReceipt(person, digest, len(data), 'application/octet-stream', path)
+            _source_bytes(vault, receipt)
+            candidate_digest = _candidate_inputs(directory)[1]
+            authority_path = path.parent/'structured'/f'{candidate_digest}.json'
+            if not authority_path.exists():
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Original structured mapping authority is unavailable; rebuild with explicit local configuration.')
+            authority = _bounded_json(authority_path, limits)
+            if (not isinstance(authority, dict) or authority.get('receiptVersion') != 1 or
+                    authority.get('identityConfirmed') is not True or
+                    authority.get('family') not in ('fhir-r4','csv-metrics') or not isinstance(authority.get('mapping'),dict) or
+                    authority.get('personId') != person or authority.get('sourceHashes') != metadata['sourceSha256'] or
+                    authority.get('structuredCandidateSha256') != candidate_digest or
+                    hash_bytes(_regular(directory/'coverage.json', CANDIDATE_FILE_BYTES)) != authority.get('structuredCoverageSha256')):
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured candidate or coverage differs from original host mapping; rebuild with explicit local configuration.')
         # Legacy non-intake Task2 assets remain supported; PDF intake originals
         # always require their real source/extraction receipts, not agent claims.
         if data.startswith(b'%PDF-'):
             receipt = SourceReceipt(person, digest, len(data), 'application/pdf', path)
             _source_bytes(vault, receipt)
-            if not (path.parent / 'extraction.json').exists():
-                raise ArchiveError('INTEGRITY', 'PDF source lacks retained extraction receipt.')
-            extraction, pages, _, issues = _extraction(vault, receipt, limits)
-            retained_issues.extend(issues)
-            for entry in evidence['entries']:
-                if entry.get('sourceSha256') == digest and entry.get('kind') == 'source':
+            source_entries = [e for e in evidence['entries'] if e.get('sourceSha256') == digest and e.get('kind') == 'source']
+            versions = {e.get('locator',{}).get('extractionSha256') for e in source_entries}
+            if not versions:
+                retained_issues.extend(_extraction(vault,receipt,limits)[3])
+            for version in versions:
+                sha256_string(version)
+                artifact_path = _safe(vault.root,f'people/{person}/assets/sha256/{version}/blob')
+                value = decode_json(_regular(artifact_path,ARTIFACT_BYTES))
+                if not isinstance(value,dict):
+                    raise ArchiveError('INTEGRITY','Expected a retained PDF extraction object.')
+                is_ocr = value.get('artifactVersion') == 'helseark-ocr-pages-1'
+                extraction, pages, _, issues = (_ocr_extraction(vault,receipt,version) if is_ocr
+                    else _extraction(vault,receipt,limits))
+                retained_issues.extend(issues)
+                for entry in source_entries:
+                    if entry.get('locator',{}).get('extractionSha256') != version:
+                        continue
                     if (entry.get('extraction') != pages['extraction'] or
                             entry.get('locator', {}).get('kind') != 'pdf-page' or
-                            entry['locator'].get('extractionSha256') != extraction['pagesSha256'] or
-                            'bbox' in entry['locator']):
-                        raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained page-only extraction.')
+                            version != extraction['pagesSha256'] or
+                            ('bbox' in entry['locator'] and not is_ocr)):
+                        raise ArchiveError('EXTRACTION_MISMATCH', 'PDF evidence differs from retained extraction.')
     candidate = Candidate(directory, metadata['candidateId'], person, base, bundle, evidence,
         tuple(Issue(**i) for i in metadata['unresolved']))
     # Preserve exact envelope binding: mandatory intake issues must be present,
@@ -429,12 +548,12 @@ def _resource_references(value, aliases):
     nested References. Literals, identifiers, codes and attachment URLs are data.
     Root resource IDs are handled separately by the caller.
     """
-    if isinstance(value, list):
-        return [_resource_references(v, aliases) for v in value]
-    if isinstance(value, dict):
-        return {k: aliases.get(v, v) if k == 'reference' and isinstance(v, str)
-                else _resource_references(v, aliases) for k,v in value.items()}
-    return value
+    from .archive import _reference_nodes
+    from copy import deepcopy
+    result = deepcopy(value)
+    for _, node in _reference_nodes(result):
+        node['reference'] = aliases.get(node['reference'], node['reference'])
+    return result
 
 
 def _evidence_references(evidence, aliases):
@@ -610,7 +729,7 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
     provenance_id=new_id(); provenance_version=new_id(); provenance_ref=f'Provenance/{provenance_id}/_history/{provenance_version}'
     documents=[v for k,v in aliases.items() if k.startswith('DocumentReference/')]
     if not documents: raise ArchiveError('VALIDATION_BLOCKED','Imports require an evidenced source DocumentReference.')
-    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|0.1.0'],'versionId':provenance_version,'lastUpdated':now},
+    provenance={'resourceType':'Provenance','id':provenance_id,'meta':{'profile':['https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-provenance|' + vault.config.profileVersion],'versionId':provenance_version,'lastUpdated':now},
         'target':[{'reference':v} for v in dict.fromkeys(aliases.values())], 'recorded':now,
         'agent':[{'who':{'identifier':{'system':'urn:helseark:local-actor','value':'proposal-compiler'}}}],
         'entity':[{'role':'source','what':{'reference':v}} for v in documents] +
@@ -625,14 +744,34 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
     inputs=[]
     for name,data in zip(('candidate','bundle','evidence'),raw):
         relative=f'inputs/{name}.json'; _write(path/relative,data); inputs.append({'path':relative,'sha256':hash_bytes(data)})
+    if (fresh.path/'coverage.json').exists():
+        data = _regular(fresh.path/'coverage.json', CANDIDATE_FILE_BYTES)
+        for source_hash in sources:
+            issuance = _safe(vault.root, f'people/{fresh.personId}/assets/sha256/{source_hash}/structured/{candidate_digest}.json')
+            if issuance.exists() and _bounded_json(issuance, LIMITS).get('structuredCoverageSha256') != hash_bytes(data):
+                raise ArchiveError('CANDIDATE_MISMATCH', 'Structured coverage changed during preparation.')
+        _write(path/'inputs/coverage.json', data)
+        inputs.append({'path':'inputs/coverage.json','sha256':hash_bytes(data)})
     assets=[]; bindings=[]
     digests=set(sources)
     for e in evidence['entries']:
         digest=e.get('locator',{}).get('extractionSha256')
         if digest: digests.add(digest)
+    ocr_versions = {e['locator']['extractionSha256'] for e in evidence['entries']
+        if e.get('extraction',{}).get('method') == 'ocr' and e.get('locator',{}).get('kind') == 'pdf-page'}
+    for digest in ocr_versions:
+        artifact = decode_json(_regular(_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/blob'),ARTIFACT_BYTES))
+        if isinstance(artifact,dict) and artifact.get('artifactVersion') == 'helseark-ocr-pages-1':
+            digests.update(d['sha256'] for d in artifact['derivatives'])
     for digest in sorted(digests):
         relative=f'assets/sha256/{digest}/blob'; data=_regular(_safe(vault.root,f'people/{fresh.personId}/{relative}'),LIMITS.sourceBytes)
-        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':'application/pdf' if data.startswith(b'%PDF-') else 'application/json'})
+        declared_media = {a['attachment']['contentType'] for r in resources if r['resourceType']=='DocumentReference'
+                          for a in r.get('content',[]) if a.get('attachment',{}).get('url')==relative
+                          and 'contentType' in a['attachment']}
+        if len(declared_media)>1:
+            raise ArchiveError('INVALID_INPUT','Conflicting source attachment media types.')
+        assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':next(iter(declared_media),
+            'application/pdf' if data.startswith(b'%PDF-') else 'image/x-portable-graymap' if data.startswith(b'P5\n') else 'text/tab-separated-values' if data.startswith(b'level\tpage_num\t') else 'application/json')})
         for name in ('source.json','extraction.json'):
             receipt=_safe(vault.root,f'people/{fresh.personId}/assets/sha256/{digest}/{name}')
             if receipt.exists(): bindings.append({'path':receipt.relative_to(vault.root/f'people/{fresh.personId}').as_posix(),'sha256':hash_bytes(_regular(receipt,65536))})
@@ -734,3 +873,70 @@ def start_correction(vault: Vault, person: str, target, reason: str) -> Candidat
         authority = _safe(vault.root, f'.runtime/intake/{identifier}.json'); _mkdir(authority.parent)
         _write(authority,encode_json({'personId':person,'sourceHashes':metadata['sourceSha256'],'identityConfirmed':True}))
     return read_candidate(vault,path,person=person)
+
+def _structured_source(source: SourceReceipt, person: str):
+    """Resolve only the selected retained receipt; source content cannot choose a vault."""
+    from .archive import _open_vault_metadata
+    if not isinstance(source, SourceReceipt) or source.personId != person:
+        raise ArchiveError('PERSON_MISMATCH', 'Source differs from explicitly assigned person.')
+    uuid_string(person)
+    path = Path(source.assetPath)
+    if len(path.parents) < 6:
+        raise ArchiveError('SOURCE_RECEIPT_MISMATCH', 'Expected a retained source receipt.')
+    vault = _open_vault_metadata(path.parents[5])
+    return vault, _source_bytes(vault, source)
+
+
+def _structured_candidate(vault, source, family, mapping, resources, evidence, issues, coverage):
+    """One source authority and candidate-envelope boundary for deterministic adapters.
+
+    Immutable source-side issuance binds mapping, candidate and coverage bytes;
+    editable sidecars cannot grant authority. No model/prompt execution is claimed.
+    """
+    cid = str(uuid4()); base = head(vault, source.personId)
+    path = _safe(vault.root, f'people/{source.personId}/work/candidates/{cid}')
+    provenance = {'provenanceVersion':1, 'status':'external-unknown',
+        'reason':f'Deterministic {family} adapter v1, no agent prompt; actual parser provenance is in evidence.'}
+    coverage_data = {'family':family, 'sourceSha256':source.sourceSha256,
+                     'mapping':document(mapping), 'items':coverage}
+    coverage_bytes = encode_json(coverage_data)
+    # The production compiler retains evidence, while work sidecars are disposable.
+    # Keep the actual trusted mapping with every source transformation for replay.
+    mapping_note = 'Trusted local mapping JSON: ' + encode_json(document(mapping)).decode().strip()
+    for entry in evidence:
+        if entry.get('kind') == 'source':
+            transformation = entry.setdefault('transformation', {'rule':'explicit-host-mapping-1'})
+            transformation['description'] = transformation.get('description','') + '\n' + mapping_note
+    issues = tuple(issues) + (Issue('STRUCTURED_COVERAGE','review',None,None,
+        f'Review explicit assignment, source inventory and mapping; coverage SHA-256 {hash_bytes(coverage_bytes)}.'),)
+    metadata = {'contractVersion':'0.1.0', 'candidateId':cid,'personId':source.personId,
+        'baseChangeSha256':base.changeSha256,'fhirVersion':vault.config.fhirVersion,'profileVersion':vault.config.profileVersion,
+        'sourceSha256':[source.sourceSha256], 'bundlePath':'bundle.json','evidencePath':'evidence.json',
+        'producer':{'kind':'adapter','name':f'deterministic {family} adapter v1 (no model)'},
+        'producerProvenance':provenance,'unresolved':[document(i) for i in issues]}
+    bundle = {'resourceType':'Bundle','type':'collection','entry':[
+        {'fullUrl':'urn:uuid:'+r['id'], 'resource':r} for r in resources]}
+    evidence = {'contractVersion':'0.1.0','personId':source.personId,
+                'producerProvenance':provenance,'entries':evidence}
+    with _writer_lock(vault):
+        _source_bytes(vault,source)
+        if head(vault,source.personId)!=base:
+            raise ArchiveError('STALE_BASE','Selected history changed during mapping.')
+        _new_directory(path)
+        for name,value in [('candidate.json',metadata),('bundle.json',bundle),('evidence.json',evidence)]:
+            _write(path/name,encode_json(value))
+        _write(path/'coverage.json',coverage_bytes)
+        control = _safe(vault.root,f'.runtime/intake/{cid}.json'); _mkdir(control.parent)
+        candidate_digest = _candidate_inputs(path)[1]
+        authority = {'receiptVersion':1, 'personId':source.personId,
+                     'sourceHashes':[source.sourceSha256], 'identityConfirmed':True,
+                     'family':family, 'mapping':document(mapping),
+                     'structuredCandidateSha256':candidate_digest,
+                     'structuredCoverageSha256':hash_bytes(coverage_bytes)}
+        # Source-local immutable issuance receipts outlive disposable runtime and
+        # work directories. Multiple explicit mappings get separate receipts.
+        retained = source.assetPath.parent/'structured'/f'{candidate_digest}.json'
+        _mkdir(retained.parent)
+        _write(retained,encode_json(authority))
+        _write(control,encode_json(authority))
+    return read_candidate(vault,path,person=source.personId)

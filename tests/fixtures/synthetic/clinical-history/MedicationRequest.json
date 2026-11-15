@@ -1,0 +1,61 @@
+[
+  {
+    "status": "active",
+    "intent": "order",
+    "medicationCodeableConcept": {
+      "text": "Synthetic prescription only"
+    },
+    "authoredOn": "2026-02",
+    "dosageInstruction": [
+      {
+        "text": "Take 2.500 mg once daily as prescribed; use unknown",
+        "doseAndRate": [
+          {
+            "doseQuantity": {
+              "value": 2.500,
+              "unit": "mg"
+            }
+          }
+        ]
+      }
+    ],
+    "note": [
+      {
+        "text": "Prescription; dispensing, use and adherence unknown."
+      }
+    ],
+    "resourceType": "MedicationRequest",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-request|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "stopped",
+    "intent": "order",
+    "medicationCodeableConcept": {
+      "text": "Synthetic discontinued prescription"
+    },
+    "doNotPerform": true,
+    "note": [
+      {
+        "text": "No stop date documented."
+      }
+    ],
+    "resourceType": "MedicationRequest",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-request|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

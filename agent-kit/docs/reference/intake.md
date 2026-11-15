@@ -163,3 +163,43 @@ required status/identity cannot be invented to force a resource. Notes/omissions
 remain reviewable and must be disclosed. Behavioral qualification of these shapes
 is not evidence that a model follows the instructions; fresh actual trials remain
 a separate coordinator gate.
+
+
+## Structured host issuance — kit 0.1.9
+
+Toolkit-retained non-PDF source receipts require original structured issuance when
+reading a candidate. The source-local `structured/<candidate-input-digest>.json`
+receipt binds the exact serialized candidate artifacts, coverage digest, person,
+source hash, family and local mapping. Candidate path/ID/producer claims and explicit
+source flags do not select or waive this authority. Missing/mismatched issuance
+fails `CANDIDATE_MISMATCH`; rebuild old unaccepted drafts through an explicit adapter
+mapping. Never infer new authority from editable work bytes. PDF and genuine legacy
+non-intake source preparation retain their own existing authority contracts.
+These protected receipts may outlive `.runtime`; accepted readers still require no
+runtime or work tree. Host protection of original/source-side receipts remains required.
+
+## Optional OCR versions
+
+`build_packet(..., ocrConfig=OcrConfig(...))` explicitly opts into the separate
+[local OCR capability](../how-to/run-ocr.md). `intake add --ocr-config PATH` reads
+that operator-controlled configuration. Without it, PDF-text behavior is unchanged.
+OCR artifacts and receipts are immutable and selected by extraction hash; they
+never replace the source's existing PDF-text extraction receipt. OCR derivatives
+are retained in the person's asset inventory and reviewed proposal closure.
+OCR allows genuine word boxes in displayed CropBox coordinates; page-only
+PDF-text artifacts still reject invented boxes. All OCR pages remain unresolved
+with mandatory OCR_VISUAL_REVIEW. Re-extraction/reconciliation, exact numeric
+source tokens, patient scope, review and publication use the existing contracts.
+
+An explicitly selected OCR version uses `ContextRequest.sourceExtractionHashes`
+together with `includeSourceExtractions`. Intake resolves exactly one immutable
+artifact per selected original; it checks the original/person, extraction receipt
+and derivatives without rerunning a parser. The host construction digest binds
+these selected receipts and their full sizes count toward the context budget.
+Unselected, changed or ambiguous versions fail before rendering.
+
+New accepted structured proposals retain exact `inputs/coverage.json` in addition
+to the three candidate inputs. Its mapping/coverage digest permits doctor and
+backup to account for a matching source-local issuance receipt when present.
+Unknown, altered and unaccepted sidecars remain visible audit issues. Issuance is
+resumable host state: accepted queries/history do not require it, work or runtime.

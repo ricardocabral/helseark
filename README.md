@@ -22,10 +22,14 @@ context packets and prompt rendering. Text-PDF intake retains sources and create
 scoped external-agent handoffs. Human-controlled preparation, exact-issue review
 and publication of PDF candidates are implemented, along with selected-person
 observations, timeline and exact-revision queries. Doctor, verified backup/restore
-and person export are implemented; explicit export-plan/export-review supports
-original-source inclusion or supplied derivative exchange. Corrections, recoverable
-person removal and non-destructive migration copies are implemented. Structured
-import remains unavailable. Inspect `helseark --help` and task availability; prompt files
+and person export are implemented; PDF source disclosure requires the explicit
+export-plan/export-review route for knowing original inclusion or supplied
+derivative exchange. Bounded FHIR R4 and explicitly mapped numeric CSV intake,
+eight native source-assertion history families, optional local OCR, and derived
+static HTML/CSV/SVG reports are integrated in this intermediate staged union.
+See [structured intake](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-structured-data.md),
+[native history](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/query-history.md), [OCR](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/run-ocr.md) and
+[reports](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/generate-reports.md). Corrections, recoverable person removal and non-destructive migration copies are implemented. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
 
 [Prepare a PDF import](https://github.com/ricardocabral/helseark/blob/main/docs/how-to/import-report.md)

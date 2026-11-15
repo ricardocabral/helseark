@@ -170,7 +170,7 @@ def init_vault(root: Path, config: VaultConfig | None = None) -> Vault:
     bundle = _bundled_root()
     lock_bytes = _read(bundle, "definitions/lock.json")
     if config is None:
-        config = VaultConfig(1, "0.1.0", "0.1.0", "4.0.1", "helseark-json-1",
+        config = VaultConfig(1, "0.1.0", "0.2.0", "4.0.1", "helseark-json-1",
                              hash_bytes(lock_bytes), _json(bundle / "agent-kit", "manifest.json")["kitVersion"], hash_bytes(_read(bundle / "agent-kit", "manifest.json")), str(uuid4()))
     if config.definitionLockSha256 != hash_bytes(lock_bytes):
         raise ArchiveError("DEFINITION_MISMATCH", "Requested definitions are not bundled.")
@@ -222,9 +222,9 @@ def open_definitions(root: Path) -> Vault:
     value = _json(root, "vault.json")
     # Check supported pins before reporting a generic envelope error.
     expected = {"archiveFormatVersion": 1, "contractVersion": "0.1.0",
-                "profileVersion": "0.1.0", "fhirVersion": "4.0.1",
+                "fhirVersion": "4.0.1",
                 "serializationVersion": "helseark-json-1"}
-    if not isinstance(value, dict) or any(value.get(k) != v for k, v in expected.items()):
+    if not isinstance(value, dict) or value.get("profileVersion") not in ("0.1.0", "0.2.0") or any(value.get(k) != v for k, v in expected.items()):
         raise ArchiveError("UNSUPPORTED_VERSION", "Vault version pins are unsupported.")
     try:
         vault = Vault(root, VaultConfig(**value))
@@ -290,8 +290,16 @@ def _verify_inputs(directory: Path, proposal: dict):
     if 'importReview' not in proposal:
         return
     inputs = proposal.get('inputs', [])
-    if {i['path'] for i in inputs} != {'inputs/candidate.json','inputs/bundle.json','inputs/evidence.json'} or len(inputs) != 3:
-        raise ArchiveError('INTEGRITY', 'Import must retain exactly three candidate inputs.')
+    required = {'inputs/candidate.json','inputs/bundle.json','inputs/evidence.json'}
+    selected = {i['path'] for i in inputs}
+    if selected not in (required, required | {'inputs/coverage.json'}) or len(selected) != len(inputs):
+        raise ArchiveError('INTEGRITY', 'Import must retain three candidate inputs and optional structured coverage.')
+    if 'inputs/coverage.json' in selected:
+        coverage = _json(directory, 'inputs/coverage.json')
+        if (not isinstance(coverage,dict) or set(coverage) != {'family','sourceSha256','mapping','items'} or
+                coverage['family'] not in ('fhir-r4','csv-metrics') or
+                not isinstance(coverage['mapping'],dict) or not isinstance(coverage['items'],list)):
+            raise ArchiveError('INTEGRITY', 'Invalid retained structured coverage.')
     for item in inputs:
         if hash_bytes(_read(directory,item['path'])) != item['sha256']:
             raise ArchiveError('REVIEW_MISMATCH','Retained candidate input changed.')
@@ -648,6 +656,8 @@ def commit_candidate(vault: Vault, proposal: "PreparedProposal", receipt: "Revie
     from .review import _verify_prepared, _decision
     from .contracts import CommitResult, ReviewDecision
     def verify_receipt(directory, *, accepted=False):
+        if receipt is None:
+            raise ArchiveError('REVIEW_REQUIRED', 'Record an explicit human review before publication.')
         data=_read(directory,'review.json')
         if (receipt.path != proposal.path/'review.json' or receipt.proposalSha256!=proposal.proposalSha256 or
             receipt.validationSha256!=hash_bytes(_read(directory,'validation.json')) or receipt.base!=proposal.base or
@@ -684,16 +694,31 @@ def _check_reference(reference, current, exact_revisions, path):
         raise ArchiveError('UNRESOLVED_REVISION','Accepted resource has an unresolved local reference.',{'path':path})
 
 
-def _references(value):
-    """Yield FHIR Reference strings without interpreting text or attachment URLs."""
+def _reference_nodes(value, pointer='', resource_type=None):
+    """Yield actual FHIR Reference objects in the supported native surface.
+
+    Immunization.education.reference is a uri primitive, not a Reference. Keep
+    this distinction shared by scope validation, publication and exchange maps.
+    Paths are JSON pointers; resource_type is inherited only from the root.
+    """
+    if resource_type is None and isinstance(value, dict):
+        resource_type = value.get('resourceType')
     if isinstance(value, dict):
-        if 'reference' in value:
-            yield value['reference']
-        for item in value.values():
-            yield from _references(item)
+        education_uri = resource_type == 'Immunization' and bool(re.fullmatch(r'/education/[0-9]+', pointer))
+        if 'reference' in value and not education_uri:
+            yield pointer, value
+        for key, item in value.items():
+            token = key.replace('~', '~0').replace('/', '~1')
+            yield from _reference_nodes(item, pointer + '/' + token, resource_type)
     elif isinstance(value, list):
-        for item in value:
-            yield from _references(item)
+        for index, item in enumerate(value):
+            yield from _reference_nodes(item, pointer + '/' + str(index), resource_type)
+
+
+def _references(value):
+    """Yield only actual Reference strings; never interpret clinical text/URIs."""
+    for _, node in _reference_nodes(value):
+        yield node['reference']
 
 
 def _support_paths(vault: Vault) -> set[str]:
@@ -725,6 +750,24 @@ def _person_paths(vault: Vault, person: str, history) -> set[str]:
         proposal = _json(directory, 'proposal.json')
         paths.update(prefix + i['path'] for i in proposal.get('inputs', []))
         paths.update(f"people/{person}/{b['path']}" for b in proposal.get('importReview', {}).get('bindings', []))
+        # Issuance is resumable host state, not a requirement for accepted reads.
+        # Recognize only receipts exactly explained by immutable accepted inputs;
+        # arbitrary or unaccepted sidecars still receive the unknown/orphan audit.
+        if any(i['path']=='inputs/coverage.json' for i in proposal.get('inputs', [])):
+            coverage = _json(directory, 'inputs/coverage.json')
+            candidate = _json(directory, 'inputs/candidate.json')
+            for digest in candidate['sourceSha256']:
+                relative = f"people/{person}/assets/sha256/{digest}/structured/{proposal['candidateSha256']}.json"
+                receipt_path = _safe(vault.root, relative)
+                if receipt_path.exists():
+                    expected = {'receiptVersion':1, 'personId':person,
+                        'sourceHashes':candidate['sourceSha256'], 'identityConfirmed':True,
+                        'family':coverage['family'], 'mapping':coverage['mapping'],
+                        'structuredCandidateSha256':proposal['candidateSha256'],
+                        'structuredCoverageSha256':hash_bytes(_read(directory,'inputs/coverage.json'))}
+                    if _read(vault.root, relative) != encode_json(expected):
+                        raise ArchiveError('INTEGRITY', 'Structured host state differs from accepted mapping.', {'path':relative})
+                    paths.add(relative)
     return paths
 
 
@@ -791,7 +834,7 @@ def doctor(vault: Vault) -> IntegrityReport:
                 for relative in _files(asset_root):
                     path = f'people/{person}/assets/{relative}'
                     # Sidecar receipts are bound inside Task6 proposals as retained artifacts.
-                    if path not in assets and path not in bound_paths:
+                    if path not in assets and path not in bound_paths and path not in canonical:
                         orphans.append(path)
         except ArchiveError as error:
             problem(error.code, f'people/{person}/assets', 'Preserve and inspect unsafe asset entries.')

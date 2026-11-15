@@ -19,6 +19,7 @@ Documentation = "https://github.com/ricardocabral/helseark#documentation-and-par
 
 [project.optional-dependencies]
 pdf = ["pypdf==7.0.0"]
+ocr = ["pypdf==7.0.0"]
 
 [project.scripts]
 helseark = "helseark.cli:main"
@@ -75,6 +76,8 @@ where = ["src"]
 "share/helseark/docs/explanation" = ["docs/explanation/*.md"]
 "share/helseark/agent-kit/docs" = ["agent-kit/docs/index.md"]
 "share/helseark/agent-kit/docs/explanation" = ["agent-kit/docs/explanation/*.md"]
+"share/helseark/profiles/r4/0.2.0" = ["profiles/r4/0.2.0/*"]
+"share/helseark/agent-kit/profiles/r4/0.2.0" = ["agent-kit/profiles/r4/0.2.0/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

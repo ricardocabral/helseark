@@ -1,0 +1,82 @@
+{
+  "resourceType": "StructureDefinition",
+  "id": "helseark-medication-statement",
+  "url": "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-statement",
+  "version": "0.2.0",
+  "name": "HelsearkMedicationStatement",
+  "title": "Helseark MedicationStatement",
+  "status": "active",
+  "date": "2026-11-14",
+  "publisher": "Helseark project",
+  "description": "Reviewed patient-scoped native source assertions. Unsupported details remain in the source; no inference or automatic reconciliation.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "MedicationStatement",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/MedicationStatement",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "MedicationStatement",
+        "path": "MedicationStatement",
+        "constraint": [
+          {
+            "key": "helseark-source-assertion",
+            "severity": "error",
+            "human": "Retain source assertion and uncertainty; no inferred clinical conclusions. Every scalar requires evidence and human review.",
+            "expression": "meta.profile.where($this = 'https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-medication-statement|0.2.0').exists()"
+          }
+        ]
+      },
+      {
+        "id": "MedicationStatement.id",
+        "path": "MedicationStatement.id",
+        "min": 1
+      },
+      {
+        "id": "MedicationStatement.meta",
+        "path": "MedicationStatement.meta",
+        "min": 1
+      },
+      {
+        "id": "MedicationStatement.implicitRules",
+        "path": "MedicationStatement.implicitRules",
+        "max": "0"
+      },
+      {
+        "id": "MedicationStatement.contained",
+        "path": "MedicationStatement.contained",
+        "max": "0"
+      },
+      {
+        "id": "MedicationStatement.extension",
+        "path": "MedicationStatement.extension",
+        "max": "0"
+      },
+      {
+        "id": "MedicationStatement.modifierExtension",
+        "path": "MedicationStatement.modifierExtension",
+        "max": "0"
+      },
+      {
+        "id": "MedicationStatement.subject",
+        "path": "MedicationStatement.subject",
+        "min": 1,
+        "type": [
+          {
+            "code": "Reference",
+            "targetProfile": [
+              "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-patient|0.1.0"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "MedicationStatement.subject.reference",
+        "path": "MedicationStatement.subject.reference",
+        "min": 1
+      }
+    ]
+  }
+}

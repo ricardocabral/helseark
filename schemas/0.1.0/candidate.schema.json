@@ -58,7 +58,10 @@
       "type": "object"
     },
     "profileVersion": {
-      "const": "0.1.0"
+      "enum": [
+        "0.1.0",
+        "0.2.0"
+      ]
     },
     "sourceSha256": {
       "items": {

@@ -211,10 +211,16 @@ class ContextRequest:
     maxDataBytes: int = 262144
     continuation: ContextContinuation | None = None
     includeSourceExtractions: bool = False
+    sourceExtractionHashes: tuple[Sha256, ...] = ()
 
     def __post_init__(self):
         object.__setattr__(self, 'sourceHashes', tuple(self.sourceHashes))
         object.__setattr__(self, 'resourceRefs', tuple(self.resourceRefs))
+        object.__setattr__(self, 'sourceExtractionHashes', tuple(self.sourceExtractionHashes))
+        for digest in self.sourceExtractionHashes:
+            sha256_string(digest)
+        if self.sourceExtractionHashes and not self.includeSourceExtractions:
+            raise ArchiveError('INVALID_INPUT', 'Extraction versions require explicit extraction selection.')
         for digest in self.sourceHashes:
             sha256_string(digest)
         if (type(self.includeSourceExtractions) is not bool or
@@ -400,6 +406,7 @@ class TimelineRow:
     resultRefs: tuple[ResourceRef, ...]
     sourceRefs: tuple[EvidenceRef, ...]
     issues: tuple[Issue, ...]
+    resource: JsonValue
 
 
 @dataclass(frozen=True)

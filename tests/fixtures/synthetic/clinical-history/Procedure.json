@@ -1,0 +1,49 @@
+[
+  {
+    "status": "completed",
+    "code": {
+      "text": "Synthetic procedure"
+    },
+    "performedPeriod": {
+      "start": "2025-02",
+      "end": "2025-03"
+    },
+    "outcome": {
+      "text": "Outcome as stated in synthetic source"
+    },
+    "note": [
+      {
+        "text": "No additional clinical interpretation."
+      }
+    ],
+    "resourceType": "Procedure",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-procedure|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "not-done",
+    "code": {
+      "text": "Synthetic planned procedure"
+    },
+    "statusReason": {
+      "text": "Cancelled per source; date unknown"
+    },
+    "resourceType": "Procedure",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-procedure|0.2.0"
+      ]
+    },
+    "subject": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "status": "completed",
+    "vaccineCode": {
+      "text": "Synthetic vaccine"
+    },
+    "occurrenceDateTime": "2020",
+    "primarySource": false,
+    "education": [{"reference": "https://synthetic.invalid/vaccine-leaflet", "publicationDate": "2019"}],
+    "reportOrigin": {
+      "text": "Patient report"
+    },
+    "doseQuantity": {
+      "value": 0.500,
+      "unit": "mL"
+    },
+    "protocolApplied": [
+      {
+        "doseNumberString": "Unknown per source",
+        "series": "Series unknown"
+      }
+    ],
+    "resourceType": "Immunization",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-immunization|0.2.0"
+      ]
+    },
+    "patient": {
+      "reference": "Patient/PERSON"
+    }
+  },
+  {
+    "status": "not-done",
+    "vaccineCode": {
+      "text": "Synthetic vaccine"
+    },
+    "occurrenceString": "Date unknown; not administered",
+    "statusReason": {
+      "text": "Declined per source"
+    },
+    "resourceType": "Immunization",
+    "id": "22222222-2222-4222-8222-222222222222",
+    "meta": {
+      "profile": [
+        "https://github.com/ricardocabral/helseark/fhir/StructureDefinition/helseark-immunization|0.2.0"
+      ]
+    },
+    "patient": {
+      "reference": "Patient/PERSON"
+    }
+  }
+]

@@ -33,6 +33,9 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
+ocr = [
+    { name = "pypdf" },
+]
 pdf = [
     { name = "pypdf" },
 ]
@@ -45,9 +48,10 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "jsonschema", specifier = "==4.25.1" },
+    { name = "pypdf", marker = "extra == 'ocr'", specifier = "==7.0.0" },
     { name = "pypdf", marker = "extra == 'pdf'", specifier = "==7.0.0" },
 ]
-provides-extras = ["pdf"]
+provides-extras = ["pdf", "ocr"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = "==9.0.3" }]

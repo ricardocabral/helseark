@@ -6,9 +6,10 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 
-from .archive import init_vault, open_vault, open_definitions, add_person, _json, _open_vault_metadata, _bundled_root
+from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
 from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
-from .query import observations, timeline, parse_reference
+from .query import observations, timeline, history, parse_reference
+from .presentation import render_static_report
 from .archive import resolve
 from .contracts import ObservationFilter
 from .intake import add_source, build_packet, read_candidate, prepare_candidate, start_correction, _regular
@@ -40,13 +41,16 @@ _EXIT = {
     "CAPABILITY_UNAVAILABLE": 6, "MISSING_KIT": 6, "INVALID_KIT": 6, "KIT_MISMATCH": 5,
     "PERSON_NOT_FOUND": 2, "RESOURCE_NOT_FOUND": 2, "SOURCE_MISSING": 2,
     "ARCHIVE_BUSY": 4, "STALE_BASE": 4,
-    "UNSUPPORTED_VERSION": 6, "DEFINITION_MISMATCH": 5,
+    "UNSUPPORTED_VERSION": 6, "UNSUPPORTED_PROFILE": 6, "DEFINITION_MISMATCH": 5,
     "NUMERIC_LIMIT": 2, "DUPLICATE_KEY": 2, "DEPTH_LIMIT": 2,
     "INVALID_JSON": 2, "INVALID_INPUT": 2, "INVALID_PERSON": 2,
     "DESTINATION_EXISTS": 2, "INVALID_ID": 2, "INVALID_REFERENCE": 2,
     "SOURCE_AUTHORITY_REQUIRED": 3, "SOURCE_SCOPE_MISMATCH": 2, "IDENTITY_UNCONFIRMED": 3, "REEXTRACTION_REQUIRED": 3, "RECONCILIATION_REQUIRED": 3, "CANDIDATE_MISMATCH": 5, "VALIDATION_BLOCKED": 2, "REVIEW_MISMATCH": 3,
     "UNSAFE_PATH": 2, "SOURCE_TOO_LARGE": 2, "PAGE_LIMIT": 2,
     "TEXT_FIELD_LIMIT": 2, "RESOURCE_LIMIT": 2, "INTAKE_ISSUES_MISSING": 2,
+    "CSV_MAPPING_REQUIRED": 2, "CSV_INPUT_INVALID": 2,
+    "INVALID_FILTER": 2, "UNKNOWN_HEAD": 2,
+    "IDENTITY_MAPPING_REQUIRED": 2, "AMBIGUOUS_REFERENCE": 2,
     "INVALID_ENVELOPE": 2, "PERSON_MISMATCH": 2, "UNSUPPORTED_RESOURCE": 6,
     "MISSING_DEFINITION": 6, "UNSUPPORTED_DIALECT": 6, "REVIEW_REQUIRED": 3,
 }
@@ -80,6 +84,17 @@ def main(argv=None):
     ingest.add_argument('--agent-output', type=Path, help='Fresh permitted external-agent output root.')
     ingest.add_argument('--confirm-person', action='store_true', help='Explicit human assignment; source text cannot supply this.')
     ingest.add_argument('--json', action='store_true')
+    ingest.add_argument('--ocr-config', type=Path, help='Explicit pinned local OCR configuration JSON; no downloads.')
+    structured = intakes.add_parser('fhir-r4', help='Map a retained R4 export using explicit local Patient/provider configuration.')
+    structured.add_argument('source', type=Path)
+    structured.add_argument('--person', required=True)
+    structured.add_argument('--mapping', type=Path, required=True, help='Trusted local IdentityMapping JSON, never export prose.')
+    structured.add_argument('--json', action='store_true')
+    metrics = intakes.add_parser('metrics-csv', help='Map CSV rows using explicit trusted column/date/decimal configuration.')
+    metrics.add_argument('source', type=Path)
+    metrics.add_argument('--person', required=True)
+    metrics.add_argument('--mapping', type=Path, required=True, help='Trusted local CsvMetricMapping JSON, never source prose.')
+    metrics.add_argument('--json', action='store_true')
     schema = commands.add_parser("schema", help="Export pinned offline contracts and definitions.")
     schemas = schema.add_subparsers(dest="schema_command", required=True)
     export = schemas.add_parser("export")
@@ -96,6 +111,11 @@ def main(argv=None):
         if kind == 'proposal':
             command.add_argument('--official-config',type=Path,help='Host-controlled optional offline validator configuration; writes a new pre-review report.')
             command.add_argument('--require-official',action='store_true',help='Block if explicit official validator configuration is absent.')
+
+    report = commands.add_parser('report', help='Render an offline derived HTML/CSV snapshot; no accepted writes.')
+    report.add_argument('--person', required=True)
+    report.add_argument('--out', type=Path, help='Fresh directory; default vault/derived/reports/PERSON.')
+    report.add_argument('--json', action='store_true')
     candidate = commands.add_parser('candidate', help='Prepare, inspect, review and publish exact bytes; human control only.')
     candidates = candidate.add_subparsers(dest='candidate_command', required=True)
     for verb in ('prepare','review','commit'):
@@ -111,7 +131,7 @@ def main(argv=None):
             action.add_argument('--reconciliation',type=Path,help='User-controlled JSON map: candidate urn to Type/UUID or null (new fact).')
         if verb=='review':
             action.add_argument('--decision',type=Path,help='User-controlled ReviewDecision JSON; omit to inspect only.')
-    for name in ('observations','timeline','record'):
+    for name in ('observations','timeline','history','record'):
         query = commands.add_parser(name, help='Read one person at a current or exact historical Head.')
         query.add_argument('--person',required=True)
         query.add_argument('--at-head',type=Path,help='Path to a JSON file containing the exact Head object.')
@@ -123,6 +143,8 @@ def main(argv=None):
             query.add_argument('--from-date')
             query.add_argument('--to-date')
             query.add_argument('--include-invalidated',action='store_true')
+        if name == 'history':
+            query.add_argument('--kind', action='append', required=True)
         if name == 'record':
             query.add_argument('--resource',required=True,help='Type/UUID or Type/UUID/_history/UUID.')
     correction = commands.add_parser('correct', help='Start an editable local correction; explicit review is still required.')
@@ -285,7 +307,7 @@ def main(argv=None):
                     raise ArchiveError('INVALID_ENVELOPE','Invalid vault configuration.') from None
             elif args.command == 'schema':
                 vault = open_definitions(Path(path))
-            elif args.command in ('intake','candidate','observations','timeline','record','correct') or (args.command == 'validate' and args.validation_command == 'candidate'):
+            elif args.command in ('intake','candidate','observations','timeline','history','record','report','correct') or (args.command == 'validate' and args.validation_command == 'candidate'):
                 vault = _open_vault_metadata(Path(path))
             else:
                 vault = open_vault(Path(path))
@@ -325,10 +347,13 @@ def main(argv=None):
             elif args.command == 'export-review':
                 path = record_disclosure(vault,args.plan,decode_json(_regular(args.decision, DISCLOSURE_BYTES)))
                 output = {'path':str(path)}
+            elif args.command == 'report':
+                destination = args.out if args.out is not None else vault.root/'derived/reports'/args.person
+                output = {'path': str(render_static_report(vault, args.person, destination))}
             elif args.command == 'export':
                 output = document(export_person(vault,args.person,args.out,
                     ExportSelection(args.mode,tuple(parse_reference(r) for r in args.resource),not args.no_sources),review=args.review))
-            elif args.command in ('observations','timeline','record'):
+            elif args.command in ('observations','timeline','history','record'):
                 at = None
                 if args.at_head:
                     raw = decode_json(args.at_head.read_bytes())
@@ -341,15 +366,40 @@ def main(argv=None):
                 if args.command == 'observations':
                     output = document(list(observations(vault,args.person,ObservationFilter(
                         args.code_system,args.code,args.label,args.from_date,args.to_date,args.include_invalidated),at=at)))
+                elif args.command == 'history':
+                    output = list(history(vault,args.person,args.kind,at=at))
                 elif args.command == 'timeline':
                     output = document(list(timeline(vault,args.person,at=at)))
                 else:
                     output = resolve(vault,args.person,parse_reference(args.resource),at=at)
             elif args.command == 'intake':
+                ocr_config = None
+                if getattr(args, 'ocr_config', None):
+                    from .adapters.ocr import OcrConfig
+                    raw_config = decode_json(_regular(args.ocr_config, 65536))
+                    try:
+                        ocr_config = OcrConfig(**{k: Path(v) if k in ('outputDirectory','engine','renderer','model') else v for k,v in raw_config.items()})
+                    except (TypeError, ValueError, AttributeError):
+                        raise ArchiveError('INVALID_INPUT','Invalid OCR configuration.') from None
                 source = add_source(vault, args.person, args.source)
-                built = build_packet(vault, source, args.packet,
-                    identityConfirmed=args.confirm_person, outputDirectory=args.agent_output)
-                output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
+                if args.intake_command == 'fhir-r4':
+                    from .adapters.fhir_r4 import import_fhir_r4, IdentityMapping
+                    raw = decode_json(_regular(args.mapping, 65536))
+                    if not isinstance(raw,dict) or set(raw) != {'patientReference','localPersonId','assignmentReason','provider'}:
+                        raise ArchiveError('IDENTITY_MAPPING_REQUIRED','Expected trusted local IdentityMapping JSON.')
+                    output = document(import_fhir_r4(source,args.person,IdentityMapping(**raw)))
+                elif args.intake_command == 'metrics-csv':
+                    from .adapters.csv_metrics import import_metrics_csv, CsvMetricMapping
+                    raw = decode_json(_regular(args.mapping, 65536))
+                    required = {'delimiter','encoding','dateColumn','valueColumn','unitColumn','codeColumn',
+                                'dateFormat','decimalSeparator','localPersonId','assignmentReason'}
+                    if not isinstance(raw,dict) or not required.issubset(raw) or set(raw)-required-{'timezone','codeSystem'}:
+                        raise ArchiveError('CSV_MAPPING_REQUIRED','Expected trusted local CsvMetricMapping JSON.')
+                    output = document(import_metrics_csv(source,args.person,CsvMetricMapping(**raw)))
+                else:
+                    built = build_packet(vault, source, args.packet,
+                        identityConfirmed=args.confirm_person, outputDirectory=args.agent_output, ocrConfig=ocr_config)
+                    output = {**document(built), 'trustedContextSha256': built.trustedContextSha256}
             elif args.command == 'candidate':
                 if args.candidate_command=='prepare':
                     candidate=read_candidate(vault,args.path,person=args.person)
@@ -421,7 +471,7 @@ def main(argv=None):
         if args.json or args.command in ('doctor','backup','export','export-plan','export-review','migrate'):
             sys.stdout.buffer.write(encode_json(output))
         else:
-            if args.command in ('observations','timeline','record'):
+            if args.command in ('observations','timeline','history','record'):
                 sys.stdout.buffer.write(encode_json(output))
             elif args.command == "validate":
                 if report.officialRun is not None:
@@ -434,7 +484,8 @@ def main(argv=None):
                 print(encode_json(output).decode(),end='')
             elif args.command == 'intake':
                 print(output['path'])
-                print('Host-retained context SHA-256: '+output['trustedContextSha256'])
+                if 'trustedContextSha256' in output:
+                    print('Host-retained context SHA-256: '+output['trustedContextSha256'])
             elif args.command == 'agent' and args.agent_command == 'tasks':
                 for task in output:
                     print(task['id'] + ': ' + task['availability']['status'])
