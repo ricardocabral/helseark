@@ -31,6 +31,10 @@ See [structured intake](docs/how-to/import-structured-data.md),
 [native history](docs/how-to/query-history.md), [OCR](docs/how-to/run-ocr.md) and
 [reports](docs/how-to/generate-reports.md). Corrections, recoverable person removal and non-destructive migration copies are implemented. Inspect `helseark --help` and task availability; prompt files
 are not proof of a supported command. No model provider is required or invoked.
+These staged guides use paths in this revision; public `main` may lag. Offline,
+open `docs/how-to/` in the source distribution, `share/helseark/docs/how-to/`
+under the installed Python environment, or `agent-kit/0.1.15/docs/how-to/`
+in a newly initialized vault. Existing vaults retain their pinned kit guides.
 
 [Prepare a PDF import](docs/how-to/import-report.md)
 or follow the [synthetic first-intake lesson](docs/tutorials/first-archive.md).

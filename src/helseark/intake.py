@@ -624,7 +624,7 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
     from datetime import datetime, timezone
     from .archive import _history, _versions, resolve
     from .contracts import PreparedProposal, ResourceRef
-    from .validation import validate_candidate, validate_proposal
+    from .validation import validate_candidate, validate_proposal, _walk
     from .review import _blocked, read_prepared
     raw, candidate_digest = _candidate_inputs(candidate.path)
     history = _history(vault,candidate.personId)
@@ -754,6 +754,18 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
         inputs.append({'path':'inputs/coverage.json','sha256':hash_bytes(data)})
     assets=[]; bindings=[]
     digests=set(sources)
+    # Native attachments are retained assets too, even when the Bundle itself
+    # supplies the mapping evidence. Candidate validation has checked locality,
+    # selected-person ownership, size and hash before this inventory is built.
+    for resource in resources:
+        for pointer, node in _walk(resource):
+            if (isinstance(node, dict) and
+                    (pointer.endswith('/attachment') or
+                     resource['resourceType'] == 'DiagnosticReport' and
+                     re.fullmatch(r'/presentedForm/[0-9]+', pointer))):
+                match = re.fullmatch(r'assets/sha256/([0-9a-f]{64})/blob', node.get('url', ''))
+                if match:
+                    digests.add(match[1])
     for e in evidence['entries']:
         digest=e.get('locator',{}).get('extractionSha256')
         if digest: digests.add(digest)
@@ -765,9 +777,11 @@ def _prepare_candidate_locked(vault: Vault, candidate: Candidate, *, clock: Call
             digests.update(d['sha256'] for d in artifact['derivatives'])
     for digest in sorted(digests):
         relative=f'assets/sha256/{digest}/blob'; data=_regular(_safe(vault.root,f'people/{fresh.personId}/{relative}'),LIMITS.sourceBytes)
-        declared_media = {a['attachment']['contentType'] for r in resources if r['resourceType']=='DocumentReference'
-                          for a in r.get('content',[]) if a.get('attachment',{}).get('url')==relative
-                          and 'contentType' in a['attachment']}
+        declared_media = {node['contentType'] for r in resources for pointer,node in _walk(r)
+                          if isinstance(node,dict) and node.get('url')==relative
+                          and (pointer.endswith('/attachment') or r['resourceType']=='DiagnosticReport'
+                               and re.fullmatch(r'/presentedForm/[0-9]+',pointer))
+                          and 'contentType' in node}
         if len(declared_media)>1:
             raise ArchiveError('INVALID_INPUT','Conflicting source attachment media types.')
         assets.append({'path':relative,'sha256':digest,'size':len(data),'mediaType':next(iter(declared_media),

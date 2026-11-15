@@ -689,8 +689,8 @@
       "files": [
         {
           "path": "docs/reference/clinical-model.md",
-          "sha256": "f11a1cdeda42aa8a3eab8074bd22ff5cc025f5f5c4040f3907657da723c5ef74",
-          "size": 33655
+          "sha256": "a72c23f293c4e7a54d910eb5b2335d32924d39fc8f933f7c72e2e7b66f5cf56a",
+          "size": 34242
         }
       ],
       "license": "MIT",
@@ -1196,8 +1196,8 @@
       "files": [
         {
           "path": "profiles/r4/0.2.0/README.md",
-          "sha256": "840a19a1e795cd923134e190a63a16bd9071dfc3752f48237ebf0aa80c189173",
-          "size": 4250
+          "sha256": "8bcb8e32673b302305ff16994b49c2f480e8b14b8448e1f78fbf08d11f36f703",
+          "size": 4389
         }
       ],
       "license": "MIT",
@@ -1235,8 +1235,8 @@
       "files": [
         {
           "path": "profiles/r4/0.2.0/StructureDefinition-helseark-provenance.json",
-          "sha256": "514639b3b5130e87b50bfd1cf38d684b406b25ee9a088837431850539e0e5281",
-          "size": 5173
+          "sha256": "98c91a58f2e24e1d3585e627489c5394dada378a07d0c0fb257bf9373407f894",
+          "size": 4568
         }
       ],
       "license": "MIT",
@@ -1365,8 +1365,8 @@
       "files": [
         {
           "path": "docs/how-to/import-structured-data.md",
-          "sha256": "e83d5c4334c6c84fc260fc40d2a3bf8b7dd686b5e3855d4d9f2a99078c0f7ecb",
-          "size": 8539
+          "sha256": "cef9cd5222e50c6f8a9d99ceeaa407dcda66467cecbc7d71bc52eb91eb0eedf7",
+          "size": 9072
         }
       ],
       "license": "MIT",

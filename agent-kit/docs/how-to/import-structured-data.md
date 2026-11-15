@@ -11,7 +11,13 @@ Create the mapping yourself outside the untrusted export:
 `patientReference` must name exactly one incoming Patient by Type/id or fullUrl.
 No identity matching, source-prose configuration, EHR login or network retrieval occurs.
 FHIR R4 4.0.1 JSON Bundles support the existing bounded Observation, DiagnosticReport,
-Specimen, DocumentReference and Provenance profiles. Patient fields remain in the
+Specimen, DocumentReference and Provenance profiles, plus the eight native
+[source-assertion history families](../reference/clinical-model.md#history-profile-compatibility-and-query)
+in profile-set 0.2.0 vaults. Imported Provenance uses the selected vault profile
+pin; source declarations may use the frozen 0.1.0 or applicable current profile.
+Unknown profile declarations remain blocking. Local attachments must already be
+retained for the selected person; preparation includes their assets and receipts
+in the immutable proposal inventory. No attachment is fetched from the network. Patient fields remain in the
 original export with an explicit local assignment; they never overwrite local identity.
 Clinical fields and statuses stay native FHIR. Native IDs/version metadata are retained
 in source evidence and identifiers; candidate IDs are new UUIDs. Preparation assigns
