@@ -1,7 +1,7 @@
 # Helseark documentation
 
 Helseark keeps a local personal or family archive of evidence-linked FHIR R4
-records. This documentation describes toolkit 0.1.2 and kit 0.1.15, archive format 1,
+records. This documentation describes toolkit 0.1.2 and kit 0.1.17, archive format 1,
 contract 0.1.0, profile-set 0.2.0, exact-issue review 0.1.1 and serializer helseark-json-1.
 It is under development and is not production-qualified. Human review remains
 mandatory; baseline validation does not establish clinical accuracy.

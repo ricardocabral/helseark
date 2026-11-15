@@ -248,12 +248,21 @@ def fhir_collection(vault: Vault, person: str, resourceRefs: tuple[ResourceRef, 
 
 
 def _scope_sources(vault, person):
-    # Person assignment authorizes intake, not disclosure of every page of a PDF.
-    # No explicit host-recorded review was supplied: retain default denial.
+    # Inspect hash-verified accepted resources, not agent media declarations or
+    # current-only references: selected source delivery copies historical assets.
     for _, directory, change in _history(vault, person):
-        if any(a['mediaType']=='application/pdf' for a in change['assets']):
+        native_attachment = False
+        for item in change['resources']:
+            resource = _json(directory, item['path'])
+            if resource['resourceType'] == 'DocumentReference':
+                native_attachment |= any(c.get('attachment', {}).get('url', '').startswith('assets/sha256/')
+                                         for c in resource.get('content', []))
+            elif resource['resourceType'] == 'DiagnosticReport':
+                native_attachment |= any(a.get('url', '').startswith('assets/sha256/')
+                                         for a in resource.get('presentedForm', []))
+        if native_attachment or any(a['mediaType']=='application/pdf' for a in change['assets']):
             raise ArchiveError('SOURCE_SCOPE_REVIEW_REQUIRED',
-                               'PDF disclosure requires a reviewed source-scope or derivative workflow. Use selected-current --no-sources for a clinical snapshot.')
+                               'Original attachment disclosure requires a reviewed source-scope or derivative workflow. Use selected-current --no-sources for a clinical snapshot.')
 
 
 def _manifest(stage, kind, people, heads, omissions, mapping, counts, disclosure=None):

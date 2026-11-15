@@ -1,6 +1,6 @@
 # Compatibility and migration contracts
 
-Applies to toolkit 0.1.2 and kit 0.1.15. Version axes are independent.
+Applies to toolkit 0.1.2 and kit 0.1.17. Version axes are independent.
 
 | Axis | Supported value | Unsupported behavior |
 | --- | --- | --- |
@@ -10,7 +10,7 @@ Applies to toolkit 0.1.2 and kit 0.1.15. Version axes are independent.
 | FHIR | R4 4.0.1 | Separate blocked FHIR conversion report |
 | Serialization | helseark-json-1 | Explicit error |
 | Agent protocol | 1 | Explicit error |
-| Current kit | 0.1.15 | Exact retained compatible manifests required |
+| Current kit | 0.1.17 | Exact retained compatible manifests required |
 | Test-only layout | helseark-test-only-layout-0 | Requires explicit fixture opt-in; no public release status |
 
 Production archive 1 semantics are frozen for this release. New toolkit code does
@@ -95,7 +95,7 @@ required-definition/kit inventory, and unchanged new hashes for both lossless
 operations. It never compares historical mutable work or source heads to today's
 state, requires no signature, and does not rewrite valid old receipts. Kit 0.1.8
 remains a compatible historical input; other branch-local kit numbers are not aliases for this combined inventory.
-New vaults use 0.1.15; existing vaults retain their exact pins and accepted history.
+New vaults use 0.1.17; existing vaults retain their exact pins and accepted history.
 
 Person removal plans/results inventory retained shared receipts in
 `retainedLocalMetadata` (path, SHA-256, size, personId, sourceHead). Approval binds
@@ -116,3 +116,11 @@ candidate, proposal, change and evidence. Their envelope contractVersion stays
 0.1.0; the schema identifiers distinguish expanded profile/CSV rules. Frozen
 0.1.0 schema bytes are retained. Dispatch selects 0.1.1 only from the vault’s own
 pins; earlier vaults (including earlier 0.2.0 kits) retain their original rules.
+
+Kit 0.1.17 adds host-bound corrections for accepted structured sources and
+media-independent source disclosure review for native original attachments.
+No schema/profile or historical accepted bytes change. Existing vaults keep their
+pins; existing compatible readers remain usable. New-runtime source-inclusive
+export of native non-PDF attachments now requires explicit disclosure review.
+Unfinished correction drafts created before the new host binding must be started
+again; do not edit old accepted inputs or source issuance receipts.

@@ -369,7 +369,7 @@ Orphan sidecars/blobs and incomplete staging are reported and never discarded.
 Review binding checks use the retained proposal, three candidate inputs,
 validation, review and source/extraction receipts, without work or runtime caches.
 
-The combined clinical/portability distributable uses agent kit `0.1.15`. It retains
+The combined clinical/portability distributable uses agent kit `0.1.17`. It retains
 contract `0.1.0` archive pins and the separate `0.1.1` exact-issue review receipt
 contract. This new kit identity does not change existing vaults, historical kit
 content, accepted receipts or their original definition/license pins.

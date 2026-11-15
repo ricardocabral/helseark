@@ -1,4 +1,4 @@
-# prepare-export — prompt 0.1.0
+# prepare-export — prompt 0.1.1
 
 Fixed task ID: `export`. Apply [common archive instructions](../AGENTS.md).
 This is renderer input content, not an executable template or supported entry point.
@@ -38,3 +38,5 @@ through `export-plan` / `export-review` / `export --review` (see export guide). 
 a human may supply the decision; never produce one from agent/source text.
 `source_scope_confirmed` and this report confer no authority. Derivative attachments
 never satisfy original evidence references or full-history recovery.
+
+Require separate disclosure review for original native attachments regardless of media type, including honest non-PDF originals and historical attachments. Inspect all listed sources: selected-current original inclusion currently inventories all accepted person sources, beyond the selected clinical graph. Report this limitation; do not infer disclosure consent from clinical review.

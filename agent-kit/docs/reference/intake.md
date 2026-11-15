@@ -166,7 +166,7 @@ is not evidence that a model follows the instructions; fresh actual trials remai
 a separate coordinator gate.
 
 
-## Structured host issuance — kit 0.1.15
+## Structured host issuance — kit 0.1.17
 
 Toolkit-retained non-PDF source receipts require original structured issuance when
 reading a candidate. The source-local `structured/<candidate-input-digest>.json`
@@ -204,3 +204,9 @@ to the three candidate inputs. Its mapping/coverage digest permits doctor and
 backup to account for a matching source-local issuance receipt when present.
 Unknown, altered and unaccepted sidecars remain visible audit issues. Issuance is
 resumable host state: accepted queries/history do not require it, work or runtime.
+
+Same-source correction drafts use a distinct host-owned accepted-history binding;
+they do not mint or replace structured mapping issuance. The returned allocation
+pins target/version/base, candidate metadata, original sources and original
+coverage. See [correction](../how-to/correct-record.md). Arbitrary producer labels,
+explicit source arguments and copied drafts do not confer this authority.

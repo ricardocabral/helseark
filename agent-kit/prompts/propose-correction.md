@@ -1,4 +1,4 @@
-# propose-correction — prompt 0.1.1
+# propose-correction — prompt 0.1.2
 
 Fixed task ID: `correct`. Apply [common archive instructions](../AGENTS.md).
 Render through `agent render`; clinical acceptance remains human controlled.
@@ -53,3 +53,5 @@ intake and explicit `candidate prepare --source ... --amendment-target ...
 [correction guide](../docs/how-to/correct-record.md). Never invoke erasure as a
 correction. Recoverable removal requires a separately inspected plan and exact
 user-approved digest; no purge or secure-deletion claim.
+
+Keep the host-allocated correction directory and metadata unchanged; original structured coverage/issuance stays pinned. Edit only bundle/evidence in that allocation; copied drafts and new producer labels confer no authority.

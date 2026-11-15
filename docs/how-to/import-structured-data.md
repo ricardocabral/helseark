@@ -115,7 +115,7 @@ that dependency. Errors and identity failures cannot be acknowledged away.
 
 Follow the same explicit prepare/review/commit commands above. Inspect the mapping,
 coverage, transformed date/status fields and exact source cells before any real decision.
-Kit 0.1.15 advertises bounded FHIR R4 and numeric metric CSV intake alongside the current clinical, history, portability and presentation workflows.
+Kit 0.1.17 advertises bounded FHIR R4 and numeric metric CSV intake alongside the current clinical, history, portability and presentation workflows.
 The optional CSV locator `encoding` field extends the existing evidence contract;
 old evidence without it still means UTF-8. Older pinned vault schemas remain unchanged:
 new encoded-CSV locators require the current definitions and are not auto-migrated.

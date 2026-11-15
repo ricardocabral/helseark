@@ -134,7 +134,7 @@ verified against retained validation after all work/runtime directories are gone
 
 ## Combined clinical foundation release
 
-Toolkit 0.1.2 initializes new vaults with kit 0.1.15 and profile-set 0.2.0. This combines selected-person
+Toolkit 0.1.2 initializes new vaults with kit 0.1.17 and profile-set 0.2.0. This combines selected-person
 bounded candidate reads, original host-bound source/extraction read receipts and
 repeated prompt-slot byte accounting with exact issue review and per-call verified
 query snapshots. Import skill 0.1.6 retains qualitative attribution guidance;
