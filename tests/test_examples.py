@@ -5,6 +5,8 @@ from decimal import Decimal
 import hashlib
 import json
 from pathlib import Path
+import shutil
+import tempfile
 import unittest
 
 from jsonschema import Draft6Validator, Draft202012Validator, ValidationError
@@ -12,6 +14,8 @@ from jsonschema import Draft6Validator, Draft202012Validator, ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
+DRAFT = EXAMPLES / "drafts" / "first-import"
+SOURCE = EXAMPLES / "sources" / "source.csv"
 PERSON = "11111111-1111-4111-8111-111111111111"
 PATIENT = f"Patient/{PERSON}"
 OBSERVATION = "Observation/22222222-2222-4222-8222-222222222222"
@@ -24,10 +28,10 @@ def read_json(path):
 
 class HealthExampleTests(unittest.TestCase):
     def setUp(self):
-        with (EXAMPLES / "source.csv").open(encoding="utf-8", newline="") as source:
+        with SOURCE.open(encoding="utf-8", newline="") as source:
             self.rows = list(csv.DictReader(source))
-        self.bundle = read_json(EXAMPLES / "bundle.fhir.json")
-        self.evidence = read_json(EXAMPLES / "evidence.json")
+        self.bundle = read_json(DRAFT / "bundle.fhir.json")
+        self.evidence = read_json(DRAFT / "evidence.json")
         self.resources = {}
         for entry in self.bundle["entry"]:
             resource = entry["resource"]
@@ -75,7 +79,6 @@ class HealthExampleTests(unittest.TestCase):
             "Invented report " + self.rows[0]["report_id"],
         )
         attachment = self.resources[DOCUMENT]["content"][0]["attachment"]
-        self.assertEqual(attachment["url"], "source.csv")
         self.assertEqual(attachment["contentType"], "text/csv")
 
     def test_citations_match_source_bytes_cells_and_target_fields(self):
@@ -93,7 +96,7 @@ class HealthExampleTests(unittest.TestCase):
             (DOCUMENT, "/subject/reference", "person_id"),
             (DOCUMENT, "/description", "report_id"),
         }
-        digest = hashlib.sha256((EXAMPLES / "source.csv").read_bytes()).hexdigest()
+        digest = hashlib.sha256(SOURCE.read_bytes()).hexdigest()
         actual = []
         for entry in self.evidence["entries"]:
             target = entry["target"]
@@ -137,6 +140,32 @@ class HealthExampleTests(unittest.TestCase):
             Draft6Validator(specific).validate(invalid)
         self.assertEqual(rejected.exception.validator, "required")
         self.assertIn("code", rejected.exception.message)
+
+    def test_profile_and_source_links_survive_copy_to_records(self):
+        profile = read_json(EXAMPLES / "profile.fhir.json")
+        self.assertEqual(profile, self.resources[PATIENT])
+        draft = DRAFT
+        retained = {path.name: path.read_bytes() for path in draft.iterdir()}
+        self.assertTrue({"bundle.fhir.json", "evidence.md", "review.md"} <= retained.keys())
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory).resolve()
+            shutil.copytree(EXAMPLES / "sources", folder / "sources")
+            for stage in ("drafts", "records"):
+                # Exercise relocation only; copying is not human acceptance.
+                destination = folder / stage / "first-import"
+                shutil.copytree(draft, destination)
+                self.assertEqual(
+                    {path.name: path.read_bytes() for path in destination.iterdir()},
+                    retained,
+                )
+                bundle = read_json(destination / "bundle.fhir.json")
+                document = next(
+                    entry["resource"] for entry in bundle["entry"]
+                    if entry["resource"]["resourceType"] == "DocumentReference"
+                )
+                source = destination / document["content"][0]["attachment"]["url"]
+                self.assertEqual(source.resolve(), folder / "sources" / "source.csv")
+                self.assertEqual(source.read_bytes(), (EXAMPLES / "sources" / "source.csv").read_bytes())
 
 
 if __name__ == "__main__":

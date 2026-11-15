@@ -5,7 +5,7 @@ those facts. A second simplified clinical format could drift from the FHIR recor
 
 ## Precision preserves meaning
 
-The [invented source](../../examples/source.csv) says `<0,050 mg/L`.
+The [invented source](../../examples/sources/source.csv) says `<0,050 mg/L`.
 Its draft retains `0.050`, comparator `<` and unit `mg/L`.
 Removing the comparator would turn a bound into a point measurement.
 Adding a day to `2026-02` would invent precision. Citations make these choices inspectable.

@@ -58,7 +58,7 @@
           {
             "attachment": {
               "contentType": "text/csv",
-              "url": "source.csv",
+              "url": "../../sources/source.csv",
               "title": "Invented laboratory export"
             }
           }

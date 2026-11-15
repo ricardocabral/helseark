@@ -1,7 +1,7 @@
 # Existing data schema references
 
 Clinical data uses **FHIR R4 4.0.1**, with native Patient, Observation and
-DocumentReference resources in the [example Bundle](../examples/bundle.fhir.json).
+DocumentReference resources in the [example Bundle](../examples/drafts/first-import/bundle.fhir.json).
 Readable citation/review notes are supporting material, not another clinical store.
 
 | Existing asset | Use and limits |
@@ -49,14 +49,14 @@ def read(path):
     return json.loads(Path(path).read_text(), parse_float=Decimal)
 
 schema = read('definitions/fhir-r4-json-schema/fhir.schema.json')
-bundle = read('examples/bundle.fhir.json')
+bundle = read('examples/drafts/first-import/bundle.fhir.json')
 Draft6Validator(schema).validate(bundle)
 for entry in bundle['entry']:
     resource = entry['resource']
     specific = dict(schema, **{'$ref': '#/definitions/' + resource['resourceType']})
     Draft6Validator(specific).validate(resource)
 Draft202012Validator(read('schemas/0.1.0/evidence.schema.json')).validate(
-    read('examples/evidence.json'))
+    read('examples/drafts/first-import/evidence.json'))
 value = bundle['entry'][1]['resource']['valueQuantity']['value']
 assert str(value) == '0.050'
 print('Bundle, 3 resources and evidence structurally valid; decimal scale retained.')

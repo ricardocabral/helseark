@@ -17,6 +17,27 @@ Structured import, correction and migration commands remain unavailable.
 Check `helseark --help` and task availability. Prompt files do not establish command support.
 The CLI does not require or invoke a model provider.
 
+## Current capability guidance and retained references
+
+The [retained agent protocol](reference/agent-protocol.md) contains historical
+implementation-stage statements. In the current experimental implementation:
+
+- Its opening statement that all workflows except inspection are unavailable
+  is superseded by the supported work listed above. Text-PDF handoffs, queries,
+  exports, integrity checks and human-controlled publication are implemented;
+  structured import, correction and migration commands remain unavailable.
+- `agent context --task query` accepts `--from-date` and `--to-date`. Date bounds
+  on other context tasks fail with `INVALID_FILTER`; they do not universally fail
+  with the historical `CAPABILITY_UNAVAILABLE` result. The query implementation
+  owns partial-date and uncertainty semantics; see the [query guide](how-to/query-history.md).
+- A new vault pins the kit version and manifest digest recorded in `vault.json`;
+  the historical literal `agent-kit/0.1.0/` is not a universal version to select.
+
+For a specific retained vault, use its actual task availability and pins.
+The [reference index](reference/README.md) and [legacy kit notice](../agent-kit/README.md)
+explain the separate scope. Pinned protocol/kit bytes remain unchanged; old task
+numbers and evaluation milestones do not add requirements to Helseark's core skill.
+
 Drafts do not authorize publication. Committing a new proposal without a decision
 returns `REVIEW_REQUIRED` (exit 3). Use `candidate review` with `--person` and
 an explicit `--decision` file. Missing or damaged accepted-history receipts remain integrity failures.

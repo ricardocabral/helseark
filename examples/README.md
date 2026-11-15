@@ -1,50 +1,66 @@
-# Complete invented example
+# One invented health folder
 
-Everything here is invented, including Alex Example and report SYNTH-001. No
-record describes a real person. Open [source.csv](source.csv),
-[bundle.fhir.json](bundle.fhir.json) and [evidence.json](evidence.json).
-CSV row numbers in evidence count data rows after the header; this file has one.
-The source CSV is a fictional lab export, not a new canonical clinical format.
+This is the plain-file layout produced by the [Helseark skill](../skills/helseark/SKILL.md).
+Alex Example, report SYNTH-001 and every result are invented. These files remain
+**unreviewed**; no real identity confirmation or approval is claimed.
 
-The explicit person ID is `11111111-1111-4111-8111-111111111111`. The Bundle
-contains a Patient, an Observation, and a DocumentReference to `source.csv`.
-References use Bundle-local UUID URNs. Evidence targets use `Type/id` to identify
-the same resources. The attachment URL resolves relative to this example folder.
-This portable collection uses base FHIR R4; it does not claim Helseark archive
-profile conformance or constitute a CLI candidate/proposal.
+```text
+examples/
+  profile.fhir.json
+  sources/source.csv
+  drafts/first-import/
+    bundle.fhir.json
+    evidence.md
+    review.md
+    evidence.json          # optional machine-readable citations
+  records/README.md        # no accepted import or acceptance note
+```
 
-## Source comparison and expected query
+Open the [profile](profile.fhir.json), [retained source](sources/source.csv),
+[draft Bundle](drafts/first-import/bundle.fhir.json),
+[readable citations](drafts/first-import/evidence.md) and
+[review note](drafts/first-import/review.md). The optional
+[evidence envelope](drafts/first-import/evidence.json) supports the existing
+schema checks; normal skill use can retain only readable citations.
 
-| Source: source.csv, data row 1 | FHIR field on Observation | Retained meaning |
+The person ID is `11111111-1111-4111-8111-111111111111`. Patient, Observation and
+DocumentReference use Bundle-local UUID URNs. The profile matches the Bundle's
+Patient. The CSV is a fictional lab export, not a second clinical data format.
+This Bundle uses base FHIR R4 and makes no experimental archive-profile claim.
+
+## Compare the draft with its source
+
+CSV data row 1 is physical row 2, after the header.
+
+| Source column | Observation field | Retained meaning |
 | --- | --- | --- |
-| test: `C-reactive protein` | `code.text` | Source label; no inferred terminology code |
+| test: `C-reactive protein` | `code.text` | Source label; no inferred code |
 | status: `final` | `status` | Lab status; not human acceptance |
 | result: `<0,050 mg/L` | `valueQuantity` | JSON number `0.050`, comparator `<`, unit `mg/L` |
-| effective_date: `2026-02` | `effectiveDateTime` | Month only; no invented day or timezone |
-| uncertainty column, exact sentence | `note[0].text` | Below reporting limit; day and time absent |
+| effective_date: `2026-02` | `effectiveDateTime` | Month only; no day or timezone added |
+| uncertainty column | `note[0].text` | Below reporting limit; day and time absent |
 
-A query for this person's supplied C-reactive protein records in February 2026
-returns one source-reported final observation, **<0.050 mg/L**, dated **2026-02**,
-with day/time unknown and no exact concentration. Cite `source.csv`, data row 1,
-columns `result`, `effective_date`, `status`, `test`, and `uncertainty`, and the
-Observation ID `22222222-2222-4222-8222-222222222222` in `bundle.fhir.json`.
-This answers a retrieval question only; it gives no medical interpretation.
+A question about Alex's supplied C-reactive protein result in February 2026
+returns **<0.050 mg/L**, dated **2026-02**, with no exact concentration or known
+day/time. Cite the CSV's `test`, `result`, `status`, `effective_date` and
+`uncertainty` columns and Observation `22222222-2222-4222-8222-222222222222` in
+the draft Bundle. This is retrieval, not medical interpretation.
 
-## Review before acceptance
+## Review and source paths
 
-Compare the person ID/name columns against Patient and both subject references.
-Check the exact numeric token `0.050`, `<`, `mg/L`, source status, month precision
-and uncertainty sentence. Every clinical leaf has a source citation in
-`evidence.json`; generated IDs and document metadata are labeled bookkeeping.
-Bundle type/fullUrl are packaging, not clinical facts. Source digests are already
-filled in for this static example; reading it requires no hash tooling.
+Check the source's person ID/name against the profile, Patient and both subject
+references. Check values, comparator, units, status, date precision and uncertainty
+against the readable citations. Generated IDs and file metadata are bookkeeping.
 
-The draft remains **unreviewed**. A real reviewer must record their name, date,
-exact files/revision, decision and unresolved concerns separately; no fictitious
-approval receipt is supplied. Any edit requires fresh review. Reject identity
-conflicts and unsupported facts. Keep accepted prior files and originals intact.
+The DocumentReference attachment URL is `../../sources/source.csv`. From
+`drafts/first-import/` it resolves to the retained source. If a real reviewer
+approves the exact final files and they are copied unchanged to
+`records/first-import/`, the same URL still resolves to that source.
+The focused tests exercise this copy in a temporary directory and verify the
+bytes and links; they never assert human acceptance.
 
-A correction to the extracted value would create a separate proposed version,
-identify this prior Observation/file and field, quote the supporting source, and
-wait for review. Do not change this example's correct `0.050` merely to demonstrate
-an edit. Schema checks cannot confirm clinical truth or source authenticity.
+No accepted directory or approval note is supplied here. In real use, record the
+actual reviewer, date, person ID, exact approved files/version and remaining
+concerns separately. Any draft change needs fresh review. Corrections create a
+new version and retain the source, prior record, evidence and decision.
+Schema validity cannot establish clinical truth or source authenticity.

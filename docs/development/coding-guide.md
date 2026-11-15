@@ -19,9 +19,12 @@
 | `docs/development/`, `docs/maintainers/` | Contributor and release guidance |
 | `docs/internal/` | Ignored plans, logs and review evidence; never distribute |
 
-Root [AGENTS.md](../../AGENTS.md) governs repository contributors.
-[agent-kit/AGENTS.md](../../agent-kit/AGENTS.md) governs archive agents; these
-are separate audiences. Keep `CLAUDE.md` importing the contributor instructions.
+Root [AGENTS.md](../../AGENTS.md) governs repository contributors; `CLAUDE.md`
+imports it. For organizing personal records, use the
+[Helseark skill](../../skills/helseark/SKILL.md) and its
+[shared instructions](../../instructions.md).
+The separate [legacy agent-kit](../../agent-kit/README.md) applies only to
+experimental runtime vaults and packets. Its entry point is not required by the skill.
 
 ## Python style and boundaries
 
@@ -40,16 +43,16 @@ and review of its effect on the existing tree.
 
 ## Non-negotiable data behavior
 
-- Use the existing exact-decimal serialization path. Preserve lexical precision,
-  comparators, original units and partial dates; never route canonical numbers
+- Preserve lexical precision, comparators, original units and partial dates;
+  never route canonical numbers
   through binary float or infer missing timezone/clinical meaning.
 - FHIR R4 revisions are the clinical authority. Do not add a parallel simplified
   editable clinical store. Derived indexes and reports must remain rebuildable.
-- Every intake/context operation selects one person. Never infer identity or
+- Every task selects one person. Never infer identity or
   silently follow cross-person references. Folder separation is not OS access control.
-- Accepted history is immutable. Corrections add revisions; preserve original
-  bytes, provenance and hashes. Keep review bound to the final prepared bytes
-  and archive base. An agent draft or validation result cannot authorize acceptance.
+- Accepted history is immutable. Corrections add versions; preserve original
+  bytes and source evidence. Review applies to the exact final files.
+  An agent draft or validation result cannot authorize acceptance.
 - Treat PDFs, imported JSON, filenames and model output as untrusted data.
   Bound resource usage, reject unsafe paths/symlinks at existing boundaries and
   use fresh outputs. Do not log clinical content or leak it through errors.
@@ -57,10 +60,18 @@ and review of its effect on the existing tree.
   download or upload data. Explicit maintainer acquisition and user-selected
   external agents are separate operations, with separate authorization.
 
-See [archive format](../reference/archive-format.md),
-[clinical model](../reference/clinical-model.md),
-[agent protocol](../reference/agent-protocol.md) and
-[privacy boundaries](../explanation/privacy-and-agent-boundaries.md).
+For the plain-file workflow, the skill and shared instructions define the rules;
+readable citations and human review notes need no archive, hashes or runtime.
+See [privacy boundaries](../explanation/privacy-and-agent-boundaries.md).
+
+### Additional rules for the experimental runtime
+
+Runtime changes must use the existing exact-decimal serializer, preserve retained
+hashes and bind reviews to prepared bytes and the archive base. The runtime's
+path/symlink checks, resource limits and pinned-definition integrity remain
+required at their existing boundaries. See the [optional CLI overview](../optional-cli.md)
+for current capabilities and links to its retained contracts. These implementation
+rules are not prerequisites for using the plain-file skill.
 
 ## Tests, dependencies and versions
 
