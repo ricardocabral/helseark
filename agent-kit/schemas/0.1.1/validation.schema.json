@@ -236,9 +236,17 @@
           "items": {
             "type": "object"
           },
-          "maxItems": 6,
-          "minItems": 6,
-          "type": "array"
+          "type": "array",
+          "oneOf": [
+            {
+              "minItems": 6,
+              "maxItems": 6
+            },
+            {
+              "minItems": 15,
+              "maxItems": 15
+            }
+          ]
         },
         "requireTerminology": {
           "type": "boolean"

@@ -1183,8 +1183,8 @@
       "files": [
         {
           "path": "schemas/0.1.1/validation.schema.json",
-          "sha256": "7bf3decba7106c0c377dd9b1fcb367b60000eb81750b9bbbad49866c6c8849ab",
-          "size": 6423
+          "sha256": "223710fe01dcf0a6592c04cfac61d317c20c61d104ddeec060ab8c663ddc10ac",
+          "size": 6580
         }
       ],
       "license": "MIT",
