@@ -76,3 +76,20 @@ def test_official_profiles_cover_current_and_retained_sets(tmp_path):
     assert len(_profiles(retained, replace(config, profileDirectory=config.profileDirectory/'0.1.0'), old)) == 6
     with pytest.raises(ArchiveError, match='VALIDATOR_MISSING_ARTIFACT'):
         _profiles(vault, replace(config, profileDirectory=config.profileDirectory/'0.1.0'), tmp_path)
+
+
+def test_cli_wrapper_plan_targets_current_layout_with_source_profile(tmp_path):
+    from test_migrations import small, legacy, inventory
+    source = legacy(tmp_path, small(tmp_path))
+    before = inventory(source.root)
+    result = subprocess.run([sys.executable, '-m', 'helseark.cli', '--vault', str(source.root),
+        'migrate', 'plan', '--to-contract', '0.1.0', '--test-only-legacy', '--json'],
+        capture_output=True, timeout=30)
+    assert result.returncode == 0, result.stderr
+    plan = decode_json(result.stdout)
+    assert plan['sourceVersionSet']['archiveFormatVersion'] == 0
+    assert plan['targetVersionSet']['archiveFormatVersion'] == 1
+    assert plan['targetVersionSet']['serializationVersion'] == 'helseark-json-1'
+    assert plan['targetVersionSet']['profileVersion'] == source.config.profileVersion
+    assert plan['transformations'] == ['test-only-layout-0-to-v1'] and not plan['blockedRecords']
+    assert inventory(source.root) == before

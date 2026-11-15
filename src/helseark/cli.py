@@ -7,7 +7,7 @@ import sys
 from tempfile import TemporaryDirectory
 
 from .archive import init_vault, open_vault, open_definitions, add_person, head, _read, _json, _open_vault_metadata, _bundled_root
-from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head, VersionSet
+from .contracts import ArchiveError, PersonDraft, uuid_string, ResourceRef, ContextRequest, ContextContinuation, Head
 from .query import observations, timeline, history, parse_reference
 from .presentation import render_static_report
 from .archive import resolve
@@ -326,7 +326,7 @@ def main(argv=None):
             elif args.command == 'migrate':
                 if args.migration_command == 'plan':
                     plan = (plan_fhir_migration(vault,args.to_fhir) if args.to_fhir else
-                            plan_migration(vault,replace(VersionSet(**{key:getattr(vault.config,key) for key in document(CURRENT)}),contractVersion=args.to_contract)))
+                            plan_migration(vault,replace(CURRENT,profileVersion=vault.config.profileVersion,contractVersion=args.to_contract)))
                     output = document(plan)
                     exit_code = 6 if plan.blockedRecords else 0
                 else:
