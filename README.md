@@ -5,9 +5,21 @@
   <img src="docs/brand/svg/helseark-horizontal-color.svg" alt="Helseark logo" width="480" height="120">
 </picture>
 
-A starter kit for personal health records: instructions, three prompts, FHIR R4
-schemas, and an invented example. Use a text editor or an agent you choose.
-No installation or model account is required.
+Personal health records can scatter across lab reports, PDFs and portals.
+Helseark helps you turn those sources into structured records you can keep,
+query and correct.
+
+Today, an agent you choose can help draft records and answer questions from
+supplied files. Helseark provides instructions and schemas for that work.
+You review every draft before acceptance.
+
+- Keep source citations, exact values, units and dates with each record.
+- Trace answers to evidence in the records you supply.
+- Correct mistakes with a new version. Preserve sources and earlier accepted records.
+
+The starter kit contains instructions, three prompts, FHIR R4 schemas and an
+invented example. FHIR R4 is a standard format for health data.
+Use a text editor or an agent you choose. No installation or model account is required.
 
 **[Start with the starter kit](starter-kit/README.md).**
 
