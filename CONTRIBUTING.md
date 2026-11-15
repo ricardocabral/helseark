@@ -27,32 +27,49 @@ not need them. Ask the coordinator for public acceptance criteria when needed.
 Never publish private plans, real health data or health records with only names
 removed. Use invented fixtures and keep real archives outside the checkout.
 
-## Development setup
+## Core checks
 
-Use Python 3.12 and uv (CI pins uv 0.11.2). macOS and Linux are the qualified
-targets. Dependency installation can access registries; normal archive operations
-must remain offline. `pyproject.toml` enforces uv's seven-day dependency freshness
-guard. Do not bypass it for an ordinary update.
+Instructions, templates and the invented example can be read and improved without
+installing Helseark or creating a vault. Compare changes against the
+[source and review checklist](starter-kit/examples/README.md). Preserve the
+explicit person, exact numeric scale, citations and mandatory human review.
+
+For automated checks, use Python 3.12 and uv (CI pins uv 0.11.2). Install only the
+existing schema-validation dependencies from the repository root:
 
 ```sh
-git clone https://github.com/ricardocabral/helseark.git
-cd helseark
-git switch -c your-change
-uv sync --locked --extra pdf --group dev
-uv run --no-sync helseark --help
-uv run --no-sync pytest tests/test_cli_journey.py -q
+uv sync --locked --no-install-project --no-default-groups
+uv run --no-sync python -m unittest discover -s tests -p test_starter_kit.py -v
+uv run --no-sync python - <<'PY'
+from pathlib import Path
+import subprocess
+import sys
+
+page = Path('starter-kit/schemas.md').read_text()
+command = page.split("python3 - <<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
+subprocess.run([sys.executable, '-c', command], check=True)
+PY
 git diff --check
 ```
 
-There is no configured linter yet. The [coding guide](docs/development/coding-guide.md)
-defines current review standards.
+The “Starter kit” workflow runs these checks automatically for core changes.
+They protect this invented example, not arbitrary clinical truth or human approval.
+New examples need corresponding focused checks. Dependency installation may access
+registries; checks use local files. Keep uv's seven-day dependency freshness guard.
+There is no configured linter yet; the [coding guide](docs/development/coding-guide.md)
+defines review standards.
+
+The [experimental CLI](docs/optional-cli.md) has separate optional Python/PDF setup
+and a manually dispatched diagnostic suite. Work on it requires explicit scope;
+passing starter checks does not qualify it or its distributions.
 
 ## Development workflow
 
 1. Create a branch from main; use a separate worktree when another session uses
    the checkout. Suggested prefixes: `fix/`, `feat/`, `docs/`, `refactor/`.
 2. Make focused commits with clear messages and tests for behavioral changes.
-3. Run relevant validation and tests locally. Full platform suites run in branch CI.
+3. Run relevant validation and tests locally. Core checks run automatically in
+   branch CI. Optional experimental suites require explicit manual dispatch.
 4. Open a pull request with context and rationale, then monitor its CI results.
 5. Resolve review comments with code or clear reasons. An independent reviewer
    checks each implementation before the coordinator integrates it.
@@ -69,7 +86,8 @@ Use the [PR template](.github/pull_request_template.md).
 
 - Keep scope self-contained and inspect every staged file, including binaries.
 - Update relevant tests, references, schema/CLI docs and agent descriptors/prompts.
-- Run focused checks locally and confirm full remote CI before claiming it passed.
+- Run focused checks locally and confirm the relevant remote checks before
+  claiming they passed.
 - Keep fixtures synthetic, minimal, representative and deterministic; never upload
   real records, exports, screenshots, context packets or sensitive logs.
 - Preserve offline operation, exact precision, person isolation, immutable history

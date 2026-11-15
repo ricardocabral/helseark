@@ -1,60 +1,6 @@
-name: CI
+name: Experimental CLI (manual)
 
 on:
-  # Branch pushes are covered by pull_request; main is checked after integration.
-  push:
-    branches: [main]
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "scripts/**"
-      - "schemas/**"
-      - "profiles/**"
-      - "definitions/**"
-      - "agent-kit/**"
-      # These documents are pinned runtime inputs in definitions/lock.json.
-      - "docs/how-to/backup-and-restore.md"
-      - "docs/how-to/export-records.md"
-      - "docs/how-to/import-report.md"
-      - "docs/how-to/query-history.md"
-      - "docs/reference/agent-protocol.md"
-      - "docs/reference/archive-format.md"
-      - "docs/reference/clinical-model.md"
-      - "docs/reference/intake.md"
-      - "docs/reference/pdf-extraction.md"
-      - "docs/reference/review.md"
-      - "docs/tutorials/first-archive.md"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "MANIFEST.in"
-      - "LICENSE"
-      - ".github/workflows/ci.yml"
-  pull_request:
-    paths:
-      - "src/**"
-      - "tests/**"
-      - "scripts/**"
-      - "schemas/**"
-      - "profiles/**"
-      - "definitions/**"
-      - "agent-kit/**"
-      # These documents are pinned runtime inputs in definitions/lock.json.
-      - "docs/how-to/backup-and-restore.md"
-      - "docs/how-to/export-records.md"
-      - "docs/how-to/import-report.md"
-      - "docs/how-to/query-history.md"
-      - "docs/reference/agent-protocol.md"
-      - "docs/reference/archive-format.md"
-      - "docs/reference/clinical-model.md"
-      - "docs/reference/intake.md"
-      - "docs/reference/pdf-extraction.md"
-      - "docs/reference/review.md"
-      - "docs/tutorials/first-archive.md"
-      - "pyproject.toml"
-      - "uv.lock"
-      - "MANIFEST.in"
-      - "LICENSE"
-      - ".github/workflows/ci.yml"
   workflow_dispatch:
 
 permissions:
@@ -65,7 +11,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-and-build:
+  tests:
     name: Python 3.12 / ubuntu-latest / ${{ matrix.test-group }}
     runs-on: ubuntu-latest
     # The optional application keeps its full suite on one platform/version.
@@ -108,34 +54,3 @@ jobs:
       - name: Run all remaining tests
         if: matrix.test-group == 'core'
         run: uv run --no-sync pytest --ignore=tests/test_agent_context.py --ignore=tests/test_agent_workflows.py --ignore=tests/test_review.py --ignore=tests/test_validation.py --ignore=tests/test_query.py
-
-      - name: Build source distribution and wheel
-        if: matrix.test-group == 'core'
-        run: uv build --no-sources
-
-      - name: Verify built distribution licensing
-        if: matrix.test-group == 'core'
-        run: uv run --no-sync python tests/qualify_distribution.py dist
-
-  base-optionality:
-    name: Base-only PDF optionality / ubuntu-latest
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        with:
-          persist-credentials: false
-
-      - name: Set up uv and Python
-        uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7
-        with:
-          version: "0.11.2"
-          python-version: "3.12"
-          enable-cache: false
-
-      - name: Install base only in this fresh job environment
-        run: uv sync --locked --no-default-groups
-
-      - name: Verify absent dependency and base-only behavior
-        run: uv run --no-sync python tests/check_pdf_optionality.py

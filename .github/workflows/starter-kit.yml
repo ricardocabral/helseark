@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - "starter-kit/**"
+      - "tests/test_starter_kit.py"
+      - "AGENTS.md"
+      - "SCOPE.md"
+      - "CONTRIBUTING.md"
       - "definitions/fhir-r4-json-schema/**"
       - "schemas/0.1.0/evidence.schema.json"
       - "pyproject.toml"
@@ -13,6 +17,10 @@ on:
   pull_request:
     paths:
       - "starter-kit/**"
+      - "tests/test_starter_kit.py"
+      - "AGENTS.md"
+      - "SCOPE.md"
+      - "CONTRIBUTING.md"
       - "definitions/fhir-r4-json-schema/**"
       - "schemas/0.1.0/evidence.schema.json"
       - "pyproject.toml"
@@ -61,3 +69,6 @@ jobs:
           command = page.split("python3 - <<'PY'\n", 1)[1].split("\nPY\n", 1)[0]
           subprocess.run([sys.executable, '-c', command], check=True)
           PY
+
+      - name: Check invented source, FHIR and citation consistency
+        run: uv run --no-sync python -m unittest discover -s tests -p test_starter_kit.py -v

@@ -19,6 +19,11 @@ Schema validity does not establish clinical truth. No medical advice is provided
 | Adapter and OCR expansion | Deferred |
 | Reports and transactional engine expansion | Deferred |
 
+Default CI checks the starter instructions’ documented schema command and the
+invented example’s identity, precision and citations. The experimental CLI suite
+is available only through the manual “Experimental CLI (manual)” workflow;
+starter checks do not qualify the optional runtime or its distributions.
+
 Existing files, branches and historical evidence remain intact. Prior application
 roadmaps are historical context, not acceptance criteria for this delivery. Future
 work on deferred areas requires explicit scope authorization. This cut makes no
