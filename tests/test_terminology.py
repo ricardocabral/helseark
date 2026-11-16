@@ -99,6 +99,37 @@ class TerminologyTest(unittest.TestCase):
         self.assertEqual((self.package / 'loinc.zip').read_bytes(), self.archive.read_bytes())
         self.run_cli('install', '--loinc-zip', self.archive, '--loinc-version', 'synthetic', '--ucum-xml', self.xml, '--destination', self.package, success=False)
 
+    def test_zip_budget_counts_only_consumed_catalog_members(self):
+        spec = importlib.util.spec_from_file_location('terminology', SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        self.make_archive(extra=('AccessoryFiles/Unused.csv', 'x' * 10000))
+        with zipfile.ZipFile(self.archive) as archive:
+            core_size = archive.getinfo('LoincTable/Loinc.csv').file_size
+            selected_size = core_size + archive.getinfo('AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv').file_size
+        with patch.object(module, 'MAX_FILE', core_size), patch.object(module, 'MAX_TOTAL', selected_size):
+            catalog, translations = module.load_loinc(self.archive.read_bytes())
+        self.assertEqual(set(catalog), {row[0] for row in ROWS})
+        self.assertEqual(set(translations), {'pt-BR'})
+        for file_limit, total_limit in ((core_size - 1, selected_size), (core_size, selected_size - 1)):
+            with patch.object(module, 'MAX_FILE', file_limit), patch.object(module, 'MAX_TOTAL', total_limit):
+                with self.assertRaisesRegex(ValueError, 'ZIP exceeds size limit'):
+                    module.load_loinc(self.archive.read_bytes())
+
+    def test_search_finds_translated_components_with_empty_full_names(self):
+        with zipfile.ZipFile(self.archive, 'w') as archive:
+            archive.writestr('LoincTable/Loinc.csv', table(HEADERS, ROWS))
+            archive.writestr('AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv', table(
+                ['LOINC_NUM', 'COMPONENT', 'LONG_COMMON_NAME', 'LinguisticVariantDisplayName', 'ConsumerName'],
+                [['1234-5', 'Proteína C Reativa', '', '', ''], ['2345-6', 'Triglicérides', '', '', '']]))
+        self.install()
+        for query, code in [('proteina C reativa', '1234-5'), ('triglicerides', '2345-6')]:
+            result = self.run_cli('search', '--package', self.package, '--text', query, '--system', 'Ser/Plas')
+            self.assertEqual([row['code'] for row in result['candidates']], [code])
+            self.assertTrue(result['human_review_required'])
+            self.assertEqual(result['candidates'][0]['axes']['component'], ROWS[0 if code == '1234-5' else 1][1])
+        self.assertEqual(self.run_cli('search', '--package', self.package, '--text', 'proteina C reativa', '--system', 'Urine')['candidates'], [])
+
     def test_corruption_and_symlinks_fail_closed(self):
         self.install()
         (self.package / 'ucum.xml').write_bytes(XML + b' ')

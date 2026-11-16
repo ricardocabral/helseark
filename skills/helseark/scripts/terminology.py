@@ -176,10 +176,22 @@ def load_loinc(data: bytes) -> tuple[dict, dict]:
             if (path.is_absolute() or '..' in path.parts or '\\' in item.filename
                     or stat.S_ISLNK(item.external_attr >> 16) or item.filename in members):
                 raise ValueError('unsafe or duplicate ZIP member')
-            total += item.file_size
-            if item.file_size > MAX_FILE or total > MAX_TOTAL or len(members) > 10000:
+            if len(members) >= 10000:
                 raise ValueError('ZIP exceeds size limit')
             members[item.filename] = item
+
+        def read_member(name: str) -> bytes:
+            nonlocal total
+            limit = min(MAX_FILE, MAX_TOTAL - total)
+            if members[name].file_size > limit:
+                raise ValueError('ZIP exceeds size limit')
+            with archive.open(name) as stream:
+                content = stream.read(limit + 1)
+            total += len(content)
+            if len(content) > limit:
+                raise ValueError('ZIP exceeds size limit')
+            return content
+
         # Some distributions wrap the official layout in a release directory.
         names = [name for name in members if name == 'LoincTable/Loinc.csv'
                  or re.fullmatch(r'Loinc_[^/]+/LoincTable/Loinc.csv', name)]
@@ -187,7 +199,7 @@ def load_loinc(data: bytes) -> tuple[dict, dict]:
             raise ValueError('expected exactly one official LoincTable/Loinc.csv')
         core_name = names[0]
         prefix = core_name[:-len('LoincTable/Loinc.csv')]
-        rows = csv_rows(archive.read(core_name), set(AXES.values()) | {'LOINC_NUM', 'STATUS', 'LONG_COMMON_NAME'})
+        rows = csv_rows(read_member(core_name), set(AXES.values()) | {'LOINC_NUM', 'STATUS', 'LONG_COMMON_NAME'})
         catalog = {row['LOINC_NUM']: row for row in rows}
         for row in rows:
             if row['STATUS'] not in ('ACTIVE', 'TRIAL', 'DISCOURAGED', 'DEPRECATED'):
@@ -201,7 +213,7 @@ def load_loinc(data: bytes) -> tuple[dict, dict]:
             language = '-'.join(match.groups())
             if language in translations:
                 raise ValueError('duplicate linguistic variant')
-            translated = csv_rows(archive.read(name), {'LOINC_NUM'})
+            translated = csv_rows(read_member(name), {'LOINC_NUM'})
             if any(row['LOINC_NUM'] not in catalog for row in translated):
                 raise ValueError('linguistic variant references unknown LOINC')
             translations[language] = {'member': name, 'rows': {row['LOINC_NUM']: row for row in translated}}
@@ -325,7 +337,7 @@ def search(package: Path, text: str, limit: int = 20, **filters: str) -> dict:
         result = candidate(row, translations, manifest)
         names = [row.get(name, '') for name in (*NAMES, 'COMPONENT', 'DisplayName')]
         for translated in result['translations'].values():
-            names.extend(translated.get(name, '') for name in NAMES)
+            names.extend(translated.get(name, '') for name in (*NAMES, 'COMPONENT'))
         if wanted.issubset(tokens(' '.join(names))):
             found.append(result)
     return {'candidates': sorted(found, key=lambda row: row['code'])[:limit],
