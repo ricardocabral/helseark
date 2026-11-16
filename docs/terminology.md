@@ -85,9 +85,14 @@ release, restricts requests to the official HTTPS origin, refuses redirects,
 checks the metadata's MD5 and retains a local SHA-256 in `receipt.json` alongside
 `loinc.zip`. MD5 checks transfer integrity; the SHA-256 pins the acquired bytes
 for later use. Neither proves clinical meaning. It publishes into a fresh private
-directory only after verification; the receipt is the completion marker.
-It does not install a catalog or modify records. Then use the import command
-above with the downloaded ZIP. Browser download and local import remain a
+directory only after verification. The complete staging directory is renamed
+atomically without replacing an existing destination, so ZIP and receipt appear
+together. The script requires native exclusive directory rename support on macOS
+(`renamex_np`) or Linux (`renameat2`), including support from the destination
+filesystem. It checks that support before hidden account prompts or networking
+and refuses acquisition if unavailable. The supplied offline vocabulary works
+on all platforms. It does not install a catalog or modify records. Then use the
+import command above with the downloaded ZIP. Browser download and local import remain a
 supported fallback. Never run credential entry inside an agent-controlled terminal
 whose input could be captured in the conversation or transcript.
 

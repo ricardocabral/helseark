@@ -5,15 +5,17 @@ Run this script in a local terminal with --version and --destination NEW_DIRECTO
 Both account fields use hidden prompts. download() is the noninteractive boundary:
 credentials stay in memory, HTTPS requests cannot redirect or leave the official
 origin, and original ZIP bytes must match the requested release's official MD5.
-The private destination is created only after verification; each file is published
-without replacement, with receipt.json last as the completion marker. Directory
-creation and the two file publications are not one filesystem transaction.
+The verified private staging directory is published atomically without replacement.
+Its ZIP and receipt appear together. Acquisition requires native no-replace rename
+support on macOS or Linux; support is checked before account entry or networking.
 
 Protocol: https://loinc.org/kb/api/download/ and https://loinc.org/kb/api/auth/
 """
 import argparse
 import base64
+import ctypes
 from datetime import datetime, timezone
+import errno
 import getpass
 import hashlib
 import http.client
@@ -114,48 +116,59 @@ def _receive(opener: urllib.request.OpenerDirector, url: str, authorization: str
     return size, md5.hexdigest(), sha256.hexdigest()
 
 
-def _publish(staging: Path, destination: Path) -> None:
-    """Publish relative to the reserved directory, even if its name is swapped."""
-    if not hasattr(os, 'O_DIRECTORY') or not hasattr(os, 'O_NOFOLLOW'):
-        raise DownloadError('This platform does not support safe directory publication.')
-    destination = _new_destination(destination)
-    destination.mkdir(mode=0o700)
-    identity = destination.lstat()
-    directory_fd = None
-    publications: list[tuple[str, os.stat_result]] = []
+def _rename_no_replace(source: Path, destination: Path) -> None:
+    """Atomically move a directory, refusing any existing destination inode.
+
+    Uses only the native exclusive operation; no check/ordinary-rename fallback.
+    Missing symbols/platforms or unsupported filesystems fail before publication.
+    """
+    if sys.platform not in ('darwin', 'linux'):
+        raise OSError(errno.ENOSYS, 'Exclusive directory rename is unavailable.')
+    libc = ctypes.CDLL(None, use_errno=True)
+    if sys.platform == 'darwin':
+        # macOS SDK sys/stdio.h: renamex_np(const char *, const char *, unsigned int),
+        # RENAME_EXCL = 0x00000004 (also documented by renamex_np(2)).
+        rename = libc.renamex_np
+        rename.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint]
+        arguments = (os.fsencode(source), os.fsencode(destination), 0x00000004)
+    else:
+        # Linux rename(2); uapi/linux/{fs,fcntl}.h: RENAME_NOREPLACE=1, AT_FDCWD=-100.
+        # Absolute paths ignore dirfds; libc handles the architecture's syscall ABI.
+        rename = libc.renameat2
+        rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int,
+                           ctypes.c_char_p, ctypes.c_uint]
+        arguments = (-100, os.fsencode(source), -100, os.fsencode(destination), 1)
+    rename.restype = ctypes.c_int
+    if rename(*arguments) != 0:
+        error = ctypes.get_errno()
+        raise OSError(error, 'Exclusive directory publication failed.')
+
+
+def _check_publication_support(parent: Path) -> None:
+    """Probe native no-clobber and move support on the selected filesystem."""
     try:
-        directory_fd = os.open(destination, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-        opened = os.fstat(directory_fd)
-        if (opened.st_dev, opened.st_ino) != (identity.st_dev, identity.st_ino):
-            raise DownloadError('The destination changed during publication.')
-        for name in ('loinc.zip', 'receipt.json'):
-            source = staging / name
-            publications.append((name, source.stat()))
-            os.link(source, name, dst_dir_fd=directory_fd)
-        current = destination.lstat()
-        if (current.st_dev, current.st_ino) != (identity.st_dev, identity.st_ino):
-            raise DownloadError('The destination changed during publication.')
-    except BaseException:
-        # The descriptor follows our reservation, never a replacement pathname.
-        if directory_fd is not None:
-            for name, original in reversed(publications):
-                try:
-                    current_file = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
-                    if (current_file.st_dev, current_file.st_ino) == (original.st_dev, original.st_ino):
-                        os.unlink(name, dir_fd=directory_fd)
-                except OSError:
-                    pass
-        # Remove the directory name only when it still identifies our reservation.
-        try:
-            current = destination.lstat()
-            if (current.st_dev, current.st_ino) == (identity.st_dev, identity.st_ino):
-                destination.rmdir()
-        except OSError:
-            pass
-        raise
-    finally:
-        if directory_fd is not None:
-            os.close(directory_fd)
+        with tempfile.TemporaryDirectory(prefix='.loinc-publication-check-', dir=parent) as temporary:
+            source = Path(temporary) / 'source'
+            occupied = Path(temporary) / 'destination'
+            source.mkdir(mode=0o700)
+            occupied.mkdir(mode=0o700)
+            try:
+                _rename_no_replace(source, occupied)
+            except FileExistsError:
+                pass
+            else:
+                raise OSError(errno.ENOTSUP, 'Exclusive directory rename is unavailable.')
+            occupied.rmdir()
+            _rename_no_replace(source, occupied)
+    except (OSError, AttributeError):
+        raise DownloadError('Safe atomic publication is unavailable on this platform/filesystem. '
+                            'Browser download and local import remain available.') from None
+
+
+def _publish(staging: Path, destination: Path) -> None:
+    """Publish the already verified private directory and both files together."""
+    destination = _new_destination(destination)
+    _rename_no_replace(staging, destination)
 
 
 def download(version: str, destination: Path, username: str, password: str) -> dict:
@@ -164,17 +177,19 @@ def download(version: str, destination: Path, username: str, password: str) -> d
     Requires an existing, nonsymlink parent. Returns the saved receipt including
     official MD5 and retained-byte SHA256. Raises sanitized DownloadError on input,
     HTTP, integrity or filesystem failure; interruptions propagate after cleanup.
-    The receipt marks completion. No account field or raw metadata is persisted.
+    ZIP and receipt appear together in one atomic directory publication.
+    No account field or raw metadata is persisted.
     """
     try:
         if not isinstance(version, str) or not re.fullmatch(r'[0-9]{1,8}\.[0-9]{1,8}', version):
             raise DownloadError('Specify an exact numeric LOINC version.')
+        destination = _new_destination(destination)
+        _check_publication_support(destination.parent)
         if (not isinstance(username, str) or not isinstance(password, str)
                 or not username or not password or ':' in username
                 or len(username) > 1024 or len(password) > 4096
                 or any(ord(char) < 32 or ord(char) == 127 for char in username + password)):
             raise DownloadError('Invalid account credentials.')
-        destination = _new_destination(destination)
         authorization = 'Basic ' + base64.b64encode(f'{username}:{password}'.encode('utf-8')).decode('ascii')
         # No proxy environment or automatic authentication/redirect forwarding.
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirects())
@@ -224,7 +239,8 @@ def main(argv: list[str] | None = None) -> int:
         parser.add_argument('--version', required=True, help='Exact LOINC release, for example 2.83')
         parser.add_argument('--destination', required=True, type=Path, help='New private download directory')
         args = parser.parse_args(argv)
-        _new_destination(args.destination)
+        destination = _new_destination(args.destination)
+        _check_publication_support(destination.parent)
         if not sys.stdin.isatty() or not sys.stderr.isatty():
             raise DownloadError('A local terminal is required for hidden account entry.')
         with warnings.catch_warnings():
@@ -237,7 +253,10 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print('LOINC acquisition interrupted.', file=sys.stderr)
         return 130
-    except (DownloadError, getpass.GetPassWarning, EOFError, OSError):
+    except DownloadError as error:
+        print(f'LOINC acquisition failed. {error}', file=sys.stderr)
+        return 2
+    except (getpass.GetPassWarning, EOFError, OSError):
         print('LOINC acquisition failed. Use a local terminal, valid account and a new directory.', file=sys.stderr)
         return 2
 

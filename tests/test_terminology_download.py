@@ -1,5 +1,6 @@
 """Explicit account acquisition contracts, using only synthetic HTTP responses."""
 import base64
+import errno
 from email.message import Message
 import hashlib
 import http.client
@@ -12,6 +13,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from unittest.mock import patch
@@ -278,97 +280,195 @@ class TerminologyDownloadTest(unittest.TestCase):
             self.download()
         self.assertFalse((self.root / 'original-cache' / 'acquired').exists())
 
-    def test_directory_open_refuses_a_symlink_swapped_after_reservation(self):
+    def test_directory_swapped_before_first_identity_capture_never_adopts_foreign_files(self):
         self.transport()
+        foreign = self.root / 'other-session'
+        foreign.mkdir()
+        (foreign / 'keep.txt').write_text('must remain isolated')
+        original_inode = foreign.stat().st_ino
+        displaced = self.root / 'reserved-original'
+        real_mkdir = Path.mkdir
+        def replace_after_mkdir(path, *args, **kwargs):
+            result = real_mkdir(path, *args, **kwargs)
+            if path == self.destination:
+                path.rename(displaced)
+                foreign.rename(path)
+            return result
+        with patch.object(Path, 'mkdir', replace_after_mkdir):
+            try:
+                self.download()
+            except self.module.DownloadError:
+                pass
+        # A directory published atomically has no mkdir/snapshot substitution
+        # window. The old reservation path must never adopt the foreign inode.
+        preserved = foreign if foreign.exists() else self.destination
+        self.assertEqual(preserved.stat().st_ino, original_inode)
+        self.assertEqual(sorted(path.name for path in preserved.iterdir()), ['keep.txt'])
+        self.assertEqual((preserved / 'keep.txt').read_text(), 'must remain isolated')
+
+    def test_publication_moves_verified_directory_with_both_private_files(self):
+        staging = self.root / 'staging'
+        staging.mkdir(mode=0o700)
+        for name in ('loinc.zip', 'receipt.json'):
+            (staging / name).write_text(name)
+            (staging / name).chmod(0o600)
+        identity = staging.stat()
+        self.module._publish(staging, self.destination)
+        self.assertFalse(staging.exists())
+        self.assertEqual(self.destination.stat().st_ino, identity.st_ino)
+        self.assertEqual(stat.S_IMODE(self.destination.stat().st_mode), 0o700)
+        self.assertEqual(sorted(p.name for p in self.destination.iterdir()),
+                         ['loinc.zip', 'receipt.json'])
+        for name in ('loinc.zip', 'receipt.json'):
+            self.assertEqual((self.destination / name).read_text(), name)
+            self.assertEqual(stat.S_IMODE((self.destination / name).stat().st_mode), 0o600)
+
+    def test_native_no_replace_preserves_every_existing_destination_kind(self):
+        staging = self.root / 'staging'
+        staging.mkdir()
+        (staging / 'verified').write_text('original verified bytes')
+        for kind in ('empty-directory', 'populated-directory', 'file', 'symlink'):
+            with self.subTest(kind=kind):
+                if kind.endswith('directory'):
+                    self.destination.mkdir()
+                    if kind == 'populated-directory':
+                        (self.destination / 'keep').write_text('other session')
+                elif kind == 'file':
+                    self.destination.write_text('other session')
+                else:
+                    self.destination.symlink_to(staging, target_is_directory=True)
+                before = self.destination.lstat()
+                with self.assertRaises(OSError):
+                    self.module._rename_no_replace(staging, self.destination)
+                self.assertEqual(self.destination.lstat(), before)
+                self.assertEqual((staging / 'verified').read_text(), 'original verified bytes')
+                if kind.endswith('directory'):
+                    self.assertEqual(sorted(p.name for p in self.destination.iterdir()),
+                                     ['keep'] if kind == 'populated-directory' else [])
+                    if kind == 'populated-directory':
+                        self.assertEqual((self.destination / 'keep').read_text(), 'other session')
+                        (self.destination / 'keep').unlink()
+                    self.destination.rmdir()
+                else:
+                    self.destination.unlink()
+
+    def test_destination_created_after_last_path_check_is_never_replaced(self):
+        staging = self.root / 'staging'
+        staging.mkdir(mode=0o700)
+        for name in ('loinc.zip', 'receipt.json'):
+            (staging / name).write_text('verified')
         foreign = self.root / 'foreign'
         foreign.mkdir()
-        (foreign / 'other-session').write_text('keep')
-        real_open = self.module.os.open
-        def swap(path, flags, *args, **kwargs):
-            if Path(path) == self.destination:
-                self.destination.rmdir()
-                self.destination.symlink_to(foreign, target_is_directory=True)
-            return real_open(path, flags, *args, **kwargs)
-        with patch.object(self.module.os, 'open', side_effect=swap):
+        (foreign / 'keep').write_text('other session')
+        identity = foreign.stat()
+        real_check = self.module._new_destination
+        def race(destination):
+            checked = real_check(destination)
+            foreign.rename(checked)
+            return checked
+        with patch.object(self.module, '_new_destination', side_effect=race):
+            with self.assertRaises(FileExistsError):
+                self.module._publish(staging, self.destination)
+        self.assertEqual(self.destination.stat().st_ino, identity.st_ino)
+        self.assertEqual([p.name for p in self.destination.iterdir()], ['keep'])
+        self.assertEqual((self.destination / 'keep').read_text(), 'other session')
+        for name in ('loinc.zip', 'receipt.json'):
+            self.assertEqual((staging / name).read_text(), 'verified')
+
+    def test_concurrent_native_publication_has_one_complete_winner_and_preserved_loser(self):
+        barrier = threading.Barrier(2)
+        results = []
+        staging_directories = []
+        for value in ('first', 'second'):
+            staging = self.root / value
+            staging.mkdir(mode=0o700)
+            for name in ('loinc.zip', 'receipt.json'):
+                (staging / name).write_text(value)
+            staging_directories.append(staging)
+        identities = {p.name: p.stat().st_ino for p in staging_directories}
+        def publish(staging):
+            barrier.wait(timeout=5)
+            try:
+                self.module._rename_no_replace(staging, self.destination)
+                results.append((staging.name, 'published'))
+            except FileExistsError:
+                results.append((staging.name, 'preserved'))
+        workers = [threading.Thread(target=publish, args=(p,)) for p in staging_directories]
+        for worker in workers:
+            worker.start()
+        for worker in workers:
+            worker.join(timeout=5)
+            self.assertFalse(worker.is_alive())
+        self.assertEqual(sorted(result for _, result in results), ['preserved', 'published'])
+        winner = next(name for name, result in results if result == 'published')
+        loser = next(name for name, result in results if result == 'preserved')
+        self.assertEqual(self.destination.stat().st_ino, identities[winner])
+        self.assertFalse((self.root / winner).exists())
+        for name in ('loinc.zip', 'receipt.json'):
+            self.assertEqual((self.destination / name).read_text(), winner)
+            self.assertEqual((self.root / loser / name).read_text(), loser)
+
+    def test_interruption_before_or_after_atomic_publication_leaves_absent_or_complete_output(self):
+        for after in (False, True):
+            with self.subTest(after=after):
+                self.transport()
+                self.destination = self.root / str(after)
+                real_publish = self.module._publish
+                def interrupt(staging, destination):
+                    if after:
+                        real_publish(staging, destination)
+                    raise KeyboardInterrupt
+                with patch.object(self.module, '_publish', side_effect=interrupt):
+                    with self.assertRaises(KeyboardInterrupt):
+                        self.download()
+                if after:
+                    receipt = json.loads((self.destination / 'receipt.json').read_bytes())
+                    self.assertEqual((self.destination / 'loinc.zip').read_bytes(), self.archive)
+                    self.assertEqual(receipt['sha256'], hashlib.sha256(self.archive).hexdigest())
+                    self.assertEqual(list(self.root.iterdir()), [self.destination])
+                    for path in self.destination.iterdir():
+                        path.unlink()
+                    self.destination.rmdir()
+                self.assert_no_output()
+
+    def test_unsupported_platform_fails_before_hidden_prompts_or_network(self):
+        transport = self.transport()
+        args = ['--version', VERSION, '--destination', str(self.destination)]
+        stderr, stdout = io.StringIO(), io.StringIO()
+        with patch.object(self.module.sys, 'platform', 'unsupported'), \
+             patch.object(self.module.sys.stdin, 'isatty', return_value=True), \
+             patch.object(stderr, 'isatty', return_value=True), \
+             patch.object(self.module.sys, 'stderr', stderr), \
+             patch.object(self.module.sys, 'stdout', stdout), \
+             patch.object(self.module.getpass, 'getpass', return_value=PASSWORD) as prompt:
+            self.assertEqual(self.module.main(args), 2)
+            self.assertEqual(prompt.call_count, 0)
             with self.assertRaises(self.module.DownloadError):
                 self.download()
-        self.assertEqual([path.name for path in foreign.iterdir()], ['other-session'])
-        self.assertEqual((foreign / 'other-session').read_text(), 'keep')
-        self.assertTrue(self.destination.is_symlink())
+        self.assertEqual(transport.requests, [])
+        self.assertIn('Browser download', stderr.getvalue())
+        self.assertNotIn(PASSWORD, stderr.getvalue() + stdout.getvalue())
+        self.assert_no_output()
 
-    def test_replaced_reserved_directory_cannot_redirect_publication_or_cleanup(self):
-        for replacement in ('deleted-then-symlink', 'renamed-then-symlink', 'renamed-then-directory'):
-            with self.subTest(replacement=replacement):
-                self.transport()
-                self.destination = self.root / replacement
-                foreign = self.root / (replacement + '-foreign')
-                foreign.mkdir()
-                (foreign / 'other-session').write_text('keep')
-                displaced = self.root / (replacement + '-reserved')
-                real_link = self.module.os.link
-                swapped = False
-                def swap(source, target, **kwargs):
-                    nonlocal swapped
-                    if not swapped:
-                        swapped = True
-                        if replacement == 'deleted-then-symlink':
-                            self.destination.rmdir()
-                        else:
-                            self.destination.rename(displaced)
-                        if replacement == 'renamed-then-directory':
-                            foreign.rename(self.destination)
-                        else:
-                            self.destination.symlink_to(foreign, target_is_directory=True)
-                    return real_link(source, target, **kwargs)
-                with patch.object(self.module.os, 'link', side_effect=swap):
+    def test_missing_native_symbol_or_unsupported_filesystem_fails_before_prompts_and_network(self):
+        transport = self.transport()
+        args = ['--version', VERSION, '--destination', str(self.destination)]
+        for failure in (AttributeError('missing native symbol'),
+                        OSError(errno.ENOSYS, 'unavailable syscall'),
+                        OSError(errno.EINVAL, 'unsupported filesystem flag')):
+            with self.subTest(failure=type(failure).__name__):
+                stderr = io.StringIO()
+                with patch.object(self.module, '_rename_no_replace', side_effect=failure), \
+                     patch.object(self.module.sys.stdin, 'isatty', return_value=True), \
+                     patch.object(stderr, 'isatty', return_value=True), \
+                     patch.object(self.module.sys, 'stderr', stderr), \
+                     patch.object(self.module.getpass, 'getpass', return_value=PASSWORD) as prompt:
+                    self.assertEqual(self.module.main(args), 2)
+                    self.assertEqual(prompt.call_count, 0)
                     with self.assertRaises(self.module.DownloadError):
                         self.download()
-                preserved = self.destination if replacement == 'renamed-then-directory' else foreign
-                self.assertEqual([path.name for path in preserved.iterdir()], ['other-session'])
-                self.assertEqual((preserved / 'other-session').read_text(), 'keep')
-                if displaced.exists():
-                    self.assertEqual(list(displaced.iterdir()), [])
-
-    def test_publication_failure_preserves_another_sessions_file(self):
-        self.transport()
-        real_link = self.module.os.link
-        def race(source, target, **kwargs):
-            if Path(target).name == 'receipt.json':
-                descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
-                                     0o600, dir_fd=kwargs.get('dst_dir_fd'))
-                with os.fdopen(descriptor, 'w') as output:
-                    output.write('other session')
-            real_link(source, target, **kwargs)
-        with patch.object(self.module.os, 'link', side_effect=race):
-            with self.assertRaises(self.module.DownloadError):
-                self.download()
-        self.assertEqual((self.destination / 'receipt.json').read_text(), 'other session')
-        self.assertFalse((self.destination / 'loinc.zip').exists())
-        self.assertEqual(list(self.root.iterdir()), [self.destination])
-
-    def test_interrupted_publication_removes_only_our_unfinished_files(self):
-        self.transport()
-        real_link = self.module.os.link
-        def interrupt(source, target, **kwargs):
-            if Path(target).name == 'receipt.json':
-                raise KeyboardInterrupt
-            real_link(source, target, **kwargs)
-        with patch.object(self.module.os, 'link', side_effect=interrupt):
-            with self.assertRaises(KeyboardInterrupt):
-                self.download()
-        self.assert_no_output()
-
-    def test_interruption_immediately_after_receipt_link_does_not_leave_false_completion(self):
-        self.transport()
-        real_link = self.module.os.link
-        def interrupt(source, target, **kwargs):
-            real_link(source, target, **kwargs)
-            if Path(target).name == 'receipt.json':
-                raise KeyboardInterrupt
-        with patch.object(self.module.os, 'link', side_effect=interrupt):
-            with self.assertRaises(KeyboardInterrupt):
-                self.download()
-        self.assert_no_output()
+                self.assertEqual(transport.requests, [])
+                self.assert_no_output()
 
     def test_cli_success_uses_two_hidden_prompts_and_real_download(self):
         transport = self.transport()
