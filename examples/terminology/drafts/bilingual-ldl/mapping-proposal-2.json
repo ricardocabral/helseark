@@ -1,0 +1,25 @@
+{
+  "loinc": "13457-7",
+  "ucum": "mg/dL",
+  "context": {
+    "component": "Cholesterol.in LDL",
+    "property": "MCnc",
+    "time": "Pt",
+    "system": "Ser/Plas",
+    "scale": "Qn",
+    "method": "Calculated",
+    "lab": "Invented Bilingual Laboratory",
+    "local_test": "LDL-CALC-EN",
+    "specimen": "Serum/plasma",
+    "unit": "mg/dL"
+  },
+  "evidence": {
+    "component": "sources/laboratory.csv data row 2, column component: LDL cholesterol",
+    "property": "sources/laboratory.csv data row 2, column property: mass concentration",
+    "time": "sources/laboratory.csv data row 2, column time: point in time",
+    "system": "sources/laboratory.csv data row 2, column specimen: Serum/plasma",
+    "scale": "sources/laboratory.csv data row 2, column scale: quantitative",
+    "method": "sources/laboratory.csv data row 2, column method: Calculated",
+    "unit": "sources/laboratory.csv data row 2, column unit: mg/dL; literal source unit unchanged; agent proposes UCUM coding, no conversion."
+  }
+}
