@@ -145,8 +145,9 @@ python3 skills/helseark/scripts/terminology.py search \
 ```
 
 Optional `--system`, `--property`, `--time`, `--scale` and `--method` filters narrow
-candidates using known context. Results are ordered by code, not clinical
-relevance; a lone result does not establish equivalence. Translations and example
+candidates using known context. Exact bundled-alias matches appear before broad
+native-token matches, with stable code ordering within each group. This is a
+retrieval signal, not clinical ranking; a lone result does not establish equivalence. Translations and example
 UCUM units aid discovery; example units are not a whitelist of clinically valid
 assignments.
 
