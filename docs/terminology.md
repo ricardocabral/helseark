@@ -51,16 +51,24 @@ records the supplied release identifier; review that it matches the acquired ZIP
 Updates create a new package after explicit acquisition and review. They do not
 rewrite earlier drafts, accepted files or approved mapping evidence.
 
-The helper currently limits each input artifact to 256 MiB and the ZIP’s declared
-uncompressed total to 512 MiB, and bounds the number of ZIP members. Tests use synthetic
-distribution layouts; the full authenticated LOINC release has not been qualified.
-If a package exceeds these bounds or has an unsupported layout, report that
-limitation and retain uncoded source text. Do not substitute an unverified package.
+The helper limits each input artifact and each consumed ZIP member to 256 MiB,
+and the total uncompressed bytes read from the core and linguistic-variant CSVs
+to 512 MiB. Unused accessory contents are not read or extracted. All ZIP member
+paths, symlink flags and duplicate names are checked, with at most 10,000 members.
+Automated tests use synthetic distributions. A local check on 2026-11-16 of the
+official LOINC 2.83 ZIP confirmed installation of 112,405 codes and 21 languages,
+and Portuguese component searches for C-reactive protein and triglycerides.
+This checks package compatibility and retrieval, not clinical equivalence or
+other releases. Full-release parsing retains catalogs in memory; the local check
+used about 1.5 GB of peak process memory. If a package exceeds these bounds or
+has an unsupported layout, report that limitation and retain uncoded source text.
+Do not substitute an unverified package.
 
 ## Search automatically, then assess context
 
 During extraction, the agent searches the original label across the installed
-English terms and available linguistic variants. It can try useful translations,
+English terms and available linguistic variants, including translated components
+when full translated names are blank. It can try useful translations,
 expanded abbreviations or alternate spellings without making the user identify
 a language. Retain the original label, search terms and translation uncertainty
 in the evidence. A language guess is neither clinical evidence nor permission to
