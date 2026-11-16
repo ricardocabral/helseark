@@ -278,13 +278,67 @@ class TerminologyDownloadTest(unittest.TestCase):
             self.download()
         self.assertFalse((self.root / 'original-cache' / 'acquired').exists())
 
+    def test_directory_open_refuses_a_symlink_swapped_after_reservation(self):
+        self.transport()
+        foreign = self.root / 'foreign'
+        foreign.mkdir()
+        (foreign / 'other-session').write_text('keep')
+        real_open = self.module.os.open
+        def swap(path, flags, *args, **kwargs):
+            if Path(path) == self.destination:
+                self.destination.rmdir()
+                self.destination.symlink_to(foreign, target_is_directory=True)
+            return real_open(path, flags, *args, **kwargs)
+        with patch.object(self.module.os, 'open', side_effect=swap):
+            with self.assertRaises(self.module.DownloadError):
+                self.download()
+        self.assertEqual([path.name for path in foreign.iterdir()], ['other-session'])
+        self.assertEqual((foreign / 'other-session').read_text(), 'keep')
+        self.assertTrue(self.destination.is_symlink())
+
+    def test_replaced_reserved_directory_cannot_redirect_publication_or_cleanup(self):
+        for replacement in ('deleted-then-symlink', 'renamed-then-symlink', 'renamed-then-directory'):
+            with self.subTest(replacement=replacement):
+                self.transport()
+                self.destination = self.root / replacement
+                foreign = self.root / (replacement + '-foreign')
+                foreign.mkdir()
+                (foreign / 'other-session').write_text('keep')
+                displaced = self.root / (replacement + '-reserved')
+                real_link = self.module.os.link
+                swapped = False
+                def swap(source, target, **kwargs):
+                    nonlocal swapped
+                    if not swapped:
+                        swapped = True
+                        if replacement == 'deleted-then-symlink':
+                            self.destination.rmdir()
+                        else:
+                            self.destination.rename(displaced)
+                        if replacement == 'renamed-then-directory':
+                            foreign.rename(self.destination)
+                        else:
+                            self.destination.symlink_to(foreign, target_is_directory=True)
+                    return real_link(source, target, **kwargs)
+                with patch.object(self.module.os, 'link', side_effect=swap):
+                    with self.assertRaises(self.module.DownloadError):
+                        self.download()
+                preserved = self.destination if replacement == 'renamed-then-directory' else foreign
+                self.assertEqual([path.name for path in preserved.iterdir()], ['other-session'])
+                self.assertEqual((preserved / 'other-session').read_text(), 'keep')
+                if displaced.exists():
+                    self.assertEqual(list(displaced.iterdir()), [])
+
     def test_publication_failure_preserves_another_sessions_file(self):
         self.transport()
         real_link = self.module.os.link
-        def race(source, target):
-            if target.name == 'receipt.json':
-                target.write_text('other session')
-            real_link(source, target)
+        def race(source, target, **kwargs):
+            if Path(target).name == 'receipt.json':
+                descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                                     0o600, dir_fd=kwargs.get('dst_dir_fd'))
+                with os.fdopen(descriptor, 'w') as output:
+                    output.write('other session')
+            real_link(source, target, **kwargs)
         with patch.object(self.module.os, 'link', side_effect=race):
             with self.assertRaises(self.module.DownloadError):
                 self.download()
@@ -295,10 +349,10 @@ class TerminologyDownloadTest(unittest.TestCase):
     def test_interrupted_publication_removes_only_our_unfinished_files(self):
         self.transport()
         real_link = self.module.os.link
-        def interrupt(source, target):
-            if target.name == 'receipt.json':
+        def interrupt(source, target, **kwargs):
+            if Path(target).name == 'receipt.json':
                 raise KeyboardInterrupt
-            real_link(source, target)
+            real_link(source, target, **kwargs)
         with patch.object(self.module.os, 'link', side_effect=interrupt):
             with self.assertRaises(KeyboardInterrupt):
                 self.download()
@@ -307,9 +361,9 @@ class TerminologyDownloadTest(unittest.TestCase):
     def test_interruption_immediately_after_receipt_link_does_not_leave_false_completion(self):
         self.transport()
         real_link = self.module.os.link
-        def interrupt(source, target):
-            real_link(source, target)
-            if target.name == 'receipt.json':
+        def interrupt(source, target, **kwargs):
+            real_link(source, target, **kwargs)
+            if Path(target).name == 'receipt.json':
                 raise KeyboardInterrupt
         with patch.object(self.module.os, 'link', side_effect=interrupt):
             with self.assertRaises(KeyboardInterrupt):

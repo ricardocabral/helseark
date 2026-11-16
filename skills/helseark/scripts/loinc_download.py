@@ -115,32 +115,47 @@ def _receive(opener: urllib.request.OpenerDirector, url: str, authorization: str
 
 
 def _publish(staging: Path, destination: Path) -> None:
-    """Reserve exclusively; commit receipt last; clean up only our own entries."""
+    """Publish relative to the reserved directory, even if its name is swapped."""
+    if not hasattr(os, 'O_DIRECTORY') or not hasattr(os, 'O_NOFOLLOW'):
+        raise DownloadError('This platform does not support safe directory publication.')
     destination = _new_destination(destination)
     destination.mkdir(mode=0o700)
-    identity = destination.stat()
-    publications: list[tuple[Path, os.stat_result]] = []
+    identity = destination.lstat()
+    directory_fd = None
+    publications: list[tuple[str, os.stat_result]] = []
     try:
+        directory_fd = os.open(destination, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        opened = os.fstat(directory_fd)
+        if (opened.st_dev, opened.st_ino) != (identity.st_dev, identity.st_ino):
+            raise DownloadError('The destination changed during publication.')
         for name in ('loinc.zip', 'receipt.json'):
             source = staging / name
-            publications.append((destination / name, source.stat()))
-            os.link(source, destination / name)
+            publications.append((name, source.stat()))
+            os.link(source, name, dst_dir_fd=directory_fd)
+        current = destination.lstat()
+        if (current.st_dev, current.st_ino) != (identity.st_dev, identity.st_ino):
+            raise DownloadError('The destination changed during publication.')
     except BaseException:
-        # Never recursively delete a destination: another session may add files.
+        # The descriptor follows our reservation, never a replacement pathname.
+        if directory_fd is not None:
+            for name, original in reversed(publications):
+                try:
+                    current_file = os.stat(name, dir_fd=directory_fd, follow_symlinks=False)
+                    if (current_file.st_dev, current_file.st_ino) == (original.st_dev, original.st_ino):
+                        os.unlink(name, dir_fd=directory_fd)
+                except OSError:
+                    pass
+        # Remove the directory name only when it still identifies our reservation.
         try:
             current = destination.lstat()
             if (current.st_dev, current.st_ino) == (identity.st_dev, identity.st_ino):
-                for path, original in reversed(publications):
-                    try:
-                        current_file = path.lstat()
-                    except FileNotFoundError:
-                        continue
-                    if (current_file.st_dev, current_file.st_ino) == (original.st_dev, original.st_ino):
-                        path.unlink()
                 destination.rmdir()
         except OSError:
             pass
         raise
+    finally:
+        if directory_fd is not None:
+            os.close(directory_fd)
 
 
 def download(version: str, destination: Path, username: str, password: str) -> dict:
