@@ -10,7 +10,7 @@ Schema validity does not establish clinical truth. No medical advice is provided
 | Area | Status |
 | --- | --- |
 | Agent skill, instructions, three task references, schemas and invented example | Core |
-| Local LOINC/translation search and UCUM helper, pinned offline packages, evidence-backed mapping proposals with human review | Core extension; optional for text-only records |
+| Local LOINC/translation search and UCUM helper, bundled PT-BR/English vocabulary and Janusmed aliases, optional full catalog acquisition, evidence-backed mapping proposals with human review | Core extension; optional for text-only records |
 | Existing Python library/CLI and legacy agent-kit | Preserved, optional experimental work; separate setup and limitations |
 | Confinement infrastructure and sandbox launchers | Deferred |
 | Bespoke evaluation platform and provider evaluations | Deferred |

@@ -12,7 +12,10 @@ Keep exact decimal scale, comparator, unit, date precision and uncertainty. Labe
 user assertions as such instead of inventing source support. Do not silently
 change source-reported clinical status or guess codes or clinical meaning.
 For terminology enrichment use the [terminology guide](../docs/terminology.md)
-and pinned local helper. You may propose a new mapping with source citations for
+and local helper, which defaults to the bundled English/PT-BR vocabulary and
+Janusmed aliases without an account. Honor an existing catalog preference;
+optional account acquisition is a separate explicit setup task using local hidden
+credentials, not chat passwords. You may propose a new mapping with source citations for
 every relevant axis, or reuse a human-approved mapping only where its stated
 conditions match.
 Search available translations and language variants automatically; language alone

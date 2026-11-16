@@ -11,8 +11,9 @@ uses the repository's instructions and schemas; it requires no Helseark CLI.
 Resolve links relative to this file, not the current working directory. Keep
 the repository with the skill. If a referenced file is missing, report it;
 do not silently install tools, fetch definitions or substitute the experimental
-agent-kit. Terminology setup is a separate explicit operation described in the
-[terminology guide](../../docs/terminology.md); normal record work stays offline.
+agent-kit. The [bundled vocabulary](../../vocabulary/README.md) works offline
+without an account. Optional full-catalog acquisition is a separate explicit
+operation described in the [terminology guide](../../docs/terminology.md).
 
 Read [agent instructions](../../instructions.md) for every task. Use the pinned
 [FHIR R4 schema](../../definitions/fhir-r4-json-schema/fhir.schema.json).
@@ -58,13 +59,19 @@ with input paths and result, or why checks could not run. The command in
 
 ## Propose terminology mappings
 
-Use the [terminology guide](../../docs/terminology.md) and bundled
-[local helper](scripts/terminology.py) when a pinned local package is available.
-Search labels automatically across its translations and useful language variants;
+Use the [terminology guide](../../docs/terminology.md) and
+[local helper](scripts/terminology.py). Without `--package`, search/check use the
+shipped pinned LOINC subset, English/PT-BR Janusmed aliases and UCUM definitions.
+Search labels automatically across these terms and useful language variants;
 do not ask the user to identify the language first. Retain the original spelling.
 Search language cannot establish specimen, clinical equivalence or numeric/date
-locale. If the package is unavailable, report it and continue with source text;
-do not fetch during extraction.
+locale. At setup or when broader coverage would help, offer once: use the bundled
+vocabulary, import an existing official ZIP, or download full LOINC after account
+creation. Honor a supplied preference and retain it in private setup/review notes;
+declining is supported and must not trigger repeated prompts for unmatched labels.
+For a download, follow the separate local-terminal credential procedure; never
+request passwords in chat. Do not fetch during extraction. If definitions are
+unavailable or context is insufficient, continue with source text and record gaps.
 
 You may propose a new mapping in the draft. Cite the source support for every
 relevant LOINC axis and UCUM assignment. Abstain when context is missing,
@@ -75,6 +82,10 @@ proposal, catalog pins, alternatives and helper check result beside the draft.
 The check verifies membership and declared context, not clinical equivalence.
 Reuse a reviewed mapping only within its explicit approved conditions, with
 citations for this source and review of the new draft. No accepted file changes.
+An alias match is discovery only. You may propose new aliases or conditional
+mappings beside the private draft; adding them to the shared vocabulary requires
+separate review, provenance and redistribution rights. Never invent approval
+metadata or silently promote a patient's draft into repository terminology.
 
 ## Query or correct records
 

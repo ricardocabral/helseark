@@ -12,8 +12,9 @@ and use that exact URN for references to it from other entries, as in the exampl
 Preserve exact decimals, comparators,
 original units, source status, partial dates and uncertainty. Do not guess codes,
 timezones or clinical meaning. Follow the [terminology
-guide](../docs/terminology.md): search a
-pinned local package automatically across translations and useful language
+guide](../docs/terminology.md): search the
+bundled English/PT-BR vocabulary and Janusmed aliases automatically, or use an
+explicitly selected full pinned package, across translations and useful language
 variants. Do not require a language choice or use it to infer numeric/date locale.
 You may propose new mappings supported by source citations for specimen,
 property, timing, scale and relevant method. Abstain on missing or ambiguous
@@ -37,8 +38,13 @@ otherwise return their contents for me to save. Source attachment paths must
 resolve from the Bundle's location and remain valid if I copy the reviewed import
 to its accepted location. No experimental CLI, archive initialization or rendered
 prompts are required.
-Optional terminology proposals retain their package pins and supporting evidence;
-catalog setup is separate from this offline extraction.
+Terminology proposals retain their vocabulary/catalog pins and supporting evidence.
+At setup, offer once to use the supplied vocabulary, import an existing ZIP or
+download full LOINC after account creation; honor an existing choice. Declining
+is fully supported, including uncoded source text outside coverage. Never ask
+for a password in chat; account acquisition is separate from offline extraction.
+I may review proposed new aliases or mappings with the draft; they do not become
+shared repository vocabulary automatically.
 
 Request explicit human review of identity, each value/comparator/unit/date and
 citation and any mapping proposal/evidence before acceptance. Leave the source

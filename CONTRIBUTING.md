@@ -58,9 +58,12 @@ For the local terminology helper and its invented examples, also run:
 uv run --no-sync python -m unittest discover -s tests -p 'test_terminology*.py' -v
 ```
 
-These tests use synthetic catalogs, not a downloaded LOINC distribution. Normal
-search and checking must work offline. Catalog acquisition/update is a separate
-explicit operation; see [terminology setup and terms](docs/terminology.md).
+These tests use synthetic catalogs and the shipped bilingual subset, not an
+authenticated full LOINC download. Normal search and checking must work offline.
+Acquisition tests use synthetic HTTPS responses and require no account. Catalog
+acquisition/update is a separate explicit operation; see
+[terminology setup and terms](docs/terminology.md) and the
+[vocabulary contribution and release guide](vocabulary/README.md#contributions-and-releases).
 
 The “Schemas and examples” workflow runs these checks on every pull request.
 They protect this invented example, not arbitrary clinical truth or human approval.

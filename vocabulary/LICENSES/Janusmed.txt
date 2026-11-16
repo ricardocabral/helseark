@@ -1,0 +1,19 @@
+Janusmed synonym attribution and permission
+
+Selected English and Brazilian Portuguese synonym strings were supplied from
+Janusmed's vocabulary-only metric_synonym snapshot dated 2026-11-16. Their use
+in Helseark's bundled vocabulary was explicitly authorized by the contributor
+who requested this integration. This notice asserts no broader license to the
+Janusmed codebase, database or other content.
+
+Only synonym strings and vocabulary provenance are included. No patient records,
+extraction results, credentials, database connection details or other private
+operational data are included. Original synonym wording is preserved; locale
+en-US is represented as en, and unspecified locale as und. Mislabeled CJK terms
+are excluded from this PT-BR/English starter release.
+
+Helseark's associations from synonym entries to candidate LOINC identifiers are
+new retrieval aids, not a Janusmed-provided LOINC crosswalk and not approved
+clinical equivalence. Helseark-authored associations and supplementary aliases
+are covered by Helseark's MIT license. Official LOINC and UCUM content remains
+subject to its respective notices, not the MIT license.

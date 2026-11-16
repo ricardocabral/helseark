@@ -12,6 +12,9 @@ are historical context where they conflict with the approved scope.
 - Workers use separate branches/worktrees. Preserve other sessions' changes. Do not amend or rewrite commits.
 - Implement the assigned plan task completely, including behavioral tests and its documentation. Report limitations honestly.
 - Use synthetic fixtures only. Preserve exact decimal precision, patient isolation, immutable accepted history, offline operation, and mandatory human review.
+- The shipped `vocabulary/` contains authorized terminology, not patient fixtures.
+  Preserve upstream fields/notices and source provenance. Alias retrieval never
+  establishes clinical equivalence or human approval; normal lookup remains offline.
 - Default checks cover schemas, agent instructions and the invented example.
   Run focused checks locally; the optional experimental CLI suite runs remotely
   through manual dispatch only when explicitly requested. Schema and example
