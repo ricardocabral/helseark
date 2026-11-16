@@ -1,0 +1,117 @@
+{
+  "reviewStatus": "unreviewed",
+  "catalog": {
+    "version": "2.83",
+    "reference": "https://loinc.org/13457-7/",
+    "readDate": "2026-11-16",
+    "verificationLimit": "Public concept page verifies code, name and axes; selected 2.83 package version is illustrative. This example does not contain or authenticate the official 2.83 distribution."
+  },
+  "decisions": [
+    {
+      "observation": "Observation/55555555-5555-4555-8555-555555555555",
+      "sourceRow": 1,
+      "sourceLabel": "Colesterol LDL calculado",
+      "sourceCoding": [],
+      "agentAssignedCoding": [
+        {
+          "system": "http://loinc.org",
+          "version": "2.83",
+          "code": "13457-7",
+          "display": "Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation"
+        }
+      ],
+      "outcome": "proposed",
+      "rationale": "Explicit LDL mass concentration, point-in-time quantitative result in serum/plasma by calculation agrees with all six LOINC axes; translation proposes identity, never proves it.",
+      "axisEvidence": {
+        "component": {
+          "row": 1,
+          "column": "component",
+          "quote": "LDL cholesterol"
+        },
+        "property": {
+          "row": 1,
+          "column": "property",
+          "quote": "mass concentration"
+        },
+        "time": {
+          "row": 1,
+          "column": "time",
+          "quote": "point in time"
+        },
+        "system": {
+          "row": 1,
+          "column": "specimen",
+          "quote": "Serum/plasma"
+        },
+        "scale": {
+          "row": 1,
+          "column": "scale",
+          "quote": "quantitative"
+        },
+        "method": {
+          "row": 1,
+          "column": "method",
+          "quote": "Calculated"
+        }
+      }
+    },
+    {
+      "observation": "Observation/66666666-6666-4666-8666-666666666666",
+      "sourceRow": 2,
+      "sourceLabel": "Calculated LDL cholesterol",
+      "sourceCoding": [],
+      "agentAssignedCoding": [
+        {
+          "system": "http://loinc.org",
+          "version": "2.83",
+          "code": "13457-7",
+          "display": "Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation"
+        }
+      ],
+      "outcome": "proposed",
+      "rationale": "Explicit LDL mass concentration, point-in-time quantitative result in serum/plasma by calculation agrees with all six LOINC axes; translation proposes identity, never proves it.",
+      "axisEvidence": {
+        "component": {
+          "row": 2,
+          "column": "component",
+          "quote": "LDL cholesterol"
+        },
+        "property": {
+          "row": 2,
+          "column": "property",
+          "quote": "mass concentration"
+        },
+        "time": {
+          "row": 2,
+          "column": "time",
+          "quote": "point in time"
+        },
+        "system": {
+          "row": 2,
+          "column": "specimen",
+          "quote": "Serum/plasma"
+        },
+        "scale": {
+          "row": 2,
+          "column": "scale",
+          "quote": "quantitative"
+        },
+        "method": {
+          "row": 2,
+          "column": "method",
+          "quote": "Calculated"
+        }
+      }
+    },
+    {
+      "observation": "Observation/77777777-7777-4777-8777-777777777777",
+      "sourceRow": 3,
+      "sourceLabel": "LDL",
+      "sourceCoding": [],
+      "agentAssignedCoding": [],
+      "outcome": "unresolved",
+      "rationale": "LDL alone does not establish specimen or method. No coding proposed.",
+      "axisEvidence": {}
+    }
+  ]
+}

@@ -12,8 +12,11 @@ on:
       - "docs/tutorial.md"
       - "docs/how-to.md"
       - "docs/schemas.md"
+      - "docs/terminology.md"
+      - "docs/development/coding-guide.md"
       - "docs/explanation/evidence-and-review.md"
       - "tests/test_examples.py"
+      - "tests/test_terminology*.py"
       - "AGENTS.md"
       - "SCOPE.md"
       - "CONTRIBUTING.md"
@@ -69,3 +72,6 @@ jobs:
 
       - name: Check invented source, FHIR and citation consistency
         run: uv run --no-sync python -m unittest discover -s tests -p test_examples.py -v
+
+      - name: Check offline terminology helper and invented mapping examples
+        run: uv run --no-sync python -m unittest discover -s tests -p 'test_terminology*.py' -v

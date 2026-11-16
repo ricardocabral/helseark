@@ -39,6 +39,8 @@ agent receives what you share. See [privacy boundaries](docs/explanation/privacy
 - [Task guide](docs/how-to.md) and [complete invented example](examples/README.md).
 - [Schemas and validation](docs/schemas.md): clinical records use FHIR R4, an open health-data standard.
 - [Evidence and human review](docs/explanation/evidence-and-review.md).
+- [Local terminology search and reviewed mappings](docs/terminology.md): optional
+  pinned LOINC, translations and UCUM support; no experimental CLI required.
 
 Helseark provides no medical advice. Schema validity cannot establish extraction
 accuracy or clinical truth. Review and file protection remain your responsibility.

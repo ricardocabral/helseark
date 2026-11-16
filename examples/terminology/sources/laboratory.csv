@@ -1,0 +1,4 @@
+person_id,person_name,report_id,lab,local_test,test,status,date,result,unit,component,property,time,specimen,scale,method
+44444444-4444-4444-8444-444444444444,Sam Synthetic,SYNTH-LDL-001,Invented Bilingual Laboratory,LDL-CALC-PT,Colesterol LDL calculado,final,2026-03-01,"103,00",mg/dL,LDL cholesterol,mass concentration,point in time,Serum/plasma,quantitative,Calculated
+44444444-4444-4444-8444-444444444444,Sam Synthetic,SYNTH-LDL-002,Invented Bilingual Laboratory,LDL-CALC-EN,Calculated LDL cholesterol,final,2026-04-01,103.00,mg/dL,LDL cholesterol,mass concentration,point in time,Serum/plasma,quantitative,Calculated
+44444444-4444-4444-8444-444444444444,Sam Synthetic,SYNTH-LDL-003,Invented Bilingual Laboratory,LDL-UNKNOWN,LDL,final,2026-05,"105,0",mg/dL,,,,,,

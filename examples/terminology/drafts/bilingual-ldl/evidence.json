@@ -1,0 +1,597 @@
+{
+  "personId": "44444444-4444-4444-8444-444444444444",
+  "entries": [
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Colesterol LDL calculado",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "test",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "final",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "status",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "2026-03-01",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "date",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/valueQuantity/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "103,00",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "result",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "decimal-comma-v1",
+        "description": "Replace a decimal comma with a point, retaining every decimal place and no numeric conversion."
+      }
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/valueQuantity/unit"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "mg/dL",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "unit",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "explicit-subject-v1",
+        "description": "Use the explicit selected source person ID in a Bundle-local UUID URN; human identity confirmation remains required."
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/identifier/0/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/name/0/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Sam Synthetic",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "person_name",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/method/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Calculated",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "method",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/specimen/display"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Serum/plasma",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 1,
+        "column": "specimen",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Calculated LDL cholesterol",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "test",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "final",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "status",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "2026-04-01",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "date",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/valueQuantity/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "103.00",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "result",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "decimal-comma-v1",
+        "description": "Replace a decimal comma with a point, retaining every decimal place and no numeric conversion."
+      }
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/valueQuantity/unit"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "mg/dL",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "unit",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "explicit-subject-v1",
+        "description": "Use the explicit selected source person ID in a Bundle-local UUID URN; human identity confirmation remains required."
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/identifier/0/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/name/0/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Sam Synthetic",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "person_name",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/method/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Calculated",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "method",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/specimen/display"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Serum/plasma",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 2,
+        "column": "specimen",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/code/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "LDL",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "test",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/status"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "final",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "status",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/effectiveDateTime"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "2026-05",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "date",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/valueQuantity/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "105,0",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "result",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "decimal-comma-v1",
+        "description": "Replace a decimal comma with a point, retaining every decimal place and no numeric conversion."
+      }
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/valueQuantity/unit"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "mg/dL",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "unit",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/subject/reference"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source",
+      "transformation": {
+        "rule": "explicit-subject-v1",
+        "description": "Use the explicit selected source person ID in a Bundle-local UUID URN; human identity confirmation remains required."
+      }
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/identifier/0/value"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "44444444-4444-4444-8444-444444444444",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "person_id",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/name/0/text"
+        ]
+      },
+      "sourceDocument": "DocumentReference/88888888-8888-4888-8888-888888888888",
+      "sourceSha256": "4e5d8fff3ba8e77c3935337ffa9000ae9a19525209b8f7e13f967fc36bd62353",
+      "quote": "Sam Synthetic",
+      "locator": {
+        "kind": "csv-cell",
+        "row": 3,
+        "column": "person_name",
+        "delimiter": ","
+      },
+      "kind": "source"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Patient/44444444-4444-4444-8444-444444444444",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Observation/55555555-5555-4555-8555-555555555555",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Observation/66666666-6666-4666-8666-666666666666",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "Observation/77777777-7777-4777-8777-777777777777",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "DocumentReference/88888888-8888-4888-8888-888888888888",
+        "pointers": [
+          "/id"
+        ]
+      },
+      "rule": "synthetic-example-id-v1"
+    },
+    {
+      "kind": "generated",
+      "target": {
+        "reference": "DocumentReference/88888888-8888-4888-8888-888888888888",
+        "pointers": [
+          "/status",
+          "/content/0/attachment/contentType",
+          "/content/0/attachment/url",
+          "/content/0/attachment/title"
+        ]
+      },
+      "rule": "retained-source-file-bookkeeping-v1"
+    }
+  ],
+  "contractVersion": "0.1.0"
+}

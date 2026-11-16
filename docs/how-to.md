@@ -51,14 +51,30 @@ A query must leave records unchanged. A failed read cannot support an absence cl
    Identify the prior version and affected references. Do not update related resources automatically.
 4. [Review the new draft](#review-a-draft). Preserve the prior source, accepted record, evidence and review.
 
+## Add terminology to a draft
+
+Use [local terminology search](terminology.md) when a pinned catalog is available.
+The agent searches translations and useful language variants automatically and
+may propose a new mapping with source citations. A familiar label or a single hit
+is insufficient: missing specimen, property, timing, scale or relevant method
+requires abstention. Keep the source label, unit, exact value and comparator.
+Review proposed coding and its evidence with the final draft. Reuse only the
+conditions explicitly approved for a prior mapping. To enrich an accepted record,
+prepare a separate correction draft; retain the original and its review.
+
 ## Review a draft
 
 Compare each fact and citation with its source. Check person assignment, value,
 comparator, unit, status, date precision and uncertainty. Inspect raw JSON numbers:
 `0.050` must retain its scale. Omit unsupported facts and record the gap.
 
-In a separate note, record reviewer, date, person ID, exact files/revision,
-decision and unresolved concerns. Keep the reviewed bytes. Accept only after
+For proposed mappings, check the source context against the selected LOINC axes,
+UCUM assignment, alternatives, package versions and helper result. Distinguish
+source-provided coding from agent proposals. Catalog membership does not prove
+clinical equivalence. Approve any intended reuse conditions explicitly.
+
+In a separate note, record reviewer, date, person ID, exact files/revision and
+mapping evidence, decision and unresolved concerns. Keep the reviewed bytes. Accept only after
 explicit human approval. Any changed draft needs fresh review.
 
 For corrections, retain the previous accepted version and record which version

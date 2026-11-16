@@ -8,6 +8,7 @@
 | `instructions.md`, `prompts/` | Agent instructions and extraction/query/correction prompts |
 | `examples/` | Complete invented source, FHIR Bundle and citations |
 | `docs/tutorial.md`, `docs/how-to.md`, `docs/schemas.md` | User walkthrough, task guide and schema reference |
+| `skills/helseark/scripts/terminology.py` | Standalone local terminology helper; separate from the experimental runtime |
 | `src/helseark/` | Optional experimental Python library and CLI; adapters live in `adapters/` |
 | `tests/` | Behavioral tests and installed-package qualifications |
 | `tests/fixtures/synthetic/` | Invented health data only |
@@ -80,7 +81,11 @@ precision, corruption and offline failure cases where the change touches them.
 Use `tmp_path`/temporary directories and subprocesses for real process boundaries.
 A source-text assertion is not proof of behavior. Do not weaken tests to hide a
 regression. Default CI runs the documented schema command and `tests/test_examples.py`
-against the actual invented source, FHIR and evidence files. Use the commands in
+against the actual invented source, FHIR and evidence files, plus focused
+`test_terminology*.py` helper/example checks. Terminology tests use tiny synthetic
+packages and exercise offline lookup, corruption and ambiguity behavior; they do
+not establish clinical equivalence. Catalog pins and evidence are supporting
+materials, never a second editable clinical store. Use the commands in
 [CONTRIBUTING.md](../../CONTRIBUTING.md); these need only the existing schema
 dependencies, with no project installation, PDF extra or vault. Keep new example
 checks small and specific; they do not prove clinical truth or human acceptance.

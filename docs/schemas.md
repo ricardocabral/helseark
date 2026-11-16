@@ -15,8 +15,14 @@ Readable citation/review notes are supporting material, not another clinical sto
 In this example `valueQuantity.value` is a JSON number with token `0.050`,
 `comparator` is `<`, `unit` is source text `mg/L`, and `effectiveDateTime` is
 `2026-02`. `code.text` retains the lab label without inventing LOINC or UCUM codes.
-The source's uncertainty is preserved in `Observation.note`. Human acceptance is
-recorded separately from the source-reported `Observation.status`.
+The source's uncertainty is preserved in `Observation.note`. The separate
+[terminology examples](../examples/terminology/) illustrate supported coding and
+abstention. [Terminology proposals](terminology.md) use native
+`Observation.code.coding` with `system = http://loinc.org` and a release `version`,
+and `valueQuantity.system = http://unitsofmeasure.org` with its UCUM `code`.
+Original `code.text`, quantity `unit`, value and comparator remain unchanged.
+Mapping evidence stays beside the draft; it is not another clinical model.
+Human acceptance is recorded separately from the source-reported `Observation.status`.
 
 Evidence has one explicit `personId`. Source entries identify target resource and
 FHIR pointers, original source digest, DocumentReference, quote and CSV row/column.

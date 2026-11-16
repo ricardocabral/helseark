@@ -1,0 +1,2 @@
+LOINC_NUM,COMPONENT,PROPERTY,TIME_ASPCT,SYSTEM,SCALE_TYP,METHOD_TYP,STATUS,LONG_COMMON_NAME,EXAMPLE_UCUM_UNITS
+13457-7,Cholesterol.in LDL,MCnc,Pt,Ser/Plas,Qn,Calculated,ACTIVE,Cholesterol in LDL [Mass/volume] in Serum or Plasma by calculation,mg/dL
