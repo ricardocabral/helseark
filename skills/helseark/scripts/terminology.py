@@ -429,7 +429,7 @@ def load_package(package: Path | None = None) -> tuple[dict, dict, dict, dict, s
 
 def tokens(text: str) -> set[str]:
     plain = ''.join(c for c in unicodedata.normalize('NFKD', text.casefold()) if not unicodedata.combining(c))
-    return set(re.findall(r'[^\W_]+|[%+/<>=]', plain))
+    return set(re.findall(r'[^\W_]+|[%#+/<>=]', plain))
 
 
 def candidate(row: dict, translations: dict, manifest: dict) -> dict:

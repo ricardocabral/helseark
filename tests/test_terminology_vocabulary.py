@@ -4,6 +4,8 @@ import hashlib
 import io
 import json
 from pathlib import Path
+import subprocess
+import sys
 import unittest
 
 
@@ -12,6 +14,15 @@ VOCABULARY = ROOT / 'vocabulary'
 
 
 class ShippedVocabularyTest(unittest.TestCase):
+    def test_count_markers_keep_shipped_absolute_and_relative_aliases_separate(self):
+        script = ROOT / 'skills/helseark/scripts/terminology.py'
+        for term, code, property_code in [('neutrophils#', '751-8', 'NCnc'), ('neut %', '770-8', 'NFr')]:
+            with self.subTest(term=term):
+                output = subprocess.check_output([sys.executable, str(script), 'search', '--text', term], text=True)
+                result = json.loads(output)
+                self.assertEqual([(row['code'], row['axes']['property']) for row in result['candidates']], [(code, property_code)])
+                self.assertTrue(result['human_review_required'])
+
     def test_manifest_pins_every_shipped_definition_and_notice(self):
         self.assertTrue((VOCABULARY / 'manifest.json').is_file(), 'fresh checkout needs a usable vocabulary')
         manifest = json.loads((VOCABULARY / 'manifest.json').read_text())
