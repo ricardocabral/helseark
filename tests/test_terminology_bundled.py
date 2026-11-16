@@ -226,6 +226,36 @@ class BundledTerminologyTest(unittest.TestCase):
         self.assertEqual(result['catalog']['loinc_version'], 'synthetic-new')
         self.assertEqual(self.search('LDL', '--package', self.root / 'full')['candidates'][0]['provenance']['loinc_version'], 'synthetic-new')
 
+    def test_exact_alias_matches_precede_broad_native_hits_before_limiting(self):
+        self.aliases.append(self.alias('crp', 'PCR', 'pt-BR', ['1234-5', '3456-7']))
+        self.write_bundle()
+        rows = json.loads(json.dumps(ROWS))
+        for code in ('0001-1', '0002-2'):
+            native = list(ROWS[1])
+            native[0], native[8] = code, 'PCR molecular invented test'
+            rows.append(native)
+        package = self.full_package(rows=rows)
+        result = self.search('PCR', '--package', package, '--limit', '1')
+        self.assertEqual([item['code'] for item in result['candidates']], ['1234-5'])
+        self.assertEqual(result['total_candidates'], 4)
+        self.assertTrue(result['truncated'])
+        self.assertTrue(result['human_review_required'])
+        complete = self.search('PCR', '--package', package, '--limit', '4')
+        self.assertEqual([item['code'] for item in complete['candidates']], ['1234-5', '3456-7', '0001-1', '0002-2'])
+        self.assertEqual(complete['total_candidates'], 4)
+        self.assertFalse(complete['truncated'])
+        self.assertTrue(all(item['alias_matches'] for item in complete['candidates'][:2]))
+        self.assertTrue(all(not item['alias_matches'] for item in complete['candidates'][2:]))
+
+    def test_search_reports_total_and_truncation_for_native_and_empty_results(self):
+        limited = self.search('LDL', '--limit', '1')
+        self.assertIn('total_candidates', limited)
+        self.assertEqual(limited['total_candidates'], 2)
+        self.assertTrue(limited['truncated'])
+        empty = self.search('invented unsupported analyte')
+        self.assertEqual(empty['total_candidates'], 0)
+        self.assertFalse(empty['truncated'])
+
     def test_full_conflicting_axes_status_or_missing_codes_have_diagnostics(self):
         rows = json.loads(json.dumps(ROWS))
         rows[0][2] = 'SCnc'

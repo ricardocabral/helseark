@@ -446,7 +446,11 @@ def candidate(row: dict, translations: dict, manifest: dict) -> dict:
 
 
 def search(package: Path | None = None, text: str = '', limit: int = 20, **filters: str) -> dict:
-    """Find active multilingual candidates by whole tokens and exact axes."""
+    """Find active candidates, ordering exact alias matches before broad names.
+
+    Stable code order within each group is retrieval order, never clinical rank.
+    Counts describe all matching active, axis-filtered candidates before limit.
+    """
     if not 1 <= limit <= 100 or not text.strip() or len(text) > 1000:
         raise ValueError('search requires text and a limit from 1 to 100')
     manifest, catalog, translations, _, _ = load_package(package)
@@ -472,7 +476,8 @@ def search(package: Path | None = None, text: str = '', limit: int = 20, **filte
         if alias_matches or wanted.issubset(tokens(' '.join(names))):
             result['alias_matches'] = alias_matches
             found.append(result)
-    return {'candidates': sorted(found, key=lambda row: row['code'])[:limit],
+    return {'candidates': sorted(found, key=lambda row: (not row['alias_matches'], row['code']))[:limit],
+            'total_candidates': len(found), 'truncated': len(found) > limit,
             'catalog': dict(catalog_pins(manifest), diagnostics=manifest['_diagnostics']),
             'examples_are_whitelist': False, 'human_review_required': True}
 
