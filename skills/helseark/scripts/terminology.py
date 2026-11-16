@@ -3,6 +3,8 @@
 
 Commands: fetch explicitly acquires pinned HTTPS bytes; install retains supplied
 LOINC ZIP and UCUM XML in a NEW directory; search/check have no network behavior.
+Without --package, search/check use the bundled vocabulary beside the repository
+skill. Aliases retrieve candidates only; they never supply clinical evidence.
 
 check proposal JSON:
  {"loinc":"...", "ucum":"mg/dL", "context":{
@@ -60,6 +62,7 @@ AXES = {'component': 'COMPONENT', 'property': 'PROPERTY', 'time': 'TIME_ASPCT',
         'system': 'SYSTEM', 'scale': 'SCALE_TYP', 'method': 'METHOD_TYP'}
 NAMES = ('LONG_COMMON_NAME', 'SHORTNAME', 'RELATEDNAMES2', 'LinguisticVariantDisplayName')
 NAMESPACE = 'http://unitsofmeasure.org/ucum-essence'
+DEFAULT_PACKAGE = Path(__file__).resolve().parents[3] / 'vocabulary'
 
 
 def safe_path(path: Path, *, exists: bool = True) -> Path:
@@ -279,35 +282,154 @@ def install(loinc_zip: Path, loinc_version: str, ucum_xml: Path, destination: Pa
             'codes': len(catalog), 'languages': sorted(translations)}
 
 
-def load_package(package: Path) -> tuple[dict, dict, dict, dict, set]:
+def catalog_pins(manifest: dict) -> dict:
+    """Identify the selected immutable catalog without exposing loader state."""
+    result = {key: manifest[key] for key in ('loinc_version', 'ucum_version', 'artifacts', 'manifest_sha256')}
+    if 'vocabulary_version' in manifest:
+        result['vocabulary_version'] = manifest['vocabulary_version']
+    return result
+
+
+def load_bundled_metadata(content: dict, manifest: dict, catalog: dict) -> list[dict]:
+    """Validate retrieval-only aliases and release-pinned human reuse rules."""
+    documents = {}
+    for name in ('aliases.json', 'mappings.json'):
+        documents[name] = json.loads(content[name], object_pairs_hook=unique_object,
+                                     parse_float=Decimal, parse_constant=lambda _: invalid_json())
+        if not isinstance(documents[name], dict) or documents[name].get('format') != 1:
+            raise ValueError('unsupported alias or rule document')
+    aliases, rules = documents['aliases.json'].get('aliases'), documents['mappings.json'].get('rules')
+    if not isinstance(aliases, list) or not isinstance(rules, list):
+        raise ValueError('expected alias and rule lists')
+    identifiers = set()
+    for alias in aliases:
+        if not isinstance(alias, dict):
+            raise ValueError('malformed retrieval alias')
+        source, codes = alias.get('source'), alias.get('candidates')
+        synonym_id = source.get('synonym_id') if isinstance(source, dict) else None
+        if (any(not isinstance(alias.get(key), str) or not alias[key].strip() or len(alias[key]) > 1000
+                for key in ('id', 'term'))
+                or alias['id'] in identifiers or not tokens(alias['term'])
+                or alias.get('language') not in ('en', 'pt-BR', 'und')
+                or alias.get('review_status') != 'retrieval_only'
+                or not isinstance(source, dict)
+                or any(not isinstance(source.get(key), str) or not source[key].strip()
+                       for key in ('name', 'metric'))
+                or (isinstance(source, dict) and ('synonym_id' in source or source.get('name') == 'Janusmed')
+                    and not ((isinstance(synonym_id, str) and synonym_id.strip())
+                             or (type(synonym_id) is int and synonym_id >= 0)))
+                or not isinstance(codes, list) or not codes
+                or any(not isinstance(code, str) or code not in catalog for code in codes)
+                or len(codes) != len(set(codes))):
+            raise ValueError('malformed or unresolved retrieval alias')
+        identifiers.add(alias['id'])
+    for rule in rules:
+        if (not isinstance(rule, dict) or not isinstance(rule.get('loinc'), str)
+                or rule['loinc'] not in catalog
+                or catalog[rule['loinc']]['STATUS'] != 'ACTIVE'
+                or rule_reuse(rule, rule, rule.get('conditions', {}), manifest) != 'eligible_for_human_review'):
+            raise ValueError('malformed or unresolved release-pinned rule')
+    return aliases
+
+
+def _load_package(package: Path) -> tuple[dict, dict, dict, dict, set]:
     package = safe_path(package, exists=False)
     if not package.is_dir():
         raise ValueError('expected a package directory')
     manifest_bytes = read_bytes(package / 'manifest.json', MAX_JSON)
-    manifest = json.loads(manifest_bytes, object_pairs_hook=unique_object)
+    manifest = json.loads(manifest_bytes, object_pairs_hook=unique_object,
+                          parse_float=Decimal, parse_constant=lambda _: invalid_json())
     if not isinstance(manifest, dict):
         raise ValueError('expected a package manifest object')
-    if (manifest.get('format') != 1 or not isinstance(manifest.get('artifacts'), dict)
-            or set(manifest['artifacts']) != {'loinc.zip', 'ucum.xml'}):
+    bundled = manifest.get('format') == 2
+    artifacts = manifest.get('artifacts')
+    required = {'loinc.csv', 'pt-BR.csv', 'ucum.xml', 'aliases.json', 'mappings.json'} if bundled else {'loinc.zip', 'ucum.xml'}
+    if (not isinstance(artifacts, dict) or len(artifacts) > 1000
+            or (bundled and (manifest.get('kind') != 'bundled'
+                            or not isinstance(manifest.get('vocabulary_version'), str)
+                            or not manifest['vocabulary_version'].strip()
+                            or manifest.get('languages') != ['en', 'pt-BR']))
+            or (not bundled and manifest.get('format') != 1)):
         raise ValueError('unsupported package manifest')
+    for name in artifacts:
+        path = PurePosixPath(name)
+        if (not name or path.is_absolute() or '..' in path.parts or '\\' in name
+                or str(path) != name):
+            raise ValueError('unsafe artifact name')
+    if (not required.issubset(artifacts)
+            or (not bundled and set(artifacts) != required)
+            or (bundled and (not any(name.startswith('LICENSES/') for name in artifacts)
+                             or any(name not in required and not name.startswith('LICENSES/') for name in artifacts)))):
+        raise ValueError('unsupported package manifest artifacts')
     content = {}
-    for name, expected in manifest['artifacts'].items():
-        data = read_bytes(package / name)
-        if not isinstance(expected, str) or digest(data) != expected:
+    total = 0
+    for name, expected in artifacts.items():
+        if not isinstance(expected, str) or not re.fullmatch('[0-9a-f]{64}', expected):
+            raise ValueError('invalid artifact SHA256 digest')
+        limit = min(MAX_JSON if name.endswith('.json') else MAX_FILE, MAX_TOTAL - total)
+        data = read_bytes(package / name, limit)
+        total += len(data)
+        if digest(data) != expected:
             raise ValueError('installed artifact SHA256 mismatch')
         content[name] = data
-    catalog, translations = load_loinc(content['loinc.zip'])
+    if bundled:
+        rows = csv_rows(content['loinc.csv'], set(AXES.values()) | {'LOINC_NUM', 'STATUS', 'LONG_COMMON_NAME'})
+        catalog = {row['LOINC_NUM']: row for row in rows}
+        if any(row['STATUS'] not in ('ACTIVE', 'TRIAL', 'DISCOURAGED', 'DEPRECATED') for row in rows):
+            raise ValueError('unknown LOINC status')
+        translated = csv_rows(content['pt-BR.csv'], {'LOINC_NUM'})
+        if any(row['LOINC_NUM'] not in catalog for row in translated):
+            raise ValueError('linguistic variant references unknown LOINC')
+        translations = {'pt-BR': {'member': 'pt-BR.csv', 'rows': {row['LOINC_NUM']: row for row in translated}}}
+    else:
+        catalog, translations = load_loinc(content['loinc.zip'])
     version, atoms, prefixes = load_ucum(content['ucum.xml'])
     if (version != manifest.get('ucum_version') or not isinstance(manifest.get('loinc_version'), str)
             or not manifest['loinc_version'].strip()):
         raise ValueError('catalog version differs from manifest')
     manifest['manifest_sha256'] = digest(manifest_bytes)
+    manifest['_aliases'] = load_bundled_metadata(content, manifest, catalog) if bundled else []
+    manifest['_diagnostics'] = []
+    manifest['_alias_catalog'] = catalog_pins(manifest)
+    return manifest, catalog, translations, atoms, prefixes
+
+
+def load_package(package: Path | None = None) -> tuple[dict, dict, dict, dict, set]:
+    """Load local catalogs; reconcile bundled discovery aliases with an explicit ZIP.
+
+    One selected catalog controls every candidate and proposal. Only retrieval
+    aliases can complement another release, after code, axes and status agree;
+    bundled human mapping rules are never transferred.
+    """
+    manifest, catalog, translations, atoms, prefixes = _load_package(DEFAULT_PACKAGE if package is None else package)
+    if manifest['format'] == 1 and DEFAULT_PACKAGE.exists():
+        bundled, baseline, _, _, _ = _load_package(DEFAULT_PACKAGE)
+        if bundled['format'] != 2:
+            raise ValueError('expected a bundled default vocabulary')
+        compatible = set()
+        for code in sorted({code for alias in bundled['_aliases'] for code in alias['candidates']}):
+            row = catalog.get(code)
+            if row is None:
+                reason = 'code_absent'
+            elif row['STATUS'] != 'ACTIVE' or row['STATUS'] != baseline[code]['STATUS']:
+                reason = 'status_mismatch'
+            elif any(row[column] != baseline[code][column] for column in AXES.values()):
+                reason = 'axes_mismatch'
+            else:
+                compatible.add(code)
+                continue
+            manifest['_diagnostics'].append({'code': code, 'reason': reason,
+                                             'source_loinc_version': bundled['loinc_version'],
+                                             'selected_loinc_version': manifest['loinc_version']})
+        manifest['_aliases'] = [dict(alias, candidates=[code for code in alias['candidates'] if code in compatible])
+                                for alias in bundled['_aliases']]
+        manifest['_alias_catalog'] = catalog_pins(bundled)
     return manifest, catalog, translations, atoms, prefixes
 
 
 def tokens(text: str) -> set[str]:
     plain = ''.join(c for c in unicodedata.normalize('NFKD', text.casefold()) if not unicodedata.combining(c))
-    return set(re.findall(r'[^\W_]+', plain))
+    return set(re.findall(r'[^\W_]+|[%#+/<>=]', plain))
 
 
 def candidate(row: dict, translations: dict, manifest: dict) -> dict:
@@ -319,18 +441,30 @@ def candidate(row: dict, translations: dict, manifest: dict) -> dict:
             'example_units': row.get('EXAMPLE_UNITS', ''),
             'example_ucum_units': [unit for unit in row.get('EXAMPLE_UCUM_UNITS', '').split(';') if unit],
             'provenance': {'loinc_version': manifest['loinc_version'],
-                           'loinc_sha256': manifest['artifacts']['loinc.zip'],
+                           'loinc_sha256': manifest['artifacts']['loinc.csv' if manifest['format'] == 2 else 'loinc.zip'],
                            'translation_members': {lang: translations[lang]['member'] for lang in translated}}}
 
 
-def search(package: Path, text: str, limit: int = 20, **filters: str) -> dict:
-    """Find active multilingual candidates by whole tokens and exact axes."""
+def search(package: Path | None = None, text: str = '', limit: int = 20, **filters: str) -> dict:
+    """Find active candidates, ordering exact alias matches before broad names.
+
+    Stable code order within each group is retrieval order, never clinical rank.
+    Counts describe all matching active, axis-filtered candidates before limit.
+    """
     if not 1 <= limit <= 100 or not text.strip() or len(text) > 1000:
         raise ValueError('search requires text and a limit from 1 to 100')
     manifest, catalog, translations, _, _ = load_package(package)
     wanted, found = tokens(text), []
     if not wanted:
         raise ValueError('search requires at least one word')
+    matches = {}
+    for alias in manifest['_aliases']:
+        if wanted == tokens(alias['term']):
+            match = {key: alias[key] for key in ('id', 'term', 'language', 'source', 'review_status')}
+            match.update(catalog=manifest['_alias_catalog'], selected_loinc_version=manifest['loinc_version'],
+                         revalidated=manifest['format'] == 1)
+            for code in alias['candidates']:
+                matches.setdefault(code, []).append(match)
     for row in catalog.values():
         if row['STATUS'] != 'ACTIVE' or any(row[AXES[key]] != value for key, value in filters.items() if value is not None):
             continue
@@ -338,9 +472,13 @@ def search(package: Path, text: str, limit: int = 20, **filters: str) -> dict:
         names = [row.get(name, '') for name in (*NAMES, 'COMPONENT', 'DisplayName')]
         for translated in result['translations'].values():
             names.extend(translated.get(name, '') for name in (*NAMES, 'COMPONENT'))
-        if wanted.issubset(tokens(' '.join(names))):
+        alias_matches = matches.get(row['LOINC_NUM'], [])
+        if alias_matches or wanted.issubset(tokens(' '.join(names))):
+            result['alias_matches'] = alias_matches
             found.append(result)
-    return {'candidates': sorted(found, key=lambda row: row['code'])[:limit],
+    return {'candidates': sorted(found, key=lambda row: (not row['alias_matches'], row['code']))[:limit],
+            'total_candidates': len(found), 'truncated': len(found) > limit,
+            'catalog': dict(catalog_pins(manifest), diagnostics=manifest['_diagnostics']),
             'examples_are_whitelist': False, 'human_review_required': True}
 
 
@@ -434,7 +572,7 @@ def rule_reuse(rule: object, proposal: dict, context: dict, manifest: dict) -> s
     return 'eligible_for_human_review'
 
 
-def check(package: Path, observation: Path, proposal: Path) -> dict:
+def check(package: Path | None, observation: Path, proposal: Path) -> dict:
     """Report proposed native codings and unresolved evidence for human review."""
     manifest, catalog, translations, atoms, prefixes = load_package(package)
     source, proposed = read_json(observation), read_json(proposal)
@@ -499,8 +637,7 @@ def check(package: Path, observation: Path, proposal: Path) -> dict:
             'source_quantity_coding': {key: quantity[key] for key in ('system', 'code') if key in quantity},
             'unit': unit, 'rule_reuse': reuse,
             'evidence': evidence, 'context': context,
-            'catalog': {'loinc_version': manifest['loinc_version'], 'ucum_version': manifest['ucum_version'],
-                        'artifacts': manifest['artifacts'], 'manifest_sha256': manifest['manifest_sha256']}}
+            'catalog': dict(catalog_pins(manifest), diagnostics=manifest['_diagnostics'])}
 
 
 def main() -> int:
@@ -513,13 +650,14 @@ def main() -> int:
     for flag in ('loinc-zip', 'loinc-version', 'ucum-xml', 'destination'):
         setup.add_argument('--' + flag, required=True)
     find = commands.add_parser('search', help='offline multilingual candidate search')
-    find.add_argument('--package', required=True, type=Path)
+    find.add_argument('--package', type=Path)
     find.add_argument('--text', required=True)
     find.add_argument('--limit', type=int, default=20)
     for axis in AXES:
         find.add_argument('--' + axis)
     review = commands.add_parser('check', help='review-only native FHIR coding proposals')
-    for flag in ('package', 'observation', 'proposal'):
+    review.add_argument('--package', type=Path)
+    for flag in ('observation', 'proposal'):
         review.add_argument('--' + flag, required=True, type=Path)
     args = vars(parser.parse_args())
     command = args.pop('command')

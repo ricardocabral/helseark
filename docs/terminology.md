@@ -6,50 +6,120 @@ coding. No experimental Helseark runtime is required. Text-only records remain
 valid when the catalog or source context is unavailable. The helper does not
 choose a clinical mapping or accept a record.
 
-## Set up a catalog separately
+## Use the supplied vocabulary
 
-Obtain an official ZIP from [LOINC downloads](https://loinc.org/downloads/), using
-your own account when required. Download through the official site yourself;
-do not put credentials in commands, notes or this repository. Retain the release
-identifier, original ZIP, trusted SHA-256 and applicable notices. The
-[Portuguese (Brazil) translation](https://loinc.org/translations/pt-br/) is included
-as `AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv`; see also
-[LOINC international translations](https://loinc.org/international/).
-
-Obtain `ucum-essence.xml` from the official
-[UCUM release artifacts](https://ucum.org/docs/artifacts). Review the
-[LOINC license](https://loinc.org/license/) and [UCUM terms](https://ucum.org/license)
-before use or redistribution; upstream materials are not covered by Helseark's
-MIT license. Do not commit account downloads or patient data to this repository.
-
-Acquisition is an explicit network operation. For a public HTTPS artifact with an
-independently reviewed digest, the helper can fetch to a new file:
+A fresh checkout includes a [bilingual starter vocabulary](../vocabulary/README.md):
+24 active LOINC 2.83 concepts, official PT-BR variants, 327 retrieval aliases
+(326 from Janusmed), and complete unmodified UCUM 2.2 essence definitions.
+The manifest pins source artifacts, notices, coverage and every used file.
+Neither an account nor a download is required. Keep the repository with the skill;
+the helper resolves its default vocabulary relative to its own script.
 
 ```sh
-python3 skills/helseark/scripts/terminology.py fetch \
-  --url 'https://example.org/official-artifact' \
-  --sha256 REVIEWED_SHA256 --output /private/catalog-downloads/NEWFILE
+python3 skills/helseark/scripts/terminology.py search --text 'LDL-Colesterol'
+python3 skills/helseark/scripts/terminology.py search --text 'LDL cholesterol'
+python3 skills/helseark/scripts/terminology.py search --text 'hemoglobina glicada'
 ```
 
-Replace the placeholder URL and digest with the reviewed official artifact.
-This fetch command is not an authenticated LOINC downloader. It verifies supplied
-bytes against the digest; it cannot establish the digest's trustworthiness.
-Build a new local package from the retained files:
+Without `--package`, both `search` and `check` use this bundle. Covered families
+include lipids, HbA1c, TSH, creatinine, hemoglobin, CRP and selected blood counts;
+see the manifest for the exact coverage. A missing match is a coverage gap, not
+an invalid record. Preserve source text when coding is unsupported.
+
+Janusmed supplied authorized synonym strings, not LOINC mappings. The candidate
+associations are Helseark retrieval aids, explicitly marked `retrieval_only`.
+Search preserves ambiguity and the `%` token; alias matches never establish
+clinical equivalence. No human-approved reusable clinical mappings are shipped.
+
+## Optionally complement the bundle
+
+At setup or when broader coverage would help, an agent offers once: continue with
+the supplied vocabulary, import an existing official ZIP, or download full LOINC
+after account creation. Honor a preference already supplied, retaining it in
+private setup/review notes rather than clinical profile fields. Declining is
+fully supported; do not repeatedly prompt for every unmatched label. A read-only
+query does not create preference files or acquire catalogs.
+
+Acquisition is a separate explicit operation. Search, checking and extraction
+remain offline. Keep full packages in a private terminology cache outside the
+repository and health archive. New releases never rewrite accepted records,
+previous packages or approved mapping evidence.
+
+### Import an existing ZIP
+
+Obtain an official ZIP from [LOINC downloads](https://loinc.org/downloads/) using
+your own account when required. Keep the actual release identifier, original
+bytes and applicable notices. The [Portuguese (Brazil) translation](https://loinc.org/translations/pt-br/)
+is included at `AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv`.
+Use the bundled UCUM file or an independently acquired official release:
 
 ```sh
 python3 skills/helseark/scripts/terminology.py install \
-  --loinc-zip /private/catalog-downloads/LOINC.zip \
-  --loinc-version RELEASE \
-  --ucum-xml /private/catalog-downloads/ucum-essence.xml \
-  --destination /private/catalogs/NEW-DIRECTORY
+  --loinc-zip /path/to/private/downloads/Loinc_2.83.zip \
+  --loinc-version 2.83 --ucum-xml vocabulary/ucum.xml \
+  --destination /path/to/private/catalogs/loinc-2.83
 ```
 
-The package retains `manifest.json`, `loinc.zip` and `ucum.xml`. The manifest pins
-artifact digests and release metadata; lookup verifies integrity locally. Keep
-packages outside health folders and use an exact package path. Installation
-records the supplied release identifier; review that it matches the acquired ZIP.
-Updates create a new package after explicit acquisition and review. They do not
-rewrite earlier drafts, accepted files or approved mapping evidence.
+Replace example paths with private locations whose parent directories exist;
+the output destination must be new. Installation retains `manifest.json`,
+`loinc.zip` and `ucum.xml` and checks pinned artifacts offline on each lookup.
+The supplied release identifier must match the acquired ZIP.
+
+### Download using your account
+
+Create a LOINC account and accept the official terms yourself. Run the separate
+[acquisition script](../skills/helseark/scripts/loinc_download.py) in a local user
+terminal. Both username and password are prompted without echo and stay outside
+the agent conversation. Never paste passwords into chat or put them in command
+arguments, URLs, logs, notes or repository files. The script requires a user
+terminal and refuses an echoed-input fallback.
+
+```sh
+python3 skills/helseark/scripts/loinc_download.py \
+  --version 2.83 --destination /path/to/private/downloads/loinc-2.83
+```
+
+The [official authenticated Download API](https://loinc.org/kb/api/download/)
+returns release metadata and ZIP bytes. The script verifies the requested
+release, restricts requests to the official HTTPS origin, refuses redirects,
+checks the metadata's MD5 and retains a local SHA-256 in `receipt.json` alongside
+`loinc.zip`. MD5 checks transfer integrity; the SHA-256 pins the acquired bytes
+for later use. Neither proves clinical meaning. It publishes into a fresh private
+directory only after verification. The complete staging directory is renamed
+atomically without replacing an existing destination, so ZIP and receipt appear
+together. The script requires native exclusive directory rename support on macOS
+(`renamex_np`) or Linux (`renameat2`), including support from the destination
+filesystem. It checks that support before hidden account prompts or networking
+and refuses acquisition if unavailable. The supplied offline vocabulary does not require
+these native APIs. It does not install a catalog or modify records. Then use the
+import command above with the downloaded ZIP. Browser download and local import remain a
+supported fallback. Never run credential entry inside an agent-controlled terminal
+whose input could be captured in the conversation or transcript.
+
+Authenticated live acquisition requires a user account and has not been exercised
+with real credentials here. Automated acquisition tests exercise synthetic HTTPS
+metadata, ZIP bytes, redirects and failure cleanup with no account.
+
+The existing `terminology.py fetch --url URL --sha256 DIGEST --output NEWFILE`
+command remains available for credential-free public HTTPS artifacts with an
+independently reviewed digest; it is not the authenticated LOINC downloader.
+Review [LOINC licensing](../vocabulary/LICENSES/LOINC.txt) and
+[UCUM licensing](../vocabulary/LICENSES/UCUM.txt) before redistribution.
+
+### Select the full package offline
+
+```sh
+python3 skills/helseark/scripts/terminology.py search \
+  --package /path/to/private/catalogs/loinc-2.83 --text 'mau colesterol'
+```
+
+The selected full package supplies the clinical definitions and can find codes
+outside starter coverage. Bundled aliases remain discovery aids only where each
+target code, active status and all six axes can be reconciled with that package.
+Results record selected and bundled pins, revalidation and suppressed-candidate
+diagnostics. A changed or missing definition does not silently inherit an alias
+association. Human-approved rules remain release-specific; one coding proposal
+uses one pinned catalog release. No full-package file is overlaid on the bundle.
 
 The helper limits each input artifact and each consumed ZIP member to 256 MiB,
 and the total uncompressed bytes read from the core and linguistic-variant CSVs
@@ -66,7 +136,7 @@ Do not substitute an unverified package.
 
 ## Search automatically, then assess context
 
-During extraction, the agent searches the original label across the installed
+During extraction, the agent searches the original label across the bundled or selected
 English terms and available linguistic variants, including translated components
 when full translated names are blank. It can try useful translations,
 expanded abbreviations or alternate spellings without making the user identify
@@ -76,12 +146,13 @@ interpret a decimal comma or date format.
 
 ```sh
 python3 skills/helseark/scripts/terminology.py search \
-  --package /private/catalogs/RELEASE --text 'proteína C reativa' --limit 10
+  --text 'proteína C reativa' --limit 10
 ```
 
 Optional `--system`, `--property`, `--time`, `--scale` and `--method` filters narrow
-candidates using known context. Results are ordered by code, not clinical
-relevance; a lone result does not establish equivalence. Translations and example
+candidates using known context. Exact bundled-alias matches appear before broad
+native-token matches, with stable code ordering within each group. This is a
+retrieval signal, not clinical ranking; a lone result does not establish equivalence. Translations and example
 UCUM units aid discovery; example units are not a whitelist of clinically valid
 assignments.
 
@@ -106,7 +177,6 @@ The helper reads one Observation JSON and a supporting proposal JSON:
 
 ```sh
 python3 skills/helseark/scripts/terminology.py check \
-  --package /private/catalogs/RELEASE \
   --observation /private/health/drafts/NEW/observation.fhir.json \
   --proposal /private/health/drafts/NEW/mapping-proposal.json
 ```
@@ -124,7 +194,8 @@ choose a unit automatically. See the
 [invented terminology examples](../examples/terminology/).
 
 `check` returns issues, proposed native FHIR additions and the artifact/manifest
-digests used for the check; retain these actual pins in the mapping evidence.
+digests used for the check, including the vocabulary version when applicable;
+retain these actual pins in the mapping evidence.
 It never edits the Observation. It checks catalog membership, declared axes and
 supported UCUM syntax. It does not read or prove source citations, establish dimensional
 compatibility, verify clinical equivalence, run a complete UCUM validator or

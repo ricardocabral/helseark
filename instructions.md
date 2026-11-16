@@ -27,7 +27,7 @@ comparator, original unit, date precision and quoted source spelling. A result
 and explain decimal-comma normalization. Never infer a timezone, fill missing
 dates, convert units, guess codes, or turn a bound into a point measurement.
 Keep source labels even when adding terminology. Use the local
-[terminology workflow](docs/terminology.md) to search the pinned catalog and
+[terminology workflow](docs/terminology.md) to search the bundled pinned catalog and
 propose a new evidence-backed mapping during draft preparation; do not guess a
 code from memory or equate a search hit with a mapping. Search automatically
 across available translations and agent-suggested language variants, without
@@ -37,6 +37,18 @@ property, timing, scale or relevant method means abstain from enrichment, retain
 text, and record the gap. Keep contradictions and source uncertainty visible.
 Omit unsupported facts and explain why; do not invent clinical values to satisfy
 a schema.
+
+The repository includes a [bilingual starter vocabulary](vocabulary/README.md)
+with Janusmed-derived English/PT-BR aliases. The helper uses it by default without
+an account or `--package`. At setup or when broader coverage would help, offer
+once to keep this vocabulary, import an existing ZIP or acquire full LOINC after
+account creation. Honor the chosen preference in private setup/review notes;
+declining does not block records or require repeated prompts. Acquisition is a
+separate explicit task using local hidden credential entry, never chat passwords.
+Normal extraction, search and checking remain offline. An alias is a candidate
+retrieval aid, not equivalence or approval. Agents may propose missing aliases
+and conditional mappings in draft evidence; public additions need separate review
+and source rights, with no patient content.
 
 Cite every clinical fact, including identity, status, date and uncertainty: source
 filename, page/row/JSON pointer, exact quote, and target FHIR resource/field.

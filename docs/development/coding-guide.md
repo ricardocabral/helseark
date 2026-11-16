@@ -9,6 +9,8 @@
 | `examples/` | Complete invented source, FHIR Bundle and citations |
 | `docs/tutorial.md`, `docs/how-to.md`, `docs/schemas.md` | User walkthrough, task guide and schema reference |
 | `skills/helseark/scripts/terminology.py` | Standalone local terminology helper; separate from the experimental runtime |
+| `vocabulary/` | Pinned bilingual starter definitions, authorized retrieval aliases and notices; no clinical records |
+| `skills/helseark/scripts/loinc_download.py` | Explicit authenticated acquisition with local credential entry; never used by offline search/check |
 | `src/helseark/` | Optional experimental Python library and CLI; adapters live in `adapters/` |
 | `tests/` | Behavioral tests and installed-package qualifications |
 | `tests/fixtures/synthetic/` | Invented health data only |
@@ -83,7 +85,8 @@ A source-text assertion is not proof of behavior. Do not weaken tests to hide a
 regression. Default CI runs the documented schema command and `tests/test_examples.py`
 against the actual invented source, FHIR and evidence files, plus focused
 `test_terminology*.py` helper/example checks. Terminology tests use tiny synthetic
-packages and exercise offline lookup, corruption and ambiguity behavior; they do
+packages and the shipped vocabulary; acquisition tests use synthetic HTTPS
+responses without an account. They exercise offline lookup, corruption and ambiguity behavior; they do
 not establish clinical equivalence. Catalog pins and evidence are supporting
 materials, never a second editable clinical store. Use the commands in
 [CONTRIBUTING.md](../../CONTRIBUTING.md); these need only the existing schema

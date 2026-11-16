@@ -1,0 +1,4 @@
+* -text
+*.csv whitespace=-blank-at-eol
+*.xml whitespace=-blank-at-eol
+LICENSES/* whitespace=-blank-at-eol

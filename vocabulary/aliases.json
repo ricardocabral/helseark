@@ -1,0 +1,4925 @@
+{
+  "format": 1,
+  "aliases": [
+    {
+      "id": "helseark-ldl-colesterol",
+      "term": "LDL-Colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Helseark",
+        "metric": "LDL"
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1",
+      "term": "hba1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 1
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-10",
+      "term": "creatinine",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 10
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-11",
+      "term": "creatinina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 11
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-117",
+      "term": "hgb",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 117
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-118",
+      "term": "hemoglobina (hb)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 118
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-12",
+      "term": "kidney function",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 12
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1211",
+      "term": "wbc count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1211
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1212",
+      "term": "white blood cell count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1212
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1247",
+      "term": "direct ldl",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 1247
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-13",
+      "term": "renal",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 13
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1332",
+      "term": "auto % neut",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 1332
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1333",
+      "term": "auto % neutrophils",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 1333
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1334",
+      "term": "auto percent neut",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 1334
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1350",
+      "term": "auto abs neut",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1350
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1351",
+      "term": "auto abs neutrophils",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1351
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1352",
+      "term": "auto absolute neut",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1352
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-136",
+      "term": "leucocitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 136
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-137",
+      "term": "contagem de leucócitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 137
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-138",
+      "term": "leucócitos totais",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 138
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-139",
+      "term": "contagem global de leucócitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 139
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1399",
+      "term": "segmentados (absoluto)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1399
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-140",
+      "term": "série branca",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 140
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1400",
+      "term": "segmentados absoluto",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1400
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1401",
+      "term": "neutrófilos segmentados (absoluto)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1401
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-141",
+      "term": "neutrofilos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 141
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-142",
+      "term": "neutrófilos totais",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 142
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1423",
+      "term": "total chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1423
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1424",
+      "term": "total chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1424
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1425",
+      "term": "hdl chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 1425
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1426",
+      "term": "hdl chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 1426
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1427",
+      "term": "ldl chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 1427
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1428",
+      "term": "ldl chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 1428
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-143",
+      "term": "granulócitos neutrófilos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 143
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1432",
+      "term": "haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 1432
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1433",
+      "term": "haemoglobin (hb)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 1433
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1436",
+      "term": "total wcc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1436
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1437",
+      "term": "wcc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1437
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1438",
+      "term": "white cell count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1438
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-144",
+      "term": "neutrófilos absolutos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 144
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-145",
+      "term": "neutrófilos (absoluto)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 145
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1464",
+      "term": "hb a1c %",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 1464
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1465",
+      "term": "hba1c %",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 1465
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1466",
+      "term": "hemoglobin a1c %",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 1466
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1467",
+      "term": "haemoglobin a1c %",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 1467
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1485",
+      "term": "chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1485
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1486",
+      "term": "cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1486
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1507",
+      "term": "neut (absolute)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1507
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1508",
+      "term": "neut absolute",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1508
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1509",
+      "term": "neutrophils (absolute)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1509
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1581",
+      "term": "hs-crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1581
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1582",
+      "term": "high sensitivity crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1582
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1583",
+      "term": "high-sensitivity c-reactive protein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1583
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1584",
+      "term": "ultrasensitive crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1584
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1585",
+      "term": "cardio crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1585
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1625",
+      "term": "lipid panel",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1625
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1626",
+      "term": "lipid profile",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 1626
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1687",
+      "term": "thyroid panel",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 1687
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1688",
+      "term": "thyroid function tests",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 1688
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1689",
+      "term": "tft",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 1689
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-17",
+      "term": "tsh",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 17
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1721",
+      "term": "cbc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1721
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1722",
+      "term": "complete blood count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1722
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1723",
+      "term": "cbc with differential",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 1723
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-18",
+      "term": "thyroid stimulating hormone",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 18
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1870",
+      "term": "proteína c-reativa",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1870
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1871",
+      "term": "proteina c-reativa",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 1871
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-19",
+      "term": "hormônio tireoestimulante",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 19
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-193",
+      "term": "creatinina sérica",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 193
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-194",
+      "term": "creatinina soro",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 194
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1972",
+      "term": "neutrophil absolute",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1972
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1973",
+      "term": "neutrophil (absolute)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1973
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1974",
+      "term": "absolute neutrophils",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1974
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1975",
+      "term": "absolute neutrophil count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1975
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1976",
+      "term": "anc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1976
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1977",
+      "term": "neut#",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1977
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1978",
+      "term": "neutrophils#",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1978
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1979",
+      "term": "neutrófilos (absoluto)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1979
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1980",
+      "term": "neutrofilos (absoluto)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1980
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1981",
+      "term": "neutrófilos absoluto",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1981
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-1982",
+      "term": "contagem absoluta de neutrófilos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 1982
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2",
+      "term": "hemoglobin a1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2030",
+      "term": "cholesterol hdl direct",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 2030
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2031",
+      "term": "hdl direct",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 2031
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2032",
+      "term": "direct hdl",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 2032
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2033",
+      "term": "hdl cholesterol direct",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 2033
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2040",
+      "term": "hba1c - glycated haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2040
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2041",
+      "term": "hba1c glycated haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2041
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2042",
+      "term": "hba1c - glycated hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2042
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2043",
+      "term": "hba1c glycated hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2043
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2044",
+      "term": "glycated haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2044
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2045",
+      "term": "glycated hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2045
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2046",
+      "term": "hemoglobin a1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2046
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2047",
+      "term": "haemoglobin a1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2047
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2048",
+      "term": "hba1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2048
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2049",
+      "term": "a1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 2049
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2073",
+      "term": "total leucocytes (wbc) count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2073
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2074",
+      "term": "total leucocytes wbc count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2074
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2075",
+      "term": "total leucocytes count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2075
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2076",
+      "term": "total wbc count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2076
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2077",
+      "term": "wbc count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2077
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2078",
+      "term": "white blood cell count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2078
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2079",
+      "term": "leukocyte count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2079
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-2080",
+      "term": "leucocyte count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 2080
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-227",
+      "term": "colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 227
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-228",
+      "term": "ct",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 228
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-229",
+      "term": "hdl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 229
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-230",
+      "term": "colesterol hdl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 230
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-231",
+      "term": "bom colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 231
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-232",
+      "term": "ldl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 232
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-233",
+      "term": "colesterol ldl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 233
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-234",
+      "term": "mau colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 234
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-237",
+      "term": "triglicerídeos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 237
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-238",
+      "term": "triglicerideos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 238
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-239",
+      "term": "triglicérides",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 239
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-240",
+      "term": "triglicerides",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 240
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-241",
+      "term": "tg",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 241
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-242",
+      "term": "hormonio tireoestimulante",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 242
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-243",
+      "term": "tireotropina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 243
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-244",
+      "term": "tsh ultrassensível",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 244
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-27",
+      "term": "colesterol total",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 27
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-28",
+      "term": "hdl colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 28
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-286",
+      "term": "a1c",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 286
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-287",
+      "term": "glicohemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 287
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-288",
+      "term": "hemoglobina glicosilada",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 288
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-29",
+      "term": "hdl - colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 29
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3",
+      "term": "glycated hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-30",
+      "term": "ldl colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 30
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-308",
+      "term": "proteína c reativa",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 308
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-309",
+      "term": "proteina c reativa",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 309
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-31",
+      "term": "ldl - colesterol",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 31
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-310",
+      "term": "pcr",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 310
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-311",
+      "term": "pcr ultrassensível",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 311
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3203",
+      "term": "haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 3203
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3204",
+      "term": "haemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 3204
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3206",
+      "term": "wcc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 3206
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3207",
+      "term": "white cell count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 3207
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3208",
+      "term": "leucocytes",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 3208
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3214",
+      "term": "ifcc hba1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3214
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3215",
+      "term": "dcct hba1c",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3215
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3216",
+      "term": "hba1c (ifcc)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3216
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3217",
+      "term": "hba1c (ngsp)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3217
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3233",
+      "term": "total chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3233
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3234",
+      "term": "total chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3234
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3235",
+      "term": "hdl chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3235
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3236",
+      "term": "hdl chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3236
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3237",
+      "term": "ldl chol.",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 3237
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3238",
+      "term": "ldl chol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 3238
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3386",
+      "term": "hemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 3386
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3388",
+      "term": "contagem de leucocitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 3388
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3389",
+      "term": "leucocitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 3389
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3392",
+      "term": "hba1c ifcc",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3392
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3393",
+      "term": "hba1c dcct",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 3393
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-34",
+      "term": "hemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 34
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3403",
+      "term": "colesterol total",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3403
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3404",
+      "term": "colesterol hdl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3404
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3405",
+      "term": "colesterol ldl",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 3405
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-35",
+      "term": "hb",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 35
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3768",
+      "term": "triglyceride [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 3768
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3769",
+      "term": "serum triglycerides",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 3769
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3770",
+      "term": "plasma triglycerides",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 3770
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3771",
+      "term": "cholesterol in hdl [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3771
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3772",
+      "term": "hdl cholesterol [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3772
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3773",
+      "term": "serum hdl",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 3773
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3774",
+      "term": "total cholesterol [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3774
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3775",
+      "term": "cholesterol [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3775
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3776",
+      "term": "serum total cholesterol",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3776
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3777",
+      "term": "creatinine [mass/volume] in blood serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 3777
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3778",
+      "term": "creatinine [mass/volume] in serum or plasma",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 3778
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3779",
+      "term": "serum creatinine",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 3779
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3780",
+      "term": "plasma creatinine",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 3780
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-380",
+      "term": "dosagem da hemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 380
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-381",
+      "term": "dosagem de hemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 381
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-382",
+      "term": "hemoglobina dosagem",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 382
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3886",
+      "term": "cholesterol, total (tc)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3886
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3887",
+      "term": "cholesterol total (tc)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3887
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3888",
+      "term": "total cholesterol (tc)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3888
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-3889",
+      "term": "tc (cholesterol)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 3889
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4",
+      "term": "hemoglobina glicada",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 4
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4182",
+      "term": "neut%",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4182
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4183",
+      "term": "neut %",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4183
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4184",
+      "term": "neut pct",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4184
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4185",
+      "term": "neu%",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4185
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4186",
+      "term": "neu %",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4186
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4187",
+      "term": "segs%",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 4187
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4226",
+      "term": "tsh 3g",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4226
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4227",
+      "term": "tsh 3rd generation",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4227
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4228",
+      "term": "tsh 3rd gen",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4228
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4229",
+      "term": "tsh third generation",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4229
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4230",
+      "term": "tsh, 3rd generation",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4230
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4231",
+      "term": "ldl calculated",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4231
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4232",
+      "term": "ldl calc",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4232
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4233",
+      "term": "ldl (calculated)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4233
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4234",
+      "term": "ldl cholesterol calculated",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4234
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4235",
+      "term": "ldl-c calculated",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4235
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4297",
+      "term": "LDL Chol Calc (NIH)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4297
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4298",
+      "term": "LDL Cholesterol Calc (NIH)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4298
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4384",
+      "term": "LDL Chol Calc (NIH)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4384
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4385",
+      "term": "LDL Cholesterol Calc (NIH)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4385
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4484",
+      "term": "Hormona tirostimulante (TSH)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4484
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4485",
+      "term": "Hormônio tireoestimulante (TSH)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 4485
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4497",
+      "term": "Colesterol da fracção HDL",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 4497
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4498",
+      "term": "Colesterol da fração HDL",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 4498
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4499",
+      "term": "Triglicéridos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 4499
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4500",
+      "term": "Trigliceridos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 4500
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4651",
+      "term": "LDL-C",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 4651
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-4652",
+      "term": "HDL-C",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 4652
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-49",
+      "term": "leucócitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 49
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5",
+      "term": "hba1c",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 5
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-50",
+      "term": "glóbulos brancos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 50
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5008",
+      "term": "Hemograma - Leucocitos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 5008
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5010",
+      "term": "Hemograma - Hemoglobina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 5010
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5015",
+      "term": "Perfil lipidico - Colesterol LDL dosagem",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 5015
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5016",
+      "term": "Perfil lipidico - Triglicerideos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 5016
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5017",
+      "term": "Perfil lipidico - Colesterol HDL",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 5017
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5018",
+      "term": "Perfil lipidico - Colesterol total",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 5018
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-51",
+      "term": "leucograma",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 51
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5159",
+      "term": "LDL-C (NIH Calc)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 5159
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-52",
+      "term": "neutrófilos",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 52
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-521",
+      "term": "hormonio estimulante da tireoide",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 521
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-522",
+      "term": "hormônio estimulante da tireoide",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 522
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-523",
+      "term": "hormônio estimulante da tireóide",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 523
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-524",
+      "term": "hormonio estimulador da tireoide",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 524
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5250",
+      "term": "C Reactive Protein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 5250
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-5251",
+      "term": "c reactive protein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 5251
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-582",
+      "term": "hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 582
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-583",
+      "term": "hgb",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 583
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-584",
+      "term": "hb",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 584
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-585",
+      "term": "hemoglobin",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 585
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6043",
+      "term": "HS CRP",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 6043
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-612",
+      "term": "white blood cells",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 612
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-613",
+      "term": "wbc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 613
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-614",
+      "term": "leukocytes",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 614
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-615",
+      "term": "white cell count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 615
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-616",
+      "term": "white blood cells",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 616
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-617",
+      "term": "wbc",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 617
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-618",
+      "term": "neutrophils",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 618
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-619",
+      "term": "neuts",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 619
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-620",
+      "term": "polys",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 620
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-621",
+      "term": "absolute neutrophils",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 621
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-622",
+      "term": "anc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 622
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-623",
+      "term": "neutrophils",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 623
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6307",
+      "term": "tirotrofina sérica (TSH)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6307
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6314",
+      "term": "serum thyrotropin (TSH)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6314
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6471",
+      "term": "Neutrophils Percentage",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 6471
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6479",
+      "term": "Neutrophils - Absolute Count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 6479
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6480",
+      "term": "neutrophils absolute count",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 6480
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6516",
+      "term": "Cholesterol Total, Serum",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 6516
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6517",
+      "term": "cholesterol total serum",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 6517
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6518",
+      "term": "cholesterol total",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 6518
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6538",
+      "term": "HbA1c (Glyco Hb)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6538
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6539",
+      "term": "glyco hb",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6539
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6540",
+      "term": "Glycosylated Hb",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6540
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6541",
+      "term": "glycosylated hemoglobin",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6541
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6556",
+      "term": "High Sensitivity C-Reactive Protein (HS-CRP)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 6556
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6557",
+      "term": "high sensitivity c-reactive protein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 6557
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6558",
+      "term": "hs-crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 6558
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6559",
+      "term": "high sensitivity crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 6559
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6562",
+      "term": "TSH - Ultrasensitive",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6562
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6563",
+      "term": "tsh ultrasensitive",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6563
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6564",
+      "term": "TSH (Thyroid Stimulating Hormone) - Ultrasensitive, Serum",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6564
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-665",
+      "term": "total cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 665
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-666",
+      "term": "cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 666
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-667",
+      "term": "tc",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 667
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6676",
+      "term": "HbA1c (DCCT)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6676
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6677",
+      "term": "hba1c dcct",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6677
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6678",
+      "term": "hba1c (dcct)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 6678
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-668",
+      "term": "cholesterol",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 668
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6689",
+      "term": "Neutrophil %",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 6689
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-669",
+      "term": "hdl",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 669
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-670",
+      "term": "hdl cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 670
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-671",
+      "term": "good cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 671
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-672",
+      "term": "high density lipoprotein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 672
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-673",
+      "term": "hdl",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 673
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-674",
+      "term": "ldl",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 674
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-675",
+      "term": "ldl cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 675
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-676",
+      "term": "bad cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 676
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-677",
+      "term": "low density lipoprotein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 677
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-678",
+      "term": "ldl",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 678
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6784",
+      "term": "Hemoglobiin",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 6784
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6787",
+      "term": "Leukotsüüdid",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 6787
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6799",
+      "term": "Neutrofiilide arv",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS_ABS",
+        "synonym_id": 6799
+      },
+      "candidates": [
+        "751-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6823",
+      "term": "Kilpnääret stimuleeriv hormoon (TSH)",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6823
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6824",
+      "term": "Kilpnääret stimuleeriv hormoon",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 6824
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-683",
+      "term": "triglycerides",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 683
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-6835",
+      "term": "Gráfico de Histórico Creatinina",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 6835
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-684",
+      "term": "trigs",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 684
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-685",
+      "term": "tg",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 685
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-686",
+      "term": "triglycerides",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TRIGLYCERIDES",
+        "synonym_id": 686
+      },
+      "candidates": [
+        "2571-8",
+        "14927-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7018",
+      "term": "TSH terceira geração",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7018
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7046",
+      "term": "FRAÇÃO LDL-COLESTEROL",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 7046
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7047",
+      "term": "FRAÇÃO HDL-COLESTEROL",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 7047
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7053",
+      "term": "TSH (HORM.ESTIMULANTE DA TIREOIDE)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7053
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7163",
+      "term": "CRP C-reakt. Protein",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 7163
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-723",
+      "term": "creatinine",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 723
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7369",
+      "term": "HbA1c - IFCC",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 7369
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7370",
+      "term": "HbA1c - NGSP/DCCT",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 7370
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7374",
+      "term": "PROTEINA \"C\" REACTIVA H.S.",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 7374
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7376",
+      "term": "TIROTROPINA (TSH)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7376
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7441",
+      "term": "Cholesterol, Total (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 7441
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7442",
+      "term": "Creatinine (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 7442
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7448",
+      "term": "Hemoglobin (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 7448
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7457",
+      "term": "Neutrophils (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 7457
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7465",
+      "term": "TSH (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7465
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7467",
+      "term": "WBC (Previous)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 7467
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7497",
+      "term": "colesterol total (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 7497
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7500",
+      "term": "creatinina (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CREATININE",
+        "synonym_id": 7500
+      },
+      "candidates": [
+        "2160-0",
+        "14682-9"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7518",
+      "term": "hemoglobina (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HEMOGLOBIN",
+        "synonym_id": 7518
+      },
+      "candidates": [
+        "718-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7545",
+      "term": "neutrófilos (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "NEUTROPHILS",
+        "synonym_id": 7545
+      },
+      "candidates": [
+        "770-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7569",
+      "term": "TSH (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7569
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7575",
+      "term": "leucócitos (Anterior)",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 7575
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7585",
+      "term": "TSH - TIREOESTIMULANTE",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7585
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7586",
+      "term": "TSH TIREOESTIMULANTE",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7586
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7604",
+      "term": "TSH - hormônio tireoestimulante",
+      "language": "pt-BR",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 7604
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-764",
+      "term": "tsh",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TSH",
+        "synonym_id": 764
+      },
+      "candidates": [
+        "3016-3",
+        "11579-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7795",
+      "term": "HDL Cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HDL",
+        "synonym_id": 7795
+      },
+      "candidates": [
+        "2085-9",
+        "14646-4"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7796",
+      "term": "LDL Cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "LDL",
+        "synonym_id": 7796
+      },
+      "candidates": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7799",
+      "term": "Total Cholesterol",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "TOTAL_CHOLESTEROL",
+        "synonym_id": 7799
+      },
+      "candidates": [
+        "2093-3",
+        "14647-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7803",
+      "term": "Hemoglobin A1c (HbA1c)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 7803
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-7813",
+      "term": "WBC (White Blood Cell Count)",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "WBC",
+        "synonym_id": 7813
+      },
+      "candidates": [
+        "6690-2"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-795",
+      "term": "hba1c",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 795
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-796",
+      "term": "a1c",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "HB1AC",
+        "synonym_id": 796
+      },
+      "candidates": [
+        "4548-4",
+        "59261-8"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-873",
+      "term": "crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 873
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-874",
+      "term": "c-reactive protein",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 874
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-875",
+      "term": "hs-crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 875
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-876",
+      "term": "high sensitivity crp",
+      "language": "en",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 876
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    },
+    {
+      "id": "janusmed-877",
+      "term": "crp",
+      "language": "und",
+      "source": {
+        "name": "Janusmed",
+        "metric": "CRP",
+        "synonym_id": 877
+      },
+      "candidates": [
+        "1988-5",
+        "30522-7"
+      ],
+      "review_status": "retrieval_only"
+    }
+  ]
+}

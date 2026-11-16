@@ -12,8 +12,10 @@ inside, overlaps, or cannot be placed within the requested range. Keep unknown
 dates visible rather than silently assigning or excluding them.
 
 Use the [terminology guide](../docs/terminology.md) for automatic multilingual
-search expansion when a
-pinned local catalog is available. Report the terms, mappings and files searched;
+search expansion with the bundled English/PT-BR vocabulary and Janusmed aliases,
+or an explicitly selected full pinned catalog. No account or download is required.
+Honor the existing terminology preference; acquisition/setup is a separate task.
+Report the terms, mappings and files searched;
 search expansion does not authorize editing records or declaring equivalence.
 Keep grouping for charts or retrieval separate from observation mappings. Preserve
 specimen, original dates and unknown dates, bounds, duplicates and method

@@ -1,0 +1,110 @@
+{
+  "format": 2,
+  "kind": "bundled",
+  "vocabulary_version": "0.1.0",
+  "loinc_version": "2.83",
+  "ucum_version": "2.2",
+  "languages": [
+    "en",
+    "pt-BR"
+  ],
+  "review_status": "candidate_retrieval_only",
+  "artifacts": {
+    "LICENSES/Janusmed.txt": "e265fc3ada131dde7fc774d23805466b881d11a402d53f90a9a85483b5120612",
+    "LICENSES/LOINC.txt": "05eb5069f8352b0513fe8c911d8a432e8ddc2d09f999b6f153617f2afd16ad85",
+    "LICENSES/LinguisticVariants.csv": "d531712faf330fc53a877995029167e68da9645176388f3afc3aeb9233a02bc9",
+    "LICENSES/LinguisticVariantsReadMe.txt": "f374d34b81b4aa841b0d18b1d43c7ce07c4216bf64b51b0a378758f4b0feaae1",
+    "LICENSES/UCUM.txt": "b7989c84c68b7a80d42aad28cfdd824d756c2f70f26eaf1347d2e49f7838bbdf",
+    "aliases.json": "38d1cc604e3cfa837613a06229fdbd34332fa1ce97c4ddaf042d82197f838813",
+    "loinc.csv": "b990ce7cacc7fcb7b6122234532ca8bb83993ee7562a2bd6d904cf0a98ba3a31",
+    "mappings.json": "5a5eef5eaaf882af153381ff61a4f0897fa1b2f29b1a5d5cf96f9ac659a65c27",
+    "pt-BR.csv": "19f503b4545c10e1dd19ac230d0bde138aa1e062e40bd134e58e6cebeaa09bc9",
+    "ucum.xml": "dfccea1b5dc284245ebae97edd1dc03c45864da4e87df55bc9851797b4fd0b61"
+  },
+  "sources": {
+    "loinc": {
+      "url": "https://loinc.org/downloads/",
+      "release": "2.83",
+      "archive_sha256": "077a0718e87d8309ffe3a673f75b836a8e783dc36a646413ef97c71c12eab27e",
+      "core_member": "LoincTable/Loinc.csv",
+      "core_member_sha256": "5de1463f0fe65d6c97867153b43151a07ce3f8c8a86de681f98e110008032aba",
+      "pt_BR_member": "AccessoryFiles/LinguisticVariants/ptBR11LinguisticVariant.csv",
+      "pt_BR_member_sha256": "18b93900990d3b1edf76c37ddb697e5a2018241d54a07906e512af90ce066120",
+      "transformation": "Record subset only; all source headers and field values retained. CSV line endings are LF."
+    },
+    "ucum": {
+      "url": "https://github.com/ucum-org/ucum/blob/v2.2/ucum-essence.xml",
+      "release": "2.2",
+      "transformation": "Unmodified complete essence XML"
+    },
+    "janusmed": {
+      "source": "Authorized vocabulary-only metric_synonym snapshot",
+      "captured_on": "2026-11-16",
+      "permission": "Contributor explicitly authorized use in Helseark bundled vocabulary",
+      "transformation": "Covered-family en-US, pt-BR and unspecified-locale rows only; original strings retained; CJK mislabeled terms excluded; Helseark authored candidate associations"
+    }
+  },
+  "coverage": {
+    "concepts": 24,
+    "pt_BR_concepts": 23,
+    "aliases": 327,
+    "janusmed_aliases": 326,
+    "aliases_by_language": {
+      "en": 165,
+      "pt-BR": 108,
+      "und": 54
+    },
+    "families": {
+      "LDL": [
+        "2089-1",
+        "13457-7",
+        "18262-6",
+        "22748-8",
+        "39469-2",
+        "69419-0"
+      ],
+      "HDL": [
+        "2085-9",
+        "14646-4"
+      ],
+      "TOTAL_CHOLESTEROL": [
+        "2093-3",
+        "14647-2"
+      ],
+      "TRIGLYCERIDES": [
+        "2571-8",
+        "14927-8"
+      ],
+      "HB1AC": [
+        "4548-4",
+        "59261-8"
+      ],
+      "TSH": [
+        "3016-3",
+        "11579-0"
+      ],
+      "CREATININE": [
+        "2160-0",
+        "14682-9"
+      ],
+      "HEMOGLOBIN": [
+        "718-7"
+      ],
+      "CRP": [
+        "1988-5",
+        "30522-7"
+      ],
+      "WBC": [
+        "6690-2"
+      ],
+      "NEUTROPHILS": [
+        "770-8"
+      ],
+      "NEUTROPHILS_ABS": [
+        "751-8"
+      ]
+    },
+    "excluded_mislabeled_CJK_aliases": 2,
+    "limitations": "Starter coverage only. Alias candidates require source context and human review. No approved reusable clinical mappings shipped."
+  }
+}
